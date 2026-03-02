@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PS4 Webkit • 3‑Col Buttons</title>
+    <style>
+        /* reset & full-screen base */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            width: 100%;
+        }
+
+        body {
+            background-image: url('img/bg-img.png');      /* inside img/ folder */
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-color: #111;                       /* fallback if image missing */
+            font-family: Arial, sans-serif;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;                      /* content stays at top */
+            min-height: 100vh;
+        }
+
+        /* main panel – semi-transparent so bg shows through */
+        .container {
+            width: 95%;
+            max-width: 1300px;
+            margin: 15px auto;
+            padding: 20px;
+            background-color: rgba(0, 0, 0, 0.5);
+            border-radius: 10px;
+        }
+
+        .top-box {
+            border: 2px solid white;
+            padding: 20px;
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 20px;
+            background-color: rgba(0, 0, 0, 0.5);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        /* two-column landscape layout */
+        .content {
+            display: flex;
+            gap: 5px;                                    /* minimal gap – buttons almost touch image */
+            align-items: flex-start;                      /* image stays at top */
+            flex-wrap: nowrap;                             /* force side-by-side on landscape */
+        }
+
+        /* left side – image flush left */
+        .image-section {
+            flex: 1 1 auto;
+            min-width: 280px;                             /* keeps image from vanishing */
+            text-align: left;                              /* image aligned to left */
+        }
+
+        .image-section img {
+            max-width: 100%;
+            max-height: 65vh;                              /* shrink tall image to fit viewport */
+            width: auto;
+            height: auto;
+            display: inline-block;
+            /* no border – as requested */
+        }
+
+        /* right side – 3‑column button grid */
+        .buttons-section {
+            width: 540px;                                  /* adjusted for original button size */
+            flex-shrink: 0;
+        }
+
+        #button-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .ps4-button {
+            display: block;
+            width: 100%;                                   /* fill grid cell */
+            padding: 16px 12px;                            /* original button size */
+            background-color: #222;                         /* dark grey, nearly black */
+            color: white;
+            text-decoration: none;
+            text-align: center;
+            font-size: 1.2rem;                             /* original font size */
+            border: 1px solid #444;
+            border-radius: 0;                               /* rectangular */
+            transition: none;                                /* no animations */
+            cursor: pointer;
+            box-sizing: border-box;
+            word-break: break-word;                         /* prevent overflow if text long */
+        }
+
+        .ps4-button:hover {
+            background-color: #333;                          /* tiny darken, no animation */
+        }
+
+        .ps4-button:focus {
+            outline: none;
+        }
+
+        /* if screen becomes very narrow (portrait), switch to column */
+        @media (max-width: 800px) {
+            .content {
+                flex-wrap: wrap;
+            }
+            .buttons-section {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="top-box">Ps4 Webkit box</div>
+        <div class="content">
+            <!-- left: goth girl image (flush left) -->
+            <div class="image-section">
+                <img src="img/goth-girl.png" alt="Goth girl">
+            </div>
+
+            <!-- right: dynamic 3‑column button grid -->
+            <div class="buttons-section">
+                <div id="button-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // add buttons here lol
+        const buttonsData = [
+            { label: "1.76 Playground", url: "scripts/1.76-playground/index.html" }
+        ];
+
+        // Container for buttons
+        const container = document.getElementById('button-container');
+        container.innerHTML = ''; // clear any previous content (if script re-runs)
+
+        // Create all buttons
+        buttonsData.forEach(button => {
+            const link = document.createElement('a');
+            link.href = button.url;
+            link.className = 'ps4-button';
+            link.textContent = button.label;
+            container.appendChild(link);
+        });
+    </script>
+</body>
+</html>
