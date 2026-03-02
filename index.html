@@ -1,16 +1,16 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>The.. Main Menu</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Main Menu · Payload & Test</title>
 <link rel="icon" type="image/png" href="./img/icon.png" />
 <style>
   :root{
     --gap: 18px;
-    --btn-w: 160px;
-    --btn-h: 46px;
-    --btn-radius: 12px;
+    --btn-w: 180px;        /* slightly wider for two-button layout */
+    --btn-h: 50px;
+    --btn-radius: 14px;
     --glass-bg: rgba(255,255,255,0.06);
     --accent: #ffffff;
     --shadow-color: rgba(0,0,0,0.45);
@@ -59,11 +59,11 @@
   }
 
   .menu-card{
-    width: min(980px, 95%);
+    width: min(680px, 95%);   /* narrower card fits two buttons nicely */
     max-width:1200px;
     background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.08));
     border-radius:18px;
-    padding:28px;
+    padding:32px 28px;
     box-shadow: 0 8px 30px var(--shadow-color);
     backdrop-filter: blur(6px);
     -webkit-backdrop-filter: blur(6px);
@@ -76,16 +76,17 @@
     align-items:center;
     justify-content:space-between;
     gap:12px;
-    margin-bottom:18px;
+    margin-bottom:28px;
   }
   header .title{
-    font-size:20px;
+    font-size:24px;
     font-weight:600;
     letter-spacing:0.6px;
   }
   header .subtitle{
-    font-size:13px;
+    font-size:14px;
     opacity:0.85;
+    margin-top:4px;
   }
 
   .rows{
@@ -96,17 +97,18 @@
 
   .row{
     display:flex;
-    gap:14px;
+    gap:20px;
     justify-content:center;
+    flex-wrap:wrap;
   }
 
   .menu-btn{
     width: var(--btn-w);
     height: var(--btn-h);
-    min-width:120px;
-    padding:8px 14px;
+    min-width:160px;
+    padding:10px 18px;
     border-radius: var(--btn-radius);
-    border: 1px solid rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.08);
     background: var(--glass-bg);
     display:inline-flex;
     align-items:center;
@@ -114,11 +116,11 @@
     color:var(--accent);
     text-decoration:none;
     font-weight:600;
-    font-size:14px;
+    font-size:16px;
     cursor:pointer;
     user-select:none;
     transition: transform 160ms cubic-bezier(.2,.9,.3,1), box-shadow 160ms, background 160ms;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+    box-shadow: 0 8px 22px rgba(0,0,0,0.4);
     position:relative;
     overflow:hidden;
     backdrop-filter: blur(8px);
@@ -127,7 +129,8 @@
 
   .menu-btn:hover{
     transform: translateY(-4px) scale(1.05);
-    box-shadow: 0 10px 26px rgba(0,0,0,0.45);
+    box-shadow: 0 12px 28px rgba(0,0,0,0.5);
+    background: rgba(255,255,255,0.1);
   }
 
   .menu-btn:active{
@@ -143,10 +146,10 @@
     mix-blend-mode: overlay;
   }
 
-  @media (max-width:560px){
-    :root{ --btn-w: 130px; --btn-h:42px; --gap:12px; }
-    .menu-card{ padding:18px; border-radius:12px; }
-    header .title{ font-size:17px; }
+  @media (max-width:500px){
+    :root{ --btn-w: 140px; --btn-h:44px; --gap:14px; }
+    .menu-card{ padding:20px; border-radius:12px; }
+    header .title{ font-size:20px; }
   }
 
   .music-control{
@@ -189,7 +192,7 @@
     opacity:0.92;
   }
 
-  .hint{ font-size:12px; opacity:0.8; margin-top:10px; text-align:center; }
+  .hint{ font-size:12px; opacity:0.8; margin-top:24px; text-align:center; }
 </style>
 </head>
 <body>
@@ -197,11 +200,11 @@
   <div class="bg-overlay" aria-hidden="true"></div>
 
   <div class="menu-wrap">
-    <div class="menu-card" role="region" aria-label="Main menu">
+    <div class="menu-card" role="region" aria-label="Main menu payload selector">
       <header class="menu-head">
         <div>
-          <div class="title">Main Menu</div>
-          <div class="subtitle">Click a button to open a script or follow a link</div>
+          <div class="title">🎮 MAIN MENU</div>
+          <div class="subtitle">Payload loader & test interface</div>
         </div>
         <div class="music-control" aria-hidden="false" title="Play / Pause background music">
           <div id="musicBtn" class="music-btn" aria-pressed="false" role="button">
@@ -223,48 +226,35 @@
 
 <script>
 
+// ========== TWO-BUTTON MAIN MENU ==========
+// Both links are in the root directory
 const buttonsData = [
-  { label: 'Ps3 Symbols', script: 'PS3-Symbols.html', title: 'Open ./scripts/PS3-Symbols.html' },
-  { label: 'Ps4 Symbols', script: 'PS4-Symbols.html', title: 'Open ./scripts/PS4-Symbols.html' },
-  { label: 'online.json Editor', script: 'user-onlineJSON-editor.html', title: 'Open ./scripts/user-onlineJSON-editor.html' },
-  { label: 'The PS4 Save DB', script: 'ps4-save-database.html', title: 'Open ./scripts/ps4-save-database.html' },
-  { label: 'Ps4 JB Status', script: 'Ps4-Status.html', title: 'Open ./scripts/Ps4-Status' },
-  { label: 'Hex To Base64', script: 'hex-base64.html', title: 'Open ./scripts/hex-base64.html' }
+  { label: '📦 Payload Menu', script: './loader.html', title: 'Open loader.html (payload menu)' },
+  { label: '🧪 TestLoader.html', script: './TestLoader.html', title: 'Open TestLoader.html' }
 ];
 
 const rowsContainer = document.getElementById('rows');
 
 function buildMenu(items){
   rowsContainer.innerHTML = '';
-  for(let i=0; i<items.length; i += 3){
-    const group = items.slice(i, i+3);
-    const row = document.createElement('div');
-    row.className = 'row';
-    group.forEach(btn => {
-      const el = document.createElement('button');
-      el.className = 'menu-btn';
-      el.type = 'button';
-      el.textContent = btn.label || 'Button';
-      if(btn.title) el.title = btn.title;
-      if(btn.link) el.dataset.link = btn.link;
-      if(btn.script) el.dataset.script = btn.script;
-      el.setAttribute('aria-label', btn.label || 'menu button');
-      el.addEventListener('click', onMenuClick);
-      el.addEventListener('keydown', (e)=>{
-        if(e.key === 'Enter' || e.key === ' ') { e.preventDefault(); el.click(); }
-      });
-      row.appendChild(el);
+  // Put all buttons in a single row (max 3 per row, but we have 2)
+  const row = document.createElement('div');
+  row.className = 'row';
+  items.forEach(btn => {
+    const el = document.createElement('button');
+    el.className = 'menu-btn';
+    el.type = 'button';
+    el.textContent = btn.label || 'Button';
+    if(btn.title) el.title = btn.title;
+    if(btn.script) el.dataset.script = btn.script;
+    el.setAttribute('aria-label', btn.label || 'menu button');
+    el.addEventListener('click', onMenuClick);
+    el.addEventListener('keydown', (e)=>{
+      if(e.key === 'Enter' || e.key === ' ') { e.preventDefault(); el.click(); }
     });
-    rowsContainer.appendChild(row);
-  }
-  if(items.length === 0){
-    const placeholder = document.createElement('div');
-    placeholder.style.textAlign = 'center';
-    placeholder.style.opacity = '0.75';
-    placeholder.style.padding = '22px';
-    placeholder.textContent = 'No buttons defined.';
-    rowsContainer.appendChild(placeholder);
-  }
+    row.appendChild(el);
+  });
+  rowsContainer.appendChild(row);
 }
 
 /* Navigate helper: external opens new tab, internal navigates same tab */
@@ -283,47 +273,23 @@ function navigateTo(url, external = false){
 
 function onMenuClick(e){
   const btn = e.currentTarget;
-  const link = btn.dataset.link;
   const script = btn.dataset.script;
-
-  if(link){
-    // If link is absolute (http/https) open in new tab; else treat as relative path
-    if(/^https?:\/\//i.test(link)){
-      navigateTo(link, true);
-    } else {
-      navigateTo(link, false);
-    }
-    return;
-  }
 
   if(script){
     let target = script.trim();
 
-    // allow a github:owner/repo/path shorthand if you prefer
-    if(target.startsWith('github:')){
-      const ghPath = target.slice('github:'.length);
-      const ghUrl = 'https://github.com/' + ghPath;
-      navigateTo(ghUrl, true);
-      return;
-    }
-
-    // if the script is an absolute http(s) URL, open in new tab
+    // absolute http(s) -> external new tab
     if(/^https?:\/\//i.test(target)){
       navigateTo(target, true);
       return;
     }
 
-    // ensure .html when there's no extension at all
-    if(!target.includes('.')){
-      target = target + '.html';
-    }
-
-    // if user provided an explicit path, use it as-is
+    // if it starts with './' or '/' -> internal same tab
     if(target.startsWith('./') || target.startsWith('/')){
       navigateTo(target, false);
     } else {
-      // default location inside ./scripts/
-      navigateTo('./scripts/' + target, false);
+      // fallback: just in case, treat as relative
+      navigateTo(target, false);
     }
     return;
   }
@@ -333,7 +299,7 @@ function onMenuClick(e){
 
 buildMenu(buttonsData);
 
-/* Music autoplay + UI logic (unchanged) */
+/* Music autoplay + UI logic (identical, rock solid) */
 const audio = document.getElementById('bgAudio');
 const musicBtn = document.getElementById('musicBtn');
 const musicIcon = document.getElementById('musicIcon');
@@ -463,9 +429,3 @@ window.addEventListener('keydown', () => {
 </script>
 </body>
 </html>
-
-
-
-
-
-
