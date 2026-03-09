@@ -14,7 +14,7 @@
   var IMG_PATH = BASE_PATH + 'themes/apollo/static/images/';
   var SONG_PATH = BASE_PATH + 'themes/apollo/song/bg.wav';
 
-  var APOLLO_VERSION = '0.2.0';
+  var APOLLO_VERSION = '0.2.5';
 
   // ==================== KEY CODES ====================
   var KEY_UP = 4, KEY_DOWN = 6, KEY_LEFT = 7, KEY_RIGHT = 5;
