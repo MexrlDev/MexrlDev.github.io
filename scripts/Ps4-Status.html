@@ -1,347 +1,577 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Ps4 JB Status</title>
-<link rel="icon" type="image/png" href="./img/icon.png" />
-<style>
-  :root{
-    --page-pad: 20px;
-    --card-radius: 12px;
-    --glass-bg: rgba(255,255,255,0.04);
-    --glass-border: rgba(255,255,255,0.06);
-    --accent: #ffffff;
-    --muted: rgba(255,255,255,0.65);
-    --shadow: rgba(0,0,0,0.36);
-    --gap: 14px;
-    --font-family: "Segoe UI", Roboto, system-ui, -apple-system, "Helvetica Neue", Arial;
-    --max-width: 1200px;
-  }
-  *{box-sizing:border-box}
-  body{margin:0;min-height:100vh;font-family:var(--font-family);color:var(--accent);background:#0b0b0b;}
-  .bg-fixed{position:fixed;inset:0;background-image:url('../img/Baek.png');background-size:cover;background-position:center;filter:brightness(0.48) contrast(1.05);z-index:-2}
-  .bg-overlay{position:fixed;inset:0;background:linear-gradient(180deg, rgba(0,0,0,0.12), rgba(0,0,0,0.32));z-index:-1}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
+  <title>PS4 JB Status</title>
+  <link rel="icon" type="image/png" href="./img/icon.png">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
 
-  .wrap{min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:36px 18px}
-  .panel{width:min(var(--max-width),96%);background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.06));border-radius:18px;padding:var(--page-pad);box-shadow:0 12px 40px var(--shadow);backdrop-filter:blur(8px);border:1px solid var(--glass-border)}
+    :root {
+      --page-pad: 1.25rem;
+      --card-radius: 1.25rem;
+      --glass-bg: rgba(255, 255, 255, 0.03);
+      --glass-border: rgba(255, 255, 255, 0.08);
+      --accent: #ffffff;
+      --muted: rgba(255, 255, 255, 0.72);
+      --shadow: rgba(0, 0, 0, 0.45);
+      --gap: 1rem;
+      --font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      --max-width: 1280px;
+    }
 
-  header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
-  .left-head{display:flex;flex-direction:column}
-  .title{font-size:20px;font-weight:700}
-  .subtitle{font-size:13px;opacity:0.9}
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: var(--font-family);
+      color: var(--accent);
+      background: #0a0a0c;
+      line-height: 1.4;
+    }
 
-  .controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-  .btn{padding:8px 12px;border-radius:10px;border:1px solid var(--glass-border);background:rgba(255,255,255,0.02);color:var(--accent);cursor:pointer;font-weight:600;text-decoration:none;display:inline-block}
-  .search{padding:10px 12px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.02);color:var(--accent);outline:none;min-width:240px}
+    /* background layers */
+    .bg-fixed {
+      position: fixed;
+      inset: 0;
+      background-image: url('../img/Baek.png');
+      background-size: cover;
+      background-position: center;
+      filter: brightness(0.45) contrast(1.05);
+      z-index: -2;
+    }
+    .bg-overlay {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at 20% 30%, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.65));
+      z-index: -1;
+    }
 
-  /* table-like chart */
-  .chart{width:100%;border-collapse:collapse;margin-top:8px}
-  .row{display:grid;grid-template-columns:220px 1fr 1fr 220px 320px;gap:12px;padding:12px;border-radius:12px;background:var(--glass-bg);border:1px solid var(--glass-border);align-items:start;margin-bottom:10px;box-shadow:0 6px 18px rgba(0,0,0,0.18)}
+    .wrap {
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 1.5rem 1rem;
+    }
 
-  /* sticky header with extra blur */
-  .row.header{
-    position:sticky;
-    top:0;
-    z-index:10;
-    background:rgba(10,10,10,0.85);
-    backdrop-filter:blur(16px);
-    font-weight:700;
-    box-shadow:0 4px 12px rgba(0,0,0,0.3);
-  }
+    .panel {
+      width: min(var(--max-width), 100%);
+      background: rgba(10, 10, 15, 0.68);
+      backdrop-filter: blur(14px);
+      border-radius: 1.75rem;
+      padding: var(--page-pad);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+      border: 1px solid var(--glass-border);
+      transition: all 0.2s ease;
+    }
 
-  .cell{padding:6px 8px}
-  .firmware{font-weight:700}
-  .list{margin:0;padding-left:18px}
-  .small{font-size:13px;opacity:0.9}
-  .muted{color:var(--muted)}
+    /* header area */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 1.75rem;
+    }
+    .left-head {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+    .title {
+      font-size: 1.7rem;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      background: linear-gradient(135deg, #fff, #bbb);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+    .subtitle {
+      font-size: 0.8rem;
+      opacity: 0.8;
+      max-width: 380px;
+    }
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.7rem;
+      align-items: center;
+    }
+    .btn {
+      padding: 0.5rem 1rem;
+      border-radius: 2rem;
+      border: 1px solid var(--glass-border);
+      background: rgba(20, 20, 30, 0.65);
+      backdrop-filter: blur(4px);
+      color: var(--accent);
+      cursor: pointer;
+      font-weight: 500;
+      font-size: 0.85rem;
+      transition: 0.2s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+    .btn:active { transform: scale(0.96); background: rgba(255,255,255,0.1);}
+    .search {
+      padding: 0.5rem 1rem;
+      border-radius: 2rem;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: rgba(0, 0, 0, 0.45);
+      color: white;
+      font-size: 0.9rem;
+      min-width: 200px;
+      outline: none;
+      backdrop-filter: blur(4px);
+    }
+    .search:focus {
+      border-color: rgba(255, 255, 255, 0.6);
+      background: rgba(0, 0, 0, 0.6);
+    }
 
-  /* responsive */
-  @media (max-width:1000px){
-    .row{grid-template-columns:160px 1fr;}
-    .row > .kernel,.row > .action,.row > .info{display:none}
-    .row.header{grid-template-columns:160px 1fr}
-  }
-  @media (max-width:560px){
-    .row{grid-template-columns:1fr}
-    .row > *{display:block}
-  }
+    /* ----- main chart grid (DESKTOP: full kernel+userland side by side) ----- */
+    .chart {
+      width: 100%;
+      margin-top: 0.5rem;
+    }
+    .row {
+      display: grid;
+      grid-template-columns: 180px 1fr 1fr 200px 280px;
+      gap: 0.9rem;
+      padding: 1rem;
+      border-radius: 1.2rem;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      align-items: start;
+      margin-bottom: 0.8rem;
+      transition: background 0.15s;
+    }
+    .row.header {
+      position: sticky;
+      top: 0;
+      z-index: 15;
+      background: rgba(8, 8, 12, 0.92);
+      backdrop-filter: blur(20px);
+      font-weight: 700;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .cell {
+      padding: 0.2rem 0.1rem;
+      word-break: break-word;
+      overflow-wrap: break-word;
+    }
+    .list {
+      margin: 0.2rem 0 0 1.2rem;
+      padding-left: 0.2rem;
+    }
+    .list li {
+      margin: 0.3rem 0;
+      line-height: 1.35;
+      font-size: 0.85rem;
+    }
+    .small {
+      font-size: 0.8rem;
+      line-height: 1.4;
+    }
+    .muted {
+      color: var(--muted);
+    }
+    .firmware {
+      font-weight: 800;
+      font-size: 1rem;
+    }
 
-  .hint{font-size:13px;opacity:0.85;margin-top:8px;text-align:center}
+    /* 🔥 FULL MOBILE PORT: never hide kernel or userland — card layout with visible labels */
+    @media (max-width: 860px) {
+      .row {
+        display: block;
+        padding: 1.1rem;
+        margin-bottom: 1rem;
+      }
+      .row.header {
+        display: none;   /* hide sticky header on mobile, each field gets inline label */
+      }
+      .cell {
+        display: block;
+        padding: 0.55rem 0.2rem;
+        border-bottom: 1px dashed rgba(255,255,255,0.1);
+      }
+      .cell:last-child {
+        border-bottom: none;
+      }
+      /* custom labels for each field — no data loss, kernel shows right after userland */
+      .cell:nth-child(1)::before {
+        content: "📟 FIRMWARE: ";
+        font-weight: 800;
+        display: inline-block;
+        width: 130px;
+        letter-spacing: 0.3px;
+      }
+      .cell:nth-child(2)::before {
+        content: "🖥️ USERLAND: ";
+        font-weight: 800;
+        display: inline-block;
+        width: 130px;
+        vertical-align: top;
+      }
+      .cell:nth-child(3)::before {
+        content: "⚙️ KERNEL: ";
+        font-weight: 800;
+        display: inline-block;
+        width: 130px;
+        vertical-align: top;
+      }
+      .cell:nth-child(4)::before {
+        content: "📌 ACTION: ";
+        font-weight: 800;
+        display: inline-block;
+        width: 130px;
+      }
+      .cell:nth-child(5)::before {
+        content: "ℹ️ INFO: ";
+        font-weight: 800;
+        display: inline-block;
+        width: 130px;
+      }
+      .list {
+        margin-top: 0.2rem;
+        display: inline-block;
+        width: calc(100% - 140px);
+        vertical-align: top;
+      }
+      .cell .list {
+        width: auto;
+        display: block;
+        margin-left: 140px;
+      }
+      /* better alignment for small devices */
+      .cell .small, .cell > div:not(.list) {
+        display: inline-block;
+        width: calc(100% - 140px);
+        vertical-align: top;
+      }
+      .cell .list li {
+        font-size: 0.82rem;
+      }
+      .firmware {
+        font-size: 1rem;
+      }
+      .controls {
+        width: 100%;
+        justify-content: flex-start;
+      }
+      .search {
+        flex: 1;
+        min-width: 160px;
+      }
+    }
 
-  .credit{font-size:12px;opacity:0.85;margin-top:10px;text-align:right}
+    /* extra small devices (<500px) — fine-tune spacing */
+    @media (max-width: 500px) {
+      .panel {
+        padding: 1rem;
+      }
+      .cell:nth-child(1)::before,
+      .cell:nth-child(2)::before,
+      .cell:nth-child(3)::before,
+      .cell:nth-child(4)::before,
+      .cell:nth-child(5)::before {
+        width: 110px;
+      }
+      .cell .list {
+        margin-left: 110px;
+      }
+      .cell .small, .cell > div:not(.list) {
+        width: calc(100% - 110px);
+      }
+      .title {
+        font-size: 1.4rem;
+      }
+    }
 
-  /* small accessibility focus */
-  .row:focus-within{outline:3px solid rgba(255,255,255,0.05)}
-
-  /* collapsed toggles */
-  .toggle{font-size:12px;padding:6px 10px;border-radius:8px;border:1px solid var(--glass-border);background:transparent;cursor:pointer}
-</style>
+    /* prevent any horizontal shirking / overflow */
+    .row, .cell, .list li {
+      overflow-wrap: break-word;
+      word-break: break-word;
+    }
+    .hint {
+      text-align: center;
+      font-size: 0.7rem;
+      margin-top: 1rem;
+      opacity: 0.7;
+    }
+    .credit {
+      text-align: right;
+      font-size: 0.7rem;
+      margin-top: 0.8rem;
+    }
+    button, .btn, .search {
+      font-family: inherit;
+    }
+    a.btn {
+      text-decoration: none;
+    }
+  </style>
 </head>
 <body>
-  <div class="bg-fixed" aria-hidden="true"></div>
-  <div class="bg-overlay" aria-hidden="true"></div>
+<div class="bg-fixed" aria-hidden="true"></div>
+<div class="bg-overlay" aria-hidden="true"></div>
 
-  <div class="wrap">
-    <div class="panel" role="main" aria-label="Exploit Chart">
-      <header>
-        <div class="left-head">
-          <div class="title">Ps4 JB Status</div>
-          <div class="subtitle">I Took Some Info From ConsoleMods Wiki. But I Will Be Updating This As Soon As Possible</div>
-        </div>
-
-        <div class="controls">
-          <input id="search" class="search" type="search" placeholder="Filter firmware / exploits / keywords" aria-label="Search chart" />
-          <button class="btn" id="reset">Reset</button>
-          <a href="../index.html" class="btn" role="button">← Main Menu</a>
-          <div class="music-control" title="Play / Pause background music">
-            <div id="musicBtn" class="btn" aria-pressed="false">Play Music</div>
-          </div>
-        </div>
-      </header>
-
-      <div id="chartContainer" aria-live="polite">
-        <!-- Header row (rendered by JS) -->
+<div class="wrap">
+  <div class="panel" role="main" aria-label="PS4 Jailbreak Status - Kernel & Userland exploits">
+    <header>
+      <div class="left-head">
+        <div class="title">PS4 JB Status</div>
+        <div class="subtitle">Full userland + kernel exploits • Updated reference • Mobile-first</div>
       </div>
+      <div class="controls">
+        <input id="search" class="search" type="search" placeholder="Filter fw, userland, kernel..." aria-label="Search chart">
+        <button class="btn" id="reset">⟳ Reset</button>
+        <a href="../index.html" class="btn" role="button">⌂ Main</a>
+        <div id="musicBtn" class="btn" aria-pressed="false" role="button">🎵 Play Music</div>
+      </div>
+    </header>
 
-      <div class="hint small">Thanks for visitng</div>
-      <div class="credit muted">Owned by Mexrl</div>
+    <div id="chartContainer" class="chart" aria-live="polite">
     </div>
-  </div>
 
-  <audio id="bgAudio" loop preload="auto"><source src="../music/bg.mp3" type="audio/mpeg"></audio>
+    <div class="hint small">All firmwares</div>
+    <div class="credit muted">Owned by Mexrl</div>
+  </div>
+</div>
+
+<audio id="bgAudio" loop preload="auto"><source src="../music/bg.mp3" type="audio/mpeg"></audio>
 
 <script>
-// PS4 exploit data
-const rows = [
-  {
-    firmware: 'Older than 5.05',
-    userland: ['Various'],
-    kernel: ['BadIRET (1.76)', 'NamedOBJ Exploit (<=4.07)', 'BPF Race Condition (4.55 to 5.03)', 'PPPwn (Theoretical)', 'Poopsploit (Theoretical)'],
-    action: 'Either stay for archival purposes, or update to 5.05',
-    info: 'Homebrew support is very limited, and even more games will require backports. Anything before 4.07 doesn\'t even have a homebrew enabler implementation.'
-  },
-  {
-    firmware: '5.05/5.07',
-    userland: ['CVE-2016-1859 (Webkit)', 'CVE-2017-7005 (Webkit, used with kernel exploit)', 'Lua loader (theoretical)', 'Mast1c0re (theoretical)', 'BD-JB (theoretical)', 'PsVue (theoretical)'],
-    kernel: ['BPF Race Condition (Original)', 'PPPwn (Theoretical)', 'Lapse (Theoretical)', 'Poopsploit (Theoretical)'],
-    action: 'Stay on current firmware',
-    info: 'Considered the gold standard firmware because of its original exploits having stability and success rate. However, most games will require backports.'
-  },
-  {
-    firmware: '5.50 to 6.71',
-    userland: ['bad_hoist (Webkit)', 'CVE-2021-30849 (theoretical)', 'CVE-2021-30858 (theoretical)', 'buildBubbleTree (theoretical)', 'psFree (theoretical)', 'Save file exploits (theoretical)', 'Mast1c0re (theoretical)', 'BD-JB (theoretical)', 'PsVue (theoretical)'],
-    kernel: ['CVE-2020-7457 (Implemented on 6.72)', 'CVE-2020-9892 (Theoretical)', 'PPPwn (Theoretical)', 'Poopsploit (Theoretical)'],
-    action: 'Update to 6.72 or 9.00 and not above',
-    info: 'This firmware range has exploits that are highly unstable. As such, it\'s easier to just update to 6.72 or 9.00.'
-  },
-  {
-    firmware: '6.72',
-    userland: ['Same as 5.50 to 6.71 list'],
-    kernel: ['Original exploits optimized over time; good success rate and stability. See Standard Jailbreak instructions.'],
-    action: 'Either stay, or update to 9.00 and not above',
-    info: 'Original exploits were optimized overtime to have good success rate and stability. 9.00 - 9.60 may still be desired due to more game/homebrew support.'
-  },
-  {
-    firmware: '7.00, 7.01, 7.02',
-    userland: ['buildBubbleTree (implemented)', 'PsVue', 'psFree', 'Save file exploit (theoretical)', 'Mast1c0re (theoretical)', 'BD-JB (theoretical)'],
-    kernel: ['CVE-2020-9892', 'PPPwn', 'Lapse', 'Poopsploit (Theoretical)'],
-    action: 'Stay or update to 9.00 (9.00 often preferred)',
-    info: '7.XX firmwares do have native webkit/kernel exploits. Recommended exploit is PSFree with Lapse.'
-  },
-  {
-    firmware: '7.50, 7.51, 7.55',
-    userland: ['Same as 7.00-7.02 list'],
-    kernel: ['Same as 7.00-7.02 list'],
-    action: 'Stay or update to 9.00',
-    info: 'Similar to other 7.XX firmwares.'
-  },
-  {
-    firmware: '8.00 to 8.52',
-    userland: ['PsVue', 'psFree', 'Save file exploit (theoretical)', 'Mast1c0re (theoretical)', 'BD-JB (theoretical)'],
-    kernel: ['PPPwn', 'Lapse', 'Poopsploit (Theoretical)'],
-    action: 'Recommended: PSFree with Lapse',
-    info: '8.xx has PPPwn, which is not recommended. PSFree with Lapse is preferred.'
-  },
-  {
-    firmware: '9.00',
-    userland: ['CVE-2021-30858 (used w/ pOObs4)', 'PsVue', 'psFree', 'Lua Loader', 'Netflix exploit', 'Mast1c0re', 'BD-JB'],
-    kernel: ['exfathax (pOObs4)', 'PPPwn', 'Lapse', 'Poopsploit'],
-    action: 'Stay on current firmware',
-    info: '9.00 can be seen as another gold standard version with high stability. PPPwn not recommended on 9.00.'
-  },
-  {
-    firmware: '9.03 to 9.60',
-    userland: ['CVE-2021-30858 (theoretical on 9.03 & 9.04)', 'PsVue', 'psFree', 'Lua Loader', 'YARPE (Ren\'Py saves)', 'Netflix exploit', 'Mast1c0re', 'BD-JB'],
-    kernel: ['PPPwn', 'Lapse', 'Poopsploit'],
-    action: 'Either stay, or update to 9.60 and not above',
-    info: 'PPPwn is not recommended on this firmware range. PSFree with Lapse recommended.'
-  },
-  {
-    firmware: '10.00 to 10.71',
-    userland: ['Lua Loader', 'YARPE', 'Netflix-N-Hack', 'Mast1c0re', 'BD-JB'],
-    kernel: ['Lapse', 'Poopsploit'],
-    action: 'Either stay, or update to 11.00 and not above',
-    info: 'These versions don\'t have a known Webkit exploit at the time of writing, but can still use PPPwn or BD-JB/Lua/Netflix.'
-  },
-  {
-    firmware: '11.00',
-    userland: ['PsVue', 'Lua Loader', 'YARPE', 'Netflix-N-Hack', 'Mast1c0re', 'BD-JB'],
-    kernel: ['Lapse', 'Poopsploit'],
-    action: 'Stay on current firmware',
-    info: 'Last firmware that has support for PPPwn. Recommended exploit: BD-JB if available.'
-  },
-  {
-    firmware: '11.02 to 11.52',
-    userland: ['PsVue', 'Lua Loader', 'YARPE', 'Netflix-N-Hack', 'Mast1c0re', 'BD-JB'],
-    kernel: ['Lapse', 'Poopsploit'],
-    action: 'Either stay, or update to 12.02 and not above',
-    info: 'BD-J is easiest; Lua-compatible Artemis games and Ren\'Py games are promising.'
-  },
-  {
-    firmware: '12.00',
-    userland: ['PsVue', 'Lua Loader', 'YARPE', 'Netflix-N-Hack', 'Mast1c0re', 'BD-JB'],
-    kernel: ['Lapse', 'Poopsploit'],
-    action: 'Either stay, or update to 12.02',
-    info: 'As of 12.00 the landscape is similar to nearby firmwares.'
-  },
-  {
-    firmware: '12.02',
-    userland: ['PsVue', 'Lua Loader', 'YARPE', 'Netflix-N-Hack', 'Mast1c0re', 'BD-JB'],
-    kernel: ['Lapse', 'Poopsploit'],
-    action: 'Stay on current firmware',
-    info: 'Stable choice at time of writing.'
-  },
-  {
-    firmware: '12.50, 12.52',
-    userland: ['PsVue', 'BD-JB', 'Lua Loader', 'YARPE', 'Mast1c0re'],
-    kernel: ['Poopsploit', 'Poopsploit Js'],
-    action: 'Stay on current firmware',
-    info: 'Poopsploit is currently the kernel exploit for these versions.'
-  },
-  {
-    firmware: '13.00',
-    userland: ['PsVue', 'Lua Loader', 'YARPE', 'Mast1c0re (theoretical)', 'BD-JB-1302'],
-    kernel: ['Poopsploit', 'Poopsploit Js'],
-    action: 'Stay on current firmware',
-    info: 'No public entry point compatible with current libraries; Mast1c0re possible but limited.'
-  },
-  {
-    firmware: '13.02',
-    userland: ['PsVue', 'BD-JB-1302'],
-    kernel: [],
-    action: 'Sell console, or stay',
-    info: 'No kernel exploits yet, wait for future developments.'
-  },
-  {
-    firmware: '13.04',
-    userland: ['PsVue', 'BD-JB-1304'],
-    kernel: [],
-    action: 'Sell console, or stay',
-    info: 'No kernel exploits yet, wait for future developments.'
-  },
-  {
-    firmware: '13.50',
-    userland: [],
-    kernel: [],
-    action: 'Sell console, or stay',
-    info: 'No kernel exploits yet, wait for future developments.'
+  const rowsData = [
+    { firmware: 'Older than 5.05', userland: ['Various (WebKit 1.76 era)'], kernel: ['BadIRET (1.76)', 'NamedOBJ (≤4.07)', 'BPF Race (4.55-5.03)', 'PPPwn (theoretical)', 'Poopsploit (theoretical)'], action: 'Stay for archival or update to 5.05', info: 'Limited homebrew; pre-4.07 lacks enabler. Use legacy exploits.' },
+    { firmware: '5.05 / 5.07', userland: ['CVE-2016-1859 (WebKit)', 'CVE-2017-7005', 'Lua loader', 'Mast1c0re', 'BD-JB', 'PsVue'], kernel: ['BPF Race (original)', 'PPPwn (theoretical)', 'Lapse (theoretical)', 'Poopsploit (theoretical)'], action: 'STAY — golden standard', info: 'High stability, most backported games. Best homebrew support.' },
+    { firmware: '5.50 → 6.71', userland: ['bad_hoist (WebKit)', 'CVE-2021-30849', 'CVE-2021-30858', 'buildBubbleTree', 'psFree', 'Mast1c0re', 'BD-JB', 'PsVue'], kernel: ['CVE-2020-7457 (6.72 port)', 'CVE-2020-9892', 'PPPwn', 'Poopsploit'], action: 'Update to 6.72 or 9.00', info: 'Unstable range; updating is recommended for reliability.' },
+    { firmware: '6.72', userland: ['Same as 5.50–6.71 list (optimized)'], kernel: ['Optimized BPF + PPPwn fallback', 'Lapse (experimental)'], action: 'Stay or update to 9.00', info: 'Mature kernel exploit with good success rate.' },
+    { firmware: '7.00 / 7.01 / 7.02', userland: ['buildBubbleTree (impl)', 'PsVue', 'psFree', 'Save file exploit', 'Mast1c0re', 'BD-JB'], kernel: ['CVE-2020-9892', 'PPPwn', 'Lapse', 'Poopsploit'], action: 'Stay or go to 9.00', info: 'PSFree + Lapse combo works stable.' },
+    { firmware: '7.50 / 7.51 / 7.55', userland: ['Same as 7.00-7.02 (WebKit vulns)'], kernel: ['CVE-2020-9892', 'PPPwn', 'Lapse'], action: 'Update to 9.00', info: 'Similar to 7.xx, stable with Lapse.' },
+    { firmware: '8.00 → 8.52', userland: ['PsVue', 'psFree', 'Save file exploit', 'Mast1c0re', 'BD-JB'], kernel: ['PPPwn', 'Lapse', 'Poopsploit (theoretical)'], action: 'Use PSFree + Lapse', info: 'PPPwn available but PSFree/Lapse preferred.' },
+    { firmware: '9.00', userland: ['CVE-2021-30858 (pOObs4)', 'PsVue', 'psFree', 'Lua Loader', 'Netflix exploit', 'Mast1c0re', 'BD-JB'], kernel: ['exfathax (pOObs4)', 'PPPwn', 'Lapse', 'Poopsploit'], action: 'Stay — gold standard 9.00', info: 'Very stable, exfathax based, great homebrew ecosystem.' },
+    { firmware: '9.03 → 9.60', userland: ['CVE-2021-30858 (9.03/9.04)', 'PsVue', 'psFree', 'Lua Loader', 'YARPE', 'Netflix', 'Mast1c0re', 'BD-JB'], kernel: ['PPPwn', 'Lapse', 'Poopsploit'], action: 'Stay or keep ≤9.60', info: 'PSFree+Lapse recommended instead of PPPwn.' },
+    { firmware: '10.00 → 10.71', userland: ['Lua Loader', 'YARPE', 'Netflix-N-Hack', 'Mast1c0re', 'BD-JB'], kernel: ['Lapse', 'Poopsploit (JS)'], action: 'Stay or update to 11.00', info: 'No public WebKit; but BD-J/Lua/PPPwn possible.' },
+    { firmware: '11.00', userland: ['PsVue', 'Lua Loader', 'YARPE', 'Netflix-N-Hack', 'Mast1c0re', 'BD-JB'], kernel: ['Lapse', 'Poopsploit'], action: 'Stay on 11.00', info: 'Last PPPwn-compatible firm. BD-JB works great.' },
+    { firmware: '11.02 → 11.52', userland: ['PsVue', 'Lua Loader', 'YARPE', 'Netflix-N-Hack', 'Mast1c0re', 'BD-JB'], kernel: ['Lapse', 'Poopsploit'], action: 'Stay or go to 12.02', info: 'BD-J easiest, Artemis + Ren´Py support.' },
+    { firmware: '12.00', userland: ['PsVue', 'Lua Loader', 'YARPE', 'Netflix-N-Hack', 'Mast1c0re', 'BD-JB'], kernel: ['Lapse', 'Poopsploit'], action: 'Stay or update to 12.02', info: 'Similar to 11.xx exploits.' },
+    { firmware: '12.02', userland: ['PsVue', 'Lua Loader', 'YARPE', 'Netflix-N-Hack', 'Mast1c0re', 'BD-JB'], kernel: ['Lapse', 'Poopsploit'], action: 'Stay — stable fw', info: 'Balanced stability, active userland.' },
+    { firmware: '12.50 / 12.52', userland: ['PsVue', 'BD-JB', 'Lua Loader', 'YARPE', 'Mast1c0re'], kernel: ['Poopsploit', 'Poopsploit JS'], action: 'Stay on current', info: 'Poopsploit is the kernel exploit.' },
+    { firmware: '13.00', userland: ['PsVue', 'Lua Loader', 'YARPE', 'Mast1c0re (theoretical)', 'BD-JB-1302'], kernel: ['Poopsploit', 'Poopsploit JS'], action: 'Stay', info: 'Limited entry points but kernel available.' },
+    { firmware: '13.02', userland: ['PsVue', 'BD-JB-1302'], kernel: [], action: 'Wait / sell', info: 'No kernel exploit yet, only userland entry.' },
+    { firmware: '13.04', userland: ['PsVue', 'BD-JB-1304'], kernel: [], action: 'Wait or sell', info: 'No kernel exploits, userland only.' },
+    { firmware: '13.50', userland: [], kernel: [], action: 'Sell / stay', info: 'No public exploits (userland/kernel).' }
+  ];
+
+  const chartContainer = document.getElementById('chartContainer');
+  const searchInput = document.getElementById('search');
+  const resetBtn = document.getElementById('reset');
+
+  // helper: escape HTML
+  function escapeHtml(str) {
+    if (!str) return '';
+    return String(str).replace(/[&<>]/g, function(m) {
+      if (m === '&') return '&amp;';
+      if (m === '<') return '&lt;';
+      if (m === '>') return '&gt;';
+      return m;
+    }).replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, function(c) {
+      return c;
+    });
   }
-];
 
-const chart = document.getElementById('chartContainer');
-const search = document.getElementById('search');
-const resetBtn = document.getElementById('reset');
-
-// Helper to normalise firmware string for loose matching (e.g. "13.00" -> "1300")
-function normaliseFirmware(fw) {
-  return fw.replace(/[.\s,/-]/g, ''); // remove dots, spaces, commas, slashes, hyphens
-}
-
-function createHeader(){
-  const header = document.createElement('div');
-  header.className = 'row header';
-  header.innerHTML = `
-    <div class="cell firmware">Firmware</div>
-    <div class="cell">Userland Exploit(s)</div>
-    <div class="cell kernel">Kernel Exploit(s)</div>
-    <div class="cell action">Course of Action</div>
-    <div class="cell info">Information</div>
-  `;
-  chart.appendChild(header);
-}
-
-function renderRows(list){
-  // clear except header
-  chart.querySelectorAll('.row.data').forEach(n=>n.remove());
-  list.forEach(r => {
-    const el = document.createElement('div');
-    el.className = 'row data';
-    el.tabIndex = 0;
-
-    const userlandHTML = (r.userland && r.userland.length) ? `<ul class="list">${r.userland.map(it=>`<li>${escapeHtml(it)}</li>`).join('')}</ul>` : '<div class="small muted">—</div>';
-    const kernelHTML = (r.kernel && r.kernel.length) ? `<ul class="list">${r.kernel.map(it=>`<li>${escapeHtml(it)}</li>`).join('')}</ul>` : '<div class="small muted">—</div>';
-    const infoHTML = r.info ? `<div class="small">${escapeHtml(r.info)}</div>` : '<div class="small muted">—</div>';
-
-    el.innerHTML = `
-      <div class="cell firmware">${escapeHtml(r.firmware)}</div>
-      <div class="cell">${userlandHTML}</div>
-      <div class="cell kernel">${kernelHTML}</div>
-      <div class="cell action"><div class="small">${escapeHtml(r.action)}</div></div>
-      <div class="cell info">${infoHTML}</div>
+  // render header row (only visible on desktop/tablet wide, hidden on mobile via css)
+  function renderHeader() {
+    const headerDiv = document.createElement('div');
+    headerDiv.className = 'row header';
+    headerDiv.setAttribute('aria-hidden', 'false');
+    headerDiv.innerHTML = `
+      <div class="cell firmware">📟 FIRMWARE</div>
+      <div class="cell">🖥️ USERLAND EXPLOITS</div>
+      <div class="cell kernel">⚙️ KERNEL EXPLOITS</div>
+      <div class="cell action">📌 COURSE OF ACTION</div>
+      <div class="cell info">ℹ️ DETAILS</div>
     `;
+    chartContainer.appendChild(headerDiv);
+  }
 
-    chart.appendChild(el);
+  function renderRows(items) {
+    const existingRows = chartContainer.querySelectorAll('.row.data');
+    existingRows.forEach(row => row.remove());
+
+    for (const entry of items) {
+      const rowDiv = document.createElement('div');
+      rowDiv.className = 'row data';
+      rowDiv.tabIndex = 0;
+
+      // userland list
+      let userlandHtml = '';
+      if (entry.userland && entry.userland.length) {
+        userlandHtml = `<ul class="list">${entry.userland.map(exp => `<li>${escapeHtml(exp)}</li>`).join('')}</ul>`;
+      } else {
+        userlandHtml = `<div class="small muted">— No public userland —</div>`;
+      }
+
+      // kernel list
+      let kernelHtml = '';
+      if (entry.kernel && entry.kernel.length) {
+        kernelHtml = `<ul class="list">${entry.kernel.map(kexp => `<li>${escapeHtml(kexp)}</li>`).join('')}</ul>`;
+      } else {
+        kernelHtml = `<div class="small muted">— No known kernel —</div>`;
+      }
+
+      const actionHtml = `<div class="small">${escapeHtml(entry.action)}</div>`;
+      const infoHtml = `<div class="small">${escapeHtml(entry.info)}</div>`;
+
+      rowDiv.innerHTML = `
+        <div class="cell firmware">${escapeHtml(entry.firmware)}</div>
+        <div class="cell userland-cell">${userlandHtml}</div>
+        <div class="cell kernel-cell">${kernelHtml}</div>
+        <div class="cell action-cell">${actionHtml}</div>
+        <div class="cell info-cell">${infoHtml}</div>
+      `;
+      chartContainer.appendChild(rowDiv);
+    }
+  }
+
+  // normalise firmware for loose filtering (ex: "13.00" -> "1300")
+  function normaliseFirmware(fw) {
+    return fw.replace(/[.\s,\/()-]/g, '').toLowerCase();
+  }
+
+  function filterRows(query) {
+    if (!query.trim()) return rowsData.slice();
+    const lowerQuery = query.toLowerCase();
+    const normalisedQuery = lowerQuery.replace(/[.\s,\/()-]/g, '');
+    return rowsData.filter(entry => {
+      if (entry.firmware.toLowerCase().includes(lowerQuery)) return true;
+      if (entry.userland && entry.userland.join(' ').toLowerCase().includes(lowerQuery)) return true;
+      if (entry.kernel && entry.kernel.join(' ').toLowerCase().includes(lowerQuery)) return true;
+      if (entry.action.toLowerCase().includes(lowerQuery)) return true;
+      if (entry.info.toLowerCase().includes(lowerQuery)) return true;
+      // loose firmware match (e.g. "1300" matches 13.00)
+      const fwNorm = normaliseFirmware(entry.firmware);
+      if (fwNorm.includes(normalisedQuery)) return true;
+      return false;
+    });
+  }
+
+  function updateChart() {
+    const query = searchInput.value;
+    const filtered = filterRows(query);
+    renderRows(filtered);
+  }
+
+  searchInput.addEventListener('input', updateChart);
+  resetBtn.addEventListener('click', () => {
+    searchInput.value = '';
+    updateChart();
   });
-}
 
-function escapeHtml(s){ return String(s).replace(/[&<>\"]/g, c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+  // ---------- Music Controls (same robust behaviour) ----------
+  const audio = document.getElementById('bgAudio');
+  const musicBtnEl = document.getElementById('musicBtn');
+  let isMusicPlaying = false;
+  let isMutedFallback = false;
 
-function filter(q){
-  if(!q) return rows.slice();
-  const qLower = q.toLowerCase();
-  const qNormalised = qLower.replace(/[.\s,/-]/g, ''); // also clean query for loose matching
+  async function initAudio() {
+    audio.loop = true;
+    audio.volume = 0.85;
+    audio.muted = false;
+    try {
+      await audio.play();
+      isMusicPlaying = true;
+      isMutedFallback = false;
+      updateMusicButtonUI();
+    } catch (e) {
+      try {
+        audio.muted = true;
+        await audio.play();
+        isMusicPlaying = true;
+        isMutedFallback = true;
+        updateMusicButtonUI();
+        attachUnmuteOnInteraction();
+      } catch (e2) {
+        isMusicPlaying = false;
+        isMutedFallback = false;
+        updateMusicButtonUI();
+      }
+    }
+  }
 
-  return rows.filter(r => {
-    // Check original fields
-    if (r.firmware.toLowerCase().includes(qLower)) return true;
-    if (r.userland && r.userland.join(' ').toLowerCase().includes(qLower)) return true;
-    if (r.kernel && r.kernel.join(' ').toLowerCase().includes(qLower)) return true;
-    if (r.info && r.info.toLowerCase().includes(qLower)) return true;
-    if (r.action && r.action.toLowerCase().includes(qLower)) return true;
+  function updateMusicButtonUI() {
+    if (isMusicPlaying) {
+      musicBtnEl.textContent = isMutedFallback ? '🔇 Music (muted)' : '🎵 Pause Music';
+      musicBtnEl.setAttribute('aria-pressed', 'true');
+    } else {
+      musicBtnEl.textContent = '🎵 Play Music';
+      musicBtnEl.setAttribute('aria-pressed', 'false');
+    }
+  }
 
-    // Loose firmware matching: e.g. "1300" matches "13.00"
-    const fwNormalised = normaliseFirmware(r.firmware).toLowerCase();
-    if (fwNormalised.includes(qNormalised)) return true;
+  function attachUnmuteOnInteraction() {
+    const handler = () => {
+      if (isMutedFallback && audio.muted) {
+        audio.muted = false;
+        audio.play().catch(() => {});
+        isMutedFallback = false;
+        updateMusicButtonUI();
+      }
+      window.removeEventListener('pointerdown', handler);
+      window.removeEventListener('keydown', handler);
+    };
+    window.addEventListener('pointerdown', handler, { once: true });
+    window.addEventListener('keydown', handler, { once: true });
+  }
 
-    return false;
+  musicBtnEl.addEventListener('click', async () => {
+    if (isMusicPlaying) {
+      audio.pause();
+      isMusicPlaying = false;
+      isMutedFallback = false;
+      updateMusicButtonUI();
+    } else {
+      audio.muted = false;
+      try {
+        await audio.play();
+        isMusicPlaying = true;
+        isMutedFallback = false;
+        updateMusicButtonUI();
+      } catch (err) {
+        try {
+          audio.muted = true;
+          await audio.play();
+          isMusicPlaying = true;
+          isMutedFallback = true;
+          updateMusicButtonUI();
+          attachUnmuteOnInteraction();
+        } catch (err2) {
+          isMusicPlaying = false;
+          updateMusicButtonUI();
+        }
+      }
+    }
   });
-}
 
-search.addEventListener('input', (e)=>{ renderRows(filter(e.target.value)); });
-resetBtn.addEventListener('click', ()=>{ search.value=''; renderRows(rows); });
+  initAudio();
 
-/* music controls: same easy logic as your previous site */
-const audio = document.getElementById('bgAudio');
-const musicBtn = document.getElementById('musicBtn');
-let isPlaying = false; let mutedFallback = false;
-
-async function tryAutoplay(){
-  audio.loop = true; audio.volume = 0.9; audio.muted = false;
-  try{ await audio.play(); isPlaying = true; mutedFallback = false; updateMusicBtn(); }
-  catch(e){ try{ audio.muted=true; await audio.play(); isPlaying=true; mutedFallback=true; updateMusicBtn(); attachUnmuteOnFirstInteraction(); }catch(e2){ isPlaying=false; mutedFallback=false; updateMusicBtn(); }}
-}
-function updateMusicBtn(){ musicBtn.textContent = isPlaying ? (mutedFallback ? 'Playing (muted)' : 'Pause Music') : 'Play Music'; musicBtn.setAttribute('aria-pressed', String(isPlaying)); }
-function attachUnmuteOnFirstInteraction(){ function attempt(){ if(mutedFallback && audio.muted){ audio.muted=false; audio.play().catch(()=>{}); mutedFallback=false; updateMusicBtn(); } window.removeEventListener('pointerdown', attempt); window.removeEventListener('keydown', attempt); } window.addEventListener('pointerdown', attempt, {once:true}); window.addEventListener('keydown', attempt, {once:true}); }
-
-musicBtn.addEventListener('click', async ()=>{
-  if(isPlaying){ audio.pause(); isPlaying=false; mutedFallback=false; updateMusicBtn(); }
-  else{ audio.muted=false; try{ await audio.play(); isPlaying=true; mutedFallback=false; updateMusicBtn(); }catch(e){ try{ audio.muted=true; await audio.play(); isPlaying=true; mutedFallback=true; updateMusicBtn(); attachUnmuteOnFirstInteraction(); }catch(e2){ isPlaying=false; mutedFallback=false; updateMusicBtn(); } } }
-});
-tryAutoplay();
-
-/* initial render */
-createHeader(); renderRows(rows);
+  // initial render
+  renderHeader();
+  renderRows(rowsData);
 </script>
 </body>
 </html>
