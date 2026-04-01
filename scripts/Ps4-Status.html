@@ -372,9 +372,9 @@
     { firmware: '12.02', userland: ['PsVue', 'Lua Loader', 'YARPE', 'Netflix-N-Hack', 'Mast1c0re', 'BD-JB'], kernel: ['Lapse', 'Poopsploit'], action: 'Stay — stable fw', info: 'Balanced stability, active userland.' },
     { firmware: '12.50 / 12.52', userland: ['PsVue', 'BD-JB', 'Lua Loader', 'YARPE', 'Mast1c0re'], kernel: ['Poopsploit', 'Poopsploit JS'], action: 'Stay on current', info: 'Poopsploit is the kernel exploit.' },
     { firmware: '13.00', userland: ['PsVue', 'Lua Loader', 'YARPE', 'Mast1c0re (theoretical)', 'BD-JB-1302'], kernel: ['Poopsploit', 'Poopsploit JS'], action: 'Stay', info: 'Limited entry points but kernel available.' },
-    { firmware: '13.02', userland: ['PsVue', 'BD-JB-1302'], kernel: [], action: 'Wait / sell', info: 'No kernel exploit yet, only userland entry.' },
-    { firmware: '13.04', userland: ['PsVue', 'BD-JB-1304'], kernel: [], action: 'Wait or sell', info: 'No kernel exploits, userland only.' },
-    { firmware: '13.50', userland: [], kernel: [], action: 'Sell / stay', info: 'No public exploits (userland/kernel).' }
+    { firmware: '13.02', userland: ['PsVue', 'BD-JB-1302', 'Mast1c0re'], kernel: [], action: 'Wait / sell', info: 'No kernel exploit yet, only userland entry.' },
+    { firmware: '13.04', userland: ['PsVue', 'BD-JB-1304', 'Mast1c0re'], kernel: [], action: 'Wait or sell', info: 'No kernel exploits, userland only.' },
+    { firmware: '13.50', userland: ['Mast1c0re'], kernel: [], action: 'Sell / stay', info: 'No public exploits (userland/kernel).' }
   ];
 
   const chartContainer = document.getElementById('chartContainer');
@@ -400,11 +400,11 @@
     headerDiv.className = 'row header';
     headerDiv.setAttribute('aria-hidden', 'false');
     headerDiv.innerHTML = `
-      <div class="cell firmware">📟 FIRMWARE</div>
-      <div class="cell">🖥️ USERLAND EXPLOITS</div>
-      <div class="cell kernel">⚙️ KERNEL EXPLOITS</div>
-      <div class="cell action">📌 COURSE OF ACTION</div>
-      <div class="cell info">ℹ️ DETAILS</div>
+      <div class="cell firmware">FIRMWARE</div>
+      <div class="cell">USERLAND EXPLOITS</div>
+      <div class="cell kernel">KERNEL EXPLOITS</div>
+      <div class="cell action">COURSE OF ACTION</div>
+      <div class="cell info">DETAILS</div>
     `;
     chartContainer.appendChild(headerDiv);
   }
