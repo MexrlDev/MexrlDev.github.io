@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta property="og:url" content="https://mexrl.dev" />
+    <meta property="og:site_name" content="MexrlDev" />
+    <meta property="description" content="About Me - MexrlDev" />
+    <meta name="theme-color" content="#0a0a0a" />
+    <meta property="og:image" content="https://mexrl.dev/pfp.gif" />
+    <title>MexrlDev · About</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0a0a0a;
+            font-family: 'Orbitron', sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #e0e0e0;
+        }
+
+        #background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        #background::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at center, transparent 60%, rgba(0, 255, 255, 0.08) 100%);
+            pointer-events: none;
+        }
+
+        .container {
+            position: relative;
+            z-index: 10;
+            width: 90%;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: rgba(10, 10, 10, 0.65);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(0, 255, 255, 0.35);
+            border-radius: 28px;
+            padding: 2.5rem 2rem;
+            box-shadow: 0 0 60px rgba(0, 255, 255, 0.25), 0 0 20px rgba(0, 255, 255, 0.4) inset;
+            animation: floatCard 6s ease-in-out infinite, glowPulse 3s ease-in-out infinite alternate;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        @keyframes floatCard {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+            100% { transform: translateY(0px); }
+        }
+
+        @keyframes glowPulse {
+            0% { box-shadow: 0 0 40px rgba(0, 255, 255, 0.15), 0 0 12px rgba(0, 255, 255, 0.3) inset; }
+            100% { box-shadow: 0 0 70px rgba(0, 255, 255, 0.3), 0 0 24px rgba(0, 255, 255, 0.5) inset; }
+        }
+
+        .profile-pic {
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            border: 3px solid cyan;
+            box-shadow: 0 0 35px cyan, 0 0 15px cyan inset;
+            margin-bottom: 1.8rem;
+            background: #0a0a0a;
+            object-fit: cover;
+        }
+
+        .title {
+            font-size: 2.6rem;
+            font-weight: 700;
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            color: #fff;
+            text-shadow: 0 0 15px cyan, 0 0 40px cyan, 0 0 80px cyan;
+            animation: textPulse 2.4s infinite;
+            margin-bottom: 1.5rem;
+        }
+
+        @keyframes textPulse {
+            0%, 100% { text-shadow: 0 0 12px cyan, 0 0 30px cyan; }
+            50% { text-shadow: 0 0 25px cyan, 0 0 60px cyan, 0 0 90px cyan; }
+        }
+
+        .info-line {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.8rem;
+            font-size: 1.2rem;
+            margin: 0.7rem 0;
+            width: 100%;
+            background: rgba(0, 255, 255, 0.05);
+            padding: 0.7rem 1.2rem;
+            border-radius: 60px;
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            transition: 0.3s;
+            backdrop-filter: blur(5px);
+        }
+
+        .info-line:hover {
+            background: rgba(0, 255, 255, 0.15);
+            border-color: cyan;
+            box-shadow: 0 0 20px rgba(0,255,255,0.4);
+        }
+
+        .info-line i {
+            font-size: 1.4rem;
+            color: cyan;
+            text-shadow: 0 0 10px cyan;
+            width: 28px;
+            text-align: center;
+        }
+
+        .info-line span {
+            color: #ddd;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1.2rem;
+            margin-top: 2rem;
+        }
+
+        .btn-neon {
+            text-decoration: none;
+            padding: 0.8rem 1.8rem;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 1rem;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(10, 10, 10, 0.7);
+            border: 1.5px solid cyan;
+            color: cyan;
+            text-shadow: 0 0 6px cyan;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.4);
+            transition: 0.3s;
+            backdrop-filter: blur(8px);
+        }
+
+        .btn-neon:hover {
+            background: cyan;
+            color: #0a0a0a;
+            text-shadow: none;
+            box-shadow: 0 0 40px cyan, 0 0 80px cyan;
+            border-color: #fff;
+            transform: translateY(-2px);
+        }
+
+        .copyright {
+            position: fixed;
+            bottom: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 20;
+            font-size: 0.85rem;
+            color: #555;
+            letter-spacing: 0.5px;
+            text-shadow: 0 0 12px rgba(0,255,255,0.3);
+            white-space: nowrap;
+        }
+
+        .copyright a {
+            color: #777;
+            text-decoration: none;
+        }
+
+        .copyright a:hover {
+            color: cyan;
+        }
+    </style>
+</head>
+<body>
+    <div id="background"></div>
+
+    <div class="container">
+        <div class="card">
+            <!-- Profile picture: place your image (Max.png / .jpg / .jpeg) in the same folder as this HTML file -->
+            <img class="profile-pic" src="Max.png" alt="MexrlDev avatar" />
+
+            <div class="title">About Me</div>
+
+            <div class="info-line">
+                <i class="fa-solid fa-user"></i>
+                <span>MexrlDev</span>
+            </div>
+            <div class="info-line">
+                <i class="fa-solid fa-cake-candles"></i>
+                <span>18 March</span>
+            </div>
+            <div class="info-line">
+                <i class="fa-solid fa-code"></i>
+                <span>Python, Lua, JS, C#</span>
+            </div>
+            <div class="info-line">
+                <i class="fa-solid fa-gamepad"></i>
+                <span>Anime, Manga, Music, Testing, Jailbreaking, Console Hacking</span>
+            </div>
+
+            <div class="button-group">
+                <a href="https://git.earthonion.com/X" target="_blank" class="btn-neon">
+                    <i class="fa-solid fa-code-branch"></i> Git.earthonion
+                </a>
+                <a href="https://github.com/MexrlDev" target="_blank" class="btn-neon">
+                    <i class="fa-brands fa-github"></i> GitHub
+                </a>
+                <a href="https://x.com/mexrl" target="_blank" class="btn-neon">
+                    <i class="fa-brands fa-x-twitter"></i> X
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="copyright">
+        © <span id="year"></span> MexrlDev · crafted with neon
+    </div>
+
+    <script src="https://unpkg.com/three@0.134.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vanta@0.5.24/dist/vanta.net.min.js"></script>
+    <script>
+        document.getElementById('year').textContent = new Date().getFullYear();
+
+        VANTA.NET({
+            el: "#background",
+            mouseControls: true,
+            touchControls: true,
+            gyroControls: false,
+            minHeight: 200.00,
+            minWidth: 200.00,
+            scale: 1.00,
+            scaleMobile: 1.00,
+            color: 0x00ffff,
+            backgroundColor: 0x0a0a0a,
+            points: 14.0,
+            maxDistance: 23.0,
+            spacing: 15.0,
+            showDots: true
+        });
+
+        const canvas = document.querySelector("#background canvas");
+        if (canvas) {
+            canvas.style.filter = "drop-shadow(0 0 8px rgba(0,255,255,0.6))";
+        }
+    </script>
+</body>
+</html>
