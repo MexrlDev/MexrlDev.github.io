@@ -78,7 +78,8 @@
             justify-content: center;
             padding: 2rem 1rem;
             text-align: center;
-            transform: translateY(-12%);
+            transform: translateY(-12%) scale(0.9);
+            transform-origin: center center;
         }
 
         #logo-container {
@@ -120,7 +121,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 0.5rem;
+            gap: 0.3rem;
             font-size: clamp(1rem, 4vw, 1.3rem);
             margin: 0.6rem 0;
             padding: 0.3rem 0;
@@ -129,10 +130,11 @@
 
         .info-line i {
             color: cyan;
-            font-size: 1.3em;
+            font-size: 1.2em;
             text-shadow: 0 0 12px cyan;
-            width: 1.8rem;
+            width: 1.5rem;
             text-align: center;
+            flex-shrink: 0;
         }
 
         .info-line span {
@@ -268,9 +270,9 @@
             scaleMobile: 1.0,
             color: 0x00ffff,
             backgroundColor: 0x0a0a0a,
-            points: 14.0,
-            maxDistance: 19.0,
-            spacing: 17.0,
+            points: 12.0,
+            maxDistance: 20.0,
+            spacing: 18.0,
             showDots: true
         });
 
@@ -280,7 +282,6 @@
             canvas.style.willChange = "transform";
         }
 
-        var bg = document.getElementById('background');
         var initialPinchDist = null;
         var baseScale = 1.0;
         var isPinching = false;
@@ -295,7 +296,7 @@
         }
 
         if (isMobile) {
-            bg.addEventListener('touchstart', function(e) {
+            document.addEventListener('touchstart', function(e) {
                 if (e.touches.length === 2) {
                     e.preventDefault();
                     initialPinchDist = Math.hypot(
@@ -312,7 +313,7 @@
                 }
             }, { passive: false });
 
-            bg.addEventListener('touchmove', function(e) {
+            document.addEventListener('touchmove', function(e) {
                 if (isPinching && e.touches.length === 2) {
                     e.preventDefault();
                     var newDist = Math.hypot(
@@ -335,7 +336,7 @@
                 }
             }, { passive: false });
 
-            bg.addEventListener('touchend', function(e) {
+            document.addEventListener('touchend', function(e) {
                 if (e.touches.length < 2) {
                     initialPinchDist = null;
                     isPinching = false;
@@ -349,7 +350,6 @@
             });
         }
 
-        // Prevent any accidental page scroll or zoom gestures
         document.addEventListener('gesturestart', function (e) { e.preventDefault(); });
         document.addEventListener('gesturechange', function (e) { e.preventDefault(); });
         document.addEventListener('gestureend', function (e) { e.preventDefault(); });
