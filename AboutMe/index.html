@@ -121,11 +121,19 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 0.3rem;
+            gap: 0.2rem;
             font-size: clamp(1rem, 4vw, 1.3rem);
             margin: 0.6rem 0;
             padding: 0.3rem 0;
             transition: all 0.3s;
+            touch-action: manipulation;
+        }
+
+        /* on larger screens, slightly increase gap for visual balance */
+        @media (min-width: 769px) {
+            .info-line {
+                gap: 0.55rem;
+            }
         }
 
         .info-line i {
@@ -135,12 +143,14 @@
             width: 1.5rem;
             text-align: center;
             flex-shrink: 0;
+            touch-action: manipulation;
         }
 
         .info-line span {
             color: #ffffff;
             font-weight: 500;
             text-shadow: 0 0 12px rgba(255,255,255,0.35), 0 0 4px rgba(255,255,255,0.2);
+            touch-action: manipulation;
         }
 
         #links {
@@ -224,7 +234,7 @@
         </div>
         <div class="info-line">
             <i class="fa-solid fa-cake-candles"></i>
-            <span>18 March</span>
+            <span>March</span>
         </div>
         <div class="info-line">
             <i class="fa-solid fa-code"></i>
@@ -259,6 +269,7 @@
 
         var isMobile = ('ontouchstart' in window) || navigator.maxTouchPoints > 0 || window.innerWidth <= 768;
         var scaleValue = 1.0;
+
         var effect = VANTA.NET({
             el: "#background",
             mouseControls: true,
@@ -270,9 +281,9 @@
             scaleMobile: 1.0,
             color: 0x00ffff,
             backgroundColor: 0x0a0a0a,
-            points: 12.0,
+            points: 11.0,
             maxDistance: 20.0,
-            spacing: 18.0,
+            spacing: 19.0,
             showDots: true
         });
 
@@ -348,6 +359,16 @@
                     simulateMouseMove(lastTouchX, lastTouchY);
                 }
             });
+
+            // completely block double‑tap zoom on mobile
+            var lastTapTime = 0;
+            document.addEventListener('touchend', function(e) {
+                var now = Date.now();
+                if (now - lastTapTime < 300 && e.target) {
+                    e.preventDefault();
+                }
+                lastTapTime = now;
+            }, { passive: false });
         }
 
         document.addEventListener('gesturestart', function (e) { e.preventDefault(); });
