@@ -48,6 +48,12 @@
             inset: 0;
             background: radial-gradient(ellipse at center, transparent 50%, rgba(0,255,255,0.04) 100%);
             pointer-events: none;
+            animation: breath 6s ease-in-out infinite alternate;
+        }
+
+        @keyframes breath {
+            0% { opacity: 0.6; }
+            100% { opacity: 1; }
         }
 
         #container {
@@ -67,48 +73,45 @@
         }
 
         #profile-pic {
-            width: clamp(90px, 20vw, 130px);
-            height: clamp(90px, 20vw, 130px);
+            width: clamp(120px, 28vw, 170px);
+            height: clamp(120px, 28vw, 170px);
             border-radius: 50%;
-            border: 3px solid cyan;
-            box-shadow: 0 0 40px cyan, 0 0 20px cyan inset;
             object-fit: cover;
             background: #0a0a0a;
-            transition: transform 0.3s ease;
+            box-shadow: 0 0 45px rgba(0,255,255,0.5), 0 0 20px rgba(0,255,255,0.3) inset;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
 
         #profile-pic:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 60px cyan, 0 0 30px cyan inset;
+            transform: scale(1.04);
+            box-shadow: 0 0 70px cyan, 0 0 35px rgba(0,255,255,0.6) inset;
         }
 
         #logo {
-            font-size: clamp(2rem, 8vw, 3.2rem);
+            font-size: clamp(1.5rem, 6.5vw, 2.4rem);
             font-weight: 700;
             letter-spacing: 0.3em;
             text-transform: uppercase;
             color: #fff;
-            text-shadow: 0 0 15px cyan, 0 0 40px cyan, 0 0 70px cyan;
+            text-shadow: 0 0 18px cyan, 0 0 45px cyan, 0 0 80px rgba(0,255,255,0.7);
             animation: pulseText 2.5s infinite;
             margin-bottom: 2rem;
         }
 
         @keyframes pulseText {
-            0%, 100% { text-shadow: 0 0 12px cyan, 0 0 30px cyan; }
-            50% { text-shadow: 0 0 25px cyan, 0 0 60px cyan, 0 0 90px cyan; }
+            0%, 100% { text-shadow: 0 0 15px cyan, 0 0 35px cyan; }
+            50% { text-shadow: 0 0 28px cyan, 0 0 65px cyan, 0 0 100px cyan; }
         }
 
         .info-line {
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 0.8rem;
+            gap: 0.5rem;
             font-size: clamp(1rem, 4vw, 1.3rem);
             margin: 0.6rem 0;
-            color: #ccc;
-            text-shadow: 0 0 8px rgba(0,255,255,0.5);
-            transition: all 0.3s;
             padding: 0.3rem 0;
+            transition: all 0.3s;
         }
 
         .info-line i {
@@ -120,7 +123,9 @@
         }
 
         .info-line span {
+            color: #ffffff;
             font-weight: 500;
+            text-shadow: 0 0 12px rgba(255,255,255,0.35), 0 0 4px rgba(255,255,255,0.2);
         }
 
         #links {
@@ -235,26 +240,28 @@
     <script>
         document.getElementById('year').textContent = new Date().getFullYear();
 
+        var isMobile = (('ontouchstart' in window) || navigator.maxTouchPoints > 0 || window.innerWidth <= 768);
+
         VANTA.NET({
             el: "#background",
             mouseControls: true,
             touchControls: true,
-            gyroControls: false,
+            gyroControls: isMobile,
             minHeight: 200.00,
             minWidth: 200.00,
             scale: 1.00,
             scaleMobile: 1.00,
             color: 0x00ffff,
             backgroundColor: 0x0a0a0a,
-            points: 15.0,
-            maxDistance: 23.0,
-            spacing: 16.0,
+            points: 18.0,
+            maxDistance: 24.0,
+            spacing: 14.0,
             showDots: true
         });
 
         var canvas = document.querySelector("#background canvas");
         if (canvas) {
-            canvas.style.filter = "drop-shadow(0 0 10px rgba(0,255,255,0.7))";
+            canvas.style.filter = "drop-shadow(0 0 12px rgba(0,255,255,0.7))";
         }
     </script>
 </body>
