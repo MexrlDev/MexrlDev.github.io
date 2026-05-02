@@ -18,6 +18,10 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
         }
 
         body {
@@ -31,9 +35,7 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            user-select: none;
-            -webkit-user-select: none;
-            -webkit-touch-callout: none;
+            touch-action: manipulation;
         }
 
         #background {
@@ -43,17 +45,10 @@
             width: 100%;
             height: 100%;
             z-index: 0;
-            transition: all 0.2s ease;
         }
 
-        /* mobile: background slightly shrinks inward */
-        @media (max-width: 768px) {
-            #background {
-                width: 94%;
-                height: 94%;
-                top: 3%;
-                left: 3%;
-            }
+        #background canvas {
+            touch-action: none;
         }
 
         #background::after {
@@ -80,11 +75,6 @@
             justify-content: center;
             padding: 2rem 1rem;
             text-align: center;
-            pointer-events: none;
-        }
-
-        #container > * {
-            pointer-events: auto;
         }
 
         #logo-container {
@@ -94,9 +84,9 @@
         #profile-pic {
             width: clamp(120px, 28vw, 170px);
             height: clamp(120px, 28vw, 170px);
-            border-radius: 0;
+            border-radius: 50%;
             object-fit: cover;
-            background: transparent;
+            background: #0a0a0a;
             box-shadow: 0 0 45px rgba(0,255,255,0.5), 0 0 20px rgba(0,255,255,0.3) inset;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
@@ -262,80 +252,94 @@
         document.getElementById('year').textContent = new Date().getFullYear();
 
         var isMobile = ('ontouchstart' in window) || navigator.maxTouchPoints > 0 || window.innerWidth <= 768;
-
-        var vantaEffect = VANTA.NET({
+        var scaleValue = 1.0;
+        var effect = VANTA.NET({
             el: "#background",
-            mouseControls: !isMobile,
+            mouseControls: true,
             touchControls: false,
-            gyroControls: false,
+            gyroControls: isMobile,
             minHeight: 200.00,
             minWidth: 200.00,
-            scale: 1.00,
-            scaleMobile: 1.00,
+            scale: 1.0,
+            scaleMobile: 1.0,
             color: 0x00ffff,
             backgroundColor: 0x0a0a0a,
-            points: 16.0,
-            maxDistance: 23.0,
-            spacing: 15.0,
+            points: 10.0,
+            maxDistance: 18.0,
+            spacing: 20.0,
             showDots: true
         });
 
         var canvas = document.querySelector("#background canvas");
         if (canvas) {
-            canvas.style.filter = "drop-shadow(0 0 10px rgba(0,255,255,0.7))";
-            canvas.style.touchAction = "none";  // prevent browser gestures
+            canvas.style.filter = "drop-shadow(0 0 12px rgba(0,255,255,0.7))";
         }
 
-        if (isMobile && vantaEffect && vantaEffect.$.group) {
-            var group = vantaEffect.$.group;
-            var rotX = 0, rotY = 0;
-            var lastPinchDist = 0;
-            var baseScale = 1.0;
-            var prevTouch = null;
+        var bg = document.getElementById('background');
+        var initialPinchDist = null;
+        var baseScale = 1.0;
+        var isPinching = false;
+        var lastTouchX = 0;
+        var lastTouchY = 0;
 
-            canvas.addEventListener('touchstart', function(e) {
-                e.preventDefault();
-                if (e.touches.length === 1) {
-                    prevTouch = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-                } else if (e.touches.length === 2) {
-                    prevTouch = null;
-                    lastPinchDist = Math.hypot(
-                        e.touches[1].clientX - e.touches[0].clientX,
-                        e.touches[1].clientY - e.touches[0].clientY
+        function simulateMouseMove(x, y) {
+            window.dispatchEvent(new MouseEvent('mousemove', {
+                clientX: x,
+                clientY: y
+            }));
+        }
+
+        if (isMobile) {
+            bg.addEventListener('touchstart', function(e) {
+                if (e.touches.length === 2) {
+                    e.preventDefault();
+                    initialPinchDist = Math.hypot(
+                        e.touches[0].clientX - e.touches[1].clientX,
+                        e.touches[0].clientY - e.touches[1].clientY
                     );
-                    baseScale = vantaEffect.getOptions().scale;
+                    baseScale = scaleValue;
+                    isPinching = true;
+                } else if (e.touches.length === 1) {
+                    var touch = e.touches[0];
+                    lastTouchX = touch.clientX;
+                    lastTouchY = touch.clientY;
+                    simulateMouseMove(lastTouchX, lastTouchY);
                 }
             }, { passive: false });
 
-            canvas.addEventListener('touchmove', function(e) {
-                e.preventDefault();
-                if (e.touches.length === 1 && prevTouch) {
-                    var dx = e.touches[0].clientX - prevTouch.x;
-                    var dy = e.touches[0].clientY - prevTouch.y;
-                    rotY += dx * 0.005;
-                    rotX -= dy * 0.005;
-                    rotX = Math.max(-Math.PI/4, Math.min(Math.PI/4, rotX));
-                    group.rotation.x = rotX;
-                    group.rotation.y = rotY;
-                    prevTouch = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-                } else if (e.touches.length === 2) {
-                    var curDist = Math.hypot(
-                        e.touches[1].clientX - e.touches[0].clientX,
-                        e.touches[1].clientY - e.touches[0].clientY
+            bg.addEventListener('touchmove', function(e) {
+                if (isPinching && e.touches.length === 2) {
+                    e.preventDefault();
+                    var newDist = Math.hypot(
+                        e.touches[0].clientX - e.touches[1].clientX,
+                        e.touches[0].clientY - e.touches[1].clientY
                     );
-                    if (lastPinchDist > 0) {
-                        var newScale = baseScale * (curDist / lastPinchDist);
-                        newScale = Math.min(2.5, Math.max(0.5, newScale));
-                        vantaEffect.setOptions({ scale: newScale });
+                    if (initialPinchDist > 0) {
+                        var scaleChange = newDist / initialPinchDist;
+                        var newScale = Math.max(0.6, Math.min(2.2, baseScale * scaleChange));
+                        if (Math.abs(newScale - scaleValue) > 0.01) {
+                            scaleValue = newScale;
+                            effect.setOptions({ scale: scaleValue });
+                        }
                     }
+                } else if (!isPinching && e.touches.length === 1) {
+                    var touch = e.touches[0];
+                    lastTouchX = touch.clientX;
+                    lastTouchY = touch.clientY;
+                    simulateMouseMove(lastTouchX, lastTouchY);
                 }
             }, { passive: false });
 
-            canvas.addEventListener('touchend', function(e) {
-                e.preventDefault();
-                if (e.touches.length === 0) {
-                    prevTouch = null;
-                    lastPinchDist = 0;
+            bg.addEventListener('touchend', function(e) {
+                if (e.touches.length < 2) {
+                    initialPinchDist = null;
+                    isPinching = false;
+                }
+                if (e.touches.length === 1) {
+                    var touch = e.touches[0];
+                    lastTouchX = touch.clientX;
+                    lastTouchY = touch.clientY;
+                    simulateMouseMove(lastTouchX, lastTouchY);
                 }
             });
         }
