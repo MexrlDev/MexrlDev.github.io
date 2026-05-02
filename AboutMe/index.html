@@ -36,6 +36,9 @@
             align-items: center;
             justify-content: center;
             touch-action: manipulation;
+            position: fixed;
+            top: 0;
+            left: 0;
         }
 
         #background {
@@ -75,6 +78,7 @@
             justify-content: center;
             padding: 2rem 1rem;
             text-align: center;
+            transform: translateY(-12%);
         }
 
         #logo-container {
@@ -243,7 +247,7 @@
     </div>
 
     <div id="copyright">
-        © <span id="year"></span> MexrlDev · neon flow
+        © <span id="year"></span> MexrlDev
     </div>
 
     <script src="https://unpkg.com/three@0.134.0/build/three.min.js"></script>
@@ -264,15 +268,16 @@
             scaleMobile: 1.0,
             color: 0x00ffff,
             backgroundColor: 0x0a0a0a,
-            points: 10.0,
-            maxDistance: 18.0,
-            spacing: 20.0,
+            points: 14.0,
+            maxDistance: 19.0,
+            spacing: 17.0,
             showDots: true
         });
 
         var canvas = document.querySelector("#background canvas");
         if (canvas) {
             canvas.style.filter = "drop-shadow(0 0 12px rgba(0,255,255,0.7))";
+            canvas.style.willChange = "transform";
         }
 
         var bg = document.getElementById('background');
@@ -343,6 +348,11 @@
                 }
             });
         }
+
+        // Prevent any accidental page scroll or zoom gestures
+        document.addEventListener('gesturestart', function (e) { e.preventDefault(); });
+        document.addEventListener('gesturechange', function (e) { e.preventDefault(); });
+        document.addEventListener('gestureend', function (e) { e.preventDefault(); });
     </script>
 </body>
 </html>
