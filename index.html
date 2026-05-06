@@ -268,7 +268,6 @@ function buildMenu(items){
   }
 }
 
-/* Navigate helper: external opens new tab, internal navigates same tab */
 function navigateTo(url, external = false){
   console.info('navigateTo', url, 'external=', external);
   try {
@@ -288,7 +287,6 @@ function onMenuClick(e){
   const script = btn.dataset.script;
 
   if(link){
-    // If link is absolute (http/https) open in new tab; else treat as relative path
     if(/^https?:\/\//i.test(link)){
       navigateTo(link, true);
     } else {
@@ -300,30 +298,27 @@ function onMenuClick(e){
   if(script){
     let target = script.trim();
 
-    // allow a github:owner/repo/path shorthand if you prefer
     if(target.startsWith('github:')){
       const ghPath = target.slice('github:'.length);
       const ghUrl = 'https://github.com/' + ghPath;
       navigateTo(ghUrl, true);
       return;
     }
-
-    // if the script is an absolute http(s) URL, open in new tab
+    
     if(/^https?:\/\//i.test(target)){
       navigateTo(target, true);
       return;
     }
-
-    // ensure .html when there's no extension at all
     if(!target.includes('.')){
       target = target + '.html';
     }
-
-    // if user provided an explicit path, use it as-is
     if(target.startsWith('./') || target.startsWith('/')){
       navigateTo(target, false);
-    } else {
-      // default location inside ./scripts/
+    }
+    else if(target.includes('/')){
+      navigateTo('./' + target, false);
+    }
+    else {
       navigateTo('./scripts/' + target, false);
     }
     return;
@@ -334,7 +329,6 @@ function onMenuClick(e){
 
 buildMenu(buttonsData);
 
-/* Music autoplay + UI logic (unchanged) */
 const audio = document.getElementById('bgAudio');
 const musicBtn = document.getElementById('musicBtn');
 const musicIcon = document.getElementById('musicIcon');
@@ -464,8 +458,3 @@ window.addEventListener('keydown', () => {
 </script>
 </body>
 </html>
-
-
-
-
-
