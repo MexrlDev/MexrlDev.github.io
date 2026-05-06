@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <meta property="og:url" content="https://mexrldev.github.io" />
+    <meta property="og:url" content="https://mexrl.dev" />
     <meta property="og:site_name" content="MexrlDev" />
     <meta property="description" content="About Me - MexrlDev" />
     <meta name="theme-color" content="#0a0a0a" />
@@ -261,6 +261,11 @@
         © <span id="year"></span> MexrlDev
     </div>
 
+    <!-- Hidden audio element, no loop, preload auto -->
+    <audio id="bgAudio" preload="auto">
+        <source src="https://raw.githubusercontent.com/MexrlDev/MexrlDev.github.io/refs/heads/main/AboutMe/Floods%20_outro.mp3" type="audio/mpeg">
+    </audio>
+
     <script src="https://unpkg.com/three@0.134.0/build/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vanta@0.5.24/dist/vanta.net.min.js"></script>
     <script>
@@ -375,13 +380,39 @@
     </script>
     <script>
         (function() {
-            if (!localStorage.getItem('bgMusicPlayed')) {
-                var audio = new Audio('https://raw.githubusercontent.com/MexrlDev/MexrlDev.github.io/refs/heads/main/AboutMe/Floods%20_outro.mp3');
-                audio.volume = 0.5;
-                audio.play().then(function() {
+            if (localStorage.getItem('bgMusicPlayed')) return;
+
+            const audio = document.getElementById('bgAudio');
+            if (!audio) return;
+
+            audio.loop = false;
+            audio.volume = 0.85;
+
+            let isMutedFallback = false;
+
+            audio.play().then(() => {
+                localStorage.setItem('bgMusicPlayed', 'true');
+            }).catch(() => {
+                audio.muted = true;
+                return audio.play();
+            }).then(() => {
+                if (audio.muted) {
+                    isMutedFallback = true;
                     localStorage.setItem('bgMusicPlayed', 'true');
-                }).catch(function() {});
-            }
+                    const unmuteHandler = () => {
+                        if (isMutedFallback && audio.muted) {
+                            audio.muted = false;
+                            audio.play().catch(() => {});
+                            isMutedFallback = false;
+                        }
+                        window.removeEventListener('pointerdown', unmuteHandler);
+                        window.removeEventListener('keydown', unmuteHandler);
+                    };
+                    window.addEventListener('pointerdown', unmuteHandler, { once: true });
+                    window.addEventListener('keydown', unmuteHandler, { once: true });
+                }
+            }).catch(() => {
+            });
         })();
     </script>
 </body>
