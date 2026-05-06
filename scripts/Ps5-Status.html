@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
+  <title>PS5 JB Status</title>
+  <link rel="icon" type="image/png" href="./img/icon.png">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    :root {
+      --page-pad: 1.5rem;
+      --card-radius: 1.25rem;
+      --glass-bg: rgba(255, 255, 255, 0.04);
+      --glass-border: rgba(255, 255, 255, 0.1);
+      --accent: #ffffff;
+      --muted: rgba(255, 255, 255, 0.68);
+      --shadow: rgba(0, 0, 0, 0.5);
+      --gap: 1rem;
+      --font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      --max-width: 1300px;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: var(--font-family);
+      color: var(--accent);
+      background: #0a0a0c;
+      line-height: 1.5;
+    }
+
+    .bg-fixed {
+      position: fixed;
+      inset: 0;
+      background-image: url('../img/Baek.png');
+      background-size: cover;
+      background-position: center;
+      filter: brightness(0.35) contrast(1.15);
+      z-index: -2;
+    }
+
+    .bg-overlay {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at 20% 30%, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.75));
+      z-index: -1;
+    }
+
+    .wrap {
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 1.5rem 1rem;
+    }
+
+    .panel {
+      width: min(var(--max-width), 100%);
+      background: rgba(255, 255, 255, 0.035);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-radius: 1.75rem;
+      padding: var(--page-pad);
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6), inset 0 0 30px rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--glass-border);
+      transition: border-color 0.2s;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .left-head {
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+
+    .title {
+      font-size: 1.8rem;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      background: linear-gradient(135deg, #ffffff 0%, #b0b0ff 80%);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    .subtitle {
+      font-size: 0.8rem;
+      opacity: 0.75;
+      max-width: 500px;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.7rem;
+      align-items: center;
+    }
+
+    .btn {
+      padding: 0.55rem 1.1rem;
+      border-radius: 2rem;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      background: rgba(20, 20, 30, 0.6);
+      backdrop-filter: blur(6px);
+      color: var(--accent);
+      cursor: pointer;
+      font-weight: 500;
+      font-size: 0.85rem;
+      transition: all 0.2s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      white-space: nowrap;
+    }
+    .btn:active {
+      transform: scale(0.97);
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+    .search {
+      padding: 0.55rem 1rem;
+      border-radius: 2rem;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(6px);
+      color: white;
+      font-size: 0.9rem;
+      min-width: 190px;
+      outline: none;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .search:focus {
+      border-color: rgba(255, 255, 255, 0.55);
+      background: rgba(0, 0, 0, 0.65);
+    }
+
+    /* ----- Desktop chart grid ----- */
+    .chart {
+      width: 100%;
+      margin-top: 0.5rem;
+    }
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1.4fr 1.4fr 1fr 1.2fr;
+      gap: 1rem;
+      padding: 1.1rem 1rem;
+      border-radius: 1.2rem;
+      background: rgba(255, 255, 255, 0.035);
+      backdrop-filter: blur(4px);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      align-items: start;
+      margin-bottom: 0.75rem;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .row.header {
+      position: sticky;
+      top: 0;
+      z-index: 15;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(16px);
+      font-weight: 700;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 1rem 1rem 0 0;
+      margin-bottom: 0.5rem;
+      color: #ffffffcc;
+    }
+    .cell {
+      padding: 0.2rem 0;
+      word-break: break-word;
+      overflow-wrap: break-word;
+    }
+    .list {
+      margin: 0.2rem 0 0 1.2rem;
+      padding-left: 0.2rem;
+      list-style: disc;
+    }
+    .list li {
+      margin: 0.35rem 0;
+      line-height: 1.35;
+      font-size: 0.85rem;
+    }
+    .small {
+      font-size: 0.8rem;
+      line-height: 1.45;
+    }
+    .muted {
+      color: var(--muted);
+    }
+    .firmware {
+      font-weight: 800;
+      font-size: 1rem;
+      letter-spacing: -0.2px;
+    }
+
+    .label {
+      display: none;
+      font-weight: 700;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      color: rgba(255, 255, 255, 0.75);
+    }
+
+    @media (max-width: 860px) {
+      .row {
+        display: block;
+        padding: 1rem 1rem 0.8rem;
+        margin-bottom: 1rem;
+        border-radius: 1.25rem;
+        background: rgba(255, 255, 255, 0.045);
+        backdrop-filter: blur(6px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      .row.header {
+        display: none;
+      }
+      .field {
+        display: flex;
+        align-items: baseline;
+        padding: 0.7rem 0;
+        border-bottom: 1px dashed rgba(255, 255, 255, 0.08);
+      }
+      .field:last-child {
+        border-bottom: none;
+      }
+      .label {
+        display: inline-block;
+        width: 105px;
+        flex-shrink: 0;
+        margin-right: 0.5rem;
+      }
+      .value {
+        flex: 1;
+        word-break: break-word;
+      }
+      .list {
+        margin-top: 0.15rem;
+        margin-left: 0;
+        padding-left: 0.8rem;
+        display: block;
+      }
+      .list li {
+        font-size: 0.82rem;
+      }
+      .cell {
+        padding: 0;
+      }
+      .controls {
+        width: 100%;
+        justify-content: flex-start;
+      }
+      .search {
+        flex: 1;
+        min-width: 140px;
+      }
+      .firmware {
+        font-size: 1rem;
+      }
+    }
+
+    @media (max-width: 500px) {
+      .panel {
+        padding: 1rem;
+      }
+      .label {
+        width: 90px;
+        font-size: 0.75rem;
+      }
+      .title {
+        font-size: 1.5rem;
+      }
+      .btn {
+        padding: 0.45rem 0.9rem;
+        font-size: 0.8rem;
+      }
+    }
+
+    .hint {
+      text-align: center;
+      font-size: 0.7rem;
+      margin-top: 1.2rem;
+      opacity: 0.65;
+    }
+    .credit {
+      text-align: right;
+      font-size: 0.7rem;
+      margin-top: 0.6rem;
+      opacity: 0.5;
+    }
+    button, .btn, .search {
+      font-family: inherit;
+    }
+    a.btn {
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+<div class="bg-fixed" aria-hidden="true"></div>
+<div class="bg-overlay" aria-hidden="true"></div>
+
+<div class="wrap">
+  <div class="panel" role="main" aria-label="PS5 Jailbreak Status - Kernel and Userland exploits">
+    <header>
+      <div class="left-head">
+        <div class="title">PS5 JB Status</div>
+        <div class="subtitle">Userland and kernel exploits — complete firmware history</div>
+      </div>
+      <div class="controls">
+        <input id="search" class="search" type="search" placeholder="Filter by firmware, exploit..." aria-label="Search chart">
+        <button class="btn" id="reset">Reset</button>
+        <a href="../index.html" class="btn">Main</a>
+        <div id="musicBtn" class="btn" aria-pressed="false" role="button">Play Music</div>
+      </div>
+    </header>
+
+    <div id="chartContainer" class="chart" aria-live="polite"></div>
+
+    <div class="hint small">Always Updated</div>
+    <div class="credit muted">Owned by Mexrl</div>
+  </div>
+</div>
+
+<audio id="bgAudio" loop preload="auto"><source src="../music/bg.mp3" type="audio/mpeg"></audio>
+
+<script>
+  // ---------- Y3ah ----------
+  const rowsData = [
+    {
+      firmware: '1.00 - 2.50',
+      userland: [
+        'WebKit exploit (early CVE)',
+        'BD-J (Blu‑ray Java)',
+        'PS4 save game exploits (cross‑platform)'
+      ],
+      kernel: [
+        'Bypevisor (hypervisor exploit)',
+        'HV dump & modification'
+      ],
+      action: 'Stay for full hypervisor access',
+      info: 'The golden range for deep hardware access. Hypervisor exploit allows Linux with full GPU acceleration, ray tracing, and Steam support.'
+    },
+    {
+      firmware: '2.50 - 4.03',
+      userland: [
+        'WebKit type‑confusion (CVE‑2021‑30889 variant)',
+        'BD-J Xlet (Java sandbox escape)',
+        'Lua loader (cross‑platform)'
+      ],
+      kernel: [
+        'IPV6 kernel exploit (TheFloW)',
+        'bdj-ipv6-hen (ELF loader for 3.00-4.51)',
+        'Some hypervisor access'
+      ],
+      action: 'Stay — best for early kernels',
+      info: 'IPV6 exploit chain is stable on ≤4.03. BD‑J ISO loading works. Linux possible on older models.'
+    },
+    {
+      firmware: '4.03 - 4.51',
+      userland: [
+        'WebKit (same CVE‑2021‑30889)',
+        'BD-J IPV6 HEN',
+        'Yarpe (save‑game exploit)'
+      ],
+      kernel: [
+        'Optimized IPV6 kernel exploit',
+        'etaHEN / Kstuff payloads',
+        'HV still partially accessible'
+      ],
+      action: 'Stay — very stable range',
+      info: 'IPV6 kernel exploit is public and reliable. Homebrew enablers (etaHEN, Kstuff) work well.'
+    },
+    {
+      firmware: '5.00 - 5.50',
+      userland: [
+        'WebKit exploits (various)',
+        'Lua loader',
+        'BD-J (limited)',
+        'Save game exploits (PS4 cross)'
+      ],
+      kernel: [
+        'UMTX kernel exploit (5.xx specific)',
+        'Lapse (experimental port)',
+        'No public IPV6 exploit'
+      ],
+      action: 'Update to 9.xx or stay with UMTX',
+      info: 'IPV6 patched. UMTX exploit is possible but less stable. Consider updating to 9.00-9.60 for better support.'
+    },
+    {
+      firmware: '7.00 - 8.52',
+      userland: [
+        'WebKit exploits (patched later)',
+        'Lua loader',
+        'Yarpe save exploit',
+        'Netflix‑N‑Hack (media app)'
+      ],
+      kernel: [
+        'Lapse kernel exploit (ported from PS4)',
+        'Poopsploit (theoretical on some)',
+        'No UMTX exploit'
+      ],
+      action: 'Update to 9.00-9.60 if possible',
+      info: 'Transition firmwares. Lapse works on some, but 9.xx offers better overall stability and tool support.'
+    },
+    {
+      firmware: '9.00 - 9.60',
+      userland: [
+        'WebKit type‑confusion (CVE‑2021‑30889)',
+        'Y2JB (YouTube app exploit)',
+        'Netflix‑N‑Hack',
+        'Yarpe save exploit',
+        'Lua loader'
+      ],
+      kernel: [
+        'Lapse kernel exploit (stable)',
+        'Poopsploit (backported)',
+        'etaHEN 2.5b / Kstuff'
+      ],
+      action: 'STAY — strongest current range',
+      info: 'The most practical and active environment. Combined userland+kernel chains work reliably. Y2JB v1.3 offers one‑click jailbreak. Best for backups and homebrew.'
+    },
+    {
+      firmware: '10.00 - 10.50',
+      userland: [
+        'Y2JB (YouTube app)',
+        'Netflix‑N‑Hack',
+        'Yarpe save exploit',
+        'Lua loader'
+      ],
+      kernel: [
+        'Lapse (works on some)',
+        'PS5 kernel PoC ≤10.40 (fsc_control)',
+        'No public IPV6'
+      ],
+      action: 'Stay if on ≤10.40, update to 11.00 otherwise',
+      info: 'New kernel PoC for ≤10.40 discovered, but no full chain yet. Lapse stability varies. Y2JB userland entry works.'
+    },
+    {
+      firmware: '10.71 - 11.00',
+      userland: [
+        'Y2JB (YouTube app)',
+        'Netflix‑N‑Hack',
+        'BD‑J (limited)',
+        'Lua loader',
+        'Yarpe save exploit'
+      ],
+      kernel: [
+        'Lapse kernel exploit',
+        'Poopsploit',
+        'Orbiskit (11.00 toolkit)'
+      ],
+      action: 'Stay on 11.00 — good support',
+      info: 'Orbiskit open‑source toolkit targets 11.00. Full exploit chain from WebKit to kernel. PS5 Toolkit 11.xx released.'
+    },
+    {
+      firmware: '11.02 - 11.52',
+      userland: [
+        'Y2JB',
+        'Netflix‑N‑Hack',
+        'BD‑J',
+        'Lua loader',
+        'Yarpe'
+      ],
+      kernel: [
+        'Lapse',
+        'Poopsploit',
+        'Some HV work'
+      ],
+      action: 'Stay or update to 12.00-12.02',
+      info: 'BD‑J easiest entry. Y2JB works. Community tools active.'
+    },
+    {
+      firmware: '12.00',
+      userland: [
+        'Y2JB (up to 12.02)',
+        'WebKit vulnerability (private, up to 12.00)',
+        'BD‑J',
+        'Luac0re & Mast1c0re',
+        'Lua loader'
+      ],
+      kernel: [
+        'Poobs kernel exploit (ported to 12.00)',
+        'Lapse',
+        'Poopsploit'
+      ],
+      action: 'Stay — major breakthrough',
+      info: 'Full exploit chain demonstrated: userland → kernel → unsigned code execution. ELF loader, payload execution, GPU patches confirmed. Still internal/unreleased. Requires Star Wars: Racer Revenge disc.'
+    },
+    {
+      firmware: '12.02 - 12.52',
+      userland: [
+        'Y2JB (up to 12.02)',
+        'BD‑J',
+        'Yarpe save exploit',
+        'Lua loader',
+        'Netflix‑N‑Hack'
+      ],
+      kernel: [
+        'Poopsploit / Poopsploit JS',
+        'Lapse (some models)'
+      ],
+      action: 'Stay on 12.02 if possible',
+      info: 'Y2JB patched in 12.60. BD‑J remains. Lapse works on some. Yarpe supports up to 12.02.'
+    },
+    {
+      firmware: '12.50 / 12.52',
+      userland: [
+        'BD‑J',
+        'Lua loader',
+        'Yarpe (theoretical)',
+        'Mast1c0re'
+      ],
+      kernel: [
+        'Poopsploit JS',
+        'NetControl (PS4 exploit, PS5 port possible)'
+      ],
+      action: 'Stay on current',
+      info: 'BD‑J is primary entry. Kernel access limited but Poopsploit works.'
+    },
+    {
+      firmware: '12.60 - 12.70',
+      userland: [
+        'BD‑J',
+        'Lua loader',
+        'Mast1c0re (theoretical)'
+      ],
+      kernel: [
+        'Gezine 12.70 kernel exploit (public)',
+        'Poopsploit JS'
+      ],
+      action: 'Stay if ≤12.70, update to 13.xx if higher',
+      info: '12.70 kernel exploit released publicly by Gezine. Not yet practical as full jailbreak but technical write‑up available. Patched in 13.00.'
+    },
+    {
+      firmware: '13.00 - 13.04',
+      userland: [
+        'BD‑J (13.02/13.04 specific)',
+        'Lua loader',
+        'Mast1c0re'
+      ],
+      kernel: [
+        'Gezine kernel exploit (unpublished, exists for 13.xx)',
+        'Poopsploit JS'
+      ],
+      action: 'Stay on current',
+      info: 'Unpublished kernel exploit exists for 13.xx. BD‑J entry works. Wait for public release.'
+    },
+    {
+      firmware: '13.50+',
+      userland: [
+        'BD‑J (13.50 version)',
+        'LuaC0re',
+        'Mast‑c0re'
+      ],
+      kernel: [
+        'Gezine (private)',
+        'Future research'
+      ],
+      action: 'Stay and wait for further research',
+      info: 'Most recent firmware. Limited public exploits. BD‑J entry confirmed. BootROM key leak (Dec 2025) may enable future hardware‑level attacks on all PS5s.'
+    }
+  ];
+
+  const chartContainer = document.getElementById('chartContainer');
+  const searchInput = document.getElementById('search');
+  const resetBtn = document.getElementById('reset');
+
+  function escapeHtml(str) {
+    if (!str) return '';
+    return String(str).replace(/[&<>]/g, function(m) {
+      if (m === '&') return '&amp;';
+      if (m === '<') return '&lt;';
+      if (m === '>') return '&gt;';
+      return m;
+    });
+  }
+
+  function renderHeader() {
+    const headerDiv = document.createElement('div');
+    headerDiv.className = 'row header';
+    headerDiv.setAttribute('aria-hidden', 'false');
+    headerDiv.innerHTML = `
+      <div class="cell firmware">Firmware</div>
+      <div class="cell">Userland Exploits</div>
+      <div class="cell">Kernel Exploits</div>
+      <div class="cell">Course Of Action</div>
+      <div class="cell">Details</div>
+    `;
+    chartContainer.appendChild(headerDiv);
+  }
+
+  function renderRows(items) {
+    const existingRows = chartContainer.querySelectorAll('.row.data');
+    existingRows.forEach(row => row.remove());
+
+    items.forEach(entry => {
+      const rowDiv = document.createElement('div');
+      rowDiv.className = 'row data';
+      rowDiv.tabIndex = 0;
+
+      let userlandHtml = '';
+      if (entry.userland && entry.userland.length) {
+        userlandHtml = `<span class="value"><ul class="list">${entry.userland.map(exp => `<li>${escapeHtml(exp)}</li>`).join('')}</ul></span>`;
+      } else {
+        userlandHtml = `<span class="value small muted">No public userland</span>`;
+      }
+
+      let kernelHtml = '';
+      if (entry.kernel && entry.kernel.length) {
+        kernelHtml = `<span class="value"><ul class="list">${entry.kernel.map(kexp => `<li>${escapeHtml(kexp)}</li>`).join('')}</ul></span>`;
+      } else {
+        kernelHtml = `<span class="value small muted">No known kernel</span>`;
+      }
+
+      const actionHtml = `<span class="value small">${escapeHtml(entry.action)}</span>`;
+      const infoHtml = `<span class="value small">${escapeHtml(entry.info)}</span>`;
+
+      rowDiv.innerHTML = `
+        <div class="field firmware">
+          <span class="label">Firmware</span>
+          <span class="value firmware">${escapeHtml(entry.firmware)}</span>
+        </div>
+        <div class="field userland">
+          <span class="label">Userland</span>
+          ${userlandHtml}
+        </div>
+        <div class="field kernel">
+          <span class="label">Kernel</span>
+          ${kernelHtml}
+        </div>
+        <div class="field action">
+          <span class="label">Action</span>
+          ${actionHtml}
+        </div>
+        <div class="field info">
+          <span class="label">Info</span>
+          ${infoHtml}
+        </div>
+      `;
+      chartContainer.appendChild(rowDiv);
+    });
+  }
+
+  function normaliseFirmware(fw) {
+    return fw.replace(/[.\s,\/()-]/g, '').toLowerCase();
+  }
+
+  function filterRows(query) {
+    if (!query.trim()) return rowsData.slice();
+    const lowerQuery = query.toLowerCase();
+    const normalisedQuery = lowerQuery.replace(/[.\s,\/()-]/g, '');
+    return rowsData.filter(entry => {
+      if (entry.firmware.toLowerCase().includes(lowerQuery)) return true;
+      if (entry.userland && entry.userland.join(' ').toLowerCase().includes(lowerQuery)) return true;
+      if (entry.kernel && entry.kernel.join(' ').toLowerCase().includes(lowerQuery)) return true;
+      if (entry.action.toLowerCase().includes(lowerQuery)) return true;
+      if (entry.info.toLowerCase().includes(lowerQuery)) return true;
+      const fwNorm = normaliseFirmware(entry.firmware);
+      if (fwNorm.includes(normalisedQuery)) return true;
+      return false;
+    });
+  }
+
+  function updateChart() {
+    const query = searchInput.value;
+    const filtered = filterRows(query);
+    renderRows(filtered);
+  }
+
+  searchInput.addEventListener('input', updateChart);
+  resetBtn.addEventListener('click', () => {
+    searchInput.value = '';
+    updateChart();
+  });
+
+  // ---------- Music controls ----------
+  const audio = document.getElementById('bgAudio');
+  const musicBtnEl = document.getElementById('musicBtn');
+  let isMusicPlaying = false;
+  let isMutedFallback = false;
+
+  async function initAudio() {
+    audio.loop = true;
+    audio.volume = 0.85;
+    audio.muted = false;
+    try {
+      await audio.play();
+      isMusicPlaying = true;
+      isMutedFallback = false;
+      updateMusicButtonUI();
+    } catch (e) {
+      try {
+        audio.muted = true;
+        await audio.play();
+        isMusicPlaying = true;
+        isMutedFallback = true;
+        updateMusicButtonUI();
+        attachUnmuteOnInteraction();
+      } catch (e2) {
+        isMusicPlaying = false;
+        isMutedFallback = false;
+        updateMusicButtonUI();
+      }
+    }
+  }
+
+  function updateMusicButtonUI() {
+    if (isMusicPlaying) {
+      musicBtnEl.textContent = isMutedFallback ? 'Music (muted)' : 'Pause Music';
+      musicBtnEl.setAttribute('aria-pressed', 'true');
+    } else {
+      musicBtnEl.textContent = 'Play Music';
+      musicBtnEl.setAttribute('aria-pressed', 'false');
+    }
+  }
+
+  function attachUnmuteOnInteraction() {
+    const handler = () => {
+      if (isMutedFallback && audio.muted) {
+        audio.muted = false;
+        audio.play().catch(() => {});
+        isMutedFallback = false;
+        updateMusicButtonUI();
+      }
+      window.removeEventListener('pointerdown', handler);
+      window.removeEventListener('keydown', handler);
+    };
+    window.addEventListener('pointerdown', handler, { once: true });
+    window.addEventListener('keydown', handler, { once: true });
+  }
+
+  musicBtnEl.addEventListener('click', async () => {
+    if (isMusicPlaying) {
+      audio.pause();
+      isMusicPlaying = false;
+      isMutedFallback = false;
+      updateMusicButtonUI();
+    } else {
+      audio.muted = false;
+      try {
+        await audio.play();
+        isMusicPlaying = true;
+        isMutedFallback = false;
+        updateMusicButtonUI();
+      } catch (err) {
+        try {
+          audio.muted = true;
+          await audio.play();
+          isMusicPlaying = true;
+          isMutedFallback = true;
+          updateMusicButtonUI();
+          attachUnmuteOnInteraction();
+        } catch (err2) {
+          isMusicPlaying = false;
+          updateMusicButtonUI();
+        }
+      }
+    }
+  });
+
+  initAudio();
+
+  // Initial render
+  renderHeader();
+  renderRows(rowsData);
+</script>
+</body>
+</html>
