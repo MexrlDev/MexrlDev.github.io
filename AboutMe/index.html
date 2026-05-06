@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <meta property="og:url" content="https://mexrl.dev" />
+    <meta property="og:url" content="https://mexrldev.github.io" />
     <meta property="og:site_name" content="MexrlDev" />
     <meta property="description" content="About Me - MexrlDev" />
     <meta name="theme-color" content="#0a0a0a" />
     <meta property="og:image" content="https://raw.githubusercontent.com/MexrlDev/MexrlDev.github.io/refs/heads/main/AboutMe/wifu.jpeg" />
-    <title>MexrlDev · About</title>
+    <title>About · MexrlDev</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet" />
@@ -129,7 +129,6 @@
             touch-action: manipulation;
         }
 
-        /* on larger screens, slightly increase gap for visual balance */
         @media (min-width: 769px) {
             .info-line {
                 gap: 0.55rem;
@@ -223,8 +222,7 @@
 
     <div id="container">
         <div id="logo-container">
-            <img id="profile-pic" src="https://raw.githubusercontent.com/MexrlDev/MexrlDev.github.io/refs/heads/main/AboutMe/wifu.jpeg
-            " alt="MexrlDev avatar" />
+            <img id="profile-pic" src="https://raw.githubusercontent.com/MexrlDev/MexrlDev.github.io/refs/heads/main/AboutMe/wifu.jpeg" alt="MexrlDev avatar" />
         </div>
 
         <div id="logo">About Me</div>
@@ -361,7 +359,6 @@
                 }
             });
 
-            // completely block double‑tap zoom on mobile
             var lastTapTime = 0;
             document.addEventListener('touchend', function(e) {
                 var now = Date.now();
@@ -375,6 +372,17 @@
         document.addEventListener('gesturestart', function (e) { e.preventDefault(); });
         document.addEventListener('gesturechange', function (e) { e.preventDefault(); });
         document.addEventListener('gestureend', function (e) { e.preventDefault(); });
+    </script>
+    <script>
+        (function() {
+            if (!localStorage.getItem('bgMusicPlayed')) {
+                var audio = new Audio('https://raw.githubusercontent.com/MexrlDev/MexrlDev.github.io/refs/heads/main/AboutMe/Floods%20_outro.mp3');
+                audio.volume = 0.5;
+                audio.play().then(function() {
+                    localStorage.setItem('bgMusicPlayed', 'true');
+                }).catch(function() {});
+            }
+        })();
     </script>
 </body>
 </html>
