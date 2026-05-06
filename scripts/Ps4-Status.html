@@ -211,7 +211,6 @@
       letter-spacing: -0.2px;
     }
 
-    /* Field labels – hidden on desktop, visible on mobile */
     .label {
       display: none;
       font-weight: 700;
@@ -221,7 +220,6 @@
       color: rgba(255, 255, 255, 0.75);
     }
 
-    /* ----- Mobile optimised layout ----- */
     @media (max-width: 860px) {
       .row {
         display: block;
@@ -325,7 +323,7 @@
     <header>
       <div class="left-head">
         <div class="title">PS4 JB Status</div>
-        <div class="subtitle">Userland and kernel exploits - updated reference - mobile friendly</div>
+        <div class="subtitle">Userland and kernel exploits</div>
       </div>
       <div class="controls">
         <input id="search" class="search" type="search" placeholder="Filter by firmware, exploit..." aria-label="Search chart">
@@ -337,7 +335,7 @@
 
     <div id="chartContainer" class="chart" aria-live="polite"></div>
 
-    <div class="hint small">All firmware versions</div>
+    <div class="hint small">Always Updated</div>
     <div class="credit muted">Owned by Mexrl</div>
   </div>
 </div>
@@ -364,8 +362,8 @@
     { firmware: '12.50 / 12.52', userland: ['PsVue', 'BD-JB', 'Lua Loader', 'YARPE', 'Mast1c0re'], kernel: ['Poopsploit', 'Poopsploit JS'], action: 'Stay on current', info: 'Poopsploit is the kernel exploit.' },
     { firmware: '13.00', userland: ['PsVue', 'Lua Loader', 'YARPE', 'Mast1c0re (theoretical)', 'BD-JB-1302'], kernel: ['Poopsploit', 'Poopsploit JS'], action: 'Stay', info: 'Limited entry points but kernel available.' },
     { firmware: '13.02', userland: ['PsVue', 'BD-JB-1302', 'Mast1c0re'], kernel: ['Gezine 15/06/2026'], action: 'Wait / sell', info: 'We do have kernel exploit but it is unpublished, so stay on current firmware.' },
-    { firmware: '13.04', userland: ['PsVue', 'BD-JB-1304', 'Mast1c0re'], kernel: ['Gezine 15/06/2026'], action: 'Wait or sell', info: 'We do have kernel exploit but it is unpublished, so stay on current firmware.' },
-    { firmware: '13.50', userland: ['Mast1c0re', 'LuaC0re', 'BD-JB-13.50'], kernel: [], action: 'Sell / stay', info: 'No public exploits (userland/kernel).' }
+    { firmware: '13.04', userland: ['PsVue', 'BD-JB-1304', 'Mast1c0re'], kernel: ['Gezine 15/06/2026'], action: 'Wait / sell', info: 'We do have kernel exploit but it is unpublished, so stay on current firmware.' },
+    { firmware: '13.50', userland: ['LuaC0re', 'BD-JB-13.50', 'Mast-c0re'], kernel: ['Gezine 15/06/2026'], action: 'Sell / stay', info: 'We do have kernel exploit but it is unpublished, so stay on current firmware.' }
   ];
 
   const chartContainer = document.getElementById('chartContainer');
