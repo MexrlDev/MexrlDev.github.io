@@ -14,16 +14,16 @@
     }
 
     :root {
-      --page-pad: 1.25rem;
+      --page-pad: 1.5rem;
       --card-radius: 1.25rem;
-      --glass-bg: rgba(255, 255, 255, 0.03);
-      --glass-border: rgba(255, 255, 255, 0.08);
+      --glass-bg: rgba(255, 255, 255, 0.04);
+      --glass-border: rgba(255, 255, 255, 0.1);
       --accent: #ffffff;
-      --muted: rgba(255, 255, 255, 0.72);
-      --shadow: rgba(0, 0, 0, 0.45);
+      --muted: rgba(255, 255, 255, 0.68);
+      --shadow: rgba(0, 0, 0, 0.5);
       --gap: 1rem;
       --font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
-      --max-width: 1280px;
+      --max-width: 1200px;
     }
 
     body {
@@ -32,23 +32,23 @@
       font-family: var(--font-family);
       color: var(--accent);
       background: #0a0a0c;
-      line-height: 1.4;
+      line-height: 1.5;
     }
 
-    /* background layers */
     .bg-fixed {
       position: fixed;
       inset: 0;
       background-image: url('../img/Baek.png');
       background-size: cover;
       background-position: center;
-      filter: brightness(0.45) contrast(1.05);
+      filter: brightness(0.4) contrast(1.08);
       z-index: -2;
     }
+
     .bg-overlay {
       position: fixed;
       inset: 0;
-      background: radial-gradient(circle at 20% 30%, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.65));
+      background: radial-gradient(circle at 20% 30%, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.7));
       z-index: -1;
     }
 
@@ -60,130 +60,147 @@
       padding: 1.5rem 1rem;
     }
 
+    /* ----- glass panel effect ----- */
     .panel {
       width: min(var(--max-width), 100%);
-      background: rgba(10, 10, 15, 0.68);
-      backdrop-filter: blur(14px);
+      background: rgba(255, 255, 255, 0.04);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
       border-radius: 1.75rem;
       padding: var(--page-pad);
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.55), inset 0 0 30px rgba(255, 255, 255, 0.02);
       border: 1px solid var(--glass-border);
-      transition: all 0.2s ease;
+      transition: border-color 0.2s;
     }
 
-    /* header area */
     header {
       display: flex;
       align-items: center;
       justify-content: space-between;
       flex-wrap: wrap;
       gap: 1rem;
-      margin-bottom: 1.75rem;
+      margin-bottom: 2rem;
     }
+
     .left-head {
       display: flex;
       flex-direction: column;
-      gap: 0.2rem;
+      gap: 0.3rem;
     }
+
     .title {
-      font-size: 1.7rem;
+      font-size: 1.8rem;
       font-weight: 700;
       letter-spacing: -0.3px;
-      background: linear-gradient(135deg, #fff, #bbb);
+      background: linear-gradient(135deg, #ffffff 0%, #c0c0c0 80%);
       background-clip: text;
       -webkit-background-clip: text;
       color: transparent;
     }
+
     .subtitle {
       font-size: 0.8rem;
-      opacity: 0.8;
-      max-width: 380px;
+      opacity: 0.75;
+      max-width: 400px;
     }
+
     .controls {
       display: flex;
       flex-wrap: wrap;
       gap: 0.7rem;
       align-items: center;
     }
+
     .btn {
-      padding: 0.5rem 1rem;
+      padding: 0.55rem 1.1rem;
       border-radius: 2rem;
-      border: 1px solid var(--glass-border);
-      background: rgba(20, 20, 30, 0.65);
-      backdrop-filter: blur(4px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      background: rgba(20, 20, 30, 0.55);
+      backdrop-filter: blur(6px);
       color: var(--accent);
       cursor: pointer;
       font-weight: 500;
       font-size: 0.85rem;
-      transition: 0.2s;
+      transition: all 0.2s;
       text-decoration: none;
       display: inline-flex;
       align-items: center;
       gap: 0.3rem;
+      white-space: nowrap;
     }
-    .btn:active { transform: scale(0.96); background: rgba(255,255,255,0.1);}
+    .btn:active {
+      transform: scale(0.97);
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.25);
+    }
     .search {
-      padding: 0.5rem 1rem;
+      padding: 0.55rem 1rem;
       border-radius: 2rem;
       border: 1px solid rgba(255, 255, 255, 0.2);
-      background: rgba(0, 0, 0, 0.45);
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(6px);
       color: white;
       font-size: 0.9rem;
-      min-width: 200px;
+      min-width: 190px;
       outline: none;
-      backdrop-filter: blur(4px);
+      transition: border-color 0.2s, background 0.2s;
     }
     .search:focus {
-      border-color: rgba(255, 255, 255, 0.6);
-      background: rgba(0, 0, 0, 0.6);
+      border-color: rgba(255, 255, 255, 0.55);
+      background: rgba(0, 0, 0, 0.55);
     }
 
-    /* ----- main chart grid (DESKTOP: full kernel+userland side by side) ----- */
+    /* ----- Desktop chart grid ----- */
     .chart {
       width: 100%;
       margin-top: 0.5rem;
     }
     .row {
       display: grid;
-      grid-template-columns: 180px 1fr 1fr 200px 280px;
-      gap: 0.9rem;
-      padding: 1rem;
+      grid-template-columns: 1fr 1.3fr 1.3fr 0.9fr 1.1fr;
+      gap: 1rem;
+      padding: 1.1rem 1rem;
       border-radius: 1.2rem;
-      background: var(--glass-bg);
-      border: 1px solid var(--glass-border);
+      background: rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(4px);
+      border: 1px solid rgba(255, 255, 255, 0.07);
       align-items: start;
-      margin-bottom: 0.8rem;
-      transition: background 0.15s;
+      margin-bottom: 0.75rem;
+      transition: border-color 0.2s, background 0.2s;
     }
     .row.header {
       position: sticky;
       top: 0;
       z-index: 15;
-      background: rgba(8, 8, 12, 0.92);
-      backdrop-filter: blur(20px);
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(16px);
       font-weight: 700;
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       text-transform: uppercase;
-      letter-spacing: 0.3px;
+      letter-spacing: 0.5px;
       border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 1rem 1rem 0 0;
+      margin-bottom: 0.5rem;
+      color: #ffffffcc;
     }
     .cell {
-      padding: 0.2rem 0.1rem;
+      padding: 0.2rem 0;
       word-break: break-word;
       overflow-wrap: break-word;
     }
     .list {
       margin: 0.2rem 0 0 1.2rem;
       padding-left: 0.2rem;
+      list-style: disc;
     }
     .list li {
-      margin: 0.3rem 0;
+      margin: 0.35rem 0;
       line-height: 1.35;
       font-size: 0.85rem;
     }
     .small {
       font-size: 0.8rem;
-      line-height: 1.4;
+      line-height: 1.45;
     }
     .muted {
       color: var(--muted);
@@ -191,82 +208,63 @@
     .firmware {
       font-weight: 800;
       font-size: 1rem;
+      letter-spacing: -0.2px;
     }
 
-    /* 🔥 FULL MOBILE PORT: never hide kernel or userland — card layout with visible labels */
+    /* Field labels – hidden on desktop, visible on mobile */
+    .label {
+      display: none;
+      font-weight: 700;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      color: rgba(255, 255, 255, 0.75);
+    }
+
+    /* ----- Mobile optimised layout ----- */
     @media (max-width: 860px) {
       .row {
         display: block;
-        padding: 1.1rem;
+        padding: 1rem 1rem 0.8rem;
         margin-bottom: 1rem;
+        border-radius: 1.25rem;
+        background: rgba(255, 255, 255, 0.045);
+        backdrop-filter: blur(6px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
       }
       .row.header {
-        display: none;   /* hide sticky header on mobile, each field gets inline label */
+        display: none; /* no sticky header on mobile */
       }
-      .cell {
-        display: block;
-        padding: 0.55rem 0.2rem;
-        border-bottom: 1px dashed rgba(255,255,255,0.1);
+      .field {
+        display: flex;
+        align-items: baseline;
+        padding: 0.7rem 0;
+        border-bottom: 1px dashed rgba(255, 255, 255, 0.08);
       }
-      .cell:last-child {
+      .field:last-child {
         border-bottom: none;
       }
-      /* custom labels for each field — no data loss, kernel shows right after userland */
-      .cell:nth-child(1)::before {
-        content: "📟 FIRMWARE: ";
-        font-weight: 800;
+      .label {
         display: inline-block;
-        width: 130px;
-        letter-spacing: 0.3px;
+        width: 105px;
+        flex-shrink: 0;
+        margin-right: 0.5rem;
       }
-      .cell:nth-child(2)::before {
-        content: "🖥️ USERLAND: ";
-        font-weight: 800;
-        display: inline-block;
-        width: 130px;
-        vertical-align: top;
-      }
-      .cell:nth-child(3)::before {
-        content: "⚙️ KERNEL: ";
-        font-weight: 800;
-        display: inline-block;
-        width: 130px;
-        vertical-align: top;
-      }
-      .cell:nth-child(4)::before {
-        content: "📌 ACTION: ";
-        font-weight: 800;
-        display: inline-block;
-        width: 130px;
-      }
-      .cell:nth-child(5)::before {
-        content: "ℹ️ INFO: ";
-        font-weight: 800;
-        display: inline-block;
-        width: 130px;
+      .value {
+        flex: 1;
+        word-break: break-word;
       }
       .list {
-        margin-top: 0.2rem;
-        display: inline-block;
-        width: calc(100% - 140px);
-        vertical-align: top;
-      }
-      .cell .list {
-        width: auto;
+        margin-top: 0.15rem;
+        margin-left: 0;
+        padding-left: 0.8rem;
         display: block;
-        margin-left: 140px;
       }
-      /* better alignment for small devices */
-      .cell .small, .cell > div:not(.list) {
-        display: inline-block;
-        width: calc(100% - 140px);
-        vertical-align: top;
-      }
-      .cell .list li {
+      .list li {
         font-size: 0.82rem;
       }
-      .firmware {
-        font-size: 1rem;
+      .cell {
+        padding: 0;
       }
       .controls {
         width: 100%;
@@ -274,48 +272,41 @@
       }
       .search {
         flex: 1;
-        min-width: 160px;
+        min-width: 140px;
+      }
+      .firmware {
+        font-size: 1rem;
       }
     }
 
-    /* extra small devices (<500px) — fine-tune spacing */
     @media (max-width: 500px) {
       .panel {
         padding: 1rem;
       }
-      .cell:nth-child(1)::before,
-      .cell:nth-child(2)::before,
-      .cell:nth-child(3)::before,
-      .cell:nth-child(4)::before,
-      .cell:nth-child(5)::before {
-        width: 110px;
-      }
-      .cell .list {
-        margin-left: 110px;
-      }
-      .cell .small, .cell > div:not(.list) {
-        width: calc(100% - 110px);
+      .label {
+        width: 90px;
+        font-size: 0.75rem;
       }
       .title {
-        font-size: 1.4rem;
+        font-size: 1.5rem;
+      }
+      .btn {
+        padding: 0.45rem 0.9rem;
+        font-size: 0.8rem;
       }
     }
 
-    /* prevent any horizontal shirking / overflow */
-    .row, .cell, .list li {
-      overflow-wrap: break-word;
-      word-break: break-word;
-    }
     .hint {
       text-align: center;
       font-size: 0.7rem;
-      margin-top: 1rem;
-      opacity: 0.7;
+      margin-top: 1.2rem;
+      opacity: 0.65;
     }
     .credit {
       text-align: right;
       font-size: 0.7rem;
-      margin-top: 0.8rem;
+      margin-top: 0.6rem;
+      opacity: 0.5;
     }
     button, .btn, .search {
       font-family: inherit;
@@ -330,24 +321,23 @@
 <div class="bg-overlay" aria-hidden="true"></div>
 
 <div class="wrap">
-  <div class="panel" role="main" aria-label="PS4 Jailbreak Status - Kernel & Userland exploits">
+  <div class="panel" role="main" aria-label="PS4 Jailbreak Status - Kernel and Userland exploits">
     <header>
       <div class="left-head">
         <div class="title">PS4 JB Status</div>
-        <div class="subtitle">Full userland + kernel exploits • Updated reference • Mobile-first</div>
+        <div class="subtitle">Userland and kernel exploits - updated reference - mobile friendly</div>
       </div>
       <div class="controls">
-        <input id="search" class="search" type="search" placeholder="Filter fw, userland, kernel..." aria-label="Search chart">
-        <button class="btn" id="reset">⟳ Reset</button>
-        <a href="../index.html" class="btn" role="button">⌂ Main</a>
-        <div id="musicBtn" class="btn" aria-pressed="false" role="button">🎵 Play Music</div>
+        <input id="search" class="search" type="search" placeholder="Filter by firmware, exploit..." aria-label="Search chart">
+        <button class="btn" id="reset">Reset</button>
+        <a href="../index.html" class="btn">Main</a>
+        <div id="musicBtn" class="btn" aria-pressed="false" role="button">Play Music</div>
       </div>
     </header>
 
-    <div id="chartContainer" class="chart" aria-live="polite">
-    </div>
+    <div id="chartContainer" class="chart" aria-live="polite"></div>
 
-    <div class="hint small">All firmwares</div>
+    <div class="hint small">All firmware versions</div>
     <div class="credit muted">Owned by Mexrl</div>
   </div>
 </div>
@@ -355,6 +345,7 @@
 <audio id="bgAudio" loop preload="auto"><source src="../music/bg.mp3" type="audio/mpeg"></audio>
 
 <script>
+  // ---------- Y3ah ----------
   const rowsData = [
     { firmware: 'Older than 5.05', userland: ['Various (WebKit 1.76 era)'], kernel: ['BadIRET (1.76)', 'NamedOBJ (≤4.07)', 'BPF Race (4.55-5.03)', 'PPPwn (theoretical)', 'Poopsploit (theoretical)'], action: 'Stay for archival or update to 5.05', info: 'Limited homebrew; pre-4.07 lacks enabler. Use legacy exploits.' },
     { firmware: '5.05 / 5.07', userland: ['CVE-2016-1859 (WebKit)', 'CVE-2017-7005', 'Lua loader', 'Mast1c0re', 'BD-JB', 'PsVue'], kernel: ['BPF Race (original)', 'PPPwn (theoretical)', 'Lapse (theoretical)', 'Poopsploit (theoretical)'], action: 'STAY — golden standard', info: 'High stability, most backported games. Best homebrew support.' },
@@ -372,16 +363,15 @@
     { firmware: '12.02', userland: ['PsVue', 'Lua Loader', 'YARPE', 'Netflix-N-Hack', 'Mast1c0re', 'BD-JB'], kernel: ['Lapse', 'Poopsploit'], action: 'Stay — stable fw', info: 'Balanced stability, active userland.' },
     { firmware: '12.50 / 12.52', userland: ['PsVue', 'BD-JB', 'Lua Loader', 'YARPE', 'Mast1c0re'], kernel: ['Poopsploit', 'Poopsploit JS'], action: 'Stay on current', info: 'Poopsploit is the kernel exploit.' },
     { firmware: '13.00', userland: ['PsVue', 'Lua Loader', 'YARPE', 'Mast1c0re (theoretical)', 'BD-JB-1302'], kernel: ['Poopsploit', 'Poopsploit JS'], action: 'Stay', info: 'Limited entry points but kernel available.' },
-    { firmware: '13.02', userland: ['PsVue', 'BD-JB-1302', 'Mast1c0re'], kernel: [], action: 'Wait / sell', info: 'No kernel exploit yet, only userland entry.' },
-    { firmware: '13.04', userland: ['PsVue', 'BD-JB-1304', 'Mast1c0re'], kernel: [], action: 'Wait or sell', info: 'No kernel exploits, userland only.' },
-    { firmware: '13.50', userland: ['Mast1c0re'], kernel: [], action: 'Sell / stay', info: 'No public exploits (userland/kernel).' }
+    { firmware: '13.02', userland: ['PsVue', 'BD-JB-1302', 'Mast1c0re'], kernel: ['Gezine 15/06/2026'], action: 'Wait / sell', info: 'We do have kernel exploit but it is unpublished, so stay on current firmware.' },
+    { firmware: '13.04', userland: ['PsVue', 'BD-JB-1304', 'Mast1c0re'], kernel: ['Gezine 15/06/2026'], action: 'Wait or sell', info: 'We do have kernel exploit but it is unpublished, so stay on current firmware.' },
+    { firmware: '13.50', userland: ['Mast1c0re', 'LuaC0re', 'BD-JB-13.50'], kernel: [], action: 'Sell / stay', info: 'No public exploits (userland/kernel).' }
   ];
 
   const chartContainer = document.getElementById('chartContainer');
   const searchInput = document.getElementById('search');
   const resetBtn = document.getElementById('reset');
 
-  // helper: escape HTML
   function escapeHtml(str) {
     if (!str) return '';
     return String(str).replace(/[&<>]/g, function(m) {
@@ -389,66 +379,79 @@
       if (m === '<') return '&lt;';
       if (m === '>') return '&gt;';
       return m;
-    }).replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, function(c) {
-      return c;
     });
   }
 
-  // render header row (only visible on desktop/tablet wide, hidden on mobile via css)
   function renderHeader() {
     const headerDiv = document.createElement('div');
     headerDiv.className = 'row header';
     headerDiv.setAttribute('aria-hidden', 'false');
     headerDiv.innerHTML = `
-      <div class="cell firmware">FIRMWARE</div>
-      <div class="cell">USERLAND EXPLOITS</div>
-      <div class="cell kernel">KERNEL EXPLOITS</div>
-      <div class="cell action">COURSE OF ACTION</div>
-      <div class="cell info">DETAILS</div>
+      <div class="cell firmware">Firmware</div>
+      <div class="cell">Userland Exploits</div>
+      <div class="cell">Kernel Exploits</div>
+      <div class="cell">Course Of Action</div>
+      <div class="cell">Details</div>
     `;
     chartContainer.appendChild(headerDiv);
   }
 
   function renderRows(items) {
+    // Remove old data rows only, keep header intact
     const existingRows = chartContainer.querySelectorAll('.row.data');
     existingRows.forEach(row => row.remove());
 
-    for (const entry of items) {
+    items.forEach(entry => {
       const rowDiv = document.createElement('div');
       rowDiv.className = 'row data';
       rowDiv.tabIndex = 0;
 
-      // userland list
+      // Userland list
       let userlandHtml = '';
       if (entry.userland && entry.userland.length) {
-        userlandHtml = `<ul class="list">${entry.userland.map(exp => `<li>${escapeHtml(exp)}</li>`).join('')}</ul>`;
+        userlandHtml = `<span class="value"><ul class="list">${entry.userland.map(exp => `<li>${escapeHtml(exp)}</li>`).join('')}</ul></span>`;
       } else {
-        userlandHtml = `<div class="small muted">— No public userland —</div>`;
+        userlandHtml = `<span class="value small muted">No public userland</span>`;
       }
 
-      // kernel list
+      // Kernel list
       let kernelHtml = '';
       if (entry.kernel && entry.kernel.length) {
-        kernelHtml = `<ul class="list">${entry.kernel.map(kexp => `<li>${escapeHtml(kexp)}</li>`).join('')}</ul>`;
+        kernelHtml = `<span class="value"><ul class="list">${entry.kernel.map(kexp => `<li>${escapeHtml(kexp)}</li>`).join('')}</ul></span>`;
       } else {
-        kernelHtml = `<div class="small muted">— No known kernel —</div>`;
+        kernelHtml = `<span class="value small muted">No known kernel</span>`;
       }
 
-      const actionHtml = `<div class="small">${escapeHtml(entry.action)}</div>`;
-      const infoHtml = `<div class="small">${escapeHtml(entry.info)}</div>`;
+      const actionHtml = `<span class="value small">${escapeHtml(entry.action)}</span>`;
+      const infoHtml = `<span class="value small">${escapeHtml(entry.info)}</span>`;
 
+      // Mobile-friendly structure: each field has a label (hidden on desktop) and a value
       rowDiv.innerHTML = `
-        <div class="cell firmware">${escapeHtml(entry.firmware)}</div>
-        <div class="cell userland-cell">${userlandHtml}</div>
-        <div class="cell kernel-cell">${kernelHtml}</div>
-        <div class="cell action-cell">${actionHtml}</div>
-        <div class="cell info-cell">${infoHtml}</div>
+        <div class="field firmware">
+          <span class="label">Firmware</span>
+          <span class="value firmware">${escapeHtml(entry.firmware)}</span>
+        </div>
+        <div class="field userland">
+          <span class="label">Userland</span>
+          ${userlandHtml}
+        </div>
+        <div class="field kernel">
+          <span class="label">Kernel</span>
+          ${kernelHtml}
+        </div>
+        <div class="field action">
+          <span class="label">Action</span>
+          ${actionHtml}
+        </div>
+        <div class="field info">
+          <span class="label">Info</span>
+          ${infoHtml}
+        </div>
       `;
       chartContainer.appendChild(rowDiv);
-    }
+    });
   }
 
-  // normalise firmware for loose filtering (ex: "13.00" -> "1300")
   function normaliseFirmware(fw) {
     return fw.replace(/[.\s,\/()-]/g, '').toLowerCase();
   }
@@ -463,7 +466,6 @@
       if (entry.kernel && entry.kernel.join(' ').toLowerCase().includes(lowerQuery)) return true;
       if (entry.action.toLowerCase().includes(lowerQuery)) return true;
       if (entry.info.toLowerCase().includes(lowerQuery)) return true;
-      // loose firmware match (e.g. "1300" matches 13.00)
       const fwNorm = normaliseFirmware(entry.firmware);
       if (fwNorm.includes(normalisedQuery)) return true;
       return false;
@@ -482,7 +484,7 @@
     updateChart();
   });
 
-  // ---------- Music Controls (same robust behaviour) ----------
+  // ---------- Music controls (no emoji) ----------
   const audio = document.getElementById('bgAudio');
   const musicBtnEl = document.getElementById('musicBtn');
   let isMusicPlaying = false;
@@ -515,10 +517,10 @@
 
   function updateMusicButtonUI() {
     if (isMusicPlaying) {
-      musicBtnEl.textContent = isMutedFallback ? '🔇 Music (muted)' : '🎵 Pause Music';
+      musicBtnEl.textContent = isMutedFallback ? 'Music (muted)' : 'Pause Music';
       musicBtnEl.setAttribute('aria-pressed', 'true');
     } else {
-      musicBtnEl.textContent = '🎵 Play Music';
+      musicBtnEl.textContent = 'Play Music';
       musicBtnEl.setAttribute('aria-pressed', 'false');
     }
   }
@@ -569,7 +571,7 @@
 
   initAudio();
 
-  // initial render
+  // Initial render
   renderHeader();
   renderRows(rowsData);
 </script>
