@@ -515,7 +515,7 @@
             <div class="status-bar" id="statusBar">
                 <span>
                     <span class="status-dot loading" id="statusDot"></span>
-                    <span id="statusText">Loading build data from archive...</span>
+                    <span id="statusText">Loading build data from GitHub...</span>
                 </span>
                 <span id="buildCount" class="count"></span>
             </div>
@@ -532,14 +532,10 @@
     <script>
         (function() {
             // ──────────────────────────────────────
-            // CONFIGURATION
+            // CONFIGURATION – GitHub raw URL
             // ──────────────────────────────────────
-            const ARCHIVE_XML_URL =
-                'https://web.archive.org/web/20140819124048/https://cc22940c89d9789d10745c91568757dc1457c060.googledrive.com/host/0B-JdId1SslCJNEIweDFobGl2MzA/builds.xml';
-
-            // Fallback: if CORS blocks the archive.org fetch, try using the raw `id_` format
-            const ARCHIVE_RAW_URL =
-                'https://web.archive.org/web/20140819124048id_/https://cc22940c89d9789d10745c91568757dc1457c060.googledrive.com/host/0B-JdId1SslCJNEIweDFobGl2MzA/builds.xml';
+            const XML_DATA_URL =
+                'https://raw.githubusercontent.com/MexrlDev/MexrlDev.github.io/refs/heads/main/scripts/Data/builds.xml';
 
             // ──────────────────────────────────────
             // DOM REFERENCES
@@ -615,7 +611,7 @@
             }
 
             // ──────────────────────────────────────
-            // XML FETCH & PARSE
+            // XML FETCH & PARSE (from GitHub raw)
             // ──────────────────────────────────────
             async function fetchXml(url) {
                 const response = await fetch(url, {
@@ -626,9 +622,8 @@
                     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 }
                 const text = await response.text();
-                // Check if the response is actually HTML (archive.org wrapper) rather than raw XML
-                if (text.trim().startsWith('<!DOCTYPE') || text.trim().startsWith('<html')) {
-                    throw new Error('Received HTML wrapper instead of raw XML. Archive may be serving the framed version.');
+                if (!text || text.trim().length < 50) {
+                    throw new Error('Response is too short – possibly not valid XML.');
                 }
                 return text;
             }
@@ -637,7 +632,6 @@
                 const parser = new DOMParser();
                 const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
 
-                // Check for parse errors
                 const parseError = xmlDoc.querySelector('parsererror');
                 if (parseError) {
                     throw new Error('XML Parse Error: ' + parseError.textContent);
@@ -646,12 +640,10 @@
                 // The root is <builds>, children are also <builds>
                 const buildNodes = xmlDoc.querySelectorAll('builds > builds');
                 if (buildNodes.length === 0) {
-                    // Alternative: try getting all builds and skip the root
                     const allNodes = xmlDoc.getElementsByTagName('builds');
                     if (allNodes.length <= 1) {
                         throw new Error('No build entries found in XML. Found ' + allNodes.length + ' <builds> elements.');
                     }
-                    // Use all except the first (root)
                     return Array.from(allNodes).slice(1).map(parseBuildNode);
                 }
                 return Array.from(buildNodes).map(parseBuildNode);
@@ -672,7 +664,7 @@
             }
 
             async function loadBuilds() {
-                setStatus('loading', 'Loading build data from archive.org...');
+                setStatus('loading', 'Loading build data from GitHub...');
                 chartContainer.innerHTML = '';
                 for (let i = 0; i < 5; i++) {
                     const shimmer = document.createElement('div');
@@ -681,46 +673,31 @@
                 }
                 buildCountEl.textContent = '';
 
-                let xmlText = null;
-                let fetchUrl = ARCHIVE_XML_URL;
-
-                // Try primary URL
                 try {
-                    xmlText = await fetchXml(ARCHIVE_XML_URL);
-                } catch (err1) {
-                    console.warn('Primary archive URL failed:', err1.message);
-                    // Try raw format
-                    try {
-                        xmlText = await fetchXml(ARCHIVE_RAW_URL);
-                        fetchUrl = ARCHIVE_RAW_URL;
-                    } catch (err2) {
-                        console.warn('Raw archive URL also failed:', err2.message);
-                        throw new Error(
-                            'Could not fetch XML from archive.org. This is likely due to CORS restrictions.\n\n' +
-                            'Workarounds:\n' +
-                            '1. Download the XML from the archive URL and place it as "builds.xml" in the same folder as this HTML file.\n' +
-                            '2. Use a CORS proxy service.\n' +
-                            '3. Run a local web server with the XML file.\n\n' +
-                            'Archive URL: ' + ARCHIVE_XML_URL
-                        );
+                    const xmlText = await fetchXml(XML_DATA_URL);
+                    const builds = parseXmlToBuilds(xmlText);
+                    if (builds.length === 0) {
+                        throw new Error('No build entries could be parsed from the XML.');
                     }
-                }
 
-                if (!xmlText || xmlText.trim().length < 100) {
-                    throw new Error('Received empty or invalid response from archive.');
+                    allBuilds = builds;
+                    filteredBuilds = [...allBuilds];
+                    applySort();
+                    setStatus('success', `Loaded ${allBuilds.length} build entries from GitHub.`);
+                    buildCountEl.textContent = `${allBuilds.length} builds`;
+                    renderAllRows();
+                } catch (error) {
+                    console.error('Failed to load builds:', error);
+                    setStatus('error', 'Failed to load build data.');
+                    buildCountEl.textContent = 'Error';
+                    chartContainer.innerHTML = `
+                        <div class="error-box">
+                            <strong>⚠ Could not load build data from GitHub</strong><br><br>
+                            ${escapeHtml(error.message)}<br><br>
+                            <strong>Data URL:</strong> <a href="${escapeHtml(XML_DATA_URL)}" target="_blank" rel="noopener" style="color:#80b0ff;word-break:break-all;">${escapeHtml(XML_DATA_URL)}</a>
+                        </div>
+                    `;
                 }
-
-                const builds = parseXmlToBuilds(xmlText);
-                if (builds.length === 0) {
-                    throw new Error('No build entries could be parsed from the XML.');
-                }
-
-                allBuilds = builds;
-                filteredBuilds = [...allBuilds];
-                applySort();
-                setStatus('success', `Loaded ${allBuilds.length} build entries from archive.`);
-                buildCountEl.textContent = `${allBuilds.length} builds`;
-                renderAllRows();
             }
 
             function setStatus(state, message) {
@@ -786,7 +763,6 @@
                 const shouldTruncate = needsTruncation(build.buildInfo);
 
                 if (isExpanded) {
-                    // Expanded view
                     rowDiv.innerHTML = `
                         <div class="field id-field">
                             <span class="label">ID</span>
@@ -815,7 +791,6 @@
                         </div>
                     `;
                 } else {
-                    // Collapsed view
                     rowDiv.innerHTML = `
                         <div class="field id-field">
                             <span class="label">ID</span>
@@ -844,7 +819,6 @@
                     toggleExpand(build, rowDiv);
                 });
 
-                // Keyboard accessibility
                 rowDiv.addEventListener('keydown', (e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                         e.preventDefault();
@@ -857,15 +831,11 @@
 
             function toggleExpand(build, rowDiv) {
                 if (expandedRowId === build.id) {
-                    // Collapse
                     expandedRowId = null;
                 } else {
-                    // Expand this one, collapse any other
                     expandedRowId = build.id;
                 }
-                // Re-render all to keep DOM clean
                 renderAllRows();
-                // Scroll to the expanded row if it was just expanded
                 if (expandedRowId === build.id) {
                     const expandedEl = chartContainer.querySelector(`[data-build-id="${build.id}"]`);
                     if (expandedEl) {
@@ -929,7 +899,6 @@
                 applySort();
                 expandedRowId = null;
                 renderAllRows();
-                // Scroll to top of chart
                 chartContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
             });
 
@@ -1021,31 +990,10 @@
             });
 
             // ──────────────────────────────────────
-            // INITIALIZATION
+            // STARTUP
             // ──────────────────────────────────────
-            async function init() {
-                try {
-                    await loadBuilds();
-                } catch (error) {
-                    console.error('Failed to load builds:', error);
-                    setStatus('error', 'Failed to load build data.');
-                    buildCountEl.textContent = 'Error';
-                    chartContainer.innerHTML = `
-                        <div class="error-box">
-                            <strong>⚠ Could not load build data from archive.org</strong><br><br>
-                            ${escapeHtml(error.message).replace(/\n/g, '<br>')}<br><br>
-                            <strong>Quick fix:</strong> Download the XML file from the archive, save it as
-                            <code>builds.xml</code> in the same folder as this HTML file, then
-                            <a href="javascript:location.reload()" style="color:#80b0ff;">refresh this page</a>.
-                            <br><br>
-                            <small>Archive URL: <a href="${escapeHtml(ARCHIVE_XML_URL)}" target="_blank" rel="noopener" style="color:#80b0ff;word-break:break-all;">${escapeHtml(ARCHIVE_XML_URL)}</a></small>
-                        </div>
-                    `;
-                }
-            }
-
             initAudio();
-            init();
+            loadBuilds();
         })();
     </script>
 </body>
