@@ -347,80 +347,82 @@
   // - PS3HEN documentation applies to 4.93 OFW and lower, with HFW required for HEN.
   const rowsData = [
     {
-      firmware: '1.00 – 3.20',
+      firmware: '1.00 - 4.51',
       userland: [
-        'OtherOS / Linux on compatible fat models',
-        'Early PS3 homebrew research era'
+        'WebKit / browser entry on public exploit hosts',
+        'Homebrew enabler support on compatible HV chain'
       ],
       kernel: [
-        'No public jailbreak / CFW path'
+        'PS5 HEN / hypervisor defeat on supported firmwares',
+        'Homebrew, FTP, payloads, and PS4 fpkg support on jailbroken consoles'
       ],
-      action: 'Stay only if you need OtherOS',
-      info: 'This is the early PS3 era. On compatible models, OtherOS was available before Sony removed it from retail firmware 3.21 onward.'
+      action: 'Best public jailbreak range for PS5',
+      info: 'Current public PS5 HEN tooling targets firmware 1.00 through 4.51. This is the most solid PS5 jailbreak range that is publicly documented.'
     },
     {
-      firmware: '3.21 – 3.54',
+      firmware: '3.xx - 4.xx',
       userland: [
-        'OtherOS removed on retail systems',
-        'No stable public homebrew entry for normal users'
+        'PS5 browser-based exploit hosts',
+        'PSFree / FontFace webkit entry on public hosts'
       ],
       kernel: [
-        'No public CFW installation path'
+        'Public PS5 kernel exploit chains used by exploit hosts',
+        'etaHEN-oriented payload delivery'
       ],
-      action: 'Use 3.55 if the console is CFW-capable',
-      info: 'This is the locked-down gap before the 3.55 jailbreak era.'
+      action: 'Stay on a supported 3.xx-4.xx firmware if already jailbroken-capable',
+      info: 'Public PS5 exploit hosts are explicitly labeled for the 3.xx-4.xx range. Keep this row separate from PS4-only versions.'
     },
     {
-      firmware: '3.55',
+      firmware: '4.03+',
       userland: [
-        'Legacy jailbreak era',
-        'Signed homebrew packages on CFW'
+        'Y2JB userland entry via the PS5 YouTube app',
+        'Requires a compatible activation / setup flow'
       ],
       kernel: [
-        'Full custom firmware support',
-        'Peek / poke and QA-style tooling on CFW builds'
+        'Pairs with payload loaders on jailbroken consoles',
+        'Used as a userland stage, not a kernel exploit by itself'
       ],
-      action: 'Best legacy firmware for CFW-capable consoles',
-      info: '3.55 is the historical anchor point for PS3 custom firmware.'
+      action: 'Use as a userland entry point on supported setups',
+      info: 'Y2JB is documented for PS5 systems at 4.03 and above. It is a userland entry, not a full jailbreak on its own.'
     },
     {
-      firmware: '3.56 – 4.81',
+      firmware: '9.00 - 10.01',
       userland: [
-        'No public software CFW installation path',
-        'Firmware-era research and limited userland work'
+        'Lapse payload support',
+        'Older PS5 exploit-chain compatibility'
       ],
       kernel: [
-        'Hardware downgrade required for jailbreak on CFW-capable models'
+        'Lapse kernel payload path',
+        'Commonly paired with HEN / payload senders on supported setups'
       ],
-      action: 'Downgrade only with verified hardware tools',
-      info: 'For normal retail systems there is no direct software jailbreak in this range.'
+      action: 'Stay on 10.01 or lower for Lapse-based setups',
+      info: 'The Y2JB repository documents Lapse support only up to 10.01. Keep this row separate from PS4 12.xx material.'
     },
     {
-      firmware: '4.82 – 4.92',
+      firmware: '10.40+',
       userland: [
-        'HFW / HEN era on non-CFW models',
-        'PS3Xploit tools for compatible setups'
+        'etaHEN exploit hosts and payload delivery',
+        'Userland-only tools and loaders on public hosts'
       ],
       kernel: [
-        'PS3HEN temporary kernel patches on HFW',
-        'PS3Xploit flash-writer path on CFW-capable models'
+        'Experimental / evolving support depending on exploit host',
+        'No blanket jailbreak claim'
       ],
-      action: 'Install HFW, then HEN or flash writer depending on model',
-      info: 'Current PS3Xploit / PS3HEN support evolved through these firmware lines and remains the practical modding path for most consoles.'
+      action: 'Treat as experimental, not guaranteed',
+      info: 'Public PS5 tooling changes quickly. Keep this row cautious and do not label it as a full jailbreak unless the specific toolchain says so.'
     },
     {
-      firmware: '4.93 OFW / 4.93.1 HFW',
+      firmware: '12.50 / 12.52',
       userland: [
-        'Current official firmware line',
-        'PS3HEN 3.5.0 support on 4.93 HFW / 4.93.1 HFW',
-        'PS3Xploit current HFW-based tools'
+        'PS4-only version numbers',
+        'Do not list in PS5 status rows'
       ],
       kernel: [
-        'PS3HEN on HFW',
-        'Flash writer for supported CFW-capable models'
+        'No PS5 support',
+        'Exclude from PS5 matrix'
       ],
-      action: 'Stay on OFW for stock use; move to 4.93.1 HFW for modding',
-      info: 'Sony’s official PS3 support page lists 4.93 as the latest system software, while current PS3Xploit/PS3HEN docs list 4.93.1 HFW support.'
+      action: 'Remove from PS5 chart',
+      info: 'These version numbers are associated with PS4 material, not PS5. BD-JB-1250 explicitly says it will not work on PS5.'
     }
   ];
 
