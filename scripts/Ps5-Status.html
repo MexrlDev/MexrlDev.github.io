@@ -330,7 +330,7 @@
     <header>
       <div class="left-head">
         <div class="title">PS5 JB Status</div>
-        <div class="subtitle">Current PS5 jailbreak status overview.</div>
+        <div class="subtitle">Current PS5 jailbreak status.</div>
       </div>
       <div class="controls">
         <input id="search" class="search" type="search" placeholder="Filter by firmware, exploit..." aria-label="Search chart">
@@ -394,36 +394,42 @@
     {
       firmware: '9.00 - 9.60',
       userland: [
-        'Multiple entry points (Y2JB, Lapse kernel)',
+        'Y2JB',
         'etaHEN support'
       ],
       kernel: [
         'Lapse kernel exploit',
-        'Full JB possible'
+        'Poopsploit',
+        'P2JB',
+        'Gezine Zero-Day'
       ],
       action: 'Active development, usable',
       info: 'Recent exploits bringing practicality to higher firmwares.'
     },
     {
-      firmware: '10.01',
+      firmware: '10.01+',
       userland: [
-        'Y2JB and others provide userland access'
+        'Y2JB',
+        'Netflix-N-Hack',
+        'BD-J'
       ],
       kernel: [
-        'No public kernel exploit'
+        'poopsploit',
+        'P2JB'
       ],
-      action: 'Userland only; wait or downgrade',
-      info: 'You can run some homebrew but no full system access yet.'
+      action: 'stay,
+      info: 'its not that stable but great.'
     },
     {
       firmware: '12.00',
       userland: [
-        'Mast1c0re (Star Wars Racer Revenge)',
+        'LuaC0re (Star Wars Racer Revenge)',
         'Poops PS5 Java BD-J'
       ],
       kernel: [
-        'Poopsploit kernel exploit via BD-J',
-        'Full jailbreak'
+        'Poopsploit',
+        'P2JB'
+        'Gezine Zero-Day'
       ],
       action: 'Jailbreak available, requires BD or specific game',
       info: 'Burn a Blu-ray with Poops PS5 Java or use the game disc method.'
@@ -431,28 +437,27 @@
     {
       firmware: '12.70',
       userland: [
-        'BD-J entry still works',
-        'Other userland methods'
+        'BD-J entry',
+        'LuaC0re'
       ],
       kernel: [
         'Gezine P2JB exploit (PoC, takes hours)',
-        'Patched in 13.00'
+        'Gezine Zero-Day'
       ],
       action: 'Possible but unstable; not for daily use',
-      info: 'Kernel exploit is a proof-of-concept; not practical. Use 12.00 if possible.'
+      info: 'Kernel exploit is a great but takes so long.'
     },
     {
-      firmware: '13.00+',
+      firmware: '13.00/13.20',
       userland: [
-        'Luac0re entry up to 13.02',
-        'No public kernel exploit'
+        'Luac0re entry up to 13.20',
+        'BD-J'
       ],
       kernel: [
-        'Gezine zero-day claimed but unreleased',
-        'No public jailbreak'
+        'Gezine zero-day (unreleased)'
       ],
-      action: 'No public jailbreak; stay on lower firmware',
-      info: 'Latest firmwares are not jailbroken. Hold updates if you hope for future releases.'
+      action: 'Stay/Sell',
+      info:'Do not update. stay where you are'
     }
   ];
 
