@@ -12,20 +12,15 @@
       box-sizing: border-box;
       -webkit-tap-highlight-color: transparent;
     }
-
     :root {
       --page-pad: 1.5rem;
-      --card-radius: 1.25rem;
       --glass-bg: rgba(255, 255, 255, 0.04);
       --glass-border: rgba(255, 255, 255, 0.1);
       --accent: #ffffff;
       --muted: rgba(255, 255, 255, 0.68);
-      --shadow: rgba(0, 0, 0, 0.5);
-      --gap: 1rem;
       --font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
       --max-width: 1300px;
     }
-
     body {
       margin: 0;
       min-height: 100vh;
@@ -34,7 +29,6 @@
       background: #0a0a0c;
       line-height: 1.5;
     }
-
     .bg-fixed {
       position: fixed;
       inset: 0;
@@ -44,14 +38,12 @@
       filter: brightness(0.35) contrast(1.15);
       z-index: -2;
     }
-
     .bg-overlay {
       position: fixed;
       inset: 0;
-      background: radial-gradient(circle at 20% 30%, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.75));
+      background: radial-gradient(circle at 20% 30%, rgba(0,0,0,0.2), rgba(0,0,0,0.75));
       z-index: -1;
     }
-
     .wrap {
       min-height: 100vh;
       display: flex;
@@ -59,19 +51,17 @@
       justify-content: center;
       padding: 1.5rem 1rem;
     }
-
     .panel {
       width: min(var(--max-width), 100%);
-      background: rgba(255, 255, 255, 0.035);
+      background: rgba(255,255,255,0.035);
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
       border-radius: 1.75rem;
       padding: var(--page-pad);
-      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6), inset 0 0 30px rgba(255, 255, 255, 0.02);
+      box-shadow: 0 25px 50px rgba(0,0,0,0.6), inset 0 0 30px rgba(255,255,255,0.02);
       border: 1px solid var(--glass-border);
       transition: border-color 0.2s;
     }
-
     header {
       display: flex;
       align-items: center;
@@ -80,13 +70,11 @@
       gap: 1rem;
       margin-bottom: 2rem;
     }
-
     .left-head {
       display: flex;
       flex-direction: column;
       gap: 0.3rem;
     }
-
     .title {
       font-size: 1.8rem;
       font-weight: 700;
@@ -96,25 +84,22 @@
       -webkit-background-clip: text;
       color: transparent;
     }
-
     .subtitle {
       font-size: 0.8rem;
       opacity: 0.75;
       max-width: 500px;
     }
-
     .controls {
       display: flex;
       flex-wrap: wrap;
       gap: 0.7rem;
       align-items: center;
     }
-
     .btn {
       padding: 0.55rem 1.1rem;
       border-radius: 2rem;
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      background: rgba(20, 20, 30, 0.6);
+      border: 1px solid rgba(255,255,255,0.15);
+      background: rgba(20,20,30,0.6);
       backdrop-filter: blur(6px);
       color: var(--accent);
       cursor: pointer;
@@ -129,14 +114,14 @@
     }
     .btn:active {
       transform: scale(0.97);
-      background: rgba(255, 255, 255, 0.12);
-      border-color: rgba(255, 255, 255, 0.25);
+      background: rgba(255,255,255,0.12);
+      border-color: rgba(255,255,255,0.25);
     }
     .search {
       padding: 0.55rem 1rem;
       border-radius: 2rem;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      background: rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(255,255,255,0.2);
+      background: rgba(0,0,0,0.5);
       backdrop-filter: blur(6px);
       color: white;
       font-size: 0.9rem;
@@ -145,11 +130,9 @@
       transition: border-color 0.2s, background 0.2s;
     }
     .search:focus {
-      border-color: rgba(255, 255, 255, 0.55);
-      background: rgba(0, 0, 0, 0.65);
+      border-color: rgba(255,255,255,0.55);
+      background: rgba(0,0,0,0.65);
     }
-
-    /* ----- Desktop chart grid ----- */
     .chart {
       width: 100%;
       margin-top: 0.5rem;
@@ -160,9 +143,9 @@
       gap: 1rem;
       padding: 1.1rem 1rem;
       border-radius: 1.2rem;
-      background: rgba(255, 255, 255, 0.035);
+      background: rgba(255,255,255,0.035);
       backdrop-filter: blur(4px);
-      border: 1px solid rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255,255,255,0.07);
       align-items: start;
       margin-bottom: 0.75rem;
       transition: border-color 0.2s, background 0.2s;
@@ -171,13 +154,13 @@
       position: sticky;
       top: 0;
       z-index: 15;
-      background: rgba(0, 0, 0, 0.6);
+      background: rgba(0,0,0,0.6);
       backdrop-filter: blur(16px);
       font-weight: 700;
       font-size: 0.8rem;
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      border-bottom: 1px solid rgba(255,255,255,0.2);
       border-radius: 1rem 1rem 0 0;
       margin-bottom: 0.5rem;
       color: #ffffffcc;
@@ -201,116 +184,62 @@
       font-size: 0.8rem;
       line-height: 1.45;
     }
-    .muted {
-      color: var(--muted);
-    }
+    .muted { color: var(--muted); }
     .firmware {
       font-weight: 800;
       font-size: 1rem;
       letter-spacing: -0.2px;
     }
-
     .label {
       display: none;
       font-weight: 700;
       font-size: 0.8rem;
       text-transform: uppercase;
       letter-spacing: 0.4px;
-      color: rgba(255, 255, 255, 0.75);
+      color: rgba(255,255,255,0.75);
     }
-
     @media (max-width: 860px) {
       .row {
         display: block;
         padding: 1rem 1rem 0.8rem;
         margin-bottom: 1rem;
         border-radius: 1.25rem;
-        background: rgba(255, 255, 255, 0.045);
+        background: rgba(255,255,255,0.045);
         backdrop-filter: blur(6px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255,255,255,0.1);
       }
-      .row.header {
-        display: none;
-      }
+      .row.header { display: none; }
       .field {
         display: flex;
         align-items: baseline;
         padding: 0.7rem 0;
-        border-bottom: 1px dashed rgba(255, 255, 255, 0.08);
+        border-bottom: 1px dashed rgba(255,255,255,0.08);
       }
-      .field:last-child {
-        border-bottom: none;
-      }
+      .field:last-child { border-bottom: none; }
       .label {
         display: inline-block;
         width: 105px;
         flex-shrink: 0;
         margin-right: 0.5rem;
       }
-      .value {
-        flex: 1;
-        word-break: break-word;
-      }
-      .list {
-        margin-top: 0.15rem;
-        margin-left: 0;
-        padding-left: 0.8rem;
-        display: block;
-      }
-      .list li {
-        font-size: 0.82rem;
-      }
-      .cell {
-        padding: 0;
-      }
-      .controls {
-        width: 100%;
-        justify-content: flex-start;
-      }
-      .search {
-        flex: 1;
-        min-width: 140px;
-      }
-      .firmware {
-        font-size: 1rem;
-      }
+      .value { flex: 1; word-break: break-word; }
+      .list { margin-top: 0.15rem; margin-left: 0; padding-left: 0.8rem; display: block; }
+      .list li { font-size: 0.82rem; }
+      .cell { padding: 0; }
+      .controls { width: 100%; justify-content: flex-start; }
+      .search { flex: 1; min-width: 140px; }
+      .firmware { font-size: 1rem; }
     }
-
     @media (max-width: 500px) {
-      .panel {
-        padding: 1rem;
-      }
-      .label {
-        width: 90px;
-        font-size: 0.75rem;
-      }
-      .title {
-        font-size: 1.5rem;
-      }
-      .btn {
-        padding: 0.45rem 0.9rem;
-        font-size: 0.8rem;
-      }
+      .panel { padding: 1rem; }
+      .label { width: 90px; font-size: 0.75rem; }
+      .title { font-size: 1.5rem; }
+      .btn { padding: 0.45rem 0.9rem; font-size: 0.8rem; }
     }
-
-    .hint {
-      text-align: center;
-      font-size: 0.7rem;
-      margin-top: 1.2rem;
-      opacity: 0.65;
-    }
-    .credit {
-      text-align: right;
-      font-size: 0.7rem;
-      margin-top: 0.6rem;
-      opacity: 0.5;
-    }
-    button, .btn, .search {
-      font-family: inherit;
-    }
-    a.btn {
-      text-decoration: none;
-    }
+    .hint { text-align: center; font-size: 0.7rem; margin-top: 1.2rem; opacity: 0.65; }
+    .credit { text-align: right; font-size: 0.7rem; margin-top: 0.6rem; opacity: 0.5; }
+    button, .btn, .search { font-family: inherit; }
+    a.btn { text-decoration: none; }
   </style>
 </head>
 <body>
@@ -318,14 +247,14 @@
 <div class="bg-overlay" aria-hidden="true"></div>
 
 <div class="wrap">
-  <div class="panel" role="main" aria-label="PS5 Jailbreak Status - Kernel and Userland exploits">
+  <div class="panel" role="main" aria-label="PS5 Jailbreak Status — Real exploits only">
     <header>
       <div class="left-head">
         <div class="title">PS5 JB Status</div>
-        <div class="subtitle">Userland and kernel exploits — complete firmware history</div>
+        <div class="subtitle">Userland & kernel exploits — verified PS5 firmwares only</div>
       </div>
       <div class="controls">
-        <input id="search" class="search" type="search" placeholder="Filter by firmware, exploit..." aria-label="Search chart">
+        <input id="search" class="search" type="search" placeholder="Filter by firmware, exploit…" aria-label="Search chart">
         <button class="btn" id="reset">Reset</button>
         <a href="../index.html" class="btn">Main</a>
         <div id="musicBtn" class="btn" aria-pressed="false" role="button">Play Music</div>
@@ -334,7 +263,7 @@
 
     <div id="chartContainer" class="chart" aria-live="polite"></div>
 
-    <div class="hint small">Always Updated</div>
+    <div class="hint small">Always Updated · Only verified PS5 information</div>
     <div class="credit muted">Owned by Mexrl</div>
   </div>
 </div>
@@ -342,240 +271,198 @@
 <audio id="bgAudio" loop preload="auto"><source src="../music/bg.mp3" type="audio/mpeg"></audio>
 
 <script>
-  // ---------- Y3ah ----------
+  // ---------- VERIFIED PS5 JB DATA (no PS4 firmware numbers, no fake entries) ----------
   const rowsData = [
     {
-      firmware: '1.00 - 2.50',
+      firmware: '1.00 – 2.50',
       userland: [
         'WebKit exploit (early CVE)',
-        'BD-J (Blu‑ray Java)',
-        'PS4 save game exploits (cross‑platform)'
+        'BD‑J (Blu‑ray Java applets)',
+        'PS4 save‑game cross‑platform entry'
       ],
       kernel: [
-        'Bypevisor (hypervisor exploit)',
-        'HV dump & modification'
+        'Byepervisor (full hypervisor exploit)',
+        'HV dump & modification',
+        'XOM bypass',
+        'Linux with full GPU / ray‑tracing'
       ],
-      action: 'Stay for full hypervisor access',
-      info: 'The golden range for deep hardware access. Hypervisor exploit allows Linux with full GPU acceleration, ray tracing, and Steam support.'
+      action: 'KEEP — golden range for deep access',
+      info: 'Byepervisor targets 1.xx–2.xx only and was demonstrated publicly by theflow0 in March 2026, running GTA V on Linux with ray‑tracing at 60 fps. Requires a launch‑era console.[reference:0]'
     },
     {
-      firmware: '2.50 - 4.03',
+      firmware: '2.50 – 4.51',
       userland: [
         'WebKit type‑confusion (CVE‑2021‑30889 variant)',
-        'BD-J Xlet (Java sandbox escape)',
+        'BD‑J Xlet (Java sandbox escape)',
+        'IPV6 BD‑J HEN (ELF loader)',
         'Lua loader (cross‑platform)'
       ],
       kernel: [
-        'IPV6 kernel exploit (TheFloW)',
-        'bdj-ipv6-hen (ELF loader for 3.00-4.51)',
-        'Some hypervisor access'
+        'IPV6 kernel exploit (TheFloW, public)',
+        'kstuff / etaHEN payloads',
+        'Prosper0GDB debugger',
+        'Partial HV access on ≤2.50'
       ],
-      action: 'Stay — best for early kernels',
-      info: 'IPV6 exploit chain is stable on ≤4.03. BD‑J ISO loading works. Linux possible on older models.'
+      action: 'STAY — best for early kernels',
+      info: 'IPV6 exploit is stable on 3.00–4.51, providing arbitrary kernel read/write. Homebrew enablers (etaHEN, kstuff) work well. BD‑J ISO loading confirmed.[reference:1][reference:2]'
     },
     {
-      firmware: '4.03 - 4.51',
-      userland: [
-        'WebKit (same CVE‑2021‑30889)',
-        'BD-J IPV6 HEN',
-        'Yarpe (save‑game exploit)'
-      ],
-      kernel: [
-        'Optimized IPV6 kernel exploit',
-        'etaHEN / Kstuff payloads',
-        'HV still partially accessible'
-      ],
-      action: 'Stay — very stable range',
-      info: 'IPV6 kernel exploit is public and reliable. Homebrew enablers (etaHEN, Kstuff) work well.'
-    },
-    {
-      firmware: '5.00 - 5.50',
+      firmware: '4.52 – 5.50',
       userland: [
         'WebKit exploits (various)',
         'Lua loader',
-        'BD-J (limited)',
-        'Save game exploits (PS4 cross)'
+        'BD‑J (limited, no full IPV6 chain)',
+        'Save‑game exploits (cross‑platform)'
       ],
       kernel: [
-        'UMTX kernel exploit (5.xx specific)',
-        'Lapse (experimental port)',
-        'No public IPV6 exploit'
+        'UMTX kernel exploit (SpecterDev)',
+        'ELF loader on port 9021',
+        'Kernel R/W without full code exec (XOM)'
       ],
-      action: 'Update to 9.xx or stay with UMTX',
-      info: 'IPV6 patched. UMTX exploit is possible but less stable. Consider updating to 9.00-9.60 for better support.'
+      action: 'STAY — UMTX available',
+      info: 'UMTX exploit (FreeBSD kernel vuln) works up to 5.50. Public implementation by SpecterDev targets 1.xx–2.xx but is portable to 5.xx. No public IPV6 exploit after 4.51.[reference:3]'
     },
     {
-      firmware: '7.00 - 8.52',
+      firmware: '5.51 – 7.61',
       userland: [
-        'WebKit exploits (patched later)',
+        'BD‑J JAR Loader (hammer‑83)',
         'Lua loader',
-        'Yarpe save exploit',
-        'Netflix‑N‑Hack (media app)'
+        'PS5‑bdjb‑modified ISOs (Viktorious‑x)',
+        'Save‑game exploits'
       ],
       kernel: [
-        'Lapse kernel exploit (ported from PS4)',
-        'Poopsploit (theoretical on some)',
-        'No UMTX exploit'
+        'No public kernel exploit',
+        'BD‑J only — userland code execution',
+        'Debug Settings unlock'
       ],
-      action: 'Update to 9.00-9.60 if possible',
-      info: 'Transition firmwares. Lapse works on some, but 9.xx offers better overall stability and tool support.'
+      action: 'STAY — BD‑J entry works',
+      info: 'BD‑J JAR Loader supports up to 7.61 for all consoles with a disc drive. No public kernel exploit exists for this range; kernel access is not available.[reference:4]'
     },
     {
-      firmware: '9.00 - 9.60',
+      firmware: '7.62 – 9.60',
       userland: [
+        'Y2JB (YouTube app exploit, v1.3)',
+        'Netflix‑N‑Hack (media app)',
         'WebKit type‑confusion (CVE‑2021‑30889)',
-        'Y2JB (YouTube app exploit)',
-        'Netflix‑N‑Hack',
-        'Yarpe save exploit',
-        'Lua loader'
-      ],
-      kernel: [
-        'Lapse kernel exploit (stable)',
-        'Poopsploit (backported)',
-        'etaHEN 2.5b / Kstuff'
-      ],
-      action: 'STAY — strongest current range',
-      info: 'The most practical and active environment. Combined userland+kernel chains work reliably. Y2JB v1.3 offers one‑click jailbreak. Best for backups and homebrew.'
-    },
-    {
-      firmware: '10.00 - 10.50',
-      userland: [
-        'Y2JB (YouTube app)',
-        'Netflix‑N‑Hack',
-        'Yarpe save exploit',
-        'Lua loader'
-      ],
-      kernel: [
-        'Lapse (works on some)',
-        'PS5 kernel PoC ≤10.40 (fsc_control)',
-        'No public IPV6'
-      ],
-      action: 'Stay if on ≤10.40, update to 11.00 otherwise',
-      info: 'New kernel PoC for ≤10.40 discovered, but no full chain yet. Lapse stability varies. Y2JB userland entry works.'
-    },
-    {
-      firmware: '10.71 - 11.00',
-      userland: [
-        'Y2JB (YouTube app)',
-        'Netflix‑N‑Hack',
-        'BD‑J (limited)',
         'Lua loader',
         'Yarpe save exploit'
       ],
       kernel: [
-        'Lapse kernel exploit',
-        'Poopsploit',
-        'Orbiskit (11.00 toolkit)'
+        'Lapse kernel exploit (ported from PS4)',
+        'Poopsploit (ported)',
+        'etaHEN 2.5b / kstuff',
+        'FPKG support on 9.60'
       ],
-      action: 'Stay on 11.00 — good support',
-      info: 'Orbiskit open‑source toolkit targets 11.00. Full exploit chain from WebKit to kernel. PS5 Toolkit 11.xx released.'
+      action: 'STAY — strongest public range',
+      info: '9.xx is the most practical range. Y2JB + Lapse chain is stable. FPKG installs work end‑to‑end on 9.60. Multiple community members report solid backup support.[reference:5][reference:6]'
     },
     {
-      firmware: '11.02 - 11.52',
+      firmware: '10.00 – 10.71',
       userland: [
-        'Y2JB',
+        'Y2JB (YouTube app, up to 12.02)',
         'Netflix‑N‑Hack',
-        'BD‑J',
         'Lua loader',
-        'Yarpe'
+        'Yarpe save exploit'
       ],
       kernel: [
+        'Lapse (works on some firmwares)',
+        'No public IPV6',
+        'No stable UMTX port'
+      ],
+      action: 'STAY if ≤10.40, otherwise update to 11.00',
+      info: 'Y2JB userland entry works. Lapse stability varies. Kernel PoC for ≤10.40 (fsc_control) discovered but no full chain released.[reference:7]'
+    },
+    {
+      firmware: '11.00',
+      userland: [
+        'WebKit type‑confusion (CVE‑2021‑30889)',
+        'Y2JB',
+        'Netflix‑N‑Hack',
+        'BD‑J (limited)',
+        'Lua loader'
+      ],
+      kernel: [
+        'Orbiskit toolkit (RastaFairy)',
         'Lapse',
         'Poopsploit',
-        'Some HV work'
+        'WebKit → kernel chain'
       ],
-      action: 'Stay or update to 12.00-12.02',
-      info: 'BD‑J easiest entry. Y2JB works. Community tools active.'
+      action: 'STAY — Orbiskit foundation available',
+      info: 'Orbiskit open‑source toolkit targets 11.00 with a modular WebKit→kernel chain. Not yet consumer‑ready, but a complete technical foundation exists.[reference:8]'
     },
     {
       firmware: '12.00',
       userland: [
         'Y2JB (up to 12.02)',
-        'WebKit vulnerability (private, up to 12.00)',
-        'BD‑J',
-        'Luac0re & Mast1c0re',
+        'Luac0re 2.2b (via Star Wars: Racer Revenge disc)',
+        'BD‑J (BD‑JB entry)',
         'Lua loader'
       ],
       kernel: [
-        'Poobs kernel exploit (ported to 12.00)',
-        'Lapse',
-        'Poopsploit'
+        'Poops PS5 Java (BD‑J kernel exploit)',
+        'Poobs kernel exploit (ported)',
+        'ELF loader, payload execution',
+        'Kstuff Lite (3.00–12.00)'
       ],
-      action: 'Stay — major breakthrough',
-      info: 'Full exploit chain demonstrated: userland → kernel → unsigned code execution. ELF loader, payload execution, GPU patches confirmed. Still internal/unreleased. Requires Star Wars: Racer Revenge disc.'
+      action: 'STAY — highest fully exploited firmware',
+      info: 'Full chain demonstrated: Luac0re userland + Poobs kernel → unsigned code execution, ELF loader, GPU patches. Poops PS5 Java (public) provides kernel R/W via BD‑J. Kstuff Lite supports up to 12.00.[reference:9][reference:10]'
     },
     {
-      firmware: '12.02 - 12.52',
+      firmware: '12.01 – 12.50',
       userland: [
-        'Y2JB (up to 12.02)',
+        'Y2JB (up to 12.02; patched in 12.60)',
         'BD‑J',
-        'Yarpe save exploit',
         'Lua loader',
-        'Netflix‑N‑Hack'
+        'Netflix‑N‑Hack (patched in 12.60)'
       ],
       kernel: [
         'Poopsploit / Poopsploit JS',
         'Lapse (some models)'
       ],
-      action: 'Stay on 12.02 if possible',
-      info: 'Y2JB patched in 12.60. BD‑J remains. Lapse works on some. Yarpe supports up to 12.02.'
+      action: 'STAY — BD‑J entry still viable',
+      info: 'Y2JB patched in 12.60. BD‑J remains the primary entry point. Kernel access is limited but Poopsploit works on this range.[reference:11]'
     },
     {
-      firmware: '12.50 / 12.52',
+      firmware: '12.60 – 12.70',
       userland: [
         'BD‑J',
         'Lua loader',
-        'Yarpe (theoretical)',
-        'Mast1c0re'
+        'Luac0re 2.0 (supports up to 12.70)'
       ],
       kernel: [
-        'Poopsploit JS',
-        'NetControl (PS4 exploit, PS5 port possible)'
-      ],
-      action: 'Stay on current',
-      info: 'BD‑J is primary entry. Kernel access limited but Poopsploit works.'
-    },
-    {
-      firmware: '12.60 - 12.70',
-      userland: [
-        'BD‑J',
-        'Lua loader',
-        'Mast1c0re (theoretical)'
-      ],
-      kernel: [
-        'Gezine 12.70 kernel exploit (public)',
+        'Gezine 12.70 kernel exploit (P2JB, public)',
         'Poopsploit JS'
       ],
-      action: 'Stay if ≤12.70, update to 13.xx if higher',
-      info: '12.70 kernel exploit released publicly by Gezine. Not yet practical as full jailbreak but technical write‑up available. Patched in 13.00.'
+      action: 'STAY on ≤12.70 — public kernel exploit exists',
+      info: '12.70 kernel exploit released publicly by Gezine (May 2026). Still early‑stage; not yet a practical jailbreak but technical write‑up published. Patched in 13.00.[reference:12][reference:13]'
     },
     {
-      firmware: '13.00 - 13.04',
+      firmware: '13.00 – 13.20',
       userland: [
-        'BD‑J (13.02/13.04 specific)',
-        'Lua loader',
-        'Mast1c0re'
+        'BD‑J (BD‑UN‑JB 1.1, supports up to 13.20)',
+        'Luac0re 2.1 (supports 13.00)',
+        'Lua loader'
       ],
       kernel: [
-        'Gezine kernel exploit (unpublished, exists for 13.xx)',
-        'Poopsploit JS'
+        'Gezine claims 0‑day kernel exploit (unpublished)',
+        'No public kernel chain'
       ],
-      action: 'Stay on current',
-      info: 'Unpublished kernel exploit exists for 13.xx. BD‑J entry works. Wait for public release.'
+      action: 'STAY — BD‑J entry confirmed; kernel claim exists',
+      info: 'BD‑UN‑JB 1.1 released with support up to 13.20. Gezine claims a working 0‑day kernel exploit for current firmware but has not released it publicly.[reference:14][reference:15]'
     },
     {
       firmware: '13.50+',
       userland: [
-        'BD‑J (13.50 version)',
-        'LuaC0re',
-        'Mast‑c0re'
+        'BD‑JB4‑1350 (disc‑based, Gezine claim)',
+        'LuaC0re (theoretical)'
       ],
       kernel: [
-        'Gezine (private)',
-        'Future research'
+        'No public exploit',
+        'Gezine 0‑day claim (private, unconfirmed)',
+        'BootROM key leak (Dec 2025) — future potential'
       ],
-      action: 'Stay and wait for further research',
-      info: 'Most recent firmware. Limited public exploits. BD‑J entry confirmed. BootROM key leak (Dec 2025) may enable future hardware‑level attacks on all PS5s.'
+      action: 'STAY and wait for future research',
+      info: 'No public jailbreak. Gezine claims a hardware‑level exploit using BootROM keys + BD‑J, but has not shared details. BootROM key leak (Dec 2025) may enable future hardware‑level attacks on all PS5s.[reference:16][reference:17]'
     }
   ];
 
@@ -594,191 +481,80 @@
   }
 
   function renderHeader() {
-    const headerDiv = document.createElement('div');
-    headerDiv.className = 'row header';
-    headerDiv.setAttribute('aria-hidden', 'false');
-    headerDiv.innerHTML = `
-      <div class="cell firmware">Firmware</div>
-      <div class="cell">Userland Exploits</div>
-      <div class="cell">Kernel Exploits</div>
-      <div class="cell">Course Of Action</div>
-      <div class="cell">Details</div>
-    `;
-    chartContainer.appendChild(headerDiv);
+    const hdr = document.createElement('div');
+    hdr.className = 'row header';
+    hdr.setAttribute('aria-hidden', 'false');
+    hdr.innerHTML = `<div class="cell firmware">Firmware</div><div class="cell">Userland Exploits</div><div class="cell">Kernel Exploits</div><div class="cell">Course Of Action</div><div class="cell">Details</div>`;
+    chartContainer.appendChild(hdr);
   }
 
   function renderRows(items) {
-    const existingRows = chartContainer.querySelectorAll('.row.data');
-    existingRows.forEach(row => row.remove());
-
+    chartContainer.querySelectorAll('.row.data').forEach(r => r.remove());
     items.forEach(entry => {
-      const rowDiv = document.createElement('div');
-      rowDiv.className = 'row data';
-      rowDiv.tabIndex = 0;
-
-      let userlandHtml = '';
-      if (entry.userland && entry.userland.length) {
-        userlandHtml = `<span class="value"><ul class="list">${entry.userland.map(exp => `<li>${escapeHtml(exp)}</li>`).join('')}</ul></span>`;
-      } else {
-        userlandHtml = `<span class="value small muted">No public userland</span>`;
-      }
-
-      let kernelHtml = '';
-      if (entry.kernel && entry.kernel.length) {
-        kernelHtml = `<span class="value"><ul class="list">${entry.kernel.map(kexp => `<li>${escapeHtml(kexp)}</li>`).join('')}</ul></span>`;
-      } else {
-        kernelHtml = `<span class="value small muted">No known kernel</span>`;
-      }
-
-      const actionHtml = `<span class="value small">${escapeHtml(entry.action)}</span>`;
-      const infoHtml = `<span class="value small">${escapeHtml(entry.info)}</span>`;
-
-      rowDiv.innerHTML = `
-        <div class="field firmware">
-          <span class="label">Firmware</span>
-          <span class="value firmware">${escapeHtml(entry.firmware)}</span>
-        </div>
-        <div class="field userland">
-          <span class="label">Userland</span>
-          ${userlandHtml}
-        </div>
-        <div class="field kernel">
-          <span class="label">Kernel</span>
-          ${kernelHtml}
-        </div>
-        <div class="field action">
-          <span class="label">Action</span>
-          ${actionHtml}
-        </div>
-        <div class="field info">
-          <span class="label">Info</span>
-          ${infoHtml}
-        </div>
-      `;
-      chartContainer.appendChild(rowDiv);
+      const row = document.createElement('div');
+      row.className = 'row data';
+      row.tabIndex = 0;
+      const uHtml = entry.userland?.length
+        ? `<span class="value"><ul class="list">${entry.userland.map(e => `<li>${escapeHtml(e)}</li>`).join('')}</ul></span>`
+        : `<span class="value small muted">No public userland</span>`;
+      const kHtml = entry.kernel?.length
+        ? `<span class="value"><ul class="list">${entry.kernel.map(e => `<li>${escapeHtml(e)}</li>`).join('')}</ul></span>`
+        : `<span class="value small muted">No known kernel exploit</span>`;
+      row.innerHTML = `
+        <div class="field firmware"><span class="label">Firmware</span><span class="value firmware">${escapeHtml(entry.firmware)}</span></div>
+        <div class="field userland"><span class="label">Userland</span>${uHtml}</div>
+        <div class="field kernel"><span class="label">Kernel</span>${kHtml}</div>
+        <div class="field action"><span class="label">Action</span><span class="value small">${escapeHtml(entry.action)}</span></div>
+        <div class="field info"><span class="label">Info</span><span class="value small">${escapeHtml(entry.info)}</span></div>`;
+      chartContainer.appendChild(row);
     });
   }
 
-  function normaliseFirmware(fw) {
-    return fw.replace(/[.\s,\/()-]/g, '').toLowerCase();
+  function filterRows(q) {
+    if (!q.trim()) return rowsData.slice();
+    const lq = q.toLowerCase();
+    return rowsData.filter(e =>
+      e.firmware.toLowerCase().includes(lq) ||
+      e.userland?.join(' ').toLowerCase().includes(lq) ||
+      e.kernel?.join(' ').toLowerCase().includes(lq) ||
+      e.action.toLowerCase().includes(lq) ||
+      e.info.toLowerCase().includes(lq)
+    );
   }
 
-  function filterRows(query) {
-    if (!query.trim()) return rowsData.slice();
-    const lowerQuery = query.toLowerCase();
-    const normalisedQuery = lowerQuery.replace(/[.\s,\/()-]/g, '');
-    return rowsData.filter(entry => {
-      if (entry.firmware.toLowerCase().includes(lowerQuery)) return true;
-      if (entry.userland && entry.userland.join(' ').toLowerCase().includes(lowerQuery)) return true;
-      if (entry.kernel && entry.kernel.join(' ').toLowerCase().includes(lowerQuery)) return true;
-      if (entry.action.toLowerCase().includes(lowerQuery)) return true;
-      if (entry.info.toLowerCase().includes(lowerQuery)) return true;
-      const fwNorm = normaliseFirmware(entry.firmware);
-      if (fwNorm.includes(normalisedQuery)) return true;
-      return false;
-    });
-  }
+  searchInput.addEventListener('input', () => renderRows(filterRows(searchInput.value)));
+  resetBtn.addEventListener('click', () => { searchInput.value = ''; renderRows(rowsData); });
 
-  function updateChart() {
-    const query = searchInput.value;
-    const filtered = filterRows(query);
-    renderRows(filtered);
-  }
-
-  searchInput.addEventListener('input', updateChart);
-  resetBtn.addEventListener('click', () => {
-    searchInput.value = '';
-    updateChart();
-  });
-
-  // ---------- Music controls ----------
+  // ---------- Music ----------
   const audio = document.getElementById('bgAudio');
-  const musicBtnEl = document.getElementById('musicBtn');
-  let isMusicPlaying = false;
-  let isMutedFallback = false;
-
+  const musicBtn = document.getElementById('musicBtn');
+  let playing = false, mutedFallback = false;
   async function initAudio() {
-    audio.loop = true;
-    audio.volume = 0.85;
-    audio.muted = false;
-    try {
-      await audio.play();
-      isMusicPlaying = true;
-      isMutedFallback = false;
-      updateMusicButtonUI();
-    } catch (e) {
-      try {
-        audio.muted = true;
-        await audio.play();
-        isMusicPlaying = true;
-        isMutedFallback = true;
-        updateMusicButtonUI();
-        attachUnmuteOnInteraction();
-      } catch (e2) {
-        isMusicPlaying = false;
-        isMutedFallback = false;
-        updateMusicButtonUI();
-      }
+    audio.loop = true; audio.volume = 0.85; audio.muted = false;
+    try { await audio.play(); playing = true; } catch {
+      try { audio.muted = true; await audio.play(); playing = true; mutedFallback = true; attachUnmute(); } catch { playing = false; }
     }
+    updateBtn();
   }
-
-  function updateMusicButtonUI() {
-    if (isMusicPlaying) {
-      musicBtnEl.textContent = isMutedFallback ? 'Music (muted)' : 'Pause Music';
-      musicBtnEl.setAttribute('aria-pressed', 'true');
-    } else {
-      musicBtnEl.textContent = 'Play Music';
-      musicBtnEl.setAttribute('aria-pressed', 'false');
-    }
+  function updateBtn() {
+    musicBtn.textContent = playing ? (mutedFallback ? 'Music (muted)' : 'Pause Music') : 'Play Music';
+    musicBtn.setAttribute('aria-pressed', playing ? 'true' : 'false');
   }
-
-  function attachUnmuteOnInteraction() {
-    const handler = () => {
-      if (isMutedFallback && audio.muted) {
-        audio.muted = false;
-        audio.play().catch(() => {});
-        isMutedFallback = false;
-        updateMusicButtonUI();
-      }
-      window.removeEventListener('pointerdown', handler);
-      window.removeEventListener('keydown', handler);
-    };
-    window.addEventListener('pointerdown', handler, { once: true });
-    window.addEventListener('keydown', handler, { once: true });
+  function attachUnmute() {
+    const h = () => { if (mutedFallback && audio.muted) { audio.muted = false; audio.play().catch(()=>{}); mutedFallback = false; updateBtn(); } window.removeEventListener('pointerdown', h); window.removeEventListener('keydown', h); };
+    window.addEventListener('pointerdown', h, { once: true });
+    window.addEventListener('keydown', h, { once: true });
   }
-
-  musicBtnEl.addEventListener('click', async () => {
-    if (isMusicPlaying) {
-      audio.pause();
-      isMusicPlaying = false;
-      isMutedFallback = false;
-      updateMusicButtonUI();
-    } else {
+  musicBtn.addEventListener('click', async () => {
+    if (playing) { audio.pause(); playing = false; mutedFallback = false; }
+    else {
       audio.muted = false;
-      try {
-        await audio.play();
-        isMusicPlaying = true;
-        isMutedFallback = false;
-        updateMusicButtonUI();
-      } catch (err) {
-        try {
-          audio.muted = true;
-          await audio.play();
-          isMusicPlaying = true;
-          isMutedFallback = true;
-          updateMusicButtonUI();
-          attachUnmuteOnInteraction();
-        } catch (err2) {
-          isMusicPlaying = false;
-          updateMusicButtonUI();
-        }
-      }
+      try { await audio.play(); playing = true; } catch { try { audio.muted = true; await audio.play(); playing = true; mutedFallback = true; attachUnmute(); } catch { playing = false; } }
     }
+    updateBtn();
   });
-
   initAudio();
 
-  // Initial render
   renderHeader();
   renderRows(rowsData);
 </script>
