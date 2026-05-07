@@ -7,13 +7,13 @@
 <link rel="icon" type="image/png" href="./img/icon.png" />
 <style>
   :root{
-    --gap: 18px;
-    --btn-w: 160px;
-    --btn-h: 46px;
-    --btn-radius: 12px;
-    --glass-bg: rgba(255,255,255,0.06);
+    --gap: 20px;
+    --btn-w: 164px;
+    --btn-h: 50px;
+    --btn-radius: 1.2rem;
+    --glass-bg: rgba(255,255,255,0.05);
     --accent: #ffffff;
-    --shadow-color: rgba(0,0,0,0.45);
+    --shadow-color: rgba(0,0,0,0.5);
     --font-family: "Segoe UI", Roboto, system-ui, -apple-system, "Helvetica Neue", Arial;
   }
 
@@ -36,13 +36,14 @@
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
+    filter: brightness(0.4) contrast(1.08);
     z-index: -2;
   }
 
   .bg-overlay{
     position:fixed;
     inset:0;
-    background: linear-gradient(rgba(0,0,0,0.14), rgba(0,0,0,0.28));
+    background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.55) 100%);
     pointer-events:none;
     z-index: -1;
   }
@@ -61,14 +62,25 @@
   .menu-card{
     width: min(980px, 95%);
     max-width:1200px;
-    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.08));
-    border-radius:18px;
-    padding:28px;
-    box-shadow: 0 8px 30px var(--shadow-color);
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
-    border: 1px solid rgba(255,255,255,0.04);
+    background: rgba(255,255,255,0.04);
+    border-radius: 1.75rem;
+    padding: 32px 28px;
+    box-shadow: 0 25px 50px rgba(0,0,0,0.55),
+                inset 0 0 30px rgba(255,255,255,0.02);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255,255,255,0.1);
     position:relative;
+    overflow: hidden;
+  }
+
+  .menu-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(circle at 30% 20%, rgba(255,255,255,0.04), transparent 70%);
+    pointer-events: none;
   }
 
   header.menu-head{
@@ -76,16 +88,22 @@
     align-items:center;
     justify-content:space-between;
     gap:12px;
-    margin-bottom:18px;
+    margin-bottom:22px;
   }
   header .title{
-    font-size:20px;
-    font-weight:600;
-    letter-spacing:0.6px;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    background: linear-gradient(135deg, #ffffff 0%, #b0b0b0 50%, #ffffff 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 0 0 12px rgba(255,255,255,0.2);
   }
   header .subtitle{
     font-size:13px;
-    opacity:0.85;
+    opacity:0.8;
+    color: rgba(255,255,255,0.9);
   }
 
   .rows{
@@ -96,18 +114,19 @@
 
   .row{
     display:flex;
-    gap:14px;
+    gap:16px;
     justify-content:center;
+    flex-wrap: wrap;
   }
 
   .menu-btn{
     width: var(--btn-w);
     height: var(--btn-h);
-    min-width:120px;
-    padding:8px 14px;
+    min-width:130px;
+    padding:8px 16px;
     border-radius: var(--btn-radius);
-    border: 1px solid rgba(255,255,255,0.06);
-    background: var(--glass-bg);
+    border: 1px solid rgba(255,255,255,0.12);
+    background: rgba(255,255,255,0.06);
     display:inline-flex;
     align-items:center;
     justify-content:center;
@@ -117,36 +136,41 @@
     font-size:14px;
     cursor:pointer;
     user-select:none;
-    transition: transform 160ms cubic-bezier(.2,.9,.3,1), box-shadow 160ms, background 160ms;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+    transition: transform 200ms cubic-bezier(.2,.9,.3,1), box-shadow 200ms, background 200ms;
+    box-shadow: 0 8px 22px rgba(0,0,0,0.45),
+                inset 0 0 16px rgba(255,255,255,0.03);
     position:relative;
     overflow:hidden;
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    letter-spacing: 0.3px;
   }
 
   .menu-btn:hover{
-    transform: translateY(-4px) scale(1.05);
-    box-shadow: 0 10px 26px rgba(0,0,0,0.45);
+    transform: translateY(-5px) scale(1.06);
+    box-shadow: 0 14px 32px rgba(0,0,0,0.55),
+                inset 0 0 20px rgba(255,255,255,0.06);
+    background: rgba(255,255,255,0.09);
+    border-color: rgba(255,255,255,0.18);
   }
 
   .menu-btn:active{
-    transform: translateY(2px) scale(0.98);
+    transform: translateY(2px) scale(0.97);
   }
 
   .menu-btn::before{
     content:"";
     position:absolute;
     inset:0;
-    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.00));
+    background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.00));
     pointer-events:none;
     mix-blend-mode: overlay;
   }
 
   @media (max-width:560px){
-    :root{ --btn-w: 130px; --btn-h:42px; --gap:12px; }
-    .menu-card{ padding:18px; border-radius:12px; }
-    header .title{ font-size:17px; }
+    :root{ --btn-w: 140px; --btn-h:46px; --gap:14px; }
+    .menu-card{ padding:20px 16px; border-radius:1.2rem; }
+    header .title{ font-size:18px; }
   }
 
   .music-control{
@@ -156,40 +180,45 @@
     position:relative;
   }
   .music-btn{
-    width:40px;
-    height:40px;
-    border-radius:10px;
-    border:1px solid rgba(255,255,255,0.06);
-    background: rgba(255,255,255,0.02);
+    width:44px;
+    height:44px;
+    border-radius:14px;
+    border:1px solid rgba(255,255,255,0.12);
+    background: rgba(255,255,255,0.05);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     display:inline-flex;
     align-items:center;
     justify-content:center;
     cursor:pointer;
-    transition: transform 140ms;
+    transition: transform 140ms, box-shadow 140ms;
     position:relative;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.4),
+                inset 0 0 12px rgba(255,255,255,0.02);
   }
-  .music-btn:active{ transform:scale(0.95); }
-  .music-btn svg{ width:18px; height:18px; fill:currentColor; color:var(--accent); opacity:0.95; }
+  .music-btn:active{ transform:scale(0.93); }
+  .music-btn svg{ width:20px; height:20px; fill:currentColor; color:var(--accent); opacity:0.95; }
 
   .music-btn.muted::after{
     content: '';
     position: absolute;
     right: 6px;
     bottom: 6px;
-    width: 8px;
-    height: 8px;
+    width: 9px;
+    height: 9px;
     border-radius: 50%;
     background: #f0c419;
-    box-shadow: 0 0 6px rgba(240,196,25,0.6);
+    box-shadow: 0 0 8px rgba(240,196,25,0.7);
   }
 
   .unmute-hint{
     font-size:12px;
-    margin-left:10px;
-    opacity:0.92;
+    margin-left:12px;
+    opacity:0.88;
+    color: rgba(255,255,255,0.9);
   }
 
-  .hint{ font-size:12px; opacity:0.8; margin-top:10px; text-align:center; }
+  .hint{ font-size:12px; opacity:0.75; margin-top:14px; text-align:center; color: rgba(255,255,255,0.7); }
 </style>
 </head>
 <body>
