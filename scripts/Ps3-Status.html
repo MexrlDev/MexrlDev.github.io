@@ -100,7 +100,7 @@
     .subtitle {
       font-size: 0.8rem;
       opacity: 0.75;
-      max-width: 400px;
+      max-width: 560px;
     }
 
     .controls {
@@ -149,14 +149,13 @@
       background: rgba(0, 0, 0, 0.55);
     }
 
-    /* ----- Desktop chart grid ----- */
     .chart {
       width: 100%;
       margin-top: 0.5rem;
     }
     .row {
       display: grid;
-      grid-template-columns: 1fr 1.3fr 1.3fr 0.9fr 1.1fr;
+      grid-template-columns: 1fr 1.25fr 1.15fr 0.95fr 1.2fr;
       gap: 1rem;
       padding: 1.1rem 1rem;
       border-radius: 1.2rem;
@@ -318,11 +317,11 @@
 <div class="bg-overlay" aria-hidden="true"></div>
 
 <div class="wrap">
-  <div class="panel" role="main" aria-label="PS3 Jailbreak Status - Complete real exploits and methods">
+  <div class="panel" role="main" aria-label="PS3 Jailbreak Status - PS3-only and verified support matrix">
     <header>
       <div class="left-head">
         <div class="title">PS3 JB Status</div>
-        <div class="subtitle">All firmwares · real userland & kernel exploits · all methods included</div>
+        <div class="subtitle">PS3-only support matrix · current official firmware and current HFW/HEN support</div>
       </div>
       <div class="controls">
         <input id="search" class="search" type="search" placeholder="Filter by firmware, exploit..." aria-label="Search chart">
@@ -334,7 +333,7 @@
 
     <div id="chartContainer" class="chart" aria-live="polite"></div>
 
-    <div class="hint small">Always Updated</div>
+    <div class="hint small">Kept to PS3-specific rows only</div>
     <div class="credit muted">Owned by Mexrl</div>
   </div>
 </div>
@@ -342,268 +341,86 @@
 <audio id="bgAudio" loop preload="auto"><source src="../music/bg.mp3" type="audio/mpeg"></audio>
 
 <script>
-  // ---------- PS3 JB Status – Complete, deepest research ----------
+  // PS3-only status matrix. Current support references:
+  // - Sony lists PS3 system software 4.93 as the latest official firmware.
+  // - PS3Xploit/PS3HEN current docs reference 4.93.1 HFW support.
+  // - PS3HEN documentation applies to 4.93 OFW and lower, with HFW required for HEN.
   const rowsData = [
     {
-      firmware: '1.00 – 2.80',
+      firmware: '1.00 – 3.20',
       userland: [
-        'OtherOS (official Linux support)',
-        'WebKit exploits (early, limited)',
-        'BD‑J (Blu‑ray Java applets)',
-        'PS2 save game exploits',
-        'ISO loaders via OtherOS (e.g. PS3Ubuntu)'
+        'OtherOS / Linux on compatible fat models',
+        'Early PS3 homebrew research era'
       ],
       kernel: [
-        'OtherOS limited hardware access',
-        'No native CFW possible'
+        'No public jailbreak / CFW path'
       ],
-      action: 'Stay for OtherOS / Linux',
-      info: 'Early Phat models only. No custom firmware. Use Linux for homebrew, emulators, and file management.'
+      action: 'Stay only if you need OtherOS',
+      info: 'This is the early PS3 era. On compatible models, OtherOS was available before Sony removed it from retail firmware 3.21 onward.'
     },
     {
-      firmware: '3.15 – 3.30',
+      firmware: '3.21 – 3.54',
       userland: [
-        'OtherOS (Linux)',
-        'WebKit exploits (updated)',
-        'BD‑J applets',
-        'PS2 Classics signing (limited)',
-        'Backup injection via PS2emu'
+        'OtherOS removed on retail systems',
+        'No stable public homebrew entry for normal users'
       ],
       kernel: [
-        'OtherOS (some models)',
-        'No CFW, no lv2 peek/poke'
+        'No public CFW installation path'
       ],
-      action: 'Update to 3.41 or 3.55',
-      info: 'OtherOS removed after 3.21. Still no full jailbreak; need dongle or software exploit.'
-    },
-    {
-      firmware: '3.41',
-      userland: [
-        'PSJailbreak / PSGroove dongle',
-        'BD‑J initial exploits',
-        'WebKit entry points',
-        'Backup manager first generation'
-      ],
-      kernel: [
-        'PSJailbreak service mode exploit (lv2 patch)',
-        'First lv2 syscall modifications'
-      ],
-      action: 'Update to 3.55 (native CFW)',
-      info: 'Required a USB dongle. First public backup loader. No persistent CFW.'
+      action: 'Use 3.55 if the console is CFW-capable',
+      info: 'This is the locked-down gap before the 3.55 jailbreak era.'
     },
     {
       firmware: '3.55',
       userland: [
-        'BD‑J (full sandbox escape)',
-        'WebKit (various CVEs)',
-        'PS2 Classics full signing',
-        'Backup managers (multiMAN, IrisMAN)',
-        'Lv2diag.self for kernel dump',
-        'Homebrew SDK'
+        'Legacy jailbreak era',
+        'Signed homebrew packages on CFW'
       ],
       kernel: [
-        'LV0 & LV1 keys leaked (metldr root key)',
-        'Full CFW: Kmeaw, Rebug, Rogero, REBUG REX/D-REX',
-        'lv2 peek/poke syscalls',
-        'QA flagging & downgrade path',
-        'Cobra payload support'
+        'Full custom firmware support',
+        'Peek / poke and QA-style tooling on CFW builds'
       ],
-      action: 'STAY — golden firmware',
-      info: 'No dongle needed. Full access. Best compatibility with all PS3 models (except late super slims).'
+      action: 'Best legacy firmware for CFW-capable consoles',
+      info: '3.55 is the historical anchor point for PS3 custom firmware.'
     },
     {
-      firmware: '3.56 – 3.73',
+      firmware: '3.56 – 4.81',
       userland: [
-        'WebKit (limited, no public CFW chain)',
-        'BD‑J theoretical',
-        'PS2 Classics signing',
-        'PSN game backups via proxy'
+        'No public software CFW installation path',
+        'Firmware-era research and limited userland work'
       ],
       kernel: [
-        'None (requires hardware downgrade)',
-        'E3 Flasher / Progskeet / Teensy++ mandatory'
+        'Hardware downgrade required for jailbreak on CFW-capable models'
       ],
-      action: 'Downgrade to 3.55 via hardware flasher',
-      info: 'No software kernel exploit. Must use external SPI flasher to write a 3.55 dump.'
+      action: 'Downgrade only with verified hardware tools',
+      info: 'For normal retail systems there is no direct software jailbreak in this range.'
     },
     {
-      firmware: '4.00 – 4.81',
+      firmware: '4.82 – 4.92',
       userland: [
-        'WebKit exploits (multiple, but no kernel)',
-        'BD‑J applets',
-        'HAN (Homebrew Activation Network) – IDPS based',
-        'PS2 Classics Manager',
-        'PS3GameConvert',
-        'CFW2OFW (fake CFW)'
+        'HFW / HEN era on non-CFW models',
+        'PS3Xploit tools for compatible setups'
       ],
       kernel: [
-        'None (downgrade via hardware flasher)',
-        'Or update to 4.82+ for software solution'
+        'PS3HEN temporary kernel patches on HFW',
+        'PS3Xploit flash-writer path on CFW-capable models'
       ],
-      action: 'Update to 4.82 or newer for permanent jailbreak',
-      info: 'HAN allows some homebrew on OFW, but no kernel. Use PS3Xploit or HFW.'
+      action: 'Install HFW, then HEN or flash writer depending on model',
+      info: 'Current PS3Xploit / PS3HEN support evolved through these firmware lines and remains the practical modding path for most consoles.'
     },
     {
-      firmware: '4.82',
+      firmware: '4.93 OFW / 4.93.1 HFW',
       userland: [
-        'PS3Xploit 2.0 WebKit exploit (CVE‑2017‑13856 style)',
-        'BD‑J entry',
-        'HAN (continued)'
+        'Current official firmware line',
+        'PS3HEN 3.5.0 support on 4.93 HFW / 4.93.1 HFW',
+        'PS3Xploit current HFW-based tools'
       ],
       kernel: [
-        'PS3Xploit 2.0 lv2 exploit (Flash Writer)',
-        'CFW installation for NOR & NAND models',
-        'First software CFW since 3.55'
+        'PS3HEN on HFW',
+        'Flash writer for supported CFW-capable models'
       ],
-      action: 'STAY – install full CFW or HEN',
-      info: 'Revolutionary. Write CFW directly from OFW. Required for most non‑3.55 consoles.'
-    },
-    {
-      firmware: '4.83 – 4.84',
-      userland: [
-        'PS3Xploit v2.0 WebKit (still works)',
-        'PS3HEN (Homebrew Enabler) initial release',
-        'BD‑J'
-      ],
-      kernel: [
-        'PS3HEN lv2 payload (homebrew only)',
-        'CFW Flash Writer for some NOR models'
-      ],
-      action: 'Stay for HEN, update to 4.85+ if CFW desired',
-      info: 'HEN provides temporary kernel patches for homebrew. CFW still possible but needs specific method.'
-    },
-    {
-      firmware: '4.85',
-      userland: [
-        'PS3Xploit v3 (new WebKit)',
-        'PS3HEN',
-        'BD‑J',
-        'HAN deprecated'
-      ],
-      kernel: [
-        'PS3Xploit v3 lv2 exploit (improved Flash Writer)',
-        'CFW for NOR/NAND',
-        'PS3HEN kernel payload stable'
-      ],
-      action: 'Stay or update to 4.86+',
-      info: 'Great for CFW on all fat/slim models. Super slims can use HEN.'
-    },
-    {
-      firmware: '4.86',
-      userland: [
-        'PS3Xploit v3 (WebKit)',
-        'PS3HEN',
-        'BD‑J',
-        'Backup managers via HEN'
-      ],
-      kernel: [
-        'Flash Writer CFW (NOR/NAND)',
-        'PS3HEN lv2',
-        'Pongo exploit chain (early)'
-      ],
-      action: 'Stay — solid for CFW & HEN',
-      info: 'Well supported. Community CFW like Evilnat 4.86 available.'
-    },
-    {
-      firmware: '4.87',
-      userland: [
-        'PS3Xploit v3 (WebKit)',
-        'PS3HEN',
-        'BD‑J'
-      ],
-      kernel: [
-        'Flash Writer for all compatible models',
-        'PS3HEN',
-        'Pongo chain stable'
-      ],
-      action: 'Stay or update to 4.88+',
-      info: 'All fat/slim (NOR) consoles support CFW. Super slims: HEN only.'
-    },
-    {
-      firmware: '4.88',
-      userland: [
-        'PS3Xploit v3 WebKit',
-        'PS3HEN 3.2.0',
-        'BD‑J',
-        'Artemis cheat support'
-      ],
-      kernel: [
-        'Flash Writer 4.88 (full CEX/DEX)',
-        'PS3HEN',
-        'Cobra 8.4 payload',
-        'MAMBA 8.4'
-      ],
-      action: 'Stay — very stable, widely adopted',
-      info: 'Mature tools. CFW for NOR models, HEN for all. Great homebrew compatibility.'
-    },
-    {
-      firmware: '4.89',
-      userland: [
-        'PS3Xploit v3.0 (new entry)',
-        'PS3HEN 3.2.0',
-        'BD‑J (Blu‑ray)'
-      ],
-      kernel: [
-        'Flash Writer 4.89',
-        'PS3HEN',
-        'Cobra 8.4'
-      ],
-      action: 'Stay if on it',
-      info: 'Quickly ported. Minor PSN blu‑ray update. All exploits work.'
-    },
-    {
-      firmware: '4.90',
-      userland: [
-        'PS3Xploit v3.0 (WebKit)',
-        'PS3HEN 3.2.1',
-        'BD‑J',
-        'new PS3 WebKit exploit (CVE‑2021‑30846)'
-      ],
-      kernel: [
-        'Flash Writer 4.90 (full support)',
-        'PS3HEN',
-        'Pongo exploit chain (newer)',
-        'Cobra 8.5'
-      ],
-      action: 'Stay — recommended for HEN & CFW',
-      info: 'Latest wide support. Evilnat 4.90 CFW, Rebug 4.90 REX, many custom firmwares available.'
-    },
-    {
-      firmware: '4.91',
-      userland: [
-        'PS3Xploit WebKit (latest CVEs)',
-        'PS3HEN 3.2.2',
-        'BD‑J',
-        'Save wizard exploits'
-      ],
-      kernel: [
-        'Flash Writer CFW (4.91) – Evilnat, HABIB',
-        'PS3HEN',
-        'Cobra 8.5'
-      ],
-      action: 'Stay on 4.91',
-      info: 'Stable, all methods working. CFW and HEN both mature.'
-    },
-    {
-      firmware: '4.92 (Latest official)',
-      userland: [
-        'PS3Xploit v4 WebKit (2025 exploit)',
-        'PS3HEN 3.3.0 / 4.92',
-        'BD‑J (BD‑JB 4.92)',
-        'Mast1c0re (PS3 port theoretical)',
-        'PS2emu homebrew injection',
-        'PS3 Save Game Exploit (Apollo)',
-        'HFW (Hybrid Firmware) method'
-      ],
-      kernel: [
-        'PS3Xploit v4 lv2 exploit (Flash Writer)',
-        'CFW Flash Writer 4.92 (Evilnat, REBUG 4.92 LITE)',
-        'PS3HEN lv2 payload',
-        'Pongo exploit chain (2026 stable)',
-        'Cobra 8.6 / Mamba 8.6'
-      ],
-      action: 'STAY — latest final firmware, fully hackable',
-      info: 'Final official firmware. All consoles (Fat, Slim, Super Slim) can be jailbroken via HEN. CFW for supported models. PS3Xploit v4 released Oct 2025, patched webkit but flash writer still works. HEN 4.92 stable, CFW packages available (Evilnat 4.92, Overcooked 4.92). Fully functional.'
+      action: 'Stay on OFW for stock use; move to 4.93.1 HFW for modding',
+      info: 'Sony’s official PS3 support page lists 4.93 as the latest system software, while current PS3Xploit/PS3HEN docs list 4.93.1 HFW support.'
     }
   ];
 
@@ -627,10 +444,10 @@
     headerDiv.setAttribute('aria-hidden', 'false');
     headerDiv.innerHTML = `
       <div class="cell firmware">Firmware</div>
-      <div class="cell">Userland Exploits</div>
-      <div class="cell">Kernel Exploits</div>
-      <div class="cell">Course Of Action</div>
-      <div class="cell">Details</div>
+      <div class="cell">Userland / Entry</div>
+      <div class="cell">Kernel / Install State</div>
+      <div class="cell">Recommended Status</div>
+      <div class="cell">Notes</div>
     `;
     chartContainer.appendChild(headerDiv);
   }
@@ -719,7 +536,6 @@
     updateChart();
   });
 
-  // ---------- Music controls ----------
   const audio = document.getElementById('bgAudio');
   const musicBtnEl = document.getElementById('musicBtn');
   let isMusicPlaying = false;
@@ -805,8 +621,6 @@
   });
 
   initAudio();
-
-  // Initial render
   renderHeader();
   renderRows(rowsData);
 </script>
