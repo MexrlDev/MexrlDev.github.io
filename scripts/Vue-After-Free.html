@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>JSMAF Emulator – PlayStation Vue</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html, body { width:100%; height:100%; overflow:hidden; background:#000; font-family:'Segoe UI',sans-serif; }
+  #canvas { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%) scale(var(--s)); transform-origin:center; image-rendering:auto; }
+  #ui { position:absolute; top:0; left:0; width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; background:rgba(0,0,0,0.9); z-index:10; }
+  #dropzone { width:80%; max-width:600px; padding:30px; border:3px dashed #aaa; border-radius:20px; text-align:center; color:#ccc; font-size:20px; margin:10px; transition:background 0.3s; }
+  #dropzone.dragover { background:rgba(255,255,255,0.2); }
+  #textarea { width:80%; max-width:600px; height:150px; margin:10px; padding:10px; background:#111; color:#0f0; border:1px solid #555; font-family:monospace; }
+  .btn { padding:12px 30px; margin:8px; font-size:18px; border:none; border-radius:8px; cursor:pointer; background:#2266cc; color:white; }
+  .btn:hover { background:#335ea0; }
+  #log { position:absolute; bottom:10px; left:10px; width:300px; height:120px; background:rgba(0,0,0,0.8); color:#0f0; font-size:14px; overflow-y:auto; padding:5px; z-index:20; display:none; font-family:monospace; }
+  #keyhelp { color:white; font-size:12px; margin-top:10px; }
+  @media (max-width:1000px) { #dropzone { font-size:16px; } }
+</style>
+</head>
+<body>
+
+<canvas id="canvas" width="1920" height="1080"></canvas>
+
+<div id="ui">
+  <h1 style="color:white; margin-bottom:20px;">JSMAF Emulator</h1>
+  <div id="dropzone">Drop .js script here<br>or click to choose file</div>
+  <input type="file" id="fileInput" accept=".js" style="display:none;">
+  <textarea id="textarea" placeholder="Paste your JSMAF script code here..."></textarea>
+  <div>
+    <button class="btn" id="runBtn">Run Script</button>
+    <button class="btn" id="clearBtn">Clear</button>
+  </div>
+  <div id="keyhelp">
+    Keys: Arrows=DPad | Z=Cross | X=Circle | C=Triangle | V=Square | Q/E=L1/R1 | 1/3=L2/R2 | Space=R3 | Enter=Touchpad
+  </div>
+</div>
+
+<div id="log"></div>
+
+<script>
+// ================== JSMAF EMULATOR CORE ==================
+(function() {
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+  const WIDTH = 1920, HEIGHT = 1080;
+
+  // Scale factor to fit screen (landscape)
+  function updateScale() {
+    const scaleX = window.innerWidth / WIDTH;
+    const scaleY = window.innerHeight / HEIGHT;
+    const scale = Math.min(scaleX, scaleY);
+    canvas.style.setProperty('--s', scale);
+  }
+  window.addEventListener('resize', updateScale);
+  updateScale();
+
+  // Log div
+  const logDiv = document.getElementById('log');
+  function log(msg) {
+    if (logDiv.style.display === 'none') logDiv.style.display = 'block';
+    logDiv.innerHTML += msg + '<br>';
+    logDiv.scrollTop = logDiv.scrollHeight;
+  }
+
+  // ============== FILE LOADING (XMLHttpRequest) ==============
+  // Emulated file:// paths become relative to current URL.
+  // We assume running on a local server that serves the project root.
+  window.__fileMap = {};
+
+  // ============== AUDIO CONTEXT ==============
+  let audioCtx = null;
+  function getAudioCtx() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    return audioCtx;
+  }
+
+  // ============== BUILD JSMAF OBJECT ==============
+  const jsmaf = {
+    // Core properties (from dump)
+    screenWidth: WIDTH,
+    screenHeight: HEIGHT,
+    screenAspect: 1.7777777777777777,
+    frameRate: 60,
+    platform: 'ps4',
+    version: '2.13.2',
+    hardwareId: "noooooo'noooooo",
+    networkStatus: 'connected',
+    connectionType: 'wireless',
+    remotePlay: true,
+    locale: 'en',
+    gamma: 1,
+    depthTest: false,
+    isTTSenabled: false,
+    circleIsAdvanceButton: false,
+    cookie: '',
+    externalParameter: '',
+    argc: 1,
+
+    // Root container
+    root: {
+      x: 0, y: 0, width: 0, height: 0,
+      scaleX: 1, scaleY: 1, scaleZ: 1,
+      rotateX: 0, rotateY: 0, rotateZ: 0,
+      alpha: 1, visible: true,
+      clip: false, clipX: 0, clipY: 0, clipWidth: 0, clipHeight: 0,
+      children: [],
+    },
+
+    // Event handlers
+    onKeyDown: null,
+    onKeyUp: null,
+    onEnterFrame: null,
+    onError: function(e) { log('JSMAF Error: ' + (e && e.message ? e.message : e)); },
+    onNetworkStatusChange: null,
+    onShutdown: null,
+    // dummy
+    onKeyboardDown: null, onkeyboarddown: null,
+    onKeyboardUp: null, onkeyboardup: null,
+    onKeyboardRepeat: null, onkeyboardrepeat: null,
+    onenterforeground: null, onEnterForeground: null,
+    onenterbackground: null, onEnterBackground: null,
+    ontextspeech: null, onTextSpeech: null,
+    onexternalparamchange: null, onExternalParamChange: null,
+    onKeyRepeat: null, onkeyrepeat: null,
+    onkeydown: null, onkeyup: null,
+
+    // Timer functions
+    setTimeout: function(fn, delay) { return window.setTimeout(fn, delay); },
+    clearTimeout: function(id) { window.clearTimeout(id); },
+    setInterval: function(fn, delay) { return window.setInterval(fn, delay); },
+    clearInterval: function(id) { window.clearInterval(id); },
+
+    // Output
+    print: function(msg) { log(msg); },
+    alert: function(msg) { alert(msg); },
+
+    // Asset loading
+    include: function(path) {
+      // Resolve file://../download0/... to relative
+      let url = path;
+      if (url.startsWith('file://../download0/')) {
+        url = url.replace('file://../download0/', '');
+      } else if (url.startsWith('file:///')) {
+        url = url.replace('file:///', '');
+      }
+      // Fetch and eval synchronously (XHR sync)
+      const xhr = new XMLHttpRequest();
+      xhr.open('GET', url, false); // sync
+      try { xhr.send(); } catch(e) { log('include failed: ' + url); return; }
+      if (xhr.status === 200 || xhr.status === 0) {
+        eval(xhr.responseText);
+      }
+    },
+
+    exit: function() {
+      log('jsmaf.exit() called');
+      // stop game loop
+      if (frameLoopId) cancelAnimationFrame(frameLoopId);
+      // show start screen again?
+      document.getElementById('ui').style.display = 'flex';
+    },
+
+    // Dummy implementations
+    forceConnect: function(){}, showOSK: function(){}, argv: function(){},
+    processTime: function(){}, gc: function(){}, hideSplashScreen: function(){},
+    openWebBrowser: function(){}, speak: function(){}, eval: function(){},
+    showCCSettings: function(){},
+  };
+
+  // ============== IMAGE CONSTRUCTOR ==============
+  function Image(opts) {
+    opts = opts || {};
+    this.url = opts.url || '';
+    this.x = opts.x || 0;
+    this.y = opts.y || 0;
+    this.width = opts.width || 0;
+    this.height = opts.height || 0;
+    this.alpha = (opts.alpha !== undefined) ? opts.alpha : 1;
+    this.visible = (opts.visible !== undefined) ? opts.visible : true;
+    this.scaleX = opts.scaleX || 1;
+    this.scaleY = opts.scaleY || 1;
+    this.scaleZ = opts.scaleZ || 1;
+    this.rotateX = opts.rotateX || 0;
+    this.rotateY = opts.rotateY || 0;
+    this.rotateZ = opts.rotateZ || 0;
+    this.background = opts.background || null;
+    this.borderWidth = opts.borderWidth || 0;
+    this.borderColor = opts.borderColor || 'transparent';
+    this.borderImage = opts.borderImage || '';
+    this.clip = opts.clip || false;
+    this.clipX = opts.clipX || 0;
+    this.clipY = opts.clipY || 0;
+    this.clipWidth = opts.clipWidth || 0;
+    this.clipHeight = opts.clipHeight || 0;
+    this.children = [];
+    this.tint = opts.tint || 'rgb(255,255,255)';
+    this.paddingTop = opts.paddingTop || 0;
+    this.paddingRight = opts.paddingRight || 0;
+    this.paddingBottom = opts.paddingBottom || 0;
+    this.paddingLeft = opts.paddingLeft || 0;
+    this.naturalWidth = opts.naturalWidth || 0;
+    this.naturalHeight = opts.naturalHeight || 0;
+    this.baseline = opts.baseline || 0;
+    this.align = opts.align || 'left';
+    this.lineCount = opts.lineCount || 0;
+    this.lineClamp = opts.lineClamp || 0;
+    this.text = opts.text || '';
+    this.style = opts.style || null;
+    // internal
+    this._img = new globalThis.Image();
+    this._img.crossOrigin = 'anonymous';
+    if (this.url) {
+      this._img.src = this.url.replace('file://../download0/', '');
+    }
+    this.onload = opts.onload || opts.onLoad || null;
+    const self = this;
+    this._img.onload = function() {
+      self.naturalWidth = self._img.naturalWidth;
+      self.naturalHeight = self._img.naturalHeight;
+      if (self.onload) self.onload();
+    };
+  }
+  jsmaf.Image = Image;
+
+  // ============== TEXT CONSTRUCTOR ==============
+  function Text() {
+    this.text = '';
+    this.x = 0; this.y = 0;
+    this.width = 0; this.height = 0;
+    this.alpha = 1;
+    this.visible = true;
+    this.scaleX = 1; this.scaleY = 1; this.scaleZ = 1;
+    this.rotateX = 0; this.rotateY = 0; this.rotateZ = 0;
+    this.style = null;
+    this.align = 'left';
+    this.baseline = 0;
+    this.lineCount = 0;
+    this.lineClamp = 0;
+    this.naturalWidth = 0;
+    this.naturalHeight = 0;
+  }
+  jsmaf.Text = Text;
+
+  // ============== STYLE ==============
+  const styles = {};
+  function Style(def) {
+    styles[def.name] = def;
+  }
+  jsmaf.Style = Style;
+
+  // ============== AUDIOCLIP ==============
+  jsmaf.AudioClip = function() {
+    this._audio = null;
+    this.volume = 1;
+    this.loop = false;
+  };
+  jsmaf.AudioClip.prototype.open = function(url) {
+    const self = this;
+    const finalUrl = url.replace('file://../download0/', '');
+    fetch(finalUrl).then(res => res.arrayBuffer()).then(buffer => {
+      return getAudioCtx().decodeAudioData(buffer);
+    }).then(decoded => {
+      self._decoded = decoded;
+    }).catch(e => { log('AudioClip open error: ' + e); });
+  };
+  jsmaf.AudioClip.prototype.play = function(loop) {
+    if (!this._decoded) return;
+    const ctx = getAudioCtx();
+    const source = ctx.createBufferSource();
+    source.buffer = this._decoded;
+    source.loop = loop !== false;
+    const gain = ctx.createGain();
+    gain.gain.value = this.volume;
+    source.connect(gain).connect(ctx.destination);
+    source.start(0);
+    this._source = source;
+  };
+  jsmaf.AudioClip.prototype.stop = function() {
+    if (this._source) this._source.stop();
+  };
+  jsmaf.AudioClip.prototype.close = function() {
+    this.stop();
+  };
+
+  // ============== XMLHttpRequest (basic) ==============
+  jsmaf.XMLHttpRequest = window.XMLHttpRequest;
+
+  // ============== OTHER DUMMY CLASSES ==============
+  jsmaf.Container = function(){};
+  jsmaf.Mesh = function(){};
+  jsmaf.Slate = function(){};
+  jsmaf.Video = function(){};
+  jsmaf.WebSocket = window.WebSocket;
+  jsmaf.WebSocketServer = function(){};
+  jsmaf.User = function(){};
+  jsmaf.Preload = function(){};
+  jsmaf.location = {};
+
+  // Expose to global scope
+  window.jsmaf = jsmaf;
+  window.Image = Image; // will not conflict with browser Image
+  window.Text = Text;
+  window.Style = Style;
+
+  // ============== RENDERING LOOP ==============
+  let frameLoopId = null;
+  function drawScene() {
+    ctx.clearRect(0, 0, WIDTH, HEIGHT);
+    drawElement(jsmaf.root, 0, 0, 1, 1);
+    frameLoopId = requestAnimationFrame(drawScene);
+    if (typeof jsmaf.onEnterFrame === 'function') jsmaf.onEnterFrame();
+  }
+
+  function drawElement(el, parentX, parentY, globalAlpha, globalScale) {
+    if (!el.visible || el.alpha <= 0) return;
+    const x = parentX + el.x;
+    const y = parentY + el.y;
+    const alpha = globalAlpha * el.alpha;
+    ctx.save();
+    // clip
+    if (el.clip) {
+      ctx.beginPath();
+      ctx.rect(x + el.clipX, y + el.clipY, el.clipWidth, el.clipHeight);
+      ctx.clip();
+    }
+    // transform
+    ctx.translate(x + el.width/2, y + el.height/2);
+    if (el.rotateZ) ctx.rotate(el.rotateZ * Math.PI / 180);
+    if (el.scaleX !== 1 || el.scaleY !== 1) ctx.scale(el.scaleX, el.scaleY);
+    ctx.translate(-(x + el.width/2), -(y + el.height/2));
+
+    ctx.globalAlpha = alpha;
+
+    // background color
+    if (el.background) {
+      ctx.fillStyle = el.background;
+      ctx.fillRect(x, y, el.width || 0, el.height || 0);
+    }
+
+    // image
+    if (el._img && el._img.complete && el._img.naturalWidth > 0) {
+      ctx.drawImage(el._img, x, y, el.width || el._img.naturalWidth, el.height || el._img.naturalHeight);
+    } else if (el.text !== undefined && el.style && styles[el.style]) {
+      // Text element
+      const st = styles[el.style];
+      ctx.font = (st.size || 20) + 'px sans-serif';
+      ctx.fillStyle = st.color || 'white';
+      ctx.textAlign = el.align || 'left';
+      ctx.fillText(el.text, x, y + (st.size||20));
+    }
+
+    // border
+    if (el.borderWidth > 0 && el.borderColor !== 'transparent') {
+      ctx.strokeStyle = el.borderColor;
+      ctx.lineWidth = el.borderWidth;
+      ctx.strokeRect(x, y, el.width, el.height);
+    }
+
+    ctx.restore();
+
+    // children
+    if (el.children) {
+      for (let i = 0; i < el.children.length; i++) {
+        drawElement(el.children[i], x, y, alpha, 1);
+      }
+    }
+  }
+
+  function startRendering() {
+    if (frameLoopId) cancelAnimationFrame(frameLoopId);
+    drawScene();
+  }
+
+  // ============== KEYBOARD INPUT ==============
+  const keyMap = {
+    'ArrowUp': 4, 'KeyW': 55,     // up
+    'ArrowDown': 6, 'KeyS': 57,   // down
+    'ArrowLeft': 7, 'KeyA': 58,   // left
+    'ArrowRight': 5, 'KeyD': 56,  // right
+    'KeyZ': 14,    // cross
+    'KeyX': 13,    // circle
+    'KeyC': 12,    // triangle
+    'KeyV': 15,    // square
+    'KeyQ': 10,    // L1
+    'KeyE': 11,    // R1
+    'Digit1': 8,   // L2
+    'Digit3': 9,   // R2
+    'Space': 2,    // R3
+    'ShiftLeft': 1, 'ShiftRight': 1, // L3
+    'Enter': 16,   // touchpad
+  };
+  window.addEventListener('keydown', (e) => {
+    const code = keyMap[e.code] || null;
+    if (code && typeof jsmaf.onKeyDown === 'function') {
+      jsmaf.onKeyDown(code);
+    }
+  });
+  window.addEventListener('keyup', (e) => {
+    const code = keyMap[e.code] || null;
+    if (code && typeof jsmaf.onKeyUp === 'function') {
+      jsmaf.onKeyUp(code);
+    }
+  });
+
+  // ============== UI CONTROLS ==============
+  const dropzone = document.getElementById('dropzone');
+  const fileInput = document.getElementById('fileInput');
+  const textarea = document.getElementById('textarea');
+  const runBtn = document.getElementById('runBtn');
+  const clearBtn = document.getElementById('clearBtn');
+  const uiOverlay = document.getElementById('ui');
+
+  dropzone.addEventListener('click', () => fileInput.click());
+  fileInput.addEventListener('change', handleFileSelect);
+  dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.classList.add('dragover'); });
+  dropzone.addEventListener('dragleave', () => { dropzone.classList.remove('dragover'); });
+  dropzone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropzone.classList.remove('dragover');
+    const file = e.dataTransfer.files[0];
+    if (file) readFile(file);
+  });
+
+  function handleFileSelect(e) {
+    const file = e.target.files[0];
+    if (file) readFile(file);
+  }
+
+  function readFile(file) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      textarea.value = e.target.result;
+    };
+    reader.readAsText(file);
+  }
+
+  runBtn.addEventListener('click', () => {
+    const code = textarea.value.trim();
+    if (!code) return alert('No script provided');
+    // Clear previous state
+    jsmaf.root.children.length = 0;
+    // Hide UI overlay
+    uiOverlay.style.display = 'none';
+    try {
+      eval(code);
+    } catch(e) {
+      log('Script error: ' + e.message);
+      uiOverlay.style.display = 'flex';
+      return;
+    }
+    startRendering();
+  });
+
+  clearBtn.addEventListener('click', () => {
+    textarea.value = '';
+  });
+
+  // Start with UI visible
+  uiOverlay.style.display = 'flex';
+})();
+</script>
+</body>
+</html>
