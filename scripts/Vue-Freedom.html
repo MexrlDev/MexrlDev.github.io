@@ -3,228 +3,226 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>PsVue Emulator</title>
+  <title>JSMAF Emulator – Glass UI</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <style>
     :root {
       --bg: #0a0a0a;
-      --surface: #1a1a2e;
-      --text: #e0e0e0;
-      --accent: #4a90d9;
-      --accent2: #2d5f8a;
-      --border: #2a2a3a;
-      --danger: #c0392b;
-      --radius: 12px;
+      --glass: rgba(20, 20, 40, 0.7);
+      --glass-border: rgba(255, 255, 255, 0.2);
+      --glass-hover: rgba(40, 40, 70, 0.9);
+      --text: #e0e0f0;
+      --accent: #5b8cff;
+      --accent2: #3b5fcc;
+      --radius: 16px;
+      --blur: 16px;
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * { box-sizing: border-box; margin:0; padding:0; }
     body {
-      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      font-family: 'Segoe UI', system-ui, sans-serif;
       background: var(--bg);
       color: var(--text);
-      overflow: hidden;
       height: 100vh;
       width: 100vw;
-      touch-action: none;
+      overflow: hidden;
+      touch-action: manipulation;
+      background-image: radial-gradient(ellipse at center, #1a1a3e 0%, #0a0a0a 70%);
     }
+    /* Glass card base */
+    .glass {
+      background: var(--glass);
+      backdrop-filter: blur(var(--blur));
+      -webkit-backdrop-filter: blur(var(--blur));
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    }
+    /* Layout */
     #app {
       display: flex;
       flex-direction: column;
       height: 100%;
+      position: relative;
     }
-    /* Top bar */
     .top-bar {
       display: flex;
       align-items: center;
-      gap: 8px;
-      padding: 8px 12px;
-      background: rgba(30,30,50,0.95);
+      gap: 10px;
+      padding: 10px 16px;
+      background: rgba(10,10,30,0.8);
       backdrop-filter: blur(10px);
-      border-bottom: 1px solid var(--border);
+      border-bottom: 1px solid var(--glass-border);
+      z-index: 20;
       flex-shrink: 0;
-      z-index: 50;
-      flex-wrap: wrap;
     }
     .top-bar button {
-      background: var(--surface);
+      background: var(--glass);
       color: var(--text);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 8px 16px;
-      font-size: 14px;
+      border: 1px solid var(--glass-border);
+      border-radius: 10px;
+      padding: 8px 14px;
+      font-size: 15px;
+      backdrop-filter: blur(8px);
       cursor: pointer;
-      transition: all 0.2s;
-      white-space: nowrap;
-    }
-    .top-bar button:hover { background: var(--accent2); border-color: var(--accent); }
-    .top-bar button:active { transform: scale(0.96); }
-    .top-bar button.primary { background: var(--accent); border-color: var(--accent); font-weight: bold; }
-    .top-bar .spacer { flex: 1; }
-    /* Canvas container */
-    .canvas-container {
-      flex: 1;
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-      background: #000;
-    }
-    canvas {
-      image-rendering: crisp-edges;
-      max-width: 100%;
-      max-height: 100%;
-      object-fit: contain;
-    }
-    /* Overlay panels */
-    .overlay {
-      position: absolute;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      box-shadow: 0 8px 32px rgba(0,0,0,0.6);
-      z-index: 100;
-      display: none;
-      overflow: hidden;
-    }
-    /* Script input panel */
-    #script-panel {
-      top: 60px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 90%;
-      max-width: 700px;
-      max-height: 80vh;
-      background: var(--surface);
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-    #script-panel h2 { font-size: 1.3rem; text-align: center; }
-    .drop-zone {
-      border: 2px dashed var(--border);
-      border-radius: 12px;
-      padding: 24px;
-      text-align: center;
-      color: var(--text);
-      background: rgba(255,255,255,0.03);
-      transition: background 0.2s;
-      cursor: pointer;
-    }
-    .drop-zone.dragover { background: rgba(74,144,217,0.15); border-color: var(--accent); }
-    textarea {
-      width: 100%;
-      height: 150px;
-      background: #0e0e1a;
-      color: #b0ffb0;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 12px;
-      font-family: 'Fira Code', monospace;
-      resize: vertical;
-      font-size: 14px;
-    }
-    .button-row { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
-    /* File explorer */
-    #file-explorer {
-      top: 60px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 90%;
-      max-width: 900px;
-      height: 70vh;
-      flex-direction: row;
-    }
-    #file-explorer .sidebar {
-      width: 240px;
-      border-right: 1px solid var(--border);
-      padding: 12px;
-      overflow-y: auto;
-      background: rgba(0,0,0,0.2);
-    }
-    #file-explorer .content {
-      flex: 1;
-      padding: 16px;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-    }
-    .tree-dir {
-      cursor: pointer;
-      padding: 4px 8px;
-      border-radius: 4px;
-    }
-    .tree-dir:hover { background: var(--accent2); }
-    .file-entry {
-      cursor: pointer;
-      padding: 6px 10px;
-      border-radius: 4px;
       display: flex;
       align-items: center;
       gap: 6px;
+      transition: all 0.2s;
     }
-    .file-entry:hover { background: rgba(255,255,255,0.05); }
-    .file-entry.selected { background: var(--accent2); }
-    .actions-row { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
-    .actions-row button, .actions-row label {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 6px 12px;
-      cursor: pointer;
-      font-size: 13px;
-      color: var(--text);
+    .top-bar button:hover, .top-bar button:active {
+      background: var(--glass-hover);
+      border-color: var(--accent);
     }
-    .actions-row button:hover, .actions-row label:hover { background: var(--accent2); }
-    #file-preview {
-      background: #111;
-      padding: 12px;
-      border-radius: 8px;
-      margin-top: 12px;
-      overflow: auto;
-      max-height: 200px;
-      font-size: 13px;
+    .top-bar .spacer { flex:1; }
+    /* Content area */
+    .content-area {
+      flex:1;
+      position: relative;
+      overflow: hidden;
     }
-    /* Mobile virtual gamepad */
-    .mobile-controls {
+    canvas {
       position: absolute;
-      bottom: 10px;
+      top:50%; left:50%;
+      transform: translate(-50%,-50%) scale(var(--scale));
+      image-rendering: crisp-edges;
+      max-width: 100%; max-height: 100%;
+    }
+    /* Menu panels */
+    .menu-panel {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      backdrop-filter: blur(10px);
+      background: rgba(10,10,20,0.85);
+      z-index: 15;
+      transition: transform 0.3s ease;
+    }
+    .menu-panel.hidden {
+      transform: translateX(100%);
+    }
+    /* Bottom navigation */
+    .bottom-nav {
+      display: flex;
+      background: var(--glass);
+      backdrop-filter: blur(20px);
+      border-top: 1px solid var(--glass-border);
+      padding: 8px 0;
+      justify-content: space-around;
+      align-items: center;
+      z-index: 25;
+      flex-shrink: 0;
+    }
+    .nav-item {
+      flex:1;
+      text-align: center;
+      color: rgba(255,255,255,0.5);
+      font-size: 13px;
+      padding: 6px 0;
+      cursor: pointer;
+    }
+    .nav-item.active { color: var(--text); font-weight: bold; }
+    /* Script panel specifics */
+    .script-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      padding: 16px;
+      overflow-y: auto;
+      flex:1;
+    }
+    .drop-zone {
+      border: 2px dashed var(--glass-border);
+      border-radius: var(--radius);
+      padding: 20px;
+      text-align: center;
+      backdrop-filter: blur(8px);
+      background: rgba(255,255,255,0.03);
+      cursor: pointer;
+    }
+    textarea {
+      flex:1;
+      background: rgba(0,0,0,0.4);
+      color: #b0ffb0;
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius);
+      padding: 12px;
+      font-family: monospace;
+      resize: vertical;
+      min-height: 120px;
+    }
+    .button-row { display: flex; gap: 12px; flex-wrap: wrap; }
+    .button-row button {
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      border-radius: 10px;
+      padding: 10px 18px;
+      color: var(--text);
+      backdrop-filter: blur(8px);
+      cursor: pointer;
+      font-weight: bold;
+    }
+    /* Explorer panel */
+    .explorer-panel {
+      display: flex;
+      flex-direction: column;
+      padding: 8px;
+      gap: 8px;
+      flex:1;
+      overflow: hidden;
+    }
+    .explorer-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .file-list {
+      flex:1;
+      overflow-y: auto;
+      background: rgba(0,0,0,0.2);
+      border-radius: var(--radius);
+      padding: 4px;
+    }
+    .file-entry {
+      display: flex;
+      align-items: center;
+      padding: 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      cursor: pointer;
+      border-radius: 8px;
+    }
+    .file-entry.selected { background: rgba(91,140,255,0.3); }
+    /* Virtual gamepad */
+    .gamepad-overlay {
+      position: absolute;
+      bottom: 20px;
       left: 50%;
       transform: translateX(-50%);
       display: none;
       z-index: 200;
-      gap: 20px;
-      background: rgba(0,0,0,0.7);
-      padding: 16px 24px;
-      border-radius: 32px;
-      backdrop-filter: blur(10px);
-      touch-action: manipulation;
     }
-    .dpad {
+    .gamepad-overlay.visible { display: flex; gap: 20px; }
+    .dpad-grid {
       display: grid;
-      grid-template-areas: ". up ." "left . right" ". down .";
-      gap: 8px;
+      grid-template-columns: repeat(3, 56px);
+      grid-template-rows: repeat(3, 56px);
+      gap: 6px;
     }
-    .dpad button {
-      width: 60px; height: 60px;
-      border-radius: 12px;
-      background: rgba(255,255,255,0.2);
+    .dpad-btn {
+      background: rgba(255,255,255,0.15);
+      backdrop-filter: blur(10px);
       border: none;
+      border-radius: 12px;
       color: white;
       font-size: 24px;
       display: flex;
       align-items: center;
       justify-content: center;
       touch-action: manipulation;
-      cursor: pointer;
-      user-select: none;
     }
-    .action-buttons {
-      display: flex;
-      gap: 16px;
-      align-items: center;
-    }
-    .action-buttons button {
+    .action-btns { display: flex; gap: 14px; align-items: center; }
+    .action-btn {
       width: 56px; height: 56px;
       border-radius: 50%;
       background: rgba(255,255,255,0.15);
@@ -232,190 +230,173 @@
       color: white;
       font-weight: bold;
       font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       touch-action: manipulation;
-      cursor: pointer;
-    }
-    @media (max-width: 768px) {
-      .top-bar button { font-size: 12px; padding: 6px 10px; }
-      #script-panel { width: 96%; padding: 12px; }
-      #file-explorer { width: 96%; }
-      .mobile-controls { display: flex; }
     }
   </style>
 </head>
 <body>
 <div id="app">
   <div class="top-bar">
-    <button id="btn-load-script" class="primary">📜 Load Script</button>
-    <button id="btn-file-explorer">📂 Explorer</button>
-    <button id="btn-open-vue">🌐 Open Vue</button>
+    <button id="btn-load-script">📜 Script</button>
+    <button id="btn-explorer">📂 Explorer</button>
+    <button id="btn-open-vue">🌐 Vue</button>
     <span class="spacer"></span>
-    <button id="btn-stop" disabled>⏹ Stop (Esc)</button>
-    <button id="btn-theme" style="font-size:12px;">🎨</button>
+    <button id="btn-stop" disabled>⏹ Stop</button>
   </div>
 
-  <div class="canvas-container">
+  <div class="content-area">
     <canvas id="canvas" width="1920" height="1080"></canvas>
 
-    <!-- Script Panel -->
-    <div class="overlay" id="script-panel">
-      <h2>JSMAF Script</h2>
-      <div class="drop-zone" id="dropzone">
-        Drop .js file or theme folder here<br>or click to select
-      </div>
-      <input type="file" id="fileInput" accept=".js,.zip,.rar,.7z," multiple style="display:none;">
-      <input type="file" id="folderInput" webkitdirectory directory multiple style="display:none;">
-      <textarea id="textarea" placeholder="Paste your JSMAF script..."></textarea>
-      <div class="button-row">
-        <button id="runBtn" class="primary">▶ Run</button>
-        <button id="clearBtn">Clear</button>
-        <button id="pasteBtn">📋 Paste</button>
-      </div>
-    </div>
-
-    <!-- File Explorer -->
-    <div class="overlay" id="file-explorer">
-      <div class="sidebar" id="fe-tree"></div>
-      <div class="content">
-        <div class="actions-row">
-          <label>📁 Upload Files<input type="file" id="fe-upload-file" multiple style="display:none"></label>
-          <label>📦 Upload Zip<input type="file" id="fe-upload-zip" accept=".zip" style="display:none"></label>
-          <button id="fe-new-folder">➕ Folder</button>
-          <button id="fe-delete">🗑 Delete</button>
-          <button id="fe-close" style="margin-left:auto;">✖</button>
+    <!-- Script Menu -->
+    <div class="menu-panel" id="script-menu">
+      <div class="script-panel">
+        <h2 style="text-align:center;">Load Script</h2>
+        <div class="drop-zone" id="dropzone">
+          Drop JS / theme<br>or tap to select files
         </div>
-        <div id="fe-files"></div>
-        <div id="file-preview"></div>
-        <div id="fe-path" style="font-size:11px; opacity:0.6; margin-top:8px;"></div>
+        <input type="file" id="fileInput" accept=".js,.zip,.rar,.7z," multiple style="display:none;">
+        <textarea id="textarea" placeholder="Paste code here..."></textarea>
+        <div class="button-row">
+          <button id="runBtn">▶ Run</button>
+          <button id="clearBtn">Clear</button>
+          <button id="pasteBtn">📋 Paste</button>
+        </div>
       </div>
     </div>
 
-    <!-- Mobile Gamepad -->
-    <div class="mobile-controls" id="mobile-controls">
-      <div class="dpad">
-        <button style="grid-area:up;" id="btn-up">▲</button>
-        <button style="grid-area:left;" id="btn-left">◀</button>
-        <button style="grid-area:right;" id="btn-right">▶</button>
-        <button style="grid-area:down;" id="btn-down">▼</button>
-      </div>
-      <div class="action-buttons">
-        <button id="btn-cross" style="border-color:#00aaff;">✕</button>
-        <button id="btn-circle" style="border-color:#ff5555;">○</button>
-        <button id="btn-triangle" style="border-color:#00ff88;">△</button>
-        <button id="btn-square" style="border-color:#ff88ff;">□</button>
+    <!-- Explorer Menu -->
+    <div class="menu-panel hidden" id="explorer-menu">
+      <div class="explorer-panel">
+        <div class="explorer-actions">
+          <label class="glass" style="padding:8px 14px; border-radius:10px; cursor:pointer;">📁 Upload<input type="file" id="fe-upload-file" multiple style="display:none"></label>
+          <label class="glass" style="padding:8px 14px; border-radius:10px; cursor:pointer;">📦 Zip<input type="file" id="fe-upload-zip" accept=".zip" style="display:none"></label>
+          <button class="glass" id="fe-new-folder">📁 New</button>
+          <button class="glass" id="fe-delete">🗑</button>
+          <button class="glass" id="fe-close">✖</button>
+        </div>
+        <div class="file-list" id="fe-files"></div>
+        <div id="fe-path" style="font-size:11px; opacity:0.7; margin-top:4px;"></div>
       </div>
     </div>
+
+    <!-- Virtual Gamepad (visible only when script running) -->
+    <div class="gamepad-overlay" id="gamepad">
+      <div class="dpad-grid">
+        <div></div><button class="dpad-btn" id="btn-up">▲</button><div></div>
+        <button class="dpad-btn" id="btn-left">◀</button><div></div><button class="dpad-btn" id="btn-right">▶</button>
+        <div></div><button class="dpad-btn" id="btn-down">▼</button><div></div>
+      </div>
+      <div class="action-btns">
+        <button class="action-btn" style="border-color:#00aaff;" id="btn-cross">✕</button>
+        <button class="action-btn" style="border-color:#ff5555;" id="btn-circle">○</button>
+        <button class="action-btn" style="border-color:#00ff88;" id="btn-triangle">△</button>
+        <button class="action-btn" style="border-color:#ff88ff;" id="btn-square">□</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Navigation -->
+  <div class="bottom-nav">
+    <div class="nav-item active" id="nav-script">📜 Script</div>
+    <div class="nav-item" id="nav-explorer">📂 Explorer</div>
+    <div class="nav-item" id="nav-stop">⏹ Stop</div>
   </div>
 </div>
 
 <script>
-// ======================== BIGINT POLYFILL ========================
+// ====================== BigInt & Memory ======================
 if (typeof BigInt === 'undefined') {
-  window.BigInt = function(val, lo) {
-    if (val instanceof BigInt) { this.lo = val.lo; this.hi = val.hi; }
-    else if (typeof val === 'number') { this.lo = val >>> 0; this.hi = 0; }
-    else if (typeof val === 'string') { /* simplified */ this.lo = parseInt(val, 16) >>> 0; this.hi = 0; }
-    else { this.lo = 0; this.hi = 0; }
-    if (lo !== undefined) { this.lo = lo >>> 0; this.hi = val >>> 0; }
-  };
-  BigInt.prototype.add = function(b) { return new BigInt(0, (this.lo + b.lo) >>> 0); };
-  BigInt.prototype.sub = function(b) { return new BigInt(0, (this.lo - b.lo) >>> 0); };
-  BigInt.prototype.eq = function(b) { return this.lo === b.lo && this.hi === b.hi; };
-  BigInt.prototype.lt = function(b) { return this.lo < b.lo; };
-  BigInt.prototype.gt = function(b) { return this.lo > b.lo; };
-  BigInt.prototype.shr = function(n) { return new BigInt(0, this.lo >>> n); };
-  BigInt.prototype.and = function(b) { return new BigInt(0, (this.lo & b.lo) >>> 0); };
-  BigInt.prototype.or = function(b) { return new BigInt(0, (this.lo | b.lo) >>> 0); };
-  BigInt.prototype.toString = function() { return '0x' + this.lo.toString(16).toUpperCase(); };
+  class BigIntFake {
+    constructor(val, lo) {
+      if (val instanceof BigIntFake) { this.lo = val.lo; this.hi = val.hi; }
+      else if (typeof val === 'number') { this.lo = val >>> 0; this.hi = 0; }
+      else if (typeof val === 'string') { this.lo = parseInt(val, 16) >>> 0; this.hi = 0; }
+      else { this.lo = 0; this.hi = 0; }
+      if (lo !== undefined) { this.lo = lo >>> 0; this.hi = val >>> 0; }
+    }
+    add(b) { return new BigIntFake(0, (this.lo + b.lo) >>> 0); }
+    sub(b) { return new BigIntFake(0, (this.lo - b.lo) >>> 0); }
+    eq(b) { return this.lo === b.lo && this.hi === b.hi; }
+    lt(b) { return this.lo < b.lo; }
+    gt(b) { return this.lo > b.lo; }
+    shr(n) { return new BigIntFake(0, this.lo >>> n); }
+    and(b) { return new BigIntFake(0, (this.lo & b.lo) >>> 0); }
+    or(b) { return new BigIntFake(0, (this.lo | b.lo) >>> 0); }
+    toString() { return '0x' + this.lo.toString(16).toUpperCase(); }
+  }
+  window.BigInt = BigIntFake;
 }
 const ZERO = new BigInt(0,0);
-const ONE = new BigInt(0,1);
 
-// ======================== MEMORY ALLOCATOR ========================
-const MEMORY_SIZE = 32 * 1024 * 1024; // 32 MB
-let memBuffer = new ArrayBuffer(MEMORY_SIZE);
+let memBuffer = new ArrayBuffer(16 * 1024 * 1024);
 let memView = new DataView(memBuffer);
 let memOffset = 0;
 const mem = {
-  malloc: function(size) {
+  malloc(size) {
     const addr = memOffset;
     memOffset += size;
-    if (memOffset > MEMORY_SIZE) throw new Error('Out of memory');
     return new BigInt(0, addr);
   },
-  view: function(addr) { return new DataView(memBuffer, addr.lo, memBuffer.byteLength - addr.lo); },
-  addrof: function(obj) { return new BigInt(0, 0); }, // dummy
-  fakeobj: function(addr) { return {}; },
+  view(addr) { return new DataView(memBuffer, addr.lo, memBuffer.byteLength - addr.lo); }
 };
 
-// ======================== SYS CALL STUBS ========================
-const fn = {
-  _functions: {},
-  register: function(input, name, args, ret) {
-    let addr = new BigInt(0,0);
-    if (typeof input === 'number') addr = new BigInt(0, input);
-    else if (input instanceof BigInt) addr = input;
-    const wrapper = (...callArgs) => {
-      // STUB: always return success (0)
-      return new BigInt(0,0);
-    };
-    fn[name] = wrapper;
-    fn._functions[name] = wrapper;
-    return wrapper;
-  }
-};
-// Pre-register common syscalls from the table
-const syscallTable = [
-  [0x03, 'read_sys'], [0x04, 'write_sys'], [0x05, 'open_sys'], [0x06, 'close_sys'],
-  [0x0A, 'unlink_sys'], [0x14, 'getpid'], [0x17, 'setuid'], [0x18, 'getuid'],
-  [0x1B, 'recvmsg'], [0x1E, 'accept_sys'], [0x20, 'getsockname'], [0x25, 'kill'],
-  [0x29, 'dup'], [0x2A, 'pipe'], [0x36, 'ioctl'], [0x49, 'munmap'], [0x5C, 'fcntl'],
-  [0x5D, 'select'], [0x61, 'socket'], [0x62, 'connect'], [0x63, 'netcontrol'],
-  [0x68, 'bind_sys'], [0x69, 'setsockopt'], [0x6A, 'listen_sys'], [0x76, 'getsockopt'],
-  [0x78, 'readv'], [0x79, 'writev'], [0x80, 'rename_sys'], [0x87, 'socketpair'],
-  [0x88, 'mkdir_sys'], [0x89, 'rmdir_sys'], [0xBC, 'stat_sys'], [0xCA, 'sysctl'],
-  [0xF0, 'nanosleep'], [0x110, 'getdents'], [0x14B, 'sched_yield'], [0x16A, 'kqueue'],
-  [0x1AF, 'thr_exit'], [0x1B1, 'thr_kill'], [0x1C7, 'thr_new'], [0x1D2, 'rtprio_thread'],
-  [0x1DD, 'mmap_sys'], [0x1DE, 'lseek'], [0x1E7, 'cpuset_getaffinity'], [0x1E8, 'cpuset_setaffinity'],
-  [0x215, 'jitshm_create'], [0x21A, 'evf_create'], [0x21B, 'evf_delete'], [0x220, 'evf_set'],
-  [0x221, 'evf_clear'], [0x249, 'is_in_sandbox'], [0x278, 'thr_suspend_ucontext'],
-  [0x279, 'thr_resume_ucontext'], [0x295, 'kexec'], [0x296, 'aio_multi_delete'],
-  [0x297, 'aio_multi_wait'], [0x298, 'aio_multi_poll'], [0x29A, 'aio_multi_cancel'],
-  [0x29D, 'aio_submit_cmd']
+// ====================== Syscalls ======================
+const fn = { _fns: {} };
+const syscalls = [
+  [3,'read_sys'],[4,'write_sys'],[5,'open_sys'],[6,'close_sys'],[10,'unlink'],
+  [20,'getpid'],[23,'setuid'],[24,'getuid'],[27,'recvmsg'],[30,'accept'],
+  [32,'getsockname'],[37,'kill'],[41,'dup'],[42,'pipe'],[54,'ioctl'],[73,'munmap'],
+  [92,'fcntl'],[93,'select'],[97,'socket'],[98,'connect'],[99,'netcontrol'],
+  [104,'bind'],[105,'setsockopt'],[106,'listen'],[118,'getsockopt'],[120,'readv'],
+  [121,'writev'],[128,'rename'],[135,'socketpair'],[136,'mkdir'],[137,'rmdir'],
+  [188,'stat'],[202,'sysctl'],[240,'nanosleep'],[272,'getdents'],[331,'sched_yield'],
+  [362,'kqueue'],[431,'thr_exit'],[433,'thr_kill'],[455,'thr_new'],
+  [466,'rtprio_thread'],[477,'mmap'],[478,'lseek'],[487,'cpuset_getaffinity'],
+  [488,'cpuset_setaffinity'],[533,'jitshm_create'],[538,'evf_create'],
+  [539,'evf_delete'],[544,'evf_set'],[545,'evf_clear'],[585,'is_in_sandbox'],
+  [632,'thr_suspend_ucontext'],[633,'thr_resume_ucontext'],[661,'kexec'],
+  [662,'aio_multi_delete'],[663,'aio_multi_wait'],[664,'aio_multi_poll'],
+  [666,'aio_multi_cancel'],[669,'aio_submit_cmd']
 ];
-syscallTable.forEach(([num, name]) => fn.register(num, name, ['bigint'], 'bigint'));
+syscalls.forEach(([num, name]) => {
+  fn[name] = (...a) => new BigInt(0,0);
+  fn._fns[name] = fn[name];
+});
 
-// ======================== VIRTUAL FILE SYSTEM ========================
-const vfs = { '/': { type: 'dir', children: {} } };
+// ====================== VFS ======================
+const vfs = { '/': { type:'dir', children:{} } };
 function resolve(path) {
-  if (!path || path === '/') return vfs['/'];
-  const parts = path.replace(/\\/g, '/').split('/').filter(p => p !== '');
+  if (!path || path==='/') return vfs['/'];
+  const parts = path.replace(/\\/,'/').split('/').filter(p=>p);
   let node = vfs['/'];
-  for (let i = 0; i < parts.length; i++) {
-    if (node.type !== 'dir' || !node.children[parts[i]]) return null;
-    node = node.children[parts[i]];
+  for (let p of parts) {
+    if (node.type!=='dir' || !node.children[p]) return null;
+    node = node.children[p];
   }
   return node;
 }
 function mkdir(path) {
-  const parts = path.replace(/\\/g, '/').split('/').filter(p => p !== '');
+  const parts = path.replace(/\\/,'/').split('/').filter(p=>p);
   let node = vfs['/'];
-  for (let i = 0; i < parts.length; i++) {
-    if (!node.children[parts[i]]) node.children[parts[i]] = { type: 'dir', children: {} };
-    else if (node.children[parts[i]].type !== 'dir') return false;
-    node = node.children[parts[i]];
+  for (let p of parts) {
+    if (!node.children[p]) node.children[p] = { type:'dir', children:{} };
+    else if (node.children[p].type!=='dir') return false;
+    node = node.children[p];
   }
   return true;
 }
 function writeFile(path, content) {
-  const parts = path.replace(/\\/g, '/').split('/').filter(p => p !== '');
+  const parts = path.replace(/\\/,'/').split('/').filter(p=>p);
   const name = parts.pop();
   let node = vfs['/'];
-  for (let i = 0; i < parts.length; i++) {
-    if (!node.children[parts[i]]) mkdir('/' + parts.slice(0, i+1).join('/'));
-    node = node.children[parts[i]];
+  for (let p of parts) {
+    if (!node.children[p]) node.children[p] = { type:'dir', children:{} };
+    node = node.children[p];
   }
-  node.children[name] = { type: 'file', content: content };
+  node.children[name] = { type:'file', content };
 }
 function readFile(path) {
   const node = resolve(path);
@@ -423,115 +404,99 @@ function readFile(path) {
 }
 function listDir(path) {
   const node = resolve(path);
-  if (!node || node.type !== 'dir') return [];
-  return Object.keys(node.children).sort();
+  return (node && node.type==='dir') ? Object.keys(node.children).sort() : [];
 }
 function removeEntry(path) {
-  const parts = path.replace(/\\/g, '/').split('/').filter(p => p !== '');
-  if (parts.length === 0) return false;
-  const parentPath = '/' + parts.slice(0, -1).join('/');
-  const parent = resolve(parentPath);
-  if (!parent || parent.type !== 'dir') return false;
-  delete parent.children[parts[parts.length-1]];
-  return true;
+  const parts = path.replace(/\\/,'/').split('/').filter(p=>p);
+  if (!parts.length) return false;
+  const parent = resolve('/' + parts.slice(0,-1).join('/'));
+  if (parent && parent.type==='dir') {
+    delete parent.children[parts[parts.length-1]];
+    return true;
+  }
+  return false;
 }
 
-// ======================== GLOBAL JSMAF ENVIRONMENT ========================
+// ====================== Global JSMAF Mock ======================
 window.jsmaf = {
-  root: {
-    x:0,y:0,width:0,height:0,scaleX:1,scaleY:1,scaleZ:1,
-    rotateX:0,rotateY:0,rotateZ:0,alpha:1,visible:true,
-    clip:false,clipX:0,clipY:0,clipWidth:0,clipHeight:0,
-    children:[]
-  },
+  root: { x:0,y:0,width:0,height:0,alpha:1,visible:true,children:[],rotateZ:0 },
   screenWidth:1920, screenHeight:1080, screenAspect:1.7777777777777777,
-  frameRate:60, platform:'ps4', version:'2.13.2',
-  hardwareId:"noooooo'noooooo", locale:'en',
+  frameRate:60, platform:'ps4', version:'2.13.2', locale:'en',
   onKeyDown:null, onKeyUp:null, onEnterFrame:null,
-  setTimeout:(f,t)=>window.setTimeout(f,t),
-  clearTimeout:id=>clearTimeout(id),
-  setInterval:(f,t)=>window.setInterval(f,t),
-  clearInterval:id=>clearInterval(id),
-  print:msg=>log(msg),
-  alert:msg=>alert(msg),
+  setTimeout:(f,t)=>setTimeout(f,t), clearTimeout:id=>clearTimeout(id),
+  setInterval:(f,t)=>setInterval(f,t), clearInterval:id=>clearInterval(id),
+  print:msg=>console.log(msg), alert:msg=>alert(msg),
   exit:()=>stopScript(),
-  include:function(path){
-    let file = path.replace(/^file:\/\/..\/download0\//, '').replace(/^file:\/\/\/?/, '');
-    if (!file.startsWith('/')) file = '/' + file;
-    const content = readFile(file);
-    if (content) eval(content);
-    else log('include failed: ' + path);
+  include(path) {
+    let p = path.replace(/^file:\/\/..\/download0\//,'').replace(/^file:\/\/\//,'');
+    if (!p.startsWith('/')) p = '/'+p;
+    const code = readFile(p);
+    if (code) eval(code);
+    else console.warn('include failed:', path);
   },
-  // Dummies
-  forceConnect:()=>{}, showOSK:()=>{}, argv:()=>{},
-  processTime:()=>{}, gc:()=>{}, hideSplashScreen:()=>{},
-  openWebBrowser:()=>{}, speak:()=>{}, eval:code=>eval(code),
-  showCCSettings:()=>{},
+  // dummy properties
+  onKeyboardDown:null, onkeyboarddown:null, onkeydown:null,
+  onKeyboardUp:null, onkeyboardup:null, onkeyup:null,
+  onKeyboardRepeat:null, onkeyrepeat:null,
+  onenterforeground:null, onEnterForeground:null,
+  onenterbackground:null, onEnterBackground:null,
+  ontextspeech:null, onTextSpeech:null,
+  onexternalparamchange:null, onExternalParamChange:null,
+  onKeyRepeat:null, onkeyrepeat:null,
 };
-window.Style = function(def) { window._styles = window._styles || {}; window._styles[def.name] = def; };
-window.jsmaf.Style = window.Style;
+window._styles = {};
+window.Style = function(def) { window._styles[def.name] = def; };
 window.Image = function(opts) {
   opts = opts || {};
   this.url = opts.url || '';
-  this.x = opts.x || 0; this.y = opts.y || 0;
-  this.width = opts.width || 0; this.height = opts.height || 0;
-  this.alpha = opts.alpha !== undefined ? opts.alpha : 1;
-  this.visible = opts.visible !== undefined ? opts.visible : true;
-  this.scaleX = opts.scaleX || 1; this.scaleY = opts.scaleY || 1;
-  this.rotateZ = opts.rotateZ || 0;
-  this.background = opts.background || null;
-  this.borderWidth = opts.borderWidth || 0;
-  this.borderColor = opts.borderColor || 'transparent';
+  this.x = opts.x||0; this.y = opts.y||0;
+  this.width = opts.width||0; this.height = opts.height||0;
+  this.alpha = opts.alpha!==undefined?opts.alpha:1;
+  this.visible = opts.visible!==undefined?opts.visible:true;
+  this.scaleX = opts.scaleX||1; this.scaleY = opts.scaleY||1;
+  this.rotateZ = opts.rotateZ||0;
+  this.background = opts.background||null;
+  this.borderWidth = opts.borderWidth||0;
+  this.borderColor = opts.borderColor||'transparent';
   this.children = [];
-  this._img = new window.Image();
+  this._img = new globalThis.Image();
   this._img.crossOrigin = 'anonymous';
   if (this.url) {
     let actualUrl = this.url;
     if (actualUrl.startsWith('file://')) {
-      const filePath = actualUrl.replace(/^file:\/\/..\/download0\//, '/').replace(/^file:\/\/\/?/, '/');
+      const filePath = actualUrl.replace(/^file:\/\/..\/download0\//,'/').replace(/^file:\/\/\//,'/');
       const data = readFile(filePath);
       actualUrl = data || '';
     }
     this._img.src = actualUrl;
-    const self = this;
-    this._img.onload = function() { self.width = self._img.naturalWidth; self.height = self._img.naturalHeight; if (opts.onload) opts.onload(); };
   }
 };
-window.Text = function() {
-  this.text = ''; this.x = 0; this.y = 0;
-  this.alpha = 1; this.visible = true; this.style = null;
-  this.scaleX = 1; this.scaleY = 1; this.rotateZ = 0;
-};
+window.Text = function() { this.text=''; this.x=0; this.y=0; this.alpha=1; this.visible=true; this.style=null; this.scaleX=1; this.scaleY=1; this.rotateZ=0; this.align='left'; };
 window.jsmaf.Image = window.Image;
 window.jsmaf.Text = window.Text;
-
-// Audio
-window.AudioContext = window.AudioContext || window.webkitAudioContext;
-let audioCtx;
 window.jsmaf.AudioClip = function() {
-  this._buffer = null; this.volume = 1; this.loop = false;
-};
-window.jsmaf.AudioClip.prototype.open = function(url) {
-  const self = this;
-  let final = url;
-  if (url.startsWith('file://')) {
-    const path = url.replace(/^file:\/\/..\/download0\//, '/').replace(/^file:\/\/\/?/, '/');
-    const data = readFile(path);
-    if (data && data.startsWith('data:audio')) final = data;
-    else { log('Audio not found: ' + url); return; }
-  }
-  fetch(final).then(r=>r.arrayBuffer()).then(buf=>{
-    if (!audioCtx) audioCtx = new AudioContext();
-    return audioCtx.decodeAudioData(buf);
-  }).then(dec=>{ self._buffer = dec; }).catch(e=>log('Audio error: '+e));
-};
-window.jsmaf.AudioClip.prototype.play = function(loop) {
-  if (!this._buffer || !audioCtx) return;
-  const src = audioCtx.createBufferSource();
-  src.buffer = this._buffer; src.loop = loop !== false;
-  const gain = audioCtx.createGain(); gain.gain.value = this.volume;
-  src.connect(gain).connect(audioCtx.destination);
-  src.start(0);
+  this._buffer=null; this.volume=1;
+  this.open = function(url) {
+    let final = url;
+    if (url.startsWith('file://')) {
+      const path = url.replace(/^file:\/\/..\/download0\//,'/').replace(/^file:\/\/\//,'/');
+      const data = readFile(path);
+      if (data && data.startsWith('data:audio')) final = data;
+    }
+    fetch(final).then(r=>r.arrayBuffer()).then(buf=>{
+      const actx = new (window.AudioContext||window.webkitAudioContext)();
+      return actx.decodeAudioData(buf);
+    }).then(dec=>{ this._buffer = dec; }).catch(e=>console.warn('Audio error',e));
+  };
+  this.play = function(loop) {
+    if (!this._buffer) return;
+    const actx = new (window.AudioContext||window.webkitAudioContext)();
+    const src = actx.createBufferSource();
+    src.buffer = this._buffer; src.loop = loop!==false;
+    const gain = actx.createGain(); gain.gain.value = this.volume;
+    src.connect(gain).connect(actx.destination);
+    src.start(0);
+  };
 };
 
 // XHR interceptor
@@ -541,7 +506,7 @@ window.XMLHttpRequest = function() {
   const origOpen = xhr.open;
   xhr.open = function(method, url, async, user, pwd) {
     if (url.startsWith('file://')) {
-      const path = url.replace(/^file:\/\/..\/download0\//, '/').replace(/^file:\/\/\/?/, '/');
+      const path = url.replace(/^file:\/\/..\/download0\//,'/').replace(/^file:\/\/\//,'/');
       xhr._vfsData = readFile(path) || '';
     }
     origOpen.call(xhr, method, url, async, user, pwd);
@@ -549,266 +514,232 @@ window.XMLHttpRequest = function() {
   const origSend = xhr.send;
   xhr.send = function(body) {
     if (xhr._vfsData !== undefined) {
-      Object.defineProperty(xhr, 'readyState', { get: () => 4 });
-      Object.defineProperty(xhr, 'status', { get: () => 200 });
-      Object.defineProperty(xhr, 'responseText', { get: () => xhr._vfsData });
+      Object.defineProperty(xhr, 'readyState', { get: ()=>4 });
+      Object.defineProperty(xhr, 'status', { get: ()=>200 });
+      Object.defineProperty(xhr, 'responseText', { get: ()=>xhr._vfsData });
       if (xhr.onreadystatechange) xhr.onreadystatechange();
-    } else {
-      origSend.call(xhr, body);
-    }
+    } else origSend.call(xhr, body);
   };
   return xhr;
 };
 window.jsmaf.XMLHttpRequest = window.XMLHttpRequest;
 
-// ======================== RENDERER ========================
+// ====================== Renderer ======================
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
-function drawElement(el, px, py, globalAlpha) {
-  if (!el.visible || el.alpha <= 0) return;
+function drawElement(el, px, py, gAlpha) {
+  if (!el.visible || el.alpha<=0) return;
   const x = px + el.x, y = py + el.y;
   ctx.save();
-  if (el.rotateZ) { ctx.translate(x + el.width/2, y + el.height/2); ctx.rotate(el.rotateZ * Math.PI/180); ctx.translate(-x - el.width/2, -y - el.height/2); }
-  ctx.globalAlpha = globalAlpha * el.alpha;
+  if (el.rotateZ) { ctx.translate(x+el.width/2, y+el.height/2); ctx.rotate(el.rotateZ*Math.PI/180); ctx.translate(-x-el.width/2, -y-el.height/2); }
+  ctx.globalAlpha = gAlpha * el.alpha;
   if (el.background) { ctx.fillStyle = el.background; ctx.fillRect(x, y, el.width, el.height); }
-  if (el._img && el._img.complete && el._img.naturalWidth > 0) ctx.drawImage(el._img, x, y, el.width, el.height);
-  if (el.text && el.style && window._styles && window._styles[el.style]) {
+  if (el._img && el._img.complete && el._img.naturalWidth>0) ctx.drawImage(el._img, x, y, el.width, el.height);
+  if (el.text && el.style && window._styles[el.style]) {
     const st = window._styles[el.style];
-    ctx.font = `${st.size || 20}px sans-serif`;
-    ctx.fillStyle = st.color || 'white';
-    ctx.textAlign = el.align || 'left';
+    ctx.font = `${st.size||20}px sans-serif`;
+    ctx.fillStyle = st.color||'white';
+    ctx.textAlign = el.align||'left';
     ctx.fillText(el.text, x, y + (st.size||20));
   }
-  if (el.borderWidth > 0) { ctx.strokeStyle = el.borderColor; ctx.lineWidth = el.borderWidth; ctx.strokeRect(x, y, el.width, el.height); }
+  if (el.borderWidth>0) { ctx.strokeStyle = el.borderColor; ctx.lineWidth = el.borderWidth; ctx.strokeRect(x, y, el.width, el.height); }
   ctx.restore();
-  if (el.children) el.children.forEach(ch => drawElement(ch, x, y, globalAlpha * el.alpha));
+  if (el.children) el.children.forEach(c=>drawElement(c, x, y, gAlpha*el.alpha));
 }
 function render() { ctx.clearRect(0,0,1920,1080); drawElement(jsmaf.root,0,0,1); }
-
 let animFrame;
 function startRendering() {
   if (animFrame) cancelAnimationFrame(animFrame);
-  function loop() { render(); animFrame = requestAnimationFrame(loop); if (typeof jsmaf.onEnterFrame === 'function') jsmaf.onEnterFrame(); }
+  function loop() { render(); animFrame = requestAnimationFrame(loop); if (typeof jsmaf.onEnterFrame==='function') jsmaf.onEnterFrame(); }
   loop();
 }
 function stopRendering() { if (animFrame) cancelAnimationFrame(animFrame); }
 
-// ======================== MAIN APPLICATION ========================
+// ====================== App State ======================
 let scriptRunning = false;
-let currentThemeName = null;
+let activeMenu = 'script'; // 'script' or 'explorer'
+let currentDir = '/download0';
+let selectedFile = null;
 
-// UI Elements
-const scriptPanel = document.getElementById('script-panel');
-const fileExplorer = document.getElementById('file-explorer');
-const mobileControls = document.getElementById('mobile-controls');
+// UI elements
+const scriptMenu = document.getElementById('script-menu');
+const explorerMenu = document.getElementById('explorer-menu');
+const gamepad = document.getElementById('gamepad');
+const btnStop = document.getElementById('btn-stop');
+const navScript = document.getElementById('nav-script');
+const navExplorer = document.getElementById('nav-explorer');
+const navStop = document.getElementById('nav-stop');
 const dropzone = document.getElementById('dropzone');
 const textarea = document.getElementById('textarea');
 const runBtn = document.getElementById('runBtn');
 
-function log(msg) { console.log(msg); }
-
-function runScript(code) {
-  stopScript();
-  jsmaf.root.children.length = 0;
-  window._styles = {};
-  try { eval(code); } catch(e) { alert('Script error: ' + e.message); return; }
-  scriptRunning = true;
-  document.getElementById('btn-stop').disabled = false;
-  scriptPanel.style.display = 'none';
-  fileExplorer.style.display = 'none';
-  startRendering();
-}
 function stopScript() {
   stopRendering();
   scriptRunning = false;
-  document.getElementById('btn-stop').disabled = true;
+  btnStop.disabled = true;
+  gamepad.classList.remove('visible');
+  jsmaf.onKeyDown = null;
+  jsmaf.onKeyUp = null;
 }
-function showPanel(panel) {
-  if (panel === 'script') { scriptPanel.style.display = 'flex'; fileExplorer.style.display = 'none'; }
-  else if (panel === 'explorer') { scriptPanel.style.display = 'none'; fileExplorer.style.display = 'flex'; }
+function setMenu(menu) {
+  activeMenu = menu;
+  scriptMenu.classList.toggle('hidden', menu !== 'script');
+  explorerMenu.classList.toggle('hidden', menu !== 'explorer');
+  navScript.classList.toggle('active', menu === 'script');
+  navExplorer.classList.toggle('active', menu === 'explorer');
+  if (menu === 'explorer') refreshExplorer();
 }
-document.getElementById('btn-load-script').addEventListener('click', () => showPanel('script'));
-document.getElementById('btn-file-explorer').addEventListener('click', () => { showPanel('explorer'); refreshExplorer(); });
-document.getElementById('fe-close').addEventListener('click', () => { fileExplorer.style.display = 'none'; });
-document.getElementById('btn-stop').addEventListener('click', stopScript);
 
-// Run button
-runBtn.addEventListener('click', () => {
-  const code = textarea.value.trim();
-  if (!code) return alert('No code');
-  runScript(code);
+// Navigation
+navScript.addEventListener('click', ()=>setMenu('script'));
+navExplorer.addEventListener('click', ()=>setMenu('explorer'));
+navStop.addEventListener('click', ()=>{ if (scriptRunning) stopScript(); });
+
+// Script panel
+dropzone.addEventListener('click', ()=>document.getElementById('fileInput').click());
+document.getElementById('fileInput').addEventListener('change', e=>handleFiles([...e.target.files]));
+dropzone.addEventListener('dragover', e=>{ e.preventDefault(); dropzone.classList.add('dragover'); });
+dropzone.addEventListener('dragleave', ()=>{ dropzone.classList.remove('dragover'); });
+dropzone.addEventListener('drop', e=>{
+  e.preventDefault();
+  dropzone.classList.remove('dragover');
+  const files = e.dataTransfer.files;
+  if (files.length) handleFiles([...files]);
 });
 
-// Drop zone
-dropzone.addEventListener('click', () => document.getElementById('fileInput').click());
-['dragover', 'dragenter'].forEach(ev => dropzone.addEventListener(ev, e => { e.preventDefault(); dropzone.classList.add('dragover'); }));
-['dragleave', 'drop'].forEach(ev => dropzone.addEventListener(ev, e => { e.preventDefault(); dropzone.classList.remove('dragover'); }));
-dropzone.addEventListener('drop', async e => {
-  const items = e.dataTransfer.items;
-  if (!items) return;
-  const files = [];
-  for (let i = 0; i < items.length; i++) {
-    const item = items[i];
-    if (item.kind === 'file') {
-      const file = item.getAsFile();
-      if (file) files.push(file);
-    }
-  }
-  handleImportedFiles(files);
-});
-document.getElementById('fileInput').addEventListener('change', e => handleImportedFiles([...e.target.files]));
-
-async function handleImportedFiles(files) {
-  if (files.length === 1 && files[0].name.endsWith('.js')) {
-    const text = await files[0].text();
-    textarea.value = text;
-    showPanel('script');
+async function handleFiles(files) {
+  if (files.length===1 && files[0].name.endsWith('.js')) {
+    textarea.value = await files[0].text();
     return;
   }
-  // Treat as theme or payload pack
-  let themeName = prompt('Enter theme/payload name:');
+  const themeName = prompt('Enter theme/payload name:');
   if (!themeName) return;
-  const basePath = `/download0/themes/${themeName}/`;
-  mkdir(basePath);
-  for (const file of files) {
-    const path = file.webkitRelativePath || file.name;
-    const target = basePath + (path.startsWith('/') ? path.slice(1) : path);
-    const content = await (file.type.startsWith('image/') || file.type.startsWith('audio/') ? readAsDataURL(file) : file.text());
+  const base = `/download0/themes/${themeName}/`;
+  mkdir(base);
+  for (let f of files) {
+    const path = f.webkitRelativePath || f.name;
+    const target = base + (path.startsWith('/')?path.slice(1):path);
+    let content;
+    if (f.type.startsWith('image/') || f.type.startsWith('audio/')) {
+      content = await new Promise(res=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.readAsDataURL(f); });
+    } else content = await f.text();
     writeFile(target, content);
   }
-  // Try to auto-run main.js
-  const main = readFile(basePath + 'main.js');
-  if (main) {
-    textarea.value = main;
-    showPanel('script');
-  } else {
-    alert('Theme installed (no main.js found). You can now load it from Explorer.');
-    showPanel('explorer');
-  }
-}
-function readAsDataURL(file) {
-  return new Promise(resolve => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result);
-    reader.readAsDataURL(file);
-  });
+  const main = readFile(base+'main.js');
+  if (main) textarea.value = main;
+  alert('Theme installed!');
+  setMenu('script');
 }
 
-// ---------- FILE EXPLORER ----------
-let currentDir = '/download0';
-let selectedFile = null;
+runBtn.addEventListener('click', ()=>{
+  const code = textarea.value.trim();
+  if (!code) return;
+  stopScript();
+  jsmaf.root.children.length = 0;
+  window._styles = {};
+  try { eval(code); } catch(e) { alert('Script error: '+e.message); return; }
+  scriptRunning = true;
+  btnStop.disabled = false;
+  gamepad.classList.add('visible');
+  setMenu('script'); // hide menus
+  scriptMenu.classList.add('hidden');
+  explorerMenu.classList.add('hidden');
+  startRendering();
+});
+
+document.getElementById('clearBtn').addEventListener('click', ()=>textarea.value='');
+document.getElementById('pasteBtn').addEventListener('click', async ()=>{
+  const text = await navigator.clipboard.readText();
+  textarea.value = text;
+});
+
+// ====================== File Explorer ======================
 function refreshExplorer() {
-  const tree = document.getElementById('fe-tree');
-  const files = document.getElementById('fe-files');
+  const filesDiv = document.getElementById('fe-files');
   const pathEl = document.getElementById('fe-path');
-  const preview = document.getElementById('file-preview');
-  preview.innerHTML = '';
+  filesDiv.innerHTML = '';
   pathEl.textContent = currentDir;
-
-  // Simple tree
-  tree.innerHTML = '';
-  function buildTree(dirPath) {
-    const node = resolve(dirPath);
-    if (!node || node.type !== 'dir') return;
-    const ul = document.createElement('ul');
-    for (const name of Object.keys(node.children).sort()) {
-      const child = node.children[name];
-      const li = document.createElement('li');
-      li.textContent = name;
-      li.style.cursor = 'pointer';
-      li.onclick = () => { currentDir = dirPath + '/' + name; refreshExplorer(); };
-      if (child.type === 'dir') li.appendChild(buildTree(dirPath + '/' + name));
-      ul.appendChild(li);
-    }
-    return ul;
-  }
-  tree.appendChild(buildTree('/'));
-
-  // File list
-  files.innerHTML = '';
-  const dir = resolve(currentDir);
-  if (dir && dir.type === 'dir') {
-    for (const name of Object.keys(dir.children).sort()) {
-      const entry = dir.children[name];
-      const div = document.createElement('div');
-      div.className = 'file-entry';
-      if (selectedFile === currentDir + '/' + name) div.classList.add('selected');
-      div.innerHTML = (entry.type === 'dir' ? '📁 ' : '📄 ') + name;
-      div.onclick = () => {
-        if (entry.type === 'dir') { currentDir = currentDir + '/' + name; refreshExplorer(); }
-        else { selectedFile = currentDir + '/' + name; refreshExplorer(); previewFile(selectedFile); }
-      };
-      files.appendChild(div);
-    }
-  }
+  const entries = listDir(currentDir);
+  entries.forEach(name => {
+    const entry = resolve(currentDir+'/'+name);
+    const div = document.createElement('div');
+    div.className = 'file-entry';
+    if (selectedFile === currentDir+'/'+name) div.classList.add('selected');
+    div.innerHTML = `${entry.type==='dir'?'📁':'📄'} ${name}`;
+    div.addEventListener('click', ()=>{
+      if (entry.type==='dir') { currentDir = currentDir+'/'+name; selectedFile = null; refreshExplorer(); }
+      else { selectedFile = currentDir+'/'+name; refreshExplorer(); previewFile(selectedFile); }
+    });
+    filesDiv.appendChild(div);
+  });
 }
 function previewFile(path) {
   const content = readFile(path);
-  const preview = document.getElementById('file-preview');
+  const preview = document.getElementById('file-preview') || (()=>{
+    const p = document.createElement('div'); p.id='file-preview'; p.style.marginTop='8px'; p.style.background='rgba(0,0,0,0.3)'; p.style.padding='8px'; p.style.borderRadius='8px'; document.getElementById('fe-files').after(p); return p;
+  })();
   if (content.startsWith('data:image/')) preview.innerHTML = `<img src="${content}" style="max-width:100%; max-height:200px;">`;
   else if (content.startsWith('data:audio/')) preview.innerHTML = `<audio controls src="${content}"></audio>`;
-  else preview.innerHTML = `<pre>${content.substring(0, 500)}</pre>`;
+  else preview.innerHTML = `<pre style="white-space:pre-wrap;">${content.substring(0,500)}</pre>`;
 }
+
 // Explorer buttons
-document.getElementById('fe-upload-file').addEventListener('change', async e => {
-  for (const file of e.target.files) {
-    const target = currentDir + '/' + file.name;
-    const content = await (file.type.startsWith('image/')||file.type.startsWith('audio/')? readAsDataURL(file) : file.text());
+document.getElementById('fe-upload-file').addEventListener('change', async e=>{
+  for (let f of e.target.files) {
+    const target = currentDir + '/' + f.name;
+    const content = await (f.type.startsWith('image/')||f.type.startsWith('audio/')? new Promise(res=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.readAsDataURL(f); }) : f.text());
     writeFile(target, content);
   }
   refreshExplorer();
 });
-document.getElementById('fe-upload-zip').addEventListener('change', async e => {
+document.getElementById('fe-upload-zip').addEventListener('change', async e=>{
   const file = e.target.files[0];
   if (!file) return;
   const zip = await JSZip.loadAsync(file);
   for (const [name, entry] of Object.entries(zip.files)) {
-    if (entry.dir) mkdir(currentDir + '/' + name.replace(/\/$/, ''));
+    if (entry.dir) mkdir(currentDir+'/'+name.replace(/\/$/,''));
     else {
       const content = await entry.async('string');
-      writeFile(currentDir + '/' + name, content);
+      writeFile(currentDir+'/'+name, content);
     }
   }
   refreshExplorer();
 });
-document.getElementById('fe-new-folder').addEventListener('click', () => {
+document.getElementById('fe-new-folder').addEventListener('click', ()=>{
   const name = prompt('Folder name:');
-  if (name) { mkdir(currentDir + '/' + name); refreshExplorer(); }
+  if (name) { mkdir(currentDir+'/'+name); refreshExplorer(); }
 });
-document.getElementById('fe-delete').addEventListener('click', () => {
+document.getElementById('fe-delete').addEventListener('click', ()=>{
   if (!selectedFile) return alert('Select a file/folder');
-  if (confirm('Delete ' + selectedFile + '?')) { removeEntry(selectedFile); selectedFile = null; refreshExplorer(); }
+  if (confirm('Delete '+selectedFile+'?')) { removeEntry(selectedFile); selectedFile=null; refreshExplorer(); }
 });
+document.getElementById('fe-close').addEventListener('click', ()=>setMenu('script'));
 
-// ---------- OPEN VUE STRUCTURE (GitHub) ----------
-document.getElementById('btn-open-vue').addEventListener('click', async () => {
-  if (!confirm('This will download the full Vue-After-Free project from GitHub. Continue?')) return;
-  alert('Starting download... (this may take a while)');
-  const manifestUrl = 'https://raw.githubusercontent.com/Vuemony/vue-after-free/main/src/download0/manifest.txt';
-  const resp = await fetch(manifestUrl);
-  const text = await resp.text();
-  const files = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-  let done = 0;
-  for (const file of files) {
-    let url;
+// ====================== Open Vue from GitHub ======================
+document.getElementById('btn-open-vue').addEventListener('click', async ()=>{
+  if (!confirm('Download full Vue-After-Free structure? This might take a moment.')) return;
+  const manifestRes = await fetch('https://raw.githubusercontent.com/Vuemony/vue-after-free/main/src/download0/manifest.txt');
+  const text = await manifestRes.text();
+  const files = text.split('\n').map(l=>l.trim()).filter(l=>l);
+  let done=0;
+  for (let file of files) {
+    let url = 'https://raw.githubusercontent.com/MexrlDev/MexrlDev.github.io/refs/heads/main/scripts/Vue-After-Free/' + file;
     if (file === 'sfx/bgm.wav') url = 'https://raw.githubusercontent.com/Vuemony/vue-after-free/main/src/download0/sfx/bgm.wav';
-    else url = 'https://raw.githubusercontent.com/MexrlDev/MexrlDev.github.io/refs/heads/main/scripts/Vue-After-Free/' + file;
     try {
       const r = await fetch(url);
       if (!r.ok) continue;
       const blob = await r.blob();
-      const reader = new FileReader();
-      const base64 = await new Promise(res => { reader.onload = () => res(reader.result); reader.readAsDataURL(blob); });
-      writeFile('/download0/' + file, base64);
+      const base64 = await new Promise(res=>{ const reader=new FileReader(); reader.onload=()=>res(reader.result); reader.readAsDataURL(blob); });
+      writeFile('/download0/'+file, base64);
     } catch(e) { console.warn('Failed to fetch', file); }
     done++;
-    if (done % 10 === 0) console.log(`Downloaded ${done}/${files.length}`);
+    if (done%10===0) console.log(`Progress: ${done}/${files.length}`);
   }
-  alert('Project structure loaded!');
+  alert('Structure downloaded!');
   refreshExplorer();
 });
 
-// ---------- KEYBOARD & VIRTUAL CONTROLLER ----------
+// ====================== Keyboard & Gamepad ======================
 const keyMap = {
   'ArrowUp':4, 'KeyW':55,
   'ArrowDown':6, 'KeyS':57,
@@ -818,49 +749,46 @@ const keyMap = {
   'KeyQ':10, 'KeyE':11, 'Digit1':8, 'Digit3':9,
   'Space':2, 'ShiftLeft':1, 'Enter':16,
 };
-window.addEventListener('keydown', e => {
-  if (e.key === 'Escape') stopScript();
+window.addEventListener('keydown', e=>{
+  if (e.key==='Escape') stopScript();
   if (scriptRunning && jsmaf.onKeyDown) {
     const code = keyMap[e.code];
     if (code) { jsmaf.onKeyDown(code); e.preventDefault(); }
   }
 });
-window.addEventListener('keyup', e => {
+window.addEventListener('keyup', e=>{
   if (scriptRunning && jsmaf.onKeyUp) {
     const code = keyMap[e.code];
     if (code) jsmaf.onKeyUp(code);
   }
 });
-// Virtual controller for mobile
-function setupVirtualController() {
-  const btns = {
-    up: document.getElementById('btn-up'), down: document.getElementById('btn-down'),
-    left: document.getElementById('btn-left'), right: document.getElementById('btn-right'),
-    cross: document.getElementById('btn-cross'), circle: document.getElementById('btn-circle'),
-    triangle: document.getElementById('btn-triangle'), square: document.getElementById('btn-square')
-  };
-  const codes = { up:4, down:6, left:7, right:5, cross:14, circle:13, triangle:12, square:15 };
-  function press(key) {
-    if (scriptRunning && jsmaf.onKeyDown) jsmaf.onKeyDown(codes[key]);
-  }
-  function release(key) {
-    if (scriptRunning && jsmaf.onKeyUp) jsmaf.onKeyUp(codes[key]);
-  }
-  for (const [key, btn] of Object.entries(btns)) {
-    btn.addEventListener('pointerdown', e => { e.preventDefault(); press(key); });
-    btn.addEventListener('pointerup', e => { e.preventDefault(); release(key); });
-    btn.addEventListener('pointerleave', e => { release(key); });
-  }
-}
-setupVirtualController();
 
-// Initialize VFS with base directories
+// Virtual gamepad buttons
+const padCodes = {
+  up:4, down:6, left:7, right:5,
+  cross:14, circle:13, triangle:12, square:15
+};
+function setupGamepadButton(id, key) {
+  const btn = document.getElementById(id);
+  btn.addEventListener('pointerdown', e=>{ e.preventDefault(); if (scriptRunning && jsmaf.onKeyDown) jsmaf.onKeyDown(padCodes[key]); });
+  btn.addEventListener('pointerup', e=>{ if (scriptRunning && jsmaf.onKeyUp) jsmaf.onKeyUp(padCodes[key]); });
+  btn.addEventListener('pointerleave', ()=>{ if (scriptRunning && jsmaf.onKeyUp) jsmaf.onKeyUp(padCodes[key]); });
+}
+setupGamepadButton('btn-up','up');
+setupGamepadButton('btn-down','down');
+setupGamepadButton('btn-left','left');
+setupGamepadButton('btn-right','right');
+setupGamepadButton('btn-cross','cross');
+setupGamepadButton('btn-circle','circle');
+setupGamepadButton('btn-triangle','triangle');
+setupGamepadButton('btn-square','square');
+
+// Initialize
 mkdir('/download0');
 mkdir('/download0/themes');
 mkdir('/download0/payloads');
-currentDir = '/download0';
+setMenu('script');
 refreshExplorer();
-showPanel('script');
 </script>
 </body>
 </html>
