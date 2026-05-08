@@ -1,821 +1,839 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>JSMAF Emulator – Full Touch</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-  <style>
-    :root {
-      --bg: #0a0a0a;
-      --glass: rgba(20, 20, 40, 0.7);
-      --glass-border: rgba(255, 255, 255, 0.15);
-      --glass-hover: rgba(50, 50, 80, 0.85);
-      --text: #e0e0f0;
-      --accent: #5b8cff;
-      --accent2: #3b5fcc;
-      --radius: 16px;
-      --blur: 16px;
-    }
-    * { box-sizing: border-box; margin:0; padding:0; }
-    html, body {
-      height: 100vh; width: 100vw;
-      overflow: hidden;
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Segoe UI', system-ui, sans-serif;
-      touch-action: manipulation;
-      background-image: radial-gradient(ellipse at center, #1a1a3e 0%, #0a0a0a 70%);
-    }
-    button, label, .clickable { cursor: pointer; user-select: none; -webkit-tap-highlight-color: transparent; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>JSMAF Emulator – Mobile Fixed</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <style>
+        :root {
+            --bg: #0a0a0a;
+            --glass: rgba(20, 20, 40, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --glass-hover: rgba(50, 50, 80, 0.85);
+            --text: #e0e0f0;
+            --accent: #5b8cff;
+            --accent2: #3b5fcc;
+            --radius: 16px;
+            --blur: 16px;
+        }
+        * { box-sizing: border-box; margin:0; padding:0; }
+        html, body {
+            height: 100vh; width: 100vw;
+            overflow: hidden;
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            touch-action: manipulation;
+            background-image: radial-gradient(ellipse at center, #1a1a3e 0%, #0a0a0a 70%);
+        }
+        button, label, .clickable {
+            cursor: pointer;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
 
-    #app {
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-      position: relative;
-    }
+        #app {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            position: relative;
+        }
 
-    /* Top bar */
-    .top-bar {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 10px 16px;
-      background: rgba(10,10,30,0.85);
-      backdrop-filter: blur(10px);
-      border-bottom: 1px solid var(--glass-border);
-      z-index: 30;
-      flex-shrink: 0;
-    }
-    .top-bar button {
-      background: var(--glass);
-      color: var(--text);
-      border: 1px solid var(--glass-border);
-      border-radius: 10px;
-      padding: 10px 16px;
-      font-size: 15px;
-      backdrop-filter: blur(8px);
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      transition: background 0.2s;
-    }
-    .top-bar button:active { background: var(--glass-hover); }
-    .top-bar .spacer { flex:1; }
+        /* Top bar */
+        .top-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 16px;
+            background: rgba(10,10,30,0.85);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--glass-border);
+            z-index: 30;
+            flex-shrink: 0;
+        }
+        .top-bar button {
+            background: var(--glass);
+            color: var(--text);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            padding: 12px 16px;
+            font-size: 15px;
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: background 0.2s;
+            touch-action: manipulation;
+        }
+        .top-bar button:active { background: var(--glass-hover); }
+        .top-bar .spacer { flex:1; }
 
-    /* Canvas area */
-    .canvas-area {
-      flex:1;
-      position: relative;
-      overflow: hidden;
-      z-index: 0;
-    }
-    canvas {
-      position: absolute;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%) scale(var(--scale));
-      image-rendering: crisp-edges;
-      max-width: 100%;
-      max-height: 100%;
-      /* pointer-events are controlled via JS */
-    }
+        /* Canvas area */
+        .canvas-area {
+            flex:1;
+            position: relative;
+            overflow: hidden;
+            z-index: 0;
+        }
+        canvas {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%) scale(var(--scale));
+            image-rendering: crisp-edges;
+            max-width: 100%;
+            max-height: 100%;
+            pointer-events: none; /* allow touches to pass through to overlays */
+        }
 
-    /* Menu panels (glass) */
-    .menu-overlay {
-      position: absolute;
-      top: 0; left: 0; right: 0; bottom: 0;
-      display: flex;
-      flex-direction: column;
-      backdrop-filter: blur(12px);
-      background: rgba(10, 10, 20, 0.8);
-      z-index: 20;
-      overflow-y: auto;
-      pointer-events: auto;
-      transition: opacity 0.3s;
-    }
-    .menu-overlay.hidden {
-      display: none;
-      pointer-events: none;
-    }
-    .menu-content {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      padding: 16px;
-    }
+        /* Menu panels */
+        .menu-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            display: flex;
+            flex-direction: column;
+            backdrop-filter: blur(12px);
+            background: rgba(10, 10, 20, 0.85);
+            z-index: 20;
+            overflow-y: auto;
+            pointer-events: auto;
+            transition: opacity 0.3s;
+        }
+        .menu-overlay.hidden {
+            display: none;
+        }
+        .menu-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            padding: 16px;
+        }
 
-    /* Drop zone */
-    .drop-zone {
-      border: 2px dashed var(--glass-border);
-      border-radius: var(--radius);
-      padding: 20px;
-      text-align: center;
-      backdrop-filter: blur(8px);
-      background: rgba(255,255,255,0.05);
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-    .drop-zone.dragover { background: rgba(91,140,255,0.2); border-color: var(--accent); }
+        /* Drop zone & file triggers */
+        .drop-zone {
+            border: 2px dashed var(--glass-border);
+            border-radius: var(--radius);
+            padding: 20px;
+            text-align: center;
+            backdrop-filter: blur(8px);
+            background: rgba(255,255,255,0.05);
+            cursor: pointer;
+            transition: background 0.2s;
+            touch-action: manipulation;
+        }
+        .drop-zone:active, .drop-zone.dragover {
+            background: rgba(91,140,255,0.2);
+            border-color: var(--accent);
+        }
 
-    textarea {
-      flex:1;
-      min-height: 120px;
-      background: rgba(0,0,0,0.5);
-      color: #b0ffb0;
-      border: 1px solid var(--glass-border);
-      border-radius: var(--radius);
-      padding: 12px;
-      font-family: monospace;
-      resize: vertical;
-    }
+        textarea {
+            flex:1;
+            min-height: 120px;
+            background: rgba(0,0,0,0.5);
+            color: #b0ffb0;
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius);
+            padding: 12px;
+            font-family: monospace;
+            resize: vertical;
+        }
 
-    .button-row {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-    .button-row button {
-      background: var(--glass);
-      border: 1px solid var(--glass-border);
-      border-radius: 10px;
-      padding: 12px 20px;
-      color: var(--text);
-      backdrop-filter: blur(8px);
-      font-weight: bold;
-      transition: background 0.2s;
-    }
-    .button-row button:active { background: var(--glass-hover); }
+        .button-row {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .button-row button {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            padding: 14px 20px;
+            color: var(--text);
+            backdrop-filter: blur(8px);
+            font-weight: bold;
+            transition: background 0.2s;
+            touch-action: manipulation;
+        }
+        .button-row button:active { background: var(--glass-hover); }
 
-    /* File explorer */
-    .explorer-actions {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-    .explorer-actions button,
-    .explorer-actions label {
-      background: var(--glass);
-      border: 1px solid var(--glass-border);
-      border-radius: 8px;
-      padding: 8px 12px;
-      color: var(--text);
-      backdrop-filter: blur(8px);
-      font-size: 14px;
-      cursor: pointer;
-    }
-    .file-list {
-      flex:1;
-      overflow-y: auto;
-      background: rgba(0,0,0,0.3);
-      border-radius: var(--radius);
-      padding: 4px;
-      margin-top: 8px;
-    }
-    .file-entry {
-      display: flex;
-      align-items: center;
-      padding: 12px;
-      border-bottom: 1px solid rgba(255,255,255,0.05);
-      cursor: pointer;
-      border-radius: 8px;
-      font-size: 15px;
-    }
-    .file-entry.selected { background: rgba(91,140,255,0.3); }
-    .file-preview {
-      margin-top: 8px;
-      background: rgba(0,0,0,0.4);
-      padding: 8px;
-      border-radius: 8px;
-      max-height: 200px;
-      overflow: auto;
-    }
+        /* File explorer */
+        .explorer-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .explorer-actions button,
+        .explorer-actions label {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            padding: 12px 14px;
+            color: var(--text);
+            backdrop-filter: blur(8px);
+            font-size: 14px;
+            cursor: pointer;
+            touch-action: manipulation;
+        }
+        .explorer-actions button:active,
+        .explorer-actions label:active { background: var(--glass-hover); }
 
-    /* Virtual gamepad */
-    .gamepad-overlay {
-      position: absolute;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      display: none;
-      gap: 20px;
-      z-index: 200;
-      align-items: center;
-      pointer-events: auto;
-    }
-    .gamepad-overlay.visible { display: flex; }
+        .file-list {
+            flex:1;
+            overflow-y: auto;
+            background: rgba(0,0,0,0.3);
+            border-radius: var(--radius);
+            padding: 4px;
+            margin-top: 8px;
+        }
+        .file-entry {
+            display: flex;
+            align-items: center;
+            padding: 14px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            cursor: pointer;
+            border-radius: 8px;
+            font-size: 15px;
+            touch-action: manipulation;
+        }
+        .file-entry:active { background: rgba(91,140,255,0.3); }
+        .file-entry.selected { background: rgba(91,140,255,0.3); }
 
-    .dpad-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 56px);
-      grid-template-rows: repeat(3, 56px);
-      gap: 6px;
-    }
-    .dpad-btn {
-      background: rgba(255,255,255,0.2);
-      backdrop-filter: blur(10px);
-      border: none;
-      border-radius: 12px;
-      color: white;
-      font-size: 24px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      touch-action: manipulation;
-    }
-    .action-btns { display: flex; gap: 14px; align-items: center; }
-    .action-btn {
-      width: 56px; height: 56px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.2);
-      border: 2px solid white;
-      color: white;
-      font-weight: bold;
-      font-size: 18px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      touch-action: manipulation;
-    }
+        .file-preview {
+            margin-top: 8px;
+            background: rgba(0,0,0,0.4);
+            padding: 8px;
+            border-radius: 8px;
+            max-height: 200px;
+            overflow: auto;
+        }
 
-    /* Bottom navigation */
-    .bottom-nav {
-      display: flex;
-      background: var(--glass);
-      backdrop-filter: blur(20px);
-      border-top: 1px solid var(--glass-border);
-      padding: 8px 0;
-      justify-content: space-around;
-      z-index: 30;
-      flex-shrink: 0;
-    }
-    .nav-item {
-      flex:1;
-      text-align: center;
-      color: rgba(255,255,255,0.5);
-      font-size: 14px;
-      padding: 8px 0;
-      cursor: pointer;
-    }
-    .nav-item.active { color: var(--text); font-weight: bold; }
+        /* Virtual gamepad */
+        .gamepad-overlay {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: none;
+            gap: 20px;
+            z-index: 200;
+            align-items: center;
+            pointer-events: auto;
+        }
+        .gamepad-overlay.visible { display: flex; }
 
-    @media (max-width: 600px) {
-      .top-bar button { padding: 8px 10px; font-size: 13px; }
-      .dpad-btn { width: 48px; height: 48px; font-size: 20px; }
-      .action-btn { width: 48px; height: 48px; font-size: 16px; }
-      .gamepad-overlay { gap: 12px; bottom: 10px; }
-    }
-  </style>
+        .dpad-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 56px);
+            grid-template-rows: repeat(3, 56px);
+            gap: 6px;
+        }
+        .dpad-btn {
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            touch-action: manipulation;
+        }
+        .action-btns { display: flex; gap: 14px; align-items: center; }
+        .action-btn {
+            width: 56px; height: 56px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            border: 2px solid white;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            touch-action: manipulation;
+        }
+
+        /* Bottom navigation */
+        .bottom-nav {
+            display: flex;
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid var(--glass-border);
+            padding: 8px 0;
+            justify-content: space-around;
+            z-index: 30;
+            flex-shrink: 0;
+        }
+        .nav-item {
+            flex:1;
+            text-align: center;
+            color: rgba(255,255,255,0.5);
+            font-size: 14px;
+            padding: 10px 0;
+            cursor: pointer;
+            touch-action: manipulation;
+        }
+        .nav-item.active { color: var(--text); font-weight: bold; }
+
+        @media (max-width: 600px) {
+            .top-bar button { padding: 10px 12px; font-size: 13px; }
+            .dpad-btn { width: 48px; height: 48px; font-size: 20px; }
+            .action-btn { width: 48px; height: 48px; font-size: 16px; }
+            .gamepad-overlay { gap: 12px; bottom: 10px; }
+        }
+    </style>
 </head>
 <body>
 <div id="app">
-  <div class="top-bar">
-    <button id="btn-load-script">📜 Script</button>
-    <button id="btn-explorer">📂 Explorer</button>
-    <button id="btn-open-vue">🌐 Vue</button>
-    <span class="spacer"></span>
-    <button id="btn-stop" disabled>⏹ Stop</button>
-  </div>
-
-  <div class="canvas-area">
-    <canvas id="canvas" width="1920" height="1080"></canvas>
-
-    <!-- Script Menu -->
-    <div class="menu-overlay" id="script-menu">
-      <div class="menu-content">
-        <h2 style="text-align:center;">Load Script</h2>
-        <div class="drop-zone" id="dropzone">
-          Drop JS / theme folder<br>or tap to select files
-        </div>
-        <input type="file" id="fileInput" accept=".js,.zip,.rar,.7z" multiple style="display:none;">
-        <textarea id="textarea" placeholder="Paste code here..."></textarea>
-        <div class="button-row">
-          <button id="runBtn">▶ Run</button>
-          <button id="clearBtn">Clear</button>
-          <button id="pasteBtn">📋 Paste</button>
-        </div>
-      </div>
+    <div class="top-bar">
+        <button id="btn-load-script">📜 Script</button>
+        <button id="btn-explorer">📂 Explorer</button>
+        <button id="btn-open-vue">🌐 Vue</button>
+        <span class="spacer"></span>
+        <button id="btn-stop" disabled>⏹ Stop</button>
     </div>
 
-    <!-- Explorer Menu -->
-    <div class="menu-overlay hidden" id="explorer-menu">
-      <div class="menu-content">
-        <div class="explorer-actions">
-          <label class="clickable">📁 Upload<input type="file" id="fe-upload-file" multiple style="display:none"></label>
-          <label class="clickable">📦 Zip<input type="file" id="fe-upload-zip" accept=".zip" style="display:none"></label>
-          <button id="fe-new-folder">📁 New</button>
-          <button id="fe-delete">🗑</button>
-          <button id="fe-close">✖</button>
+    <div class="canvas-area">
+        <canvas id="canvas" width="1920" height="1080"></canvas>
+
+        <!-- Script Menu -->
+        <div class="menu-overlay" id="script-menu">
+            <div class="menu-content">
+                <h2 style="text-align:center;">Load Script</h2>
+                <div class="drop-zone" id="dropzone">
+                    Drop .js file or theme folder<br>or tap here to select files
+                </div>
+                <input type="file" id="fileInput" accept=".js,.zip" multiple style="display:none;">
+                <textarea id="textarea" placeholder="Paste code here..."></textarea>
+                <div class="button-row">
+                    <button id="runBtn">▶ Run</button>
+                    <button id="clearBtn">Clear</button>
+                    <button id="pasteBtn">📋 Paste</button>
+                </div>
+            </div>
         </div>
-        <div class="file-list" id="fe-files"></div>
-        <div class="file-preview" id="file-preview" style="display:none;"></div>
-        <div id="fe-path" style="font-size:11px; opacity:0.7; margin-top:4px;"></div>
-      </div>
+
+        <!-- Explorer Menu -->
+        <div class="menu-overlay hidden" id="explorer-menu">
+            <div class="menu-content">
+                <div class="explorer-actions">
+                    <label class="clickable">📁 Upload Files<input type="file" id="fe-upload-file" multiple style="display:none"></label>
+                    <label class="clickable">📦 Upload Zip<input type="file" id="fe-upload-zip" accept=".zip" style="display:none"></label>
+                    <button id="fe-new-folder">📁 New Folder</button>
+                    <button id="fe-delete">🗑 Delete</button>
+                    <button id="fe-close">✖ Close</button>
+                </div>
+                <div class="file-list" id="fe-files"></div>
+                <div class="file-preview" id="file-preview" style="display:none;"></div>
+                <div id="fe-path" style="font-size:11px; opacity:0.7; margin-top:4px;"></div>
+            </div>
+        </div>
+
+        <!-- Virtual Gamepad (visible only when script running) -->
+        <div class="gamepad-overlay" id="gamepad">
+            <div class="dpad-grid">
+                <div></div><button class="dpad-btn" id="btn-up">▲</button><div></div>
+                <button class="dpad-btn" id="btn-left">◀</button><div></div><button class="dpad-btn" id="btn-right">▶</button>
+                <div></div><button class="dpad-btn" id="btn-down">▼</button><div></div>
+            </div>
+            <div class="action-btns">
+                <button class="action-btn" style="border-color:#00aaff;" id="btn-cross">✕</button>
+                <button class="action-btn" style="border-color:#ff5555;" id="btn-circle">○</button>
+                <button class="action-btn" style="border-color:#00ff88;" id="btn-triangle">△</button>
+                <button class="action-btn" style="border-color:#ff88ff;" id="btn-square">□</button>
+            </div>
+        </div>
     </div>
 
-    <!-- Virtual Gamepad (visible only when script running) -->
-    <div class="gamepad-overlay" id="gamepad">
-      <div class="dpad-grid">
-        <div></div><button class="dpad-btn" id="btn-up">▲</button><div></div>
-        <button class="dpad-btn" id="btn-left">◀</button><div></div><button class="dpad-btn" id="btn-right">▶</button>
-        <div></div><button class="dpad-btn" id="btn-down">▼</button><div></div>
-      </div>
-      <div class="action-btns">
-        <button class="action-btn" style="border-color:#00aaff;" id="btn-cross">✕</button>
-        <button class="action-btn" style="border-color:#ff5555;" id="btn-circle">○</button>
-        <button class="action-btn" style="border-color:#00ff88;" id="btn-triangle">△</button>
-        <button class="action-btn" style="border-color:#ff88ff;" id="btn-square">□</button>
-      </div>
+    <div class="bottom-nav">
+        <div class="nav-item active" id="nav-script">📜 Script</div>
+        <div class="nav-item" id="nav-explorer">📂 Explorer</div>
+        <div class="nav-item" id="nav-stop">⏹ Stop</div>
     </div>
-  </div>
-
-  <!-- Bottom Navigation -->
-  <div class="bottom-nav">
-    <div class="nav-item active" id="nav-script">📜 Script</div>
-    <div class="nav-item" id="nav-explorer">📂 Explorer</div>
-    <div class="nav-item" id="nav-stop">⏹ Stop</div>
-  </div>
 </div>
 
 <script>
-// ====================== BigInt & Memory ======================
-if (typeof BigInt === 'undefined') {
-  class BigIntFake {
-    constructor(val, lo) {
-      if (val instanceof BigIntFake) { this.lo = val.lo; this.hi = val.hi; }
-      else if (typeof val === 'number') { this.lo = val >>> 0; this.hi = 0; }
-      else if (typeof val === 'string') { this.lo = parseInt(val, 16) >>> 0; this.hi = 0; }
-      else { this.lo = 0; this.hi = 0; }
-      if (lo !== undefined) { this.lo = lo >>> 0; this.hi = val >>> 0; }
+    // ====================== BigInt & Memory ======================
+    if (typeof BigInt === 'undefined') {
+        class BigIntFake {
+            constructor(val, lo) {
+                if (val instanceof BigIntFake) { this.lo = val.lo; this.hi = val.hi; }
+                else if (typeof val === 'number') { this.lo = val >>> 0; this.hi = 0; }
+                else if (typeof val === 'string') { this.lo = parseInt(val, 16) >>> 0; this.hi = 0; }
+                else { this.lo = 0; this.hi = 0; }
+                if (lo !== undefined) { this.lo = lo >>> 0; this.hi = val >>> 0; }
+            }
+            add(b) { return new BigIntFake(0, (this.lo + b.lo) >>> 0); }
+            sub(b) { return new BigIntFake(0, (this.lo - b.lo) >>> 0); }
+            eq(b) { return this.lo === b.lo && this.hi === b.hi; }
+            lt(b) { return this.lo < b.lo; }
+            gt(b) { return this.lo > b.lo; }
+            shr(n) { return new BigIntFake(0, this.lo >>> n); }
+            and(b) { return new BigIntFake(0, (this.lo & b.lo) >>> 0); }
+            or(b) { return new BigIntFake(0, (this.lo | b.lo) >>> 0); }
+            toString() { return '0x' + this.lo.toString(16).toUpperCase(); }
+        }
+        window.BigInt = BigIntFake;
     }
-    add(b) { return new BigIntFake(0, (this.lo + b.lo) >>> 0); }
-    sub(b) { return new BigIntFake(0, (this.lo - b.lo) >>> 0); }
-    eq(b) { return this.lo === b.lo && this.hi === b.hi; }
-    lt(b) { return this.lo < b.lo; }
-    gt(b) { return this.lo > b.lo; }
-    shr(n) { return new BigIntFake(0, this.lo >>> n); }
-    and(b) { return new BigIntFake(0, (this.lo & b.lo) >>> 0); }
-    or(b) { return new BigIntFake(0, (this.lo | b.lo) >>> 0); }
-    toString() { return '0x' + this.lo.toString(16).toUpperCase(); }
-  }
-  window.BigInt = BigIntFake;
-}
 
-let memBuffer = new ArrayBuffer(16 * 1024 * 1024);
-let memView = new DataView(memBuffer);
-let memOffset = 0;
-const mem = {
-  malloc(size) {
-    const addr = memOffset;
-    memOffset += size;
-    return new BigInt(0, addr);
-  },
-  view(addr) { return new DataView(memBuffer, addr.lo, memBuffer.byteLength - addr.lo); }
-};
+    const ZERO = new BigInt(0,0);
+    let memBuffer = new ArrayBuffer(16 * 1024 * 1024);
+    let memView = new DataView(memBuffer);
+    let memOffset = 0;
+    const mem = {
+        malloc(size) {
+            const addr = memOffset;
+            memOffset += size;
+            return new BigInt(0, addr);
+        },
+        view(addr) { return new DataView(memBuffer, addr.lo, memBuffer.byteLength - addr.lo); }
+    };
 
-// ====================== Syscall Stubs ======================
-const fn = {};
-const syscallDefs = [
-  [3,'read_sys'],[4,'write_sys'],[5,'open_sys'],[6,'close_sys'],[10,'unlink'],
-  [20,'getpid'],[23,'setuid'],[24,'getuid'],[27,'recvmsg'],[30,'accept'],
-  [32,'getsockname'],[37,'kill'],[41,'dup'],[42,'pipe'],[54,'ioctl'],[73,'munmap'],
-  [92,'fcntl'],[93,'select'],[97,'socket'],[98,'connect'],[99,'netcontrol'],
-  [104,'bind'],[105,'setsockopt'],[106,'listen'],[118,'getsockopt'],[120,'readv'],
-  [121,'writev'],[128,'rename'],[135,'socketpair'],[136,'mkdir'],[137,'rmdir'],
-  [188,'stat'],[202,'sysctl'],[240,'nanosleep'],[272,'getdents'],[331,'sched_yield'],
-  [362,'kqueue'],[431,'thr_exit'],[433,'thr_kill'],[455,'thr_new'],
-  [466,'rtprio_thread'],[477,'mmap'],[478,'lseek'],[487,'cpuset_getaffinity'],
-  [488,'cpuset_setaffinity'],[533,'jitshm_create'],[538,'evf_create'],
-  [539,'evf_delete'],[544,'evf_set'],[545,'evf_clear'],[585,'is_in_sandbox'],
-  [632,'thr_suspend_ucontext'],[633,'thr_resume_ucontext'],[661,'kexec'],
-  [662,'aio_multi_delete'],[663,'aio_multi_wait'],[664,'aio_multi_poll'],
-  [666,'aio_multi_cancel'],[669,'aio_submit_cmd']
-];
-syscallDefs.forEach(([num, name]) => fn[name] = (...a) => new BigInt(0,0));
+    // ====================== Syscall Stubs ======================
+    const fn = {};
+    const syscallDefs = [
+        [3,'read_sys'],[4,'write_sys'],[5,'open_sys'],[6,'close_sys'],[10,'unlink'],
+        [20,'getpid'],[23,'setuid'],[24,'getuid'],[27,'recvmsg'],[30,'accept'],
+        [32,'getsockname'],[37,'kill'],[41,'dup'],[42,'pipe'],[54,'ioctl'],[73,'munmap'],
+        [92,'fcntl'],[93,'select'],[97,'socket'],[98,'connect'],[99,'netcontrol'],
+        [104,'bind'],[105,'setsockopt'],[106,'listen'],[118,'getsockopt'],[120,'readv'],
+        [121,'writev'],[128,'rename'],[135,'socketpair'],[136,'mkdir'],[137,'rmdir'],
+        [188,'stat'],[202,'sysctl'],[240,'nanosleep'],[272,'getdents'],[331,'sched_yield'],
+        [362,'kqueue'],[431,'thr_exit'],[433,'thr_kill'],[455,'thr_new'],
+        [466,'rtprio_thread'],[477,'mmap'],[478,'lseek'],[487,'cpuset_getaffinity'],
+        [488,'cpuset_setaffinity'],[533,'jitshm_create'],[538,'evf_create'],
+        [539,'evf_delete'],[544,'evf_set'],[545,'evf_clear'],[585,'is_in_sandbox'],
+        [632,'thr_suspend_ucontext'],[633,'thr_resume_ucontext'],[661,'kexec'],
+        [662,'aio_multi_delete'],[663,'aio_multi_wait'],[664,'aio_multi_poll'],
+        [666,'aio_multi_cancel'],[669,'aio_submit_cmd']
+    ];
+    syscallDefs.forEach(([num, name]) => fn[name] = (...a) => new BigInt(0,0));
 
-// ====================== Virtual File System ======================
-const vfs = { '/': { type:'dir', children:{} } };
-function resolveVFS(path) {
-  if (!path || path==='/') return vfs['/'];
-  const parts = path.replace(/\\/,'/').split('/').filter(p=>p);
-  let node = vfs['/'];
-  for (const p of parts) {
-    if (node.type!=='dir' || !node.children[p]) return null;
-    node = node.children[p];
-  }
-  return node;
-}
-function mkdirVFS(path) {
-  const parts = path.replace(/\\/,'/').split('/').filter(p=>p);
-  let node = vfs['/'];
-  for (const p of parts) {
-    if (!node.children[p]) node.children[p] = { type:'dir', children:{} };
-    else if (node.children[p].type!=='dir') return false;
-    node = node.children[p];
-  }
-  return true;
-}
-function writeFileVFS(path, content) {
-  const parts = path.replace(/\\/,'/').split('/').filter(p=>p);
-  const name = parts.pop();
-  let node = vfs['/'];
-  for (const p of parts) {
-    if (!node.children[p]) node.children[p] = { type:'dir', children:{} };
-    node = node.children[p];
-  }
-  node.children[name] = { type:'file', content };
-}
-function readFileVFS(path) {
-  const node = resolveVFS(path);
-  return node ? node.content : null;
-}
-function listDirVFS(path) {
-  const node = resolveVFS(path);
-  return (node && node.type==='dir') ? Object.keys(node.children).sort() : [];
-}
-function removeEntryVFS(path) {
-  const parts = path.replace(/\\/,'/').split('/').filter(p=>p);
-  if (!parts.length) return false;
-  const parent = resolveVFS('/' + parts.slice(0,-1).join('/'));
-  if (parent && parent.type==='dir') {
-    delete parent.children[parts[parts.length-1]];
-    return true;
-  }
-  return false;
-}
-
-// ====================== Global JSMAF Mock ======================
-window.jsmaf = {
-  root: { x:0,y:0,width:0,height:0,alpha:1,visible:true,children:[],rotateZ:0 },
-  screenWidth:1920, screenHeight:1080, screenAspect:1.7777777777777777,
-  frameRate:60, platform:'ps4', version:'2.13.2', locale:'en',
-  onKeyDown:null, onKeyUp:null, onEnterFrame:null,
-  setTimeout:(f,t)=>setTimeout(f,t), clearTimeout:id=>clearTimeout(id),
-  setInterval:(f,t)=>setInterval(f,t), clearInterval:id=>clearInterval(id),
-  print:msg=>console.log(msg), alert:msg=>alert(msg),
-  exit:()=>stopScript(),
-  include(path) {
-    let p = path.replace(/^file:\/\/..\/download0\//,'').replace(/^file:\/\/\//,'');
-    if (!p.startsWith('/')) p = '/'+p;
-    const code = readFileVFS(p);
-    if (code) eval(code);
-    else console.warn('include failed:', path);
-  },
-  onKeyboardDown:null, onkeyboarddown:null, onkeydown:null,
-  onKeyboardUp:null, onkeyboardup:null, onkeyup:null,
-  onKeyboardRepeat:null, onkeyrepeat:null,
-  onenterforeground:null, onEnterForeground:null,
-  onenterbackground:null, onEnterBackground:null,
-  ontextspeech:null, onTextSpeech:null,
-  onexternalparamchange:null, onExternalParamChange:null,
-  onKeyRepeat:null, onkeyrepeat:null,
-};
-window._styles = {};
-window.Style = function(def) { window._styles[def.name] = def; };
-window.Image = function(opts) {
-  opts = opts || {};
-  this.url = opts.url || '';
-  this.x = opts.x||0; this.y = opts.y||0;
-  this.width = opts.width||0; this.height = opts.height||0;
-  this.alpha = opts.alpha!==undefined?opts.alpha:1;
-  this.visible = opts.visible!==undefined?opts.visible:true;
-  this.scaleX = opts.scaleX||1; this.scaleY = opts.scaleY||1;
-  this.rotateZ = opts.rotateZ||0;
-  this.background = opts.background||null;
-  this.borderWidth = opts.borderWidth||0;
-  this.borderColor = opts.borderColor||'transparent';
-  this.children = [];
-  this._img = new globalThis.Image();
-  this._img.crossOrigin = 'anonymous';
-  if (this.url) {
-    let actualUrl = this.url;
-    if (actualUrl.startsWith('file://')) {
-      const filePath = actualUrl.replace(/^file:\/\/..\/download0\//,'/').replace(/^file:\/\/\//,'/');
-      const data = readFileVFS(filePath);
-      if (data) actualUrl = data;
+    // ====================== Virtual File System ======================
+    const vfs = { '/': { type:'dir', children:{} } };
+    function resolveVFS(path) {
+        if (!path || path==='/') return vfs['/'];
+        const parts = path.replace(/\\/,'/').split('/').filter(p=>p);
+        let node = vfs['/'];
+        for (const p of parts) {
+            if (node.type!=='dir' || !node.children[p]) return null;
+            node = node.children[p];
+        }
+        return node;
     }
-    this._img.src = actualUrl;
-  }
-};
-window.Text = function() { this.text=''; this.x=0; this.y=0; this.alpha=1; this.visible=true; this.style=null; this.scaleX=1; this.scaleY=1; this.rotateZ=0; this.align='left'; };
-window.jsmaf.Image = window.Image;
-window.jsmaf.Text = window.Text;
-window.jsmaf.AudioClip = function() {
-  this._buffer=null; this.volume=1;
-  this.open = function(url) {
-    let final = url;
-    if (url.startsWith('file://')) {
-      const path = url.replace(/^file:\/\/..\/download0\//,'/').replace(/^file:\/\/\//,'/');
-      const data = readFileVFS(path);
-      if (data && data.startsWith('data:audio')) final = data;
+    function mkdirVFS(path) {
+        const parts = path.replace(/\\/,'/').split('/').filter(p=>p);
+        let node = vfs['/'];
+        for (const p of parts) {
+            if (!node.children[p]) node.children[p] = { type:'dir', children:{} };
+            else if (node.children[p].type!=='dir') return false;
+            node = node.children[p];
+        }
+        return true;
     }
-    fetch(final).then(r=>r.arrayBuffer()).then(buf=>{
-      const actx = new (window.AudioContext||window.webkitAudioContext)();
-      return actx.decodeAudioData(buf);
-    }).then(dec=>{ this._buffer = dec; }).catch(e=>console.warn('Audio error',e));
-  };
-  this.play = function(loop) {
-    if (!this._buffer) return;
-    const actx = new (window.AudioContext||window.webkitAudioContext)();
-    const src = actx.createBufferSource();
-    src.buffer = this._buffer; src.loop = loop!==false;
-    const gain = actx.createGain(); gain.gain.value = this.volume;
-    src.connect(gain).connect(actx.destination);
-    src.start(0);
-  };
-};
-
-// XHR interceptor
-const RealXHR = window.XMLHttpRequest;
-window.XMLHttpRequest = function() {
-  const xhr = new RealXHR();
-  const origOpen = xhr.open;
-  xhr.open = function(method, url, async, user, pwd) {
-    if (url.startsWith('file://')) {
-      const path = url.replace(/^file:\/\/..\/download0\//,'/').replace(/^file:\/\/\//,'/');
-      xhr._vfsData = readFileVFS(path) || '';
+    function writeFileVFS(path, content) {
+        const parts = path.replace(/\\/,'/').split('/').filter(p=>p);
+        const name = parts.pop();
+        let node = vfs['/'];
+        for (const p of parts) {
+            if (!node.children[p]) node.children[p] = { type:'dir', children:{} };
+            node = node.children[p];
+        }
+        node.children[name] = { type:'file', content };
     }
-    origOpen.call(xhr, method, url, async, user, pwd);
-  };
-  const origSend = xhr.send;
-  xhr.send = function(body) {
-    if (xhr._vfsData !== undefined) {
-      Object.defineProperty(xhr, 'readyState', { get: ()=>4 });
-      Object.defineProperty(xhr, 'status', { get: ()=>200 });
-      Object.defineProperty(xhr, 'responseText', { get: ()=>xhr._vfsData });
-      if (xhr.onreadystatechange) xhr.onreadystatechange();
-    } else origSend.call(xhr, body);
-  };
-  return xhr;
-};
-window.jsmaf.XMLHttpRequest = window.XMLHttpRequest;
+    function readFileVFS(path) {
+        const node = resolveVFS(path);
+        return node ? node.content : null;
+    }
+    function listDirVFS(path) {
+        const node = resolveVFS(path);
+        return (node && node.type==='dir') ? Object.keys(node.children).sort() : [];
+    }
+    function removeEntryVFS(path) {
+        const parts = path.replace(/\\/,'/').split('/').filter(p=>p);
+        if (!parts.length) return false;
+        const parent = resolveVFS('/' + parts.slice(0,-1).join('/'));
+        if (parent && parent.type==='dir') {
+            delete parent.children[parts[parts.length-1]];
+            return true;
+        }
+        return false;
+    }
 
-// ====================== Renderer ======================
-const canvas = document.getElementById('canvas');
-const ctx = canvas.getContext('2d');
-function drawElement(el, px, py, gAlpha) {
-  if (!el.visible || el.alpha<=0) return;
-  const x = px + el.x, y = py + el.y;
-  ctx.save();
-  if (el.rotateZ) { ctx.translate(x+el.width/2, y+el.height/2); ctx.rotate(el.rotateZ*Math.PI/180); ctx.translate(-x-el.width/2, -y-el.height/2); }
-  ctx.globalAlpha = gAlpha * el.alpha;
-  if (el.background) { ctx.fillStyle = el.background; ctx.fillRect(x, y, el.width, el.height); }
-  if (el._img && el._img.complete && el._img.naturalWidth>0) ctx.drawImage(el._img, x, y, el.width, el.height);
-  if (el.text && el.style && window._styles[el.style]) {
-    const st = window._styles[el.style];
-    ctx.font = `${st.size||20}px sans-serif`;
-    ctx.fillStyle = st.color||'white';
-    ctx.textAlign = el.align||'left';
-    ctx.fillText(el.text, x, y + (st.size||20));
-  }
-  if (el.borderWidth>0) { ctx.strokeStyle = el.borderColor; ctx.lineWidth = el.borderWidth; ctx.strokeRect(x, y, el.width, el.height); }
-  ctx.restore();
-  if (el.children) el.children.forEach(c=>drawElement(c, x, y, gAlpha*el.alpha));
-}
-function render() { ctx.clearRect(0,0,1920,1080); drawElement(jsmaf.root,0,0,1); }
-let animFrame;
-function startRendering() {
-  if (animFrame) cancelAnimationFrame(animFrame);
-  function loop() { render(); animFrame = requestAnimationFrame(loop); if (typeof jsmaf.onEnterFrame==='function') jsmaf.onEnterFrame(); }
-  loop();
-}
-function stopRendering() { if (animFrame) cancelAnimationFrame(animFrame); }
+    // ====================== Global JSMAF Mock ======================
+    window.jsmaf = {
+        root: { x:0,y:0,width:0,height:0,alpha:1,visible:true,children:[],rotateZ:0 },
+        screenWidth:1920, screenHeight:1080, screenAspect:1.7777777777777777,
+        frameRate:60, platform:'ps4', version:'2.13.2', locale:'en',
+        onKeyDown:null, onKeyUp:null, onEnterFrame:null,
+        setTimeout:(f,t)=>setTimeout(f,t), clearTimeout:id=>clearTimeout(id),
+        setInterval:(f,t)=>setInterval(f,t), clearInterval:id=>clearInterval(id),
+        print:msg=>console.log(msg), alert:msg=>alert(msg),
+        exit:()=>stopScript(),
+        include(path) {
+            let p = path.replace(/^file:\/\/..\/download0\//,'').replace(/^file:\/\/\//,'');
+            if (!p.startsWith('/')) p = '/'+p;
+            const code = readFileVFS(p);
+            if (code) eval(code);
+            else console.warn('include failed:', path);
+        },
+        onKeyboardDown:null, onkeyboarddown:null, onkeydown:null,
+        onKeyboardUp:null, onkeyboardup:null, onkeyup:null,
+        onKeyboardRepeat:null, onkeyrepeat:null,
+        onenterforeground:null, onEnterForeground:null,
+        onenterbackground:null, onEnterBackground:null,
+        ontextspeech:null, onTextSpeech:null,
+        onexternalparamchange:null, onExternalParamChange:null,
+        onKeyRepeat:null, onkeyrepeat:null,
+    };
+    window._styles = {};
+    window.Style = function(def) { window._styles[def.name] = def; };
+    window.Image = function(opts) {
+        opts = opts || {};
+        this.url = opts.url || '';
+        this.x = opts.x||0; this.y = opts.y||0;
+        this.width = opts.width||0; this.height = opts.height||0;
+        this.alpha = opts.alpha!==undefined?opts.alpha:1;
+        this.visible = opts.visible!==undefined?opts.visible:true;
+        this.scaleX = opts.scaleX||1; this.scaleY = opts.scaleY||1;
+        this.rotateZ = opts.rotateZ||0;
+        this.background = opts.background||null;
+        this.borderWidth = opts.borderWidth||0;
+        this.borderColor = opts.borderColor||'transparent';
+        this.children = [];
+        this._img = new globalThis.Image();
+        this._img.crossOrigin = 'anonymous';
+        if (this.url) {
+            let actualUrl = this.url;
+            if (actualUrl.startsWith('file://')) {
+                const filePath = actualUrl.replace(/^file:\/\/..\/download0\//,'/').replace(/^file:\/\/\//,'/');
+                const data = readFileVFS(filePath);
+                if (data) actualUrl = data;
+            }
+            this._img.src = actualUrl;
+        }
+    };
+    window.Text = function() { this.text=''; this.x=0; this.y=0; this.alpha=1; this.visible=true; this.style=null; this.scaleX=1; this.scaleY=1; this.rotateZ=0; this.align='left'; };
+    window.jsmaf.Image = window.Image;
+    window.jsmaf.Text = window.Text;
+    window.jsmaf.AudioClip = function() {
+        this._buffer=null; this.volume=1;
+        this.open = function(url) {
+            let final = url;
+            if (url.startsWith('file://')) {
+                const path = url.replace(/^file:\/\/..\/download0\//,'/').replace(/^file:\/\/\//,'/');
+                const data = readFileVFS(path);
+                if (data && data.startsWith('data:audio')) final = data;
+            }
+            fetch(final).then(r=>r.arrayBuffer()).then(buf=>{
+                const actx = new (window.AudioContext||window.webkitAudioContext)();
+                return actx.decodeAudioData(buf);
+            }).then(dec=>{ this._buffer = dec; }).catch(e=>console.warn('Audio error',e));
+        };
+        this.play = function(loop) {
+            if (!this._buffer) return;
+            const actx = new (window.AudioContext||window.webkitAudioContext)();
+            const src = actx.createBufferSource();
+            src.buffer = this._buffer; src.loop = loop!==false;
+            const gain = actx.createGain(); gain.gain.value = this.volume;
+            src.connect(gain).connect(actx.destination);
+            src.start(0);
+        };
+    };
 
-// ====================== Application State ======================
-let scriptRunning = false;
-let activeMenu = 'script'; // 'script' or 'explorer'
-let currentDir = '/download0';
-let selectedFile = null;
+    // XHR interceptor
+    const RealXHR = window.XMLHttpRequest;
+    window.XMLHttpRequest = function() {
+        const xhr = new RealXHR();
+        const origOpen = xhr.open;
+        xhr.open = function(method, url, async, user, pwd) {
+            if (url.startsWith('file://')) {
+                const path = url.replace(/^file:\/\/..\/download0\//,'/').replace(/^file:\/\/\//,'/');
+                xhr._vfsData = readFileVFS(path) || '';
+            }
+            origOpen.call(xhr, method, url, async, user, pwd);
+        };
+        const origSend = xhr.send;
+        xhr.send = function(body) {
+            if (xhr._vfsData !== undefined) {
+                Object.defineProperty(xhr, 'readyState', { get: ()=>4 });
+                Object.defineProperty(xhr, 'status', { get: ()=>200 });
+                Object.defineProperty(xhr, 'responseText', { get: ()=>xhr._vfsData });
+                if (xhr.onreadystatechange) xhr.onreadystatechange();
+            } else origSend.call(xhr, body);
+        };
+        return xhr;
+    };
+    window.jsmaf.XMLHttpRequest = window.XMLHttpRequest;
 
-// UI elements
-const canvasArea = document.querySelector('.canvas-area');
-const scriptMenu = document.getElementById('script-menu');
-const explorerMenu = document.getElementById('explorer-menu');
-const gamepad = document.getElementById('gamepad');
-const btnStop = document.getElementById('btn-stop');
-const navScript = document.getElementById('nav-script');
-const navExplorer = document.getElementById('nav-explorer');
-const navStop = document.getElementById('nav-stop');
-const dropzone = document.getElementById('dropzone');
-const textarea = document.getElementById('textarea');
-const runBtn = document.getElementById('runBtn');
-const filePreview = document.getElementById('file-preview');
+    // ====================== Renderer ======================
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    function drawElement(el, px, py, gAlpha) {
+        if (!el.visible || el.alpha<=0) return;
+        const x = px + el.x, y = py + el.y;
+        ctx.save();
+        if (el.rotateZ) { ctx.translate(x+el.width/2, y+el.height/2); ctx.rotate(el.rotateZ*Math.PI/180); ctx.translate(-x-el.width/2, -y-el.height/2); }
+        ctx.globalAlpha = gAlpha * el.alpha;
+        if (el.background) { ctx.fillStyle = el.background; ctx.fillRect(x, y, el.width, el.height); }
+        if (el._img && el._img.complete && el._img.naturalWidth>0) ctx.drawImage(el._img, x, y, el.width, el.height);
+        if (el.text && el.style && window._styles[el.style]) {
+            const st = window._styles[el.style];
+            ctx.font = `${st.size||20}px sans-serif`;
+            ctx.fillStyle = st.color||'white';
+            ctx.textAlign = el.align||'left';
+            ctx.fillText(el.text, x, y + (st.size||20));
+        }
+        if (el.borderWidth>0) { ctx.strokeStyle = el.borderColor; ctx.lineWidth = el.borderWidth; ctx.strokeRect(x, y, el.width, el.height); }
+        ctx.restore();
+        if (el.children) el.children.forEach(c=>drawElement(c, x, y, gAlpha*el.alpha));
+    }
+    function render() { ctx.clearRect(0,0,1920,1080); drawElement(jsmaf.root,0,0,1); }
+    let animFrame;
+    function startRendering() {
+        if (animFrame) cancelAnimationFrame(animFrame);
+        function loop() { render(); animFrame = requestAnimationFrame(loop); if (typeof jsmaf.onEnterFrame==='function') jsmaf.onEnterFrame(); }
+        loop();
+    }
+    function stopRendering() { if (animFrame) cancelAnimationFrame(animFrame); }
 
-function setCanvasInteractive(interactive) {
-  canvas.style.pointerEvents = interactive ? 'auto' : 'none';
-}
+    // ====================== Application State ======================
+    let scriptRunning = false;
+    let activeMenu = 'script'; // 'script' or 'explorer'
+    let currentDir = '/download0';
+    let selectedFile = null;
 
-function stopScript() {
-  stopRendering();
-  scriptRunning = false;
-  btnStop.disabled = true;
-  gamepad.classList.remove('visible');
-  jsmaf.onKeyDown = null;
-  jsmaf.onKeyUp = null;
-  setCanvasInteractive(false);
-}
+    // UI elements
+    const scriptMenu = document.getElementById('script-menu');
+    const explorerMenu = document.getElementById('explorer-menu');
+    const gamepad = document.getElementById('gamepad');
+    const btnStop = document.getElementById('btn-stop');
+    const navScript = document.getElementById('nav-script');
+    const navExplorer = document.getElementById('nav-explorer');
+    const navStop = document.getElementById('nav-stop');
+    const dropzone = document.getElementById('dropzone');
+    const textarea = document.getElementById('textarea');
+    const runBtn = document.getElementById('runBtn');
+    const filePreview = document.getElementById('file-preview');
 
-function setMenu(menu) {
-  activeMenu = menu;
-  scriptMenu.classList.toggle('hidden', menu !== 'script');
-  explorerMenu.classList.toggle('hidden', menu !== 'explorer');
-  navScript.classList.toggle('active', menu === 'script');
-  navExplorer.classList.toggle('active', menu === 'explorer');
-  if (menu === 'explorer') refreshExplorer();
-  setCanvasInteractive(false);
-}
+    function stopScript() {
+        stopRendering();
+        scriptRunning = false;
+        btnStop.disabled = true;
+        gamepad.classList.remove('visible');
+        jsmaf.onKeyDown = null;
+        jsmaf.onKeyUp = null;
+        canvas.style.pointerEvents = 'none';
+        scriptMenu.classList.remove('hidden');
+        setMenu(activeMenu);
+    }
 
-// Navigation
-navScript.addEventListener('click', ()=>setMenu('script'));
-navExplorer.addEventListener('click', ()=>setMenu('explorer'));
-navStop.addEventListener('click', ()=>{ if (scriptRunning) stopScript(); });
+    function setMenu(menu) {
+        activeMenu = menu;
+        scriptMenu.classList.toggle('hidden', menu !== 'script');
+        explorerMenu.classList.toggle('hidden', menu !== 'explorer');
+        navScript.classList.toggle('active', menu === 'script');
+        navExplorer.classList.toggle('active', menu === 'explorer');
+        if (menu === 'explorer') refreshExplorer();
+    }
 
-// Script panel events
-dropzone.addEventListener('click', ()=>document.getElementById('fileInput').click());
-document.getElementById('fileInput').addEventListener('change', e=>handleFiles([...e.target.files]));
-dropzone.addEventListener('dragover', e=>{ e.preventDefault(); dropzone.classList.add('dragover'); });
-dropzone.addEventListener('dragleave', ()=>{ dropzone.classList.remove('dragover'); });
-dropzone.addEventListener('drop', e=>{
-  e.preventDefault();
-  dropzone.classList.remove('dragover');
-  const files = e.dataTransfer.files;
-  if (files.length) handleFiles([...files]);
-});
+    // Navigation
+    navScript.addEventListener('click', ()=>setMenu('script'));
+    navExplorer.addEventListener('click', ()=>setMenu('explorer'));
+    navStop.addEventListener('click', ()=>{ if (scriptRunning) stopScript(); });
 
-async function handleFiles(files) {
-  if (files.length===1 && files[0].name.endsWith('.js')) {
-    textarea.value = await files[0].text();
-    return;
-  }
-  const themeName = prompt('Enter theme/payload name:');
-  if (!themeName) return;
-  const base = `/download0/themes/${themeName}/`;
-  mkdirVFS(base);
-  for (const f of files) {
-    const path = f.webkitRelativePath || f.name;
-    const target = base + (path.startsWith('/')?path.slice(1):path);
-    let content;
-    if (f.type.startsWith('image/') || f.type.startsWith('audio/')) {
-      content = await new Promise(res=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.readAsDataURL(f); });
-    } else content = await f.text();
-    writeFileVFS(target, content);
-  }
-  const main = readFileVFS(base+'main.js');
-  if (main) textarea.value = main;
-  alert('Theme installed!');
-  setMenu('script');
-}
-
-runBtn.addEventListener('click', ()=>{
-  const code = textarea.value.trim();
-  if (!code) return;
-  stopScript();
-  jsmaf.root.children.length = 0;
-  window._styles = {};
-  try { eval(code); } catch(e) { alert('Script error: '+e.message); return; }
-  scriptRunning = true;
-  btnStop.disabled = false;
-  gamepad.classList.add('visible');
-  scriptMenu.classList.add('hidden');
-  explorerMenu.classList.add('hidden');
-  setCanvasInteractive(true);
-  startRendering();
-});
-
-document.getElementById('clearBtn').addEventListener('click', ()=>textarea.value='');
-document.getElementById('pasteBtn').addEventListener('click', async ()=>{
-  try { textarea.value = await navigator.clipboard.readText(); } catch(e) { alert('Clipboard access denied. Please paste manually.'); }
-});
-
-// ====================== File Explorer ======================
-function refreshExplorer() {
-  const filesDiv = document.getElementById('fe-files');
-  const pathEl = document.getElementById('fe-path');
-  filesDiv.innerHTML = '';
-  pathEl.textContent = currentDir;
-  filePreview.style.display = 'none';
-  const entries = listDirVFS(currentDir);
-  entries.forEach(name => {
-    const entry = resolveVFS(currentDir+'/'+name);
-    const div = document.createElement('div');
-    div.className = 'file-entry';
-    if (selectedFile === currentDir+'/'+name) div.classList.add('selected');
-    div.innerHTML = `${entry.type==='dir'?'📁':'📄'} ${name}`;
-    div.addEventListener('click', ()=>{
-      if (entry.type==='dir') { currentDir = currentDir+'/'+name; selectedFile = null; refreshExplorer(); }
-      else { selectedFile = currentDir+'/'+name; refreshExplorer(); previewFile(selectedFile); }
+    // Top bar buttons
+    document.getElementById('btn-load-script').addEventListener('click', ()=>setMenu('script'));
+    document.getElementById('btn-explorer').addEventListener('click', ()=>setMenu('explorer'));
+    document.getElementById('btn-open-vue').addEventListener('click', async ()=>{
+        if (!confirm('Download full Vue-After-Free structure? This may take a moment.')) return;
+        const manifestRes = await fetch('https://raw.githubusercontent.com/Vuemony/vue-after-free/main/src/download0/manifest.txt');
+        const text = await manifestRes.text();
+        const files = text.split('\n').map(l=>l.trim()).filter(l=>l);
+        let done=0;
+        for (const file of files) {
+            let url = 'https://raw.githubusercontent.com/MexrlDev/MexrlDev.github.io/refs/heads/main/scripts/Vue-After-Free/' + file;
+            if (file === 'sfx/bgm.wav') url = 'https://raw.githubusercontent.com/Vuemony/vue-after-free/main/src/download0/sfx/bgm.wav';
+            try {
+                const r = await fetch(url);
+                if (!r.ok) continue;
+                const blob = await r.blob();
+                const base64 = await new Promise(res=>{ const reader=new FileReader(); reader.onload=()=>res(reader.result); reader.readAsDataURL(blob); });
+                writeFileVFS('/download0/'+file, base64);
+            } catch(e) { console.warn('Failed to fetch', file); }
+            done++;
+            if (done%10===0) console.log(`Progress: ${done}/${files.length}`);
+        }
+        alert('Structure downloaded!');
+        refreshExplorer();
     });
-    filesDiv.appendChild(div);
-  });
-}
-function previewFile(path) {
-  const content = readFileVFS(path);
-  filePreview.style.display = 'block';
-  if (content.startsWith('data:image/')) filePreview.innerHTML = `<img src="${content}" style="max-width:100%; max-height:200px;">`;
-  else if (content.startsWith('data:audio/')) filePreview.innerHTML = `<audio controls src="${content}"></audio>`;
-  else filePreview.innerHTML = `<pre style="white-space:pre-wrap;">${content.substring(0,500)}</pre>`;
-}
 
-// Explorer buttons
-document.getElementById('fe-upload-file').addEventListener('change', async e=>{
-  for (const f of e.target.files) {
-    const target = currentDir + '/' + f.name;
-    const content = f.type.startsWith('image/')||f.type.startsWith('audio/') ?
-      await new Promise(res=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.readAsDataURL(f); }) :
-      await f.text();
-    writeFileVFS(target, content);
-  }
-  refreshExplorer();
-});
-document.getElementById('fe-upload-zip').addEventListener('change', async e=>{
-  const file = e.target.files[0];
-  if (!file) return;
-  const zip = await JSZip.loadAsync(file);
-  for (const [name, entry] of Object.entries(zip.files)) {
-    if (entry.dir) mkdirVFS(currentDir+'/'+name.replace(/\/$/,''));
-    else {
-      const content = await entry.async('string');
-      writeFileVFS(currentDir+'/'+name, content);
+    // Script panel
+    function triggerFileInput() { document.getElementById('fileInput').click(); }
+    dropzone.addEventListener('click', triggerFileInput);
+    dropzone.addEventListener('touchend', (e)=>{ e.preventDefault(); triggerFileInput(); });
+    document.getElementById('fileInput').addEventListener('change', e=>handleFiles([...e.target.files]));
+
+    dropzone.addEventListener('dragover', e=>{ e.preventDefault(); dropzone.classList.add('dragover'); });
+    dropzone.addEventListener('dragleave', ()=>{ dropzone.classList.remove('dragover'); });
+    dropzone.addEventListener('drop', e=>{
+        e.preventDefault();
+        dropzone.classList.remove('dragover');
+        const files = e.dataTransfer.files;
+        if (files.length) handleFiles([...files]);
+    });
+
+    async function handleFiles(files) {
+        if (files.length===1 && files[0].name.endsWith('.js')) {
+            textarea.value = await files[0].text();
+            return;
+        }
+        const themeName = prompt('Enter theme/payload name:');
+        if (!themeName) return;
+        const base = `/download0/themes/${themeName}/`;
+        mkdirVFS(base);
+        for (const f of files) {
+            const path = f.webkitRelativePath || f.name;
+            const target = base + (path.startsWith('/')?path.slice(1):path);
+            let content;
+            if (f.type.startsWith('image/') || f.type.startsWith('audio/')) {
+                content = await new Promise(res=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.readAsDataURL(f); });
+            } else content = await f.text();
+            writeFileVFS(target, content);
+        }
+        const main = readFileVFS(base+'main.js');
+        if (main) textarea.value = main;
+        alert('Theme installed!');
+        setMenu('script');
     }
-  }
-  refreshExplorer();
-});
-document.getElementById('fe-new-folder').addEventListener('click', ()=>{
-  const name = prompt('Folder name:');
-  if (name) { mkdirVFS(currentDir+'/'+name); refreshExplorer(); }
-});
-document.getElementById('fe-delete').addEventListener('click', ()=>{
-  if (!selectedFile) return alert('Select a file/folder first');
-  if (confirm('Delete ' + selectedFile + '?')) { removeEntryVFS(selectedFile); selectedFile=null; refreshExplorer(); }
-});
-document.getElementById('fe-close').addEventListener('click', ()=>setMenu('script'));
 
-// ====================== Open Vue from GitHub ======================
-document.getElementById('btn-open-vue').addEventListener('click', async ()=>{
-  if (!confirm('Download full Vue-After-Free structure? This may take a moment.')) return;
-  const manifestRes = await fetch('https://raw.githubusercontent.com/Vuemony/vue-after-free/main/src/download0/manifest.txt');
-  const text = await manifestRes.text();
-  const files = text.split('\n').map(l=>l.trim()).filter(l=>l);
-  let done=0;
-  for (const file of files) {
-    let url = 'https://raw.githubusercontent.com/MexrlDev/MexrlDev.github.io/refs/heads/main/scripts/Vue-After-Free/' + file;
-    if (file === 'sfx/bgm.wav') url = 'https://raw.githubusercontent.com/Vuemony/vue-after-free/main/src/download0/sfx/bgm.wav';
-    try {
-      const r = await fetch(url);
-      if (!r.ok) continue;
-      const blob = await r.blob();
-      const base64 = await new Promise(res=>{ const reader=new FileReader(); reader.onload=()=>res(reader.result); reader.readAsDataURL(blob); });
-      writeFileVFS('/download0/'+file, base64);
-    } catch(e) { console.warn('Failed to fetch', file); }
-    done++;
-    if (done%10===0) console.log(`Progress: ${done}/${files.length}`);
-  }
-  alert('Structure downloaded!');
-  refreshExplorer();
-});
+    runBtn.addEventListener('click', ()=>{
+        const code = textarea.value.trim();
+        if (!code) return;
+        stopScript();
+        jsmaf.root.children.length = 0;
+        window._styles = {};
+        try { eval(code); } catch(e) { alert('Script error: '+e.message); return; }
+        scriptRunning = true;
+        btnStop.disabled = false;
+        gamepad.classList.add('visible');
+        scriptMenu.classList.add('hidden');
+        explorerMenu.classList.add('hidden');
+        canvas.style.pointerEvents = 'auto';
+        startRendering();
+    });
 
-// ====================== Keyboard & Gamepad ======================
-const keyMap = {
-  'ArrowUp':4, 'KeyW':55,
-  'ArrowDown':6, 'KeyS':57,
-  'ArrowLeft':7, 'KeyA':58,
-  'ArrowRight':5, 'KeyD':56,
-  'KeyZ':14, 'KeyX':13, 'KeyC':12, 'KeyV':15,
-  'KeyQ':10, 'KeyE':11, 'Digit1':8, 'Digit3':9,
-  'Space':2, 'ShiftLeft':1, 'Enter':16,
-};
-window.addEventListener('keydown', e=>{
-  if (e.key==='Escape') stopScript();
-  if (scriptRunning && jsmaf.onKeyDown) {
-    const code = keyMap[e.code];
-    if (code) { jsmaf.onKeyDown(code); e.preventDefault(); }
-  }
-});
-window.addEventListener('keyup', e=>{
-  if (scriptRunning && jsmaf.onKeyUp) {
-    const code = keyMap[e.code];
-    if (code) jsmaf.onKeyUp(code);
-  }
-});
+    document.getElementById('clearBtn').addEventListener('click', ()=>textarea.value='');
+    document.getElementById('pasteBtn').addEventListener('click', async ()=>{
+        try { textarea.value = await navigator.clipboard.readText(); } catch(e) { alert('Clipboard access denied. Please paste manually.'); }
+    });
 
-// Virtual gamepad
-const padCodes = { up:4, down:6, left:7, right:5, cross:14, circle:13, triangle:12, square:15 };
-function setupGamepadButton(id, key) {
-  const btn = document.getElementById(id);
-  btn.addEventListener('pointerdown', e=>{ e.preventDefault(); if (scriptRunning && jsmaf.onKeyDown) jsmaf.onKeyDown(padCodes[key]); });
-  btn.addEventListener('pointerup', ()=>{ if (scriptRunning && jsmaf.onKeyUp) jsmaf.onKeyUp(padCodes[key]); });
-  btn.addEventListener('pointerleave', ()=>{ if (scriptRunning && jsmaf.onKeyUp) jsmaf.onKeyUp(padCodes[key]); });
-}
-['up','down','left','right','cross','circle','triangle','square'].forEach(k=>setupGamepadButton('btn-'+k, k));
+    // ====================== File Explorer ======================
+    function refreshExplorer() {
+        const filesDiv = document.getElementById('fe-files');
+        const pathEl = document.getElementById('fe-path');
+        filesDiv.innerHTML = '';
+        pathEl.textContent = currentDir;
+        filePreview.style.display = 'none';
+        const entries = listDirVFS(currentDir);
+        entries.forEach(name => {
+            const entry = resolveVFS(currentDir+'/'+name);
+            const div = document.createElement('div');
+            div.className = 'file-entry';
+            if (selectedFile === currentDir+'/'+name) div.classList.add('selected');
+            div.innerHTML = `${entry.type==='dir'?'📁':'📄'} ${name}`;
+            div.addEventListener('click', ()=>{
+                if (entry.type==='dir') { currentDir = currentDir+'/'+name; selectedFile = null; refreshExplorer(); }
+                else { selectedFile = currentDir+'/'+name; refreshExplorer(); previewFile(selectedFile); }
+            });
+            filesDiv.appendChild(div);
+        });
+    }
+    function previewFile(path) {
+        const content = readFileVFS(path);
+        filePreview.style.display = 'block';
+        if (content.startsWith('data:image/')) filePreview.innerHTML = `<img src="${content}" style="max-width:100%; max-height:200px;">`;
+        else if (content.startsWith('data:audio/')) filePreview.innerHTML = `<audio controls src="${content}"></audio>`;
+        else filePreview.innerHTML = `<pre style="white-space:pre-wrap;">${content.substring(0,500)}</pre>`;
+    }
 
-// Initialize
-mkdirVFS('/download0');
-mkdirVFS('/download0/themes');
-mkdirVFS('/download0/payloads');
-setMenu('script');
-refreshExplorer();
-setCanvasInteractive(false);
+    // Explorer buttons
+    document.getElementById('fe-upload-file').addEventListener('change', async e=>{
+        for (const f of e.target.files) {
+            const target = currentDir + '/' + f.name;
+            const content = f.type.startsWith('image/')||f.type.startsWith('audio/') ?
+                await new Promise(res=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.readAsDataURL(f); }) :
+                await f.text();
+            writeFileVFS(target, content);
+        }
+        refreshExplorer();
+    });
+    document.getElementById('fe-upload-zip').addEventListener('change', async e=>{
+        const file = e.target.files[0];
+        if (!file) return;
+        const zip = await JSZip.loadAsync(file);
+        for (const [name, entry] of Object.entries(zip.files)) {
+            if (entry.dir) mkdirVFS(currentDir+'/'+name.replace(/\/$/,''));
+            else {
+                const content = await entry.async('string');
+                writeFileVFS(currentDir+'/'+name, content);
+            }
+        }
+        refreshExplorer();
+    });
+    document.getElementById('fe-new-folder').addEventListener('click', ()=>{
+        const name = prompt('Folder name:');
+        if (name) { mkdirVFS(currentDir+'/'+name); refreshExplorer(); }
+    });
+    document.getElementById('fe-delete').addEventListener('click', ()=>{
+        if (!selectedFile) return alert('Select a file/folder first');
+        if (confirm('Delete ' + selectedFile + '?')) { removeEntryVFS(selectedFile); selectedFile=null; refreshExplorer(); }
+    });
+    document.getElementById('fe-close').addEventListener('click', ()=>setMenu('script'));
+
+    // ====================== Keyboard & Gamepad ======================
+    const keyMap = {
+        'ArrowUp':4, 'KeyW':55,
+        'ArrowDown':6, 'KeyS':57,
+        'ArrowLeft':7, 'KeyA':58,
+        'ArrowRight':5, 'KeyD':56,
+        'KeyZ':14, 'KeyX':13, 'KeyC':12, 'KeyV':15,
+        'KeyQ':10, 'KeyE':11, 'Digit1':8, 'Digit3':9,
+        'Space':2, 'ShiftLeft':1, 'Enter':16,
+    };
+    window.addEventListener('keydown', e=>{
+        if (e.key==='Escape') stopScript();
+        if (scriptRunning && jsmaf.onKeyDown) {
+            const code = keyMap[e.code];
+            if (code) { jsmaf.onKeyDown(code); e.preventDefault(); }
+        }
+    });
+    window.addEventListener('keyup', e=>{
+        if (scriptRunning && jsmaf.onKeyUp) {
+            const code = keyMap[e.code];
+            if (code) jsmaf.onKeyUp(code);
+        }
+    });
+
+    // Virtual gamepad
+    const padCodes = { up:4, down:6, left:7, right:5, cross:14, circle:13, triangle:12, square:15 };
+    function setupGamepadButton(id, key) {
+        const btn = document.getElementById(id);
+        btn.addEventListener('pointerdown', e=>{ e.preventDefault(); if (scriptRunning && jsmaf.onKeyDown) jsmaf.onKeyDown(padCodes[key]); });
+        btn.addEventListener('pointerup', ()=>{ if (scriptRunning && jsmaf.onKeyUp) jsmaf.onKeyUp(padCodes[key]); });
+        btn.addEventListener('pointerleave', ()=>{ if (scriptRunning && jsmaf.onKeyUp) jsmaf.onKeyUp(padCodes[key]); });
+    }
+    ['up','down','left','right','cross','circle','triangle','square'].forEach(k=>setupGamepadButton('btn-'+k, k));
+
+    // Initialize
+    mkdirVFS('/download0');
+    mkdirVFS('/download0/themes');
+    mkdirVFS('/download0/payloads');
+    setMenu('script');
+    refreshExplorer();
 </script>
 </body>
 </html>
