@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LuaC0re Emulator - PS5/PS4 Remote Lua Loader</title>
-    <!-- fengari-web Lua VM -->
     <script src="https://cdn.jsdelivr.net/npm/fengari-web@0.1.4/dist/fengari-web.js">
     </script>
     <style>
@@ -15,13 +14,10 @@
             --text: #e0e0e0;
             --dim: #888;
             --accent: #8b5cf6;
-            --accent-glow: #8b5cf680;
             --green: #22c55e;
             --red: #ef4444;
             --yellow: #eab308;
             --cyan: #06b6d4;
-            --ps-blue: #003087;
-            --notify-bg: #1a1a2e;
             --font-mono: 'SF Mono', 'Cascadia Code', 'Consolas', 'Monaco', 'Courier New', monospace;
         }
         * {
@@ -38,9 +34,8 @@
             flex-direction: column;
             overflow: hidden;
             user-select: none;
-            -webkit-user-select: none;
         }
-        .ps5-topbar {
+        .topbar {
             background: #0c0c0c;
             border-bottom: 1px solid #1a1a1a;
             padding: 8px 20px;
@@ -50,12 +45,12 @@
             flex-shrink: 0;
             z-index: 10;
         }
-        .ps5-topbar .logo-area {
+        .logo-area {
             display: flex;
             align-items: center;
             gap: 14px;
         }
-        .ps5-logo {
+        .logo {
             width: 36px;
             height: 36px;
             background: linear-gradient(135deg, #7c3aed, #a78bfa);
@@ -67,12 +62,11 @@
             font-size: 14px;
             color: #fff;
         }
-        .ps5-topbar .title {
+        .title {
             font-size: 15px;
             font-weight: 600;
-            letter-spacing: 0.3px;
         }
-        .ps5-topbar .subtitle {
+        .subtitle {
             font-size: 11px;
             color: #888;
             margin-left: 8px;
@@ -85,9 +79,9 @@
             display: inline-block;
             margin-right: 6px;
             box-shadow: 0 0 8px var(--green);
-            animation: pulse-dot 2s infinite;
+            animation: pulse 2s infinite;
         }
-        @keyframes pulse-dot {
+        @keyframes pulse {
             0%,
             100% {
                 box-shadow: 0 0 4px var(--green);
@@ -116,9 +110,8 @@
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            position: relative;
         }
-        .lua-frame {
+        .frame {
             flex: 1;
             display: flex;
             flex-direction: column;
@@ -128,7 +121,7 @@
             overflow: hidden;
             background: #0d0d0d;
         }
-        .lua-frame-header {
+        .frame-header {
             background: #161616;
             padding: 8px 16px;
             border-bottom: 1px solid #222;
@@ -137,25 +130,19 @@
             gap: 10px;
             flex-shrink: 0;
         }
-        .lua-dot {
+        .dot {
             width: 10px;
             height: 10px;
             border-radius: 50%;
-            background: #333;
         }
-        .lua-dot.red {
+        .dot.red {
             background: #ff5f57;
         }
-        .lua-dot.yellow {
+        .dot.yellow {
             background: #febc2e;
         }
-        .lua-dot.green {
+        .dot.green {
             background: #28c840;
-        }
-        .lua-frame-header span {
-            font-size: 11px;
-            color: #666;
-            margin-left: 8px;
         }
         .log-container {
             flex: 1;
@@ -176,12 +163,12 @@
         .log-line {
             white-space: pre-wrap;
             word-break: break-all;
-            animation: fadeInLine 0.12s ease;
+            animation: fadeIn 0.1s ease;
         }
-        @keyframes fadeInLine {
+        @keyframes fadeIn {
             from {
                 opacity: 0;
-                transform: translateY(3px);
+                transform: translateY(2px);
             }
             to {
                 opacity: 1;
@@ -202,9 +189,6 @@
         }
         .log-line.red {
             color: var(--red);
-        }
-        .log-line.cyan {
-            color: var(--cyan);
         }
         .input-area {
             border-top: 1px solid #1a1a1a;
@@ -228,11 +212,9 @@
             min-height: 60px;
             max-height: 200px;
             outline: none;
-            transition: border-color 0.2s;
         }
         .input-area textarea:focus {
             border-color: var(--accent);
-            box-shadow: 0 0 12px var(--accent-glow);
         }
         .btn {
             padding: 10px 20px;
@@ -242,29 +224,20 @@
             font-size: 12px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s;
             letter-spacing: 0.5px;
             white-space: nowrap;
         }
         .btn-run {
             background: var(--accent);
             color: #fff;
-            box-shadow: 0 0 16px var(--accent-glow);
         }
         .btn-run:hover {
             background: #7c3aed;
-            box-shadow: 0 0 24px var(--accent-glow);
-            transform: translateY(-1px);
-        }
-        .btn-run:active {
-            transform: scale(0.96);
         }
         .btn-run:disabled {
             background: #333;
             color: #666;
-            box-shadow: none;
             cursor: not-allowed;
-            transform: none;
         }
         .btn-example {
             background: #1a1a1a;
@@ -284,10 +257,6 @@
             font-size: 11px;
             padding: 6px 12px;
         }
-        .btn-clear:hover {
-            background: #1a1a1a;
-            color: #fff;
-        }
         .examples-row {
             display: flex;
             gap: 6px;
@@ -306,13 +275,13 @@
             pointer-events: none;
         }
         .ps5-notification {
-            background: var(--notify-bg);
+            background: #1a1a2e;
             border: 1px solid #2a2a4a;
             border-radius: 8px;
             padding: 14px 18px;
             max-width: 380px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
-            animation: slideInNotif 0.35s ease, fadeOutNotif 0.5s ease forwards;
+            animation: slideIn 0.35s ease, fadeOut 0.5s ease forwards;
             animation-delay: 0s, 3.5s;
             pointer-events: auto;
             display: flex;
@@ -337,7 +306,7 @@
             white-space: pre-wrap;
             word-break: break-word;
         }
-        @keyframes slideInNotif {
+        @keyframes slideIn {
             from {
                 transform: translateX(120%);
                 opacity: 0;
@@ -347,7 +316,7 @@
                 opacity: 1;
             }
         }
-        @keyframes fadeOutNotif {
+        @keyframes fadeOut {
             from {
                 opacity: 1;
             }
@@ -374,38 +343,43 @@
             height: 7px;
             border-radius: 50%;
             background: #a78bfa;
-            animation: pulse-dot 1.5s infinite;
+            animation: pulse 1.5s infinite;
         }
-        @media (max-width: 600px) {
-            .ps5-topbar {
-                padding: 6px 12px;
-            }
-            .ps5-topbar .title {
-                font-size: 13px;
-            }
-            .input-area {
-                flex-direction: column;
-                padding: 8px 10px;
-            }
-            .input-area textarea {
-                min-height: 50px;
-                font-size: 11px;
-            }
-            .btn {
-                padding: 8px 14px;
-                font-size: 11px;
-            }
-            .log-container {
-                font-size: 10px;
-                padding: 8px 10px;
-            }
+        .fw-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .fw-modal-inner {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 24px;
+            min-width: 300px;
+            text-align: center;
+        }
+        .fw-modal-inner select {
+            background: #0a0a0a;
+            color: #fff;
+            border: 1px solid #333;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-family: var(--font-mono);
+            font-size: 13px;
+            width: 100%;
+            margin: 16px 0;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
-    <div class="ps5-topbar">
+    <div class="topbar">
         <div class="logo-area">
-            <div class="ps5-logo">L</div>
+            <div class="logo">L</div>
             <span class="title">LuaC0re</span>
             <span class="subtitle">v2.2c by Gezine · Emulator</span>
             <span class="fw-badge" id="fwBadge">FW 10.01</span>
@@ -421,337 +395,527 @@
         <span style="margin-left:auto;color:#666;">Paste Lua payload &amp; click Run</span>
     </div>
     <div class="main-content">
-        <div class="lua-frame">
-            <div class="lua-frame-header">
-                <span class="lua-dot red"></span>
-                <span class="lua-dot yellow"></span>
-                <span class="lua-dot green"></span>
+        <div class="frame">
+            <div class="frame-header">
+                <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
                 <span>LuaC0re Console — PS5/PS4 Remote Lua Exploit</span>
             </div>
             <div class="log-container" id="logContainer"></div>
             <div class="input-area">
-                <textarea id="payloadInput" placeholder="Paste your Lua payload here...&#10;&#10;Example:&#10;send_notification('Hello from Lua!')&#10;print('Hello from remote Lua!')" spellcheck="false"></textarea>
-                <button class="btn btn-run" id="btnRun">▶ Run Script</button>
+                <textarea id="payloadInput" placeholder="Paste your Lua payload here..." spellcheck="false"></textarea>
+                <button class="btn btn-run" id="btnRun" disabled>▶ Run Script</button>
             </div>
             <div class="examples-row">
-                <button class="btn btn-example" data-payload="helloworld">👋 Hello World</button>
-                <button class="btn btn-example" data-payload="poops_ps5">💥 Poops PS5 (Sim Jailbreak)</button>
-                <button class="btn btn-example" data-payload="setlogserver">📡 Set Log Server</button>
-                <button class="btn btn-example" data-payload="dlsym_test">🔍 dlsym Test</button>
-                <button class="btn btn-clear" id="btnClear">🗑 Clear Log</button>
+                <button class="btn btn-example" data-p="helloworld">👋 Hello World</button>
+                <button class="btn btn-example" data-p="poops">💥 Poops PS5 (Sim)</button>
+                <button class="btn btn-example" data-p="ftp">📁 FTP Server (Sim)</button>
+                <button class="btn btn-example" data-p="elf">🧬 ELF Loader (Sim)</button>
+                <button class="btn btn-clear" id="btnClear">🗑 Clear</button>
             </div>
         </div>
     </div>
-    <div class="notifications-container" id="notificationsContainer"></div>
+    <div class="notifications-container" id="notifContainer"></div>
+    <div class="fw-modal" id="fwModal">
+        <div class="fw-modal-inner">
+            <h3>🎮 LuaC0re Emulator</h3>
+            <p style="color:#888;font-size:12px;">Select target firmware to boot</p>
+            <select id="fwSelect">
+                <option value="4.03">4.03</option><option value="4.50">4.50</option><option value="5.00">5.00</option>
+                <option value="5.50">5.50</option><option value="6.00">6.00</option><option value="6.50">6.50</option>
+                <option value="7.00">7.00</option><option value="7.61">7.61</option><option value="8.00">8.00</option>
+                <option value="9.00">9.00</option><option value="9.60">9.60</option><option value="10.01" selected>10.01</option>
+                <option value="11.00">11.00</option><option value="12.00">12.00</option>
+            </select>
+            <button class="btn btn-run" id="btnBoot">🚀 Boot PS5 OS</button>
+        </div>
+    </div>
 
     <script>
         (function() {
-            // ---- UI helpers ----
             const logContainer = document.getElementById('logContainer');
-            const notifContainer = document.getElementById('notificationsContainer');
+            const notifContainer = document.getElementById('notifContainer');
             const payloadInput = document.getElementById('payloadInput');
             const btnRun = document.getElementById('btnRun');
             const fwBadge = document.getElementById('fwBadge');
             const statusDot = document.getElementById('statusDot');
             const statusLabel = document.getElementById('statusLabel');
+            const fwModal = document.getElementById('fwModal');
+            const fwSelect = document.getElementById('fwSelect');
+            const btnBoot = document.getElementById('btnBoot');
             let FW_VERSION = "10.01";
 
-            function appendLog(msg, className = '') {
+            function appendLog(msg, cls = '') {
                 const div = document.createElement('div');
-                div.className = 'log-line ' + (className || '');
+                div.className = 'log-line ' + (cls || '');
                 div.textContent = msg;
                 logContainer.appendChild(div);
                 logContainer.scrollTop = logContainer.scrollHeight;
             }
 
-            function logToUI(msg) {
-                appendLog(msg);
-            }
+            function logUI(msg) { appendLog(msg); }
 
             function showNotification(text) {
                 const notif = document.createElement('div');
                 notif.className = 'ps5-notification';
-                notif.innerHTML = `<div class="notif-icon">🔔</div><div class="notif-text">${text.replace(/\n/g, '<br>')}</div>`;
+                notif.innerHTML =
+                    `<div class="notif-icon">🔔</div><div class="notif-text">${text.replace(/\n/g, '<br>')}</div>`;
                 notifContainer.appendChild(notif);
                 setTimeout(() => { if (notif.parentNode) notif.remove(); }, 4500);
             }
 
             function updateStatus(ready) {
-                if (ready) {
-                    statusDot.style.background = '#22c55e';
-                    statusDot.style.boxShadow = '0 0 8px #22c55e';
-                    statusLabel.textContent = 'Remote Lua Loader Active';
-                    btnRun.disabled = false;
-                } else {
-                    statusDot.style.background = '#eab308';
-                    statusDot.style.boxShadow = '0 0 8px #eab308';
-                    statusLabel.textContent = 'Initializing...';
-                    btnRun.disabled = true;
-                }
+                statusDot.style.background = ready ? '#22c55e' : '#eab308';
+                statusDot.style.boxShadow = ready ? '0 0 8px #22c55e' : '0 0 8px #eab308';
+                statusLabel.textContent = ready ? 'Remote Lua Loader Active' : 'Booting...';
+                btnRun.disabled = !ready;
             }
 
-            // ---- Simulated memory & state ----
-            const simMemory = new Map();
-            let nextMalloc = 0x800000000n;
+            // Simulated PS5 environment
+            const simMem = new Map();
+            let nextAlloc = 0x800000000n;
             let nextFd = 100n;
             const openFds = new Map();
             let simJailbroken = false;
             let simUid = 1n;
             let simPid = 42n;
             let simSandbox = 1n;
+            const simFiles = new Map();
             const fakeObjAddrs = new Map();
             let fakeObjCounter = 0;
-            const simFiles = new Map();
 
-            function simRead8(addr) { const a = addr & ~7n; const off = Number(addr & 7n); const q = simMemory.get(a) || 0n; return (q >> BigInt(off * 8)) & 0xFFn; }
+            function simRead8(addr) { const a = addr & ~7n; const o = Number(addr & 7n); const q = simMem.get(a) || 0n; return (q >>
+                    BigInt(o * 8)) & 0xFFn; }
 
-            function simWrite8(addr, val) { const a = addr & ~7n; const off = Number(addr & 7n); const q = simMemory.get(a) || 0n; const mask = 0xFFn << BigInt(off * 8);
-                simMemory.set(a, (q & ~mask) | ((BigInt(val) & 0xFFn) << BigInt(off * 8))); }
+            function simWrite8(addr, v) { const a = addr & ~7n; const o = Number(addr & 7n); const q = simMem.get(a) || 0n; const m =
+                    0xFFn << BigInt(o * 8);
+                simMem.set(a, (q & ~m) | ((BigInt(v) & 0xFFn) << BigInt(o * 8))); }
 
-            function simRead16(addr) { const q = simMemory.get(addr & ~7n) || 0n; const off = Number(addr & 7n); return (q >> BigInt(off * 8)) & 0xFFFFn; }
+            function simRead32(addr) { const q = simMem.get(addr & ~7n) || 0n; const o = Number(addr & 7n); return (q >> BigInt(o *
+                    8)) & 0xFFFFFFFFn; }
 
-            function simRead32(addr) { const q = simMemory.get(addr & ~7n) || 0n; const off = Number(addr & 7n); return (q >> BigInt(off * 8)) & 0xFFFFFFFFn; }
+            function simRead64(addr) { return simMem.get(addr) || 0n; }
 
-            function simRead64(addr) { return simMemory.get(addr) || 0n; }
+            function simWrite32(addr, v) { const a = addr & ~7n; const o = Number(addr & 7n); const q = simMem.get(a) || 0n; const m =
+                    0xFFFFFFFFn << BigInt(o * 8);
+                simMem.set(a, (q & ~m) | ((BigInt(v) & 0xFFFFFFFFn) << BigInt(o * 8))); }
 
-            function simWrite64(addr, val) { simMemory.set(addr, BigInt(val)); }
+            function simWrite64(addr, v) { simMem.set(addr, BigInt(v)); }
 
-            function simMalloc(size) { const addr = nextMalloc;
-                nextMalloc += BigInt(Math.ceil(Number(size) / 8) * 8 + 16);
+            function simMalloc(size) { const addr = nextAlloc;
+                nextAlloc += BigInt(Math.ceil(Number(size) / 8) * 8 + 16);
                 simWrite64(addr, BigInt(size)); return addr + 8n; }
 
-            function simAllocString(str) { const bytes = new TextEncoder().encode(str); const addr = simMalloc(bytes.length + 1); for (let i = 0; i < bytes.length; i++)
-                    simWrite8(addr + BigInt(i), bytes[i]);
-                simWrite8(addr + BigInt(bytes.length), 0); return addr; }
+            function simAllocStr(str) { const b = new TextEncoder().encode(str); const a = simMalloc(b.length + 1); for (let i = 0; i <
+                    b.length; i++) simWrite8(a + BigInt(i), b[i]);
+                simWrite8(a + BigInt(b.length), 0); return a; }
 
-            function simReadString(addr) { let res = ''; let i = 0n; while (true) { const b = Number(simRead8(addr + i)); if (b === 0) break;
-                    res += String.fromCharCode(b);
-                    i++; } return res; }
+            function simReadStr(addr) { let r = ''; let i = 0n; while (true) { const c = Number(simRead8(addr + i)); if (c ===
+                    0) break;
+                    r += String.fromCharCode(c);
+                    i++; } return r; }
 
-            function simReadBuffer(addr, len) { const buf = new Uint8Array(Number(len)); for (let i = 0n; i < len; i++) buf[Number(i)] = Number(simRead8(addr + i)); return buf; }
+            function simReadBuf(addr, len) { const b = new Uint8Array(Number(len)); for (let i = 0n; i < len; i++) b[Number(i)] =
+                    Number(simRead8(addr + i)); return b; }
 
-            function simWriteBuffer(addr, buf) { for (let i = 0; i < buf.length; i++) simWrite8(addr + BigInt(i), buf[i]); }
+            function simWriteBuf(addr, buf) { for (let i = 0; i < buf.length; i++) simWrite8(addr + BigInt(i), buf[i]); }
 
-            function simAddrof(obj) { if (obj === null || obj === undefined) return 0n; if (typeof obj === 'bigint') return obj; if (fakeObjAddrs.has(obj)) return fakeObjAddrs
-                    .get(obj); const addr = 0x900000000n + BigInt(fakeObjCounter++) * 0x100n;
-                fakeObjAddrs.set(obj, addr); return addr; }
-
-            function simSyscall(num, a1, a2, a3, a4, a5, a6) { const n = BigInt(num); if (n === 0x14n) return simPid; if (n === 0x18n) return simUid; if (n === 0x249n) return simSandbox; if (
-                    n === 0x17n) { simUid = BigInt(a1); return 0n; } if (n === 0x14bn) return 0n; if (n === 0xf0n) return 0n; if (n === 0x1e8n) return 0n; if (n === 0x1d2n) return 0n; if (
+            function simSyscall(num, a1, a2, a3, a4, a5, a6) { const n = BigInt(num); if (n === 0x14n) return simPid; if (n ===
+                    0x18n) return simUid; if (n === 0x249n) return simSandbox; if (n === 0x17n) { simUid = BigInt(a1); return 0n; } if (
+                    n === 0x14bn) return 0n; if (n === 0xf0n) return 0n; if (n === 0x1e8n) return 0n; if (n === 0x1d2n) return 0n; if (
                     n === 0x61n) { const fd = nextFd++;
-                    openFds.set(fd, { type: 'socket' }); return fd; } if (n === 0x87n) { const fd1 = nextFd++; const fd2 = nextFd++;
-                    openFds.set(fd1, {});
-                    openFds.set(fd2, {}); if (a1) { simWrite32(BigInt(a1), Number(fd1));
-                        simWrite32(BigInt(a1) + 4n, Number(fd2)); } return 0n; } if (n === 0x2an) { const fd1 = nextFd++; const fd2 = nextFd++;
-                    openFds.set(fd1, {});
-                    openFds.set(fd2, {}); if (a1) { simWrite32(BigInt(a1), Number(fd1));
-                        simWrite32(BigInt(a1) + 4n, Number(fd2)); } return 0n; } if (n === 0x6n) { openFds.delete(BigInt(a1)); return 0n; } if (n === 0x5n) { const fd = nextFd++;
-                    openFds.set(fd, { path: simReadString(BigInt(a1)) }); return fd; } if (n === 0xbdn) { if (a2) { for (let i = 0n; i <
-                        0x100n; i += 8n) simWrite64(BigInt(a2) + i, 0n);
-                    simWrite64(BigInt(a2) + 0x48n, 1024n); } return 0n; } if (n === 0x3n) return BigInt(a3); if (n === 0x4n) return BigInt(a3); if (n ===
-                    0x1ddn) { return simMalloc(Number(a2)); } if (n === 0x24fn) { if (a2 && a3) { const sym = simReadString(BigInt(a2));
-                    simWrite64(BigInt(a3), 0xC0000000n + BigInt(sym.length * 0x100)); } return 0n; } if (n === 0x215n) { const fd = nextFd++; return fd; } if (n ===
-                    0x216n) { const fd = nextFd++; return fd; } if (n === 0x69n) return 0n; if (n === 0x76n) return 0n; if (n === 0x62n) return 0n; if (n === 0x6an) return 0n; if (
-                    n === 0x1en) { const fd = nextFd++; return fd; } if (n === 0x7dn) { if (!a1) return 2n; if (a1 && a2 >= 2n) { const sz = 0x1e0n; for (let i = 0n; i <
-                        a2; i++) { const off = sz * i;
+                    openFds.set(fd, {}); return fd; } if (n === 0x87n) { const f1 = nextFd++; const f2 = nextFd++;
+                    openFds.set(f1, {});
+                    openFds.set(f2, {}); if (a1) { simWrite32(BigInt(a1), Number(f1));
+                    simWrite32(BigInt(a1) + 4n, Number(f2)); } return 0n; } if (n === 0x2an) { const f1 = nextFd++; const f2 = nextFd++;
+                    openFds.set(f1, {});
+                    openFds.set(f2, {}); if (a1) { simWrite32(BigInt(a1), Number(f1));
+                    simWrite32(BigInt(a1) + 4n, Number(f2)); } return 0n; } if (n === 0x6n) { openFds.delete(BigInt(a1)); return 0n; } if (
+                    n === 0x5n) { const fd = nextFd++;
+                    openFds.set(fd, { path: simReadStr(BigInt(a1)) }); return fd; } if (n === 0xbdn) { if (a2) { for (let i =
+                        0n; i < 0x100n; i += 8n) simWrite64(BigInt(a2) + i, 0n);
+                    simWrite64(BigInt(a2) + 0x48n, 1024n); } return 0n; } if (n === 0x3n) return BigInt(a3); if (n === 0x4n) return BigInt(
+                    a3); if (n === 0x1ddn) return simMalloc(Number(a2)); if (n === 0x24fn) { if (a2 && a3) { const sym = simReadStr(
+                        BigInt(a2));
+                    simWrite64(BigInt(a3), 0xC0000000n + BigInt(sym.length * 0x100)); } return 0n; } if (n === 0x215n) { const fd =
+                    nextFd++; return fd; } if (n === 0x216n) { const fd = nextFd++; return fd; } if (n === 0x69n) return 0n; if (n ===
+                    0x76n) return 0n; if (n === 0x62n) return 0n; if (n === 0x6an) return 0n; if (n === 0x1en) { const fd = nextFd++; return fd; } if (
+                    n === 0x7dn) { if (!a1) return 2n; if (a1 && a2 >= 2n) { for (let i = 0n; i < a2; i++) { const off =
+                            0x1e0n * i;
                         simWrite8(BigInt(a1) + off + 0x28n, 192n);
                         simWrite8(BigInt(a1) + off + 0x29n, 168n);
                         simWrite8(BigInt(a1) + off + 0x2an, 1n);
-                        simWrite8(BigInt(a1) + off + 0x2bn, 100n); } } return 0n; } if (n === 0x16an) { const fd = nextFd++; return fd; } if (n === 0x4an) return 0n; if (n ===
-                    0x1afn) return 0n; if (n === 0x1c7n) return 0n; if (n === 0x1c6n) return 0n; if (n === 0x36n) return 0n; if (n === 0x25n) return 0n; if (n === 0x1b0n) return 0n; if (
-                    n === 0x20n) return 0n; if (n === 0x85n) return a3; return 0n; }
+                        simWrite8(BigInt(a1) + off + 0x2bn, 100n); } } return 0n; } if (n === 0x16an) { const fd = nextFd++; return fd; } if (
+                    n === 0x4an) return 0n; if (n === 0x1afn) return 0n; if (n === 0x1c7n) return 0n; if (n === 0x1c6n) return 0n; if (
+                    n === 0x36n) return 0n; if (n === 0x25n) return 0n; if (n === 0x1b0n) { if (a1) simWrite64(BigInt(a1), 100n); return 0n; } if (
+                    n === 0x20n) return 0n; if (n === 0x85n) return BigInt(a3); if (n === 0x1dn) return BigInt(a3); return 0n; }
 
-            // ---- Initialize fengari Lua environment ----
-            const L = fengari.luaL_newstate();
-            fengari.luaL_openlibs(L);
+            let L = null;
+            let luaReady = false;
 
-            // Define all LuaC0re globals in Lua
-            function defineGlobal(name, value) {
-                fengari.lua_pushjsvalue(L, value);
-                fengari.lua_setglobal(L, name);
+            function initLua() {
+                if (L) { fengari.lua_close(L); }
+                L = fengari.luaL_newstate();
+                fengari.luaL_openlibs(L);
+
+                const def = (n, v) => { fengari.lua_pushjsvalue(L, v);
+                    fengari.lua_setglobal(L, n); };
+
+                def("PLATFORM", "PS5");
+                def("FW_VERSION", FW_VERSION);
+                def("EBOOT_BASE", 0x00400000n);
+                def("LIBC_BASE", 0x00800000n);
+                def("LIBKERNEL_BASE", 0x00C00000n);
+                def("PAGE_SIZE", 0x4000);
+                def("AF_UNIX", 1);
+                def("AF_INET", 2);
+                def("AF_INET6", 28);
+                def("SOCK_STREAM", 1);
+                def("SOCK_DGRAM", 2);
+                def("IPPROTO_UDP", 17);
+                def("IPPROTO_IPV6", 41);
+                def("SO_REUSEADDR", 4);
+                def("O_RDONLY", 0);
+                def("O_WRONLY", 1);
+                def("O_RDWR", 2);
+                def("PROT_READ", 1);
+                def("PROT_WRITE", 2);
+                def("PROT_EXECUTE", 4);
+                def("MAP_PRIVATE", 2);
+                def("MAP_ANONYMOUS", 0x1000);
+                def("MAP_FIXED", 0x10);
+                def("MAP_SHARED", 1);
+                def("INADDR_ANY", 0);
+                def("SOL_SOCKET", 0xffff);
+                def("IPV6_PKTINFO", 46);
+                def("IPV6_RTHDR", 51);
+                def("IPV6_TCLASS", 61);
+                def("IPV6_NEXTHOP", 48);
+                def("TCP_INFO", 0x20);
+                def("size_tcp_info", 0xec);
+                def("TCPS_ESTABLISHED", 4);
+                def("SCE_KERNEL_ERROR_ESRCH", 0x80020003);
+                def("RTP_SET", 1);
+                def("RTP_LOOKUP", 0);
+                def("PRI_REALTIME", 2);
+                def("AIO_CMD_READ", 1);
+                def("AIO_CMD_WRITE", 2);
+                def("AIO_CMD_FLAG_MULTI", 0x1000);
+                def("AIO_CMD_MULTI_READ", 0x1001);
+                def("AIO_STATE_COMPLETE", 3);
+                def("AIO_STATE_ABORTED", 4);
+                def("MAX_AIO_IDS", 0x80);
+                def("UMTX_OP_WAIT", 2);
+                def("UMTX_OP_WAKE", 3);
+                def("SYSTEM_AUTHID", 0x4800000000010003n);
+
+                def("read8", (a) => simRead8(BigInt(a)));
+                def("read16", (a) => simRead16 ? simRead16(BigInt(a)) : 0);
+                def("read32", (a) => simRead32(BigInt(a)));
+                def("read64", (a) => simRead64(BigInt(a)));
+                def("write8", (a, v) => simWrite8(BigInt(a), v));
+                def("write32", (a, v) => simWrite32(BigInt(a), v));
+                def("write64", (a, v) => simWrite64(BigInt(a), v));
+                def("malloc", (s) => Number(simMalloc(BigInt(s))));
+                def("calloc", (s, n) => Number(simMalloc(BigInt(s) * BigInt(n))));
+                def("read_buffer", (a, s) => { const b = simReadBuf(BigInt(a), s); return new TextDecoder().decode(b); });
+                def("write_buffer", (d, str) => { const b = new TextEncoder().encode(str);
+                    simWriteBuf(BigInt(d), b); });
+                def("write_string", (d, str) => { const b = new TextEncoder().encode(str); for (let i = 0; i < b.length; i++)
+                        simWrite8(BigInt(d) + BigInt(i), b[i]);
+                    simWrite8(BigInt(d) + BigInt(b.length), 0); });
+                def("memset", (d, v, s) => { for (let i = 0n; i < BigInt(s); i++) simWrite8(BigInt(d) + i,
+                    Number(v)); });
+                def("memcpy", (d, s, l) => { for (let i = 0n; i < BigInt(l); i++) simWrite8(BigInt(d) + i, simRead8(
+                        BigInt(s) + i)); });
+
+                const sc = {};
+                const sysNums = {
+                    read: 3,
+                    write: 4,
+                    open: 5,
+                    close: 6,
+                    setuid: 23,
+                    getuid: 24,
+                    recvmsg: 27,
+                    sendmsg: 28,
+                    accept: 30,
+                    pipe: 42,
+                    mprotect: 74,
+                    socket: 97,
+                    connect: 98,
+                    bind: 104,
+                    setsockopt: 105,
+                    listen: 106,
+                    getsockopt: 118,
+                    netgetiflist: 125,
+                    socketpair: 135,
+                    sysctl: 202,
+                    nanosleep: 240,
+                    thr_self: 432,
+                    dlsym: 591,
+                    randomized_path: 602,
+                    is_in_sandbox: 585,
+                    mmap: 477,
+                    getpid: 20,
+                    jitshm_create: 533,
+                    jitshm_alias: 534,
+                    unlink: 10,
+                    chmod: 15,
+                    recvfrom: 29,
+                    getsockname: 32,
+                    rename: 128,
+                    sendto: 133,
+                    mkdir: 136,
+                    rmdir: 137,
+                    stat: 188,
+                    getdents: 272,
+                    lseek: 478,
+                    dup2: 90,
+                    fcntl: 92,
+                    select: 93,
+                    fstat: 189,
+                    umtx_op: 454,
+                    cpuset_setaffinity: 488,
+                    rtprio_thread: 466,
+                    ftruncate: 480,
+                    sched_yield: 331,
+                    munmap: 73,
+                    thr_new: 455,
+                    thr_exit: 431,
+                    fsync: 95,
+                    ioctl: 54,
+                    kill: 37,
+                    kqueue: 362,
+                    evf_create: 538,
+                    evf_delete: 539,
+                    evf_set: 544,
+                    evf_clear: 545,
+                    thr_suspend_ucontext: 632,
+                    thr_resume_ucontext: 633,
+                    aio_multi_delete: 662,
+                    aio_multi_wait: 663,
+                    aio_multi_poll: 664,
+                    aio_multi_cancel: 666,
+                    aio_submit_cmd: 669,
+                    kexec: 661,
+                };
+                for (const [name, num] of Object.entries(sysNums)) {
+                    sc[name] = (...args) => Number(simSyscall(BigInt(num), ...args.map(a => BigInt(a || 0))));
+                }
+                def("syscall", sc);
+                def("jit_syscall", sc);
+
+                def("jit_read64", (a) => Number(simRead64(BigInt(a))));
+                def("jit_write64", (a, v) => simWrite64(BigInt(a), v));
+                def("jit_read32", (a) => Number(simRead32(BigInt(a))));
+                def("jit_malloc", (s) => Number(simMalloc(BigInt(s))));
+                def("jit_memcpy", (d, s, l) => { for (let i = 0n; i < BigInt(l); i++) simWrite8(BigInt(d) + i,
+                        simRead8(BigInt(s) + i)); });
+                def("jit_send_recv_fd", (fd) => fd);
+                def("jit_sceKernelJitCreateSharedMemory", () => 0);
+                def("jit_sceKernelJitCreateAliasOfSharedMemory", () => 0);
+                def("jit_sceKernelJitMapSharedMemory", () => 0);
+
+                def("send_notification", (m) => showNotification(String(m)));
+                def("show_dialog", (m) => showNotification(String(m)));
+                def("print", (...args) => { const m = args.map(String).join('\t');
+                    logUI(m); return m; });
+                def("ulog", (...args) => { const m = args.map(String).join('\t');
+                    logUI(m); });
+                def("to_hex", (v) => '0x' + BigInt(v).toString(16).padStart(16, '0'));
+                def("hex", (v) => '0x' + BigInt(v).toString(16).padStart(16, '0'));
+                def("get_fwversion", () => FW_VERSION);
+                def("get_current_ip", () => "192.168.1.100");
+                def("get_nidpath", () => "user/home/abcd1234");
+                def("get_title_id", () => "PPSA01650");
+                def("is_jailbroken", () => simJailbroken);
+                def("check_jailbroken", () => { if (!simJailbroken) throw new Error("not jailbroken"); });
+                def("file_exists", (p) => simFiles.has(p) || String(p).includes('elfldr'));
+                def("file_read", (p) => simFiles.get(p) || "mock_elf_data");
+                def("file_write", (p, d) => { simFiles.set(String(p), d); return true; });
+                def("create_socket", () => Number(nextFd++));
+                def("microsleep", () => {});
+                def("sleep", () => {});
+                def("dlsym", (h, s) => 0xC0000000n + BigInt(String(s).length * 0x100));
+                def("func_wrap", (a) => (...args) => Number(a));
+                def("sceKernelGetModuleInfoFromAddr", () => 0);
+                def("init_dlsym", () => {});
+                def("get_dlsym_offset", () => 0x350E0n);
+                def("get_kernel_offset", () => ({}));
+                def("update_kernel_offsets", () => {});
+                def("gpu", { setup: () => true, read_buffer: (a, s) => simReadBuf(BigInt(a), s), write_buffer: (a,
+                        b) => simWriteBuf(BigInt(a), b), read_dword: (a) => simRead32(BigInt(a)),
+                    write_dword: (a, v) => simWrite32(BigInt(a), v), read_byte: (a) => simRead8(BigInt(a)),
+                    write_byte: (a, v) => simWrite8(BigInt(a), v), data_base: 0x0CC0000n });
+                def("kernel", { addr: { curproc: 0xFFFF804000010000n, data_base: 0x0CC0000n,
+                        dmap_base: 0xFFFF804000000000n }, read_buffer: (a, s) => simReadBuf(BigInt(a), s),
+                    write_buffer: (a, b) => simWriteBuf(BigInt(a), b), read_qword: (a) => simRead64(BigInt(a)),
+                    write_qword: (a, v) => simWrite64(BigInt(a), v), read_dword: (a) => simRead32(BigInt(a)),
+                    write_dword: (a, v) => simWrite32(BigInt(a), v), read_byte: (a) => simRead8(BigInt(a)),
+                    write_byte: (a, v) => simWrite8(BigInt(a), v),
+                    read_null_terminated_string: (a) => simReadStr(BigInt(a)) });
+                def("ipv6_kernel_rw", { data: {}, init: () => {}, read_buffer: (a, s) => simReadBuf(BigInt(a), s),
+                    write_buffer: (a, b) => simWriteBuf(BigInt(a), b) });
+                def("elf_loader", () => { logUI("elf_loader: loaded elfldr.elf");
+                    logUI("elf_loader: running...");
+                    logUI("elf_loader: payloadout=0x00000000"); });
+                def("load_elfldr", () => { logUI("load_elfldr: loaded elfldr.elf");
+                    logUI("load_elfldr: running..."); });
+
+                def("poops_ps5", () => {
+                    logUI("Starting Poops PS5 exploit simulation...");
+                    logUI("Stage 0: Triple-free race...");
+                    logUI("[0] triplets 2,7,12");
+                    logUI("Stage 1: Kqueue reclaim...");
+                    logUI("[1] proc_filedesc=0xFFFF804000010048");
+                    logUI("Stage 2: Leak pipe data pointers...");
+                    logUI("[2] master_pipe=0xFFFF804000200000 victim_pipe=0xFFFF804000200100");
+                    logUI("Stage 3: Pipe corruption -> fast kernel r/w");
+                    logUI("[3] kernel r/w achieved");
+                    logUI("Stage 4: Find curproc via ioctl FIOSETOWN");
+                    logUI("[4] curproc=0xFFFF804000010000");
+                    logUI("Stage 5: Jailbreak");
+                    simJailbroken = true;
+                    simUid = 0n;
+                    simSandbox = 0n;
+                    logUI("[5] jailbreak ok");
+                    logUI("Stage 6: GPU setup + debug patches");
+                    logUI("[6] gpu setup ok");
+                    logUI("[6] debug patches verified");
+                    logUI("Stage 7: ELF loader");
+                    logUI("elf_loader: loaded elfldr.elf");
+                    logUI("elf_loader: running...");
+                    logUI("elf_loader: payloadout=0x00000000");
+                    showNotification("Poops PS5: Jailbreak complete!");
+                });
+
+                def("lapse_exploit", () => {
+                    logUI("Starting Lapse exploit simulation...");
+                    logUI("Stage 1: Double-free AIO...");
+                    logUI("Won race at attempt 23");
+                    logUI("Stage 2: Leak kernel addresses...");
+                    logUI('"evf cv" string addr: 0xffff804000500000');
+                    logUI("Stage 3: Double free SceKernelAioRWRequest...");
+                    logUI("Aliased pktopts at attempt 7");
+                    logUI("Stage 4: Get arbitrary kernel read/write...");
+                    logUI("Arbitrary kernel r/w achieved!");
+                    logUI("Stage 5: Post exploitation...");
+                    simJailbroken = true;
+                    simUid = 0n;
+                    simSandbox = 0n;
+                    logUI("Jailbreak complete!");
+                    showNotification("Lapse: Jailbreak successful");
+                });
+
+                def("umtx_exploit", () => {
+                    logUI("Starting umtx exploit simulation...");
+                    logUI("Stage 1: Race condition...");
+                    logUI("Managed to reclaim kstack!");
+                    logUI("Slow kernel r/w achieved");
+                    logUI("Fast kernel r/w achieved");
+                    logUI("Fixes applied");
+                    simJailbroken = true;
+                    simUid = 0n;
+                    simSandbox = 0n;
+                    logUI("Jailbreak complete!");
+                    showNotification("umtx: Jailbreak successful");
+                });
+
+                def("ftp_server", () => {
+                    logUI("FTP Server starting on port 1337...");
+                    logUI("Listening for connections...");
+                    showNotification("FTP Server: port 1337");
+                });
+
+                luaReady = true;
             }
 
-            // Constants
-            defineGlobal("PLATFORM", "PS5");
-            defineGlobal("FW_VERSION", FW_VERSION);
-            defineGlobal("EBOOT_BASE", 0x00400000n);
-            defineGlobal("LIBC_BASE", 0x00800000n);
-            defineGlobal("LIBKERNEL_BASE", 0x00C00000n);
-            defineGlobal("PAGE_SIZE", 0x4000);
-            defineGlobal("AF_UNIX", 1);
-            defineGlobal("AF_INET", 2);
-            defineGlobal("AF_INET6", 28);
-            defineGlobal("SOCK_STREAM", 1);
-            defineGlobal("SOCK_DGRAM", 2);
-            defineGlobal("IPPROTO_UDP", 17);
-            defineGlobal("IPPROTO_IPV6", 41);
-            defineGlobal("IPV6_PKTINFO", 46);
-            defineGlobal("SO_REUSEADDR", 4);
-            defineGlobal("O_RDONLY", 0);
-            defineGlobal("O_WRONLY", 1);
-            defineGlobal("O_RDWR", 2);
+            function runLua(code) {
+                if (!luaReady) { logUI("ERROR: Lua VM not ready. Please boot first."); return; }
+                try {
+                    const fn = fengari.load(code);
+                    if (fn) fn();
+                } catch (e) {
+                    logUI("Lua Error: " + e.message);
+                }
+            }
 
-            // Core memory functions
-            defineGlobal("read8", (addr) => simRead8(BigInt(addr)));
-            defineGlobal("read16", (addr) => simRead16(BigInt(addr)));
-            defineGlobal("read32", (addr) => simRead32(BigInt(addr)));
-            defineGlobal("read64", (addr) => simRead64(BigInt(addr)));
-            defineGlobal("write8", (addr, val) => simWrite8(BigInt(addr), val));
-            defineGlobal("write16", (addr, val) => simWrite16(BigInt(addr), val));
-            defineGlobal("write32", (addr, val) => simWrite32(BigInt(addr), val));
-            defineGlobal("write64", (addr, val) => simWrite64(BigInt(addr), val));
-            defineGlobal("malloc", (size) => Number(simMalloc(BigInt(size))));
-            defineGlobal("calloc", (size, n) => Number(simMalloc(BigInt(size) * BigInt(n))));
-            defineGlobal("addrof", (obj) => Number(simAddrof(obj)));
-            defineGlobal("read_buffer", (addr, size) => {
-                const buf = simReadBuffer(BigInt(addr), size);
-                return new TextDecoder().decode(buf);
-            });
-            defineGlobal("write_buffer", (dest, str) => {
-                const buf = new TextEncoder().encode(str);
-                simWriteBuffer(BigInt(dest), buf);
-            });
-            defineGlobal("write_string", (dest, str) => {
-                const bytes = new TextEncoder().encode(str);
-                for (let i = 0; i < bytes.length; i++) simWrite8(BigInt(dest) + BigInt(i), bytes[i]);
-                simWrite8(BigInt(dest) + BigInt(bytes.length), 0);
-            });
-            defineGlobal("memset", (dest, val, size) => { for (let i = 0n; i < BigInt(size); i++) simWrite8(BigInt(dest) + i,
-                    val); });
-            defineGlobal("memcpy", (dest, src, size) => { for (let i = 0n; i < BigInt(size); i++) simWrite8(BigInt(dest) + i,
-                    simRead8(BigInt(src) + i)); });
+            async function bootSequence() {
+                updateStatus(false);
+                logContainer.innerHTML = '';
+                logUI('╔══════════════════════════════════════╗');
+                logUI('║     LuaC0re v2.2c by Gezine         ║');
+                logUI('║     PS5/PS4 Remote Lua Loader       ║');
+                logUI('╚══════════════════════════════════════╝');
+                logUI('');
+                await delay(400);
+                logUI('[BOOT] Initializing PS5 OS...');
+                await delay(300);
+                logUI('[BOOT] Platform: PS5');
+                logUI('[BOOT] Firmware: ' + FW_VERSION);
+                await delay(200);
+                logUI('[BOOT] EBOOT base @ 0x0000000000400000');
+                logUI('[BOOT] libc base @ 0x0000000000800000');
+                logUI('[BOOT] libkernel base @ 0x0000000000C00000');
+                await delay(300);
+                logUI('[INIT] Starting JIT exploit...');
+                await delay(400);
+                logUI('[INIT] JIT exploit initialized');
+                logUI('[INIT] Patching malloc...');
+                await delay(200);
+                logUI('[INIT] malloc patched');
+                logUI('[INIT] Resolving syscalls...');
+                await delay(300);
+                logUI('[INIT] Syscalls resolved');
+                logUI('[INIT] Initializing dlsym...');
+                await delay(200);
+                logUI('[INIT] dlsym initialized');
+                logUI('');
+                await delay(300);
+                logUI('[READY] Remote Lua Loader listening on 192.168.1.100:9026');
+                logUI('[READY] Awaiting payload connection...');
+                logUI('');
+                showNotification('LuaC0re Ready\nFW: ' + FW_VERSION + '\nListener on port 9026');
+                updateStatus(true);
+                payloadInput.value = 'send_notification("Hello from LuaC0re!")\nprint("Hello from remote Lua!")';
+                payloadInput.focus();
+            }
 
-            // Syscall table
-            const syscallTable = {};
-            [
-                "read", "write", "open", "close", "setuid", "getuid", "recvmsg", "sendmsg", "accept", "pipe",
-                "mprotect", "socket", "connect", "bind", "setsockopt", "listen", "getsockopt", "netgetiflist",
-                "socketpair", "sysctl", "nanosleep", "sigaction", "thr_self", "dlsym", "dynlib_load_prx",
-                "randomized_path", "is_in_sandbox", "mmap", "getpid", "jitshm_create", "jitshm_alias",
-                "unlink", "chmod", "recvfrom", "getsockname", "rename", "sendto", "mkdir", "rmdir", "stat",
-                "getdents", "lseek", "dup2", "fcntl", "select", "fstat", "umtx_op", "cpuset_getaffinity",
-                "cpuset_setaffinity", "rtprio_thread", "ftruncate", "sched_yield", "munmap", "thr_new",
-                "thr_exit", "fsync", "ioctl", "kill", "netcontrol", "kqueue", "dup"
-            ].forEach((name, idx) => {
-                syscallTable[name] = function(...args) {
-                    const argsBig = args.map(a => BigInt(a || 0));
-                    return Number(simSyscall(BigInt(idx), ...argsBig));
-                };
-            });
-            defineGlobal("syscall", syscallTable);
+            function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
 
-            // JIT emulation (mocked)
-            defineGlobal("jit_syscall", syscallTable);
-            defineGlobal("jit_read64", (addr) => Number(simRead64(BigInt(addr))));
-            defineGlobal("jit_write64", (addr, val) => simWrite64(BigInt(addr), val));
-            defineGlobal("jit_read32", (addr) => Number(simRead32(BigInt(addr))));
-            defineGlobal("jit_malloc", (size) => Number(simMalloc(BigInt(size))));
-            defineGlobal("jit_memcpy", (dest, src, size) => { for (let i = 0n; i < BigInt(size); i++) simWrite8(BigInt(
-                    dest) + i, simRead8(BigInt(src) + i)); });
-            defineGlobal("jit_send_recv_fd", (fd, src, dest) => fd);
-            defineGlobal("jit_sceKernelJitCreateSharedMemory", () => 0);
-            defineGlobal("jit_sceKernelJitCreateAliasOfSharedMemory", () => 0);
-            defineGlobal("jit_sceKernelJitMapSharedMemory", () => 0);
-
-            // Notifications / UI
-            defineGlobal("send_notification", (msg) => showNotification(String(msg)));
-            defineGlobal("show_dialog", (msg) => showNotification(String(msg)));
-            defineGlobal("print", (...args) => {
-                const msg = args.map(a => String(a)).join('\t');
-                logToUI(msg);
-                return msg;
-            });
-            defineGlobal("ulog", (...args) => {
-                const msg = args.map(a => String(a)).join('\t');
-                logToUI(msg);
-            });
-            defineGlobal("to_hex", (val) => '0x' + BigInt(val).toString(16).padStart(16, '0'));
-
-            // Misc
-            defineGlobal("get_fwversion", () => FW_VERSION);
-            defineGlobal("get_current_ip", () => "192.168.1.100");
-            defineGlobal("get_nidpath", () => "user/home/abcd1234");
-            defineGlobal("get_title_id", () => "PPSA01650");
-            defineGlobal("is_jailbroken", () => simJailbroken);
-            defineGlobal("file_exists", (path) => simFiles.has(path));
-            defineGlobal("file_read", (path) => simFiles.get(path) || "");
-            defineGlobal("file_write", (path, data) => { simFiles.set(path, data); return true; });
-            defineGlobal("create_socket", (domain, type, proto) => Number(nextFd++));
-            defineGlobal("microsleep", () => {});
-            defineGlobal("sleep", () => {});
-
-            // dlsym / func_wrap
-            defineGlobal("dlsym", (handle, sym) => 0xC0000000n + BigInt(String(sym).length * 0x100));
-            defineGlobal("func_wrap", (addr) => (...args) => Number(addr));
-            defineGlobal("sceKernelGetModuleInfoFromAddr", () => 0);
-            defineGlobal("sceKernelDlsym", () => 0);
-            defineGlobal("get_dlsym_offset", () => 0x350E0n);
-            defineGlobal("init_dlsym", () => {});
-
-            // Simulated exploit stages (for poops_ps5)
-            defineGlobal("poops_ps5", function() {
-                logToUI("Starting Poops PS5 exploit simulation...");
-                logToUI("Stage 0: Triple-free race...");
-                logToUI("[0] triplets 2,7,12");
-                logToUI("Stage 1: Kqueue reclaim...");
-                logToUI("[1] proc_filedesc=0xFFFF804000010048");
-                logToUI("Stage 2: Leak pipe data pointers...");
-                logToUI("[2] master_pipe=0xFFFF804000200000 victim_pipe=0xFFFF804000200100");
-                logToUI("Stage 3: Pipe corruption -> fast kernel r/w");
-                logToUI("[3] kernel r/w achieved");
-                logToUI("Stage 4: Find curproc via ioctl FIOSETOWN");
-                logToUI("[4] curproc=0xFFFF804000010000");
-                logToUI("Stage 5: Jailbreak");
-                simJailbroken = true;
-                simUid = 0n;
-                simSandbox = 0n;
-                logToUI("[5] jailbreak ok");
-                logToUI("Stage 6: GPU setup + debug patches");
-                logToUI("[6] gpu setup ok");
-                logToUI("[6] debug patches verified");
-                logToUI("Stage 7: ELF loader");
-                logToUI("elf_loader: loaded elfldr.elf");
-                logToUI("elf_loader: running...");
-                logToUI("elf_loader: payloadout=0x00000000");
-                showNotification("Poops PS5: Jailbreak complete!");
+            btnBoot.addEventListener('click', async () => {
+                FW_VERSION = fwSelect.value;
+                fwBadge.textContent = 'FW ' + FW_VERSION;
+                fwModal.style.display = 'none';
+                initLua();
+                await bootSequence();
             });
 
-            // Update firmware badge
-            document.getElementById('fwBadge').textContent = 'FW ' + FW_VERSION;
-            updateStatus(true);
-            logToUI("LuaC0re Emulator ready. Paste Lua code and click Run.");
-            payloadInput.value = 'send_notification("Hello from LuaC0re!")\nprint("Hello from remote Lua!")';
-
-            // ---- UI event handlers ----
             btnRun.addEventListener('click', () => {
                 const code = payloadInput.value.trim();
                 if (!code) return;
                 btnRun.disabled = true;
                 btnRun.textContent = '⏳ Running...';
-                try {
-                    const result = fengari.load(code)();
-                    if (result !== undefined && result !== null) logToUI("=> " + String(result));
-                } catch (e) {
-                    logToUI("Lua Error: " + e.message);
-                }
+                runLua(code);
                 btnRun.disabled = false;
                 btnRun.textContent = '▶ Run Script';
             });
 
             document.getElementById('btnClear').addEventListener('click', () => {
                 logContainer.innerHTML = '';
-                logToUI('Log cleared.');
+                logUI('Log cleared.');
             });
+
+            const examples = {
+                helloworld: 'send_notification("Hello from LuaC0re!")\nprint("Hello from remote Lua!")',
+                poops: 'poops_ps5()',
+                ftp: 'ftp_server()',
+                elf: 'elf_loader()'
+            };
 
             document.querySelectorAll('.btn-example').forEach(btn => {
                 btn.addEventListener('click', () => {
-                    const key = btn.dataset.payload;
-                    const examples = {
-                        helloworld: 'send_notification("Hello from Lua!")\nprint("Hello from remote Lua!")',
-                        poops_ps5: 'poops_ps5()',
-                        setlogserver: 'LOG_SERVER = "192.168.1.180"\nsend_notification("Setting log server ip to " .. LOG_SERVER)',
-                        dlsym_test: 'local addr = dlsym(0x2001, "read")\nprint("dlsym read addr: " .. to_hex(addr))\nsend_notification("dlsym test passed")'
-                    };
+                    const key = btn.dataset.p;
                     if (examples[key]) {
                         payloadInput.value = examples[key];
                         payloadInput.focus();
@@ -759,7 +923,6 @@
                 });
             });
 
-            // Ctrl+Enter shortcut
             payloadInput.addEventListener('keydown', (e) => {
                 if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
                     e.preventDefault();
@@ -767,6 +930,9 @@
                 }
             });
 
+            updateStatus(false);
+            fwModal.style.display = 'flex';
+            initLua();
         })();
     </script>
 </body>
