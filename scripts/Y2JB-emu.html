@@ -564,6 +564,8 @@
                 <option value="12.40">12.40</option>
                 <option value="12.60">12.60</option>
                 <option value="12.70">12.70</option>
+				<option value="13.00">13.00</option>
+				<option value="13.20">13.20</option>
             </select>
             <button class="btn btn-run" id="btnFwConfirm">Confirm & Start Emulator</button>
         </div>
@@ -1031,6 +1033,28 @@
                 "12.40": 0x349C0n,
                 "12.60": 0x349C0n,
                 "12.70": 0x349C0n,
+				"13.00": 0x349C0n,
+				"13.20": 0x349C0n,
+            };
+
+            // ========== FIRMWARE OFFSETS (from Y2JB kernel_offset.js) ==========
+            const fw_offsets = {
+                ["4.00"]: { ALLPROC: 0x027EDCB8, SECURITY_FLAGS: 0x06506474, ROOTVNODE: 0x066E74C0, KERNEL_PMAP_STORE: 0x03257A78, GVMSPACE: 0x064C3F80 },
+                ["4.02"]: "4.00", ["4.03"]: "4.00", ["4.50"]: "4.00", ["4.51"]: "4.00",
+                ["5.00"]: { ALLPROC: 0x0291DD00, SECURITY_FLAGS: 0x066466EC, ROOTVNODE: 0x06853510, KERNEL_PMAP_STORE: 0x03398A88, GVMSPACE: 0x06603FB0 },
+                ["5.02"]: "5.00", ["5.10"]: "5.00",
+                ["5.50"]: { ALLPROC: 0x0291DD00, SECURITY_FLAGS: 0x066466EC, ROOTVNODE: 0x06853510, KERNEL_PMAP_STORE: 0x03394A88, GVMSPACE: 0x06603FB0 },
+                ["6.xx"]: { ALLPROC: 0x02869D20, SECURITY_FLAGS: 0x065968EC, ROOTVNODE: 0x0679F510, KERNEL_PMAP_STORE: 0x032E4358, GVMSPACE: 0x065540F0 },
+                ["7.xx"]: { ALLPROC: 0x02859D50, SECURITY_FLAGS: 0x00AC8064, ROOTVNODE: 0x030C7510, KERNEL_PMAP_STORE: 0x02E2C848, GVMSPACE: 0x02E76090 },
+                ["8.xx"]: { ALLPROC: 0x02875D50, SECURITY_FLAGS: 0x00AC3064, ROOTVNODE: 0x030FB510, KERNEL_PMAP_STORE: 0x02E48848, GVMSPACE: 0x02EAA090 },
+                ["9.00"]: { ALLPROC: 0x02755D50, SECURITY_FLAGS: 0x00D72064, ROOTVNODE: 0x02FDB510, KERNEL_PMAP_STORE: 0x02D28B78, GVMSPACE: 0x02D8A570 },
+                ["9.05"]: { ALLPROC: 0x02755D50, SECURITY_FLAGS: 0x00D73064, ROOTVNODE: 0x02FDB510, KERNEL_PMAP_STORE: 0x02D28B78, GVMSPACE: 0x02D8A570 },
+                ["9.xx"]: "9.05",
+                ["10.xx"]: { ALLPROC: 0x02765D70, SECURITY_FLAGS: 0x00D79064, ROOTVNODE: 0x02FA3510, KERNEL_PMAP_STORE: 0x02CF0EF8, GVMSPACE: 0x02D52570 },
+                ["11.xx"]: { ALLPROC: 0x02875D70, SECURITY_FLAGS: 0x00D8C064, ROOTVNODE: 0x030B7510, KERNEL_PMAP_STORE: 0x02E04F18, GVMSPACE: 0x02E66570 },
+                ["12.xx"]: { ALLPROC: 0x02885E00, SECURITY_FLAGS: 0x00D83064, ROOTVNODE: 0x030D7510, KERNEL_PMAP_STORE: 0x02E1CFB8, GVMSPACE: 0x02E7E570 },
+                ["13.00"]: { ALLPROC: 0x028C5E00, SECURITY_FLAGS: 0x00D99064, ROOTVNODE: 0x03133510, KERNEL_PMAP_STORE: 0x02E74FF8, GVMSPACE: 0x02ED6570 },
+                ["13.20"]: { ALLPROC: 0x028C5E00, SECURITY_FLAGS: 0x00D99064, ROOTVNODE: 0x03133510, KERNEL_PMAP_STORE: 0x02E74FF8, GVMSPACE: 0x02ED6570 }
             };
 
             // ==================== EXPOSED API (what payloads can call) ====================
@@ -1673,7 +1697,6 @@
                 'color:#3b82f6;font-size:16px;', '', 'color:#888;');
             console.log('%cAll Y2JB APIs are simulated in the browser sandbox.',
             'color:#eab308;');
-            console.log('%cHappy exploiting! 🎮', 'color:#22c55e;');
         })();
     </script>
 </body>
