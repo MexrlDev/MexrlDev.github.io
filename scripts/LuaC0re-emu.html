@@ -6,24 +6,23 @@
     <title>LuaC0re Emulator - PS5/PS4 Remote Lua Loader</title>
     <style>
         :root {
-            --bg: #0a0a0a; --surface: #141414; --border: #2a2a2a; --text: #e0e0e0; --dim: #888;
-            --accent: #8b5cf6; --green: #22c55e; --red: #ef4444; --yellow: #eab308; --cyan: #06b6d4;
-            --font-mono: 'SF Mono', 'Cascadia Code', 'Consolas', 'Monaco', monospace;
+            --bg: #0a0a0a; --surface: #141414; --border: #2a2a2a; --text: #e0e0e0;
+            --accent: #8b5cf6; --green: #22c55e; --red: #ef4444; --yellow: #eab308;
+            --font-mono: 'SF Mono', 'Cascadia Code', 'Consolas', monospace;
         }
         * { margin:0; padding:0; box-sizing:border-box; }
         body { background:#000; color:var(--text); font-family:var(--font-mono); height:100vh; display:flex; flex-direction:column; overflow:hidden; }
-        .topbar { background:#0c0c0c; border-bottom:1px solid #1a1a1a; padding:8px 20px; display:flex; align-items:center; justify-content:space-between; flex-shrink:0; z-index:10; }
-        .logo-area { display:flex; align-items:center; gap:14px; }
+        .topbar { background:#0c0c0c; border-bottom:1px solid #1a1a1a; padding:8px 20px; display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
         .logo { width:36px; height:36px; background:linear-gradient(135deg,#7c3aed,#a78bfa); border-radius:6px; display:flex; align-items:center; justify-content:center; font-weight:900; font-size:14px; color:#fff; }
         .title { font-size:15px; font-weight:600; }
         .subtitle { font-size:11px; color:#888; margin-left:8px; }
-        .status-dot { width:9px; height:9px; border-radius:50%; background:var(--green); display:inline-block; margin-right:6px; box-shadow:0 0 8px var(--green); animation:pulse 2s infinite; }
+        .status-dot { width:9px; height:9px; border-radius:50%; background:var(--green); display:inline-block; margin-right:6px; animation:pulse 2s infinite; }
         @keyframes pulse { 0%,100% { box-shadow:0 0 4px var(--green); } 50% { box-shadow:0 0 14px var(--green); } }
         .status-text { font-size:11px; color:#aaa; display:flex; align-items:center; gap:6px; }
         .fw-badge { background:#1a1a1a; border:1px solid #333; padding:4px 10px; border-radius:12px; font-size:11px; color:#ccc; }
         .main-content { flex:1; display:flex; flex-direction:column; overflow:hidden; }
         .frame { flex:1; display:flex; flex-direction:column; margin:10px; border:2px solid #1a1a1a; border-radius:8px; overflow:hidden; background:#0d0d0d; }
-        .frame-header { background:#161616; padding:8px 16px; border-bottom:1px solid #222; display:flex; align-items:center; gap:10px; flex-shrink:0; }
+        .frame-header { background:#161616; padding:8px 16px; border-bottom:1px solid #222; display:flex; align-items:center; gap:10px; }
         .dot { width:10px; height:10px; border-radius:50%; }
         .dot.red { background:#ff5f57; } .dot.yellow { background:#febc2e; } .dot.green { background:#28c840; }
         .log-container { flex:1; overflow-y:auto; padding:12px 16px; font-size:12px; line-height:1.6; background:#080808; scroll-behavior:smooth; }
@@ -32,9 +31,9 @@
         @keyframes fadeIn { from { opacity:0; transform:translateY(2px); } to { opacity:1; transform:translateY(0); } }
         .log-line.dim { color:#666; } .log-line.accent { color:var(--accent); } .log-line.green { color:var(--green); } .log-line.yellow { color:var(--yellow); } .log-line.red { color:var(--red); }
         .input-area { border-top:1px solid #1a1a1a; background:#0f0f0f; padding:12px 16px; flex-shrink:0; display:flex; gap:10px; align-items:flex-end; }
-        .input-area textarea { flex:1; background:#1a1a1a; border:1px solid #2a2a2a; color:#e0e0e0; font-family:var(--font-mono); font-size:12px; padding:10px 14px; border-radius:6px; resize:vertical; min-height:60px; max-height:200px; outline:none; }
-        .input-area textarea:focus { border-color:var(--accent); }
-        .btn { padding:10px 20px; border:none; border-radius:6px; font-family:var(--font-mono); font-size:12px; font-weight:600; cursor:pointer; letter-spacing:0.5px; white-space:nowrap; }
+        textarea { flex:1; background:#1a1a1a; border:1px solid #2a2a2a; color:#e0e0e0; font-family:var(--font-mono); font-size:12px; padding:10px 14px; border-radius:6px; resize:vertical; min-height:60px; max-height:200px; outline:none; }
+        textarea:focus { border-color:var(--accent); }
+        .btn { padding:10px 20px; border:none; border-radius:6px; font-family:var(--font-mono); font-size:12px; font-weight:600; cursor:pointer; letter-spacing:0.5px; white-space:nowrap; transition:all 0.2s; }
         .btn-run { background:var(--accent); color:#fff; } .btn-run:hover { background:#7c3aed; } .btn-run:disabled { background:#333; color:#666; cursor:not-allowed; }
         .btn-example { background:#1a1a1a; color:#aaa; border:1px solid #2a2a2a; font-size:11px; padding:6px 12px; } .btn-example:hover { background:#222; color:#fff; }
         .btn-clear { background:transparent; color:#888; border:1px solid #2a2a2a; font-size:11px; padding:6px 12px; } .btn-clear:hover { background:#1a1a1a; color:#fff; }
@@ -47,34 +46,37 @@
         @keyframes fadeOut { from { opacity:1; } to { opacity:0; transform:translateY(-10px); } }
         .listener-bar { background:#0d1117; border:1px solid #2a1a3a; border-radius:6px; padding:8px 14px; margin:6px 10px; font-size:11px; color:#c4b5fd; display:flex; align-items:center; gap:8px; flex-shrink:0; }
         .listener-bar .pulse { width:7px; height:7px; border-radius:50%; background:#a78bfa; animation:pulse 1.5s infinite; }
+        .error-modal { position:fixed; inset:0; background:rgba(0,0,0,0.9); display:flex; align-items:center; justify-content:center; z-index:200; }
+        .error-modal-inner { background:#1a1a1a; border:1px solid #333; border-radius:12px; padding:24px; text-align:center; max-width:400px; }
+        .error-modal-inner p { color:#f88; font-size:12px; margin-bottom:16px; }
     </style>
 </head>
 <body>
     <div class="topbar">
-        <div class="logo-area">
+        <div style="display:flex;align-items:center;gap:14px;">
             <div class="logo">L</div>
             <span class="title">LuaC0re</span>
             <span class="subtitle">v2.2c · Emulator</span>
             <span class="fw-badge" id="fwBadge">FW 10.01</span>
         </div>
-        <div class="status-text">
+        <div style="display:flex;align-items:center;gap:6px;">
             <span class="status-dot" id="statusDot"></span>
-            <span id="statusLabel">Booting...</span>
+            <span id="statusLabel" style="font-size:11px;">Lua VM pending...</span>
         </div>
     </div>
     <div class="listener-bar">
         <span class="pulse"></span>
-        <span>📡 Loader ready — paste Lua payload &amp; click Run</span>
+        <span>📡 Ready — paste Lua payload &amp; click Run</span>
     </div>
     <div class="main-content">
         <div class="frame">
             <div class="frame-header">
                 <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
-                <span>LuaC0re Console</span>
+                <span style="font-size:11px;color:#666;">LuaC0re Console — PS5/PS4 Remote Lua Exploit</span>
             </div>
             <div class="log-container" id="logContainer"></div>
             <div class="input-area">
-                <textarea id="payloadInput" placeholder="Paste your Lua payload here..." spellcheck="false"></textarea>
+                <textarea id="payloadInput" placeholder="Paste your Lua payload here..."></textarea>
                 <button class="btn btn-run" id="btnRun" disabled>▶ Run Script</button>
             </div>
             <div class="examples-row">
@@ -87,31 +89,61 @@
     </div>
     <div class="notifications-container" id="notifContainer"></div>
 
-    <!-- EMBEDDED FENGARI LUA VM -->
-    <script>/* fengari-web v0.1.4 minified code starts here */</script>
-    <script>
-        // The fengari library code (minified) should be placed above.
-        // Due to message length, we provide the full embedded library as an external file.
-        // For the purpose of this answer, we assume fengari is loaded.
-        // If you need the actual minified code, please fetch it from:
-        // https://cdn.jsdelivr.net/npm/fengari-web@0.1.4/dist/fengari-web.js
-        // and embed it in the script tag above.
-    </script>
+    <div class="error-modal" id="errorModal" style="display:none;">
+        <div class="error-modal-inner">
+            <h3>❌ Lua VM Failed</h3>
+            <p>Fengari could not be loaded. Please check your internet connection or try a different browser.</p>
+            <button class="btn btn-run" onclick="location.reload()">Retry</button>
+        </div>
+    </div>
 
     <script>
-        (function() {
-            // Ensure fengari is available
-            if (!window.fengari || !fengari.luaL_newstate) {
-                document.body.innerHTML = '<div style="color:red;padding:20px;">Fengari Lua VM not embedded. Please download the emulator file with the library included.</div>';
+        // ============== FENGARI LOADER (multi-source with GitHub raw fallback) ==============
+        const FENGARI_SOURCES = [
+            'https://cdn.jsdelivr.net/npm/fengari-web@0.1.4/dist/fengari-web.js',
+            'https://unpkg.com/fengari-web@0.1.4/dist/fengari-web.js',
+            'https://raw.githubusercontent.com/fengari-lua/fengari-web/refs/heads/master/dist/fengari-web.js'
+        ];
+
+        function loadFengari(urls, callback) {
+            if (window.fengari && fengari.luaL_newstate) {
+                callback();
                 return;
             }
+            let index = 0;
+            function tryNext() {
+                if (index >= urls.length) {
+                    document.getElementById('errorModal').style.display = 'flex';
+                    return;
+                }
+                const script = document.createElement('script');
+                script.src = urls[index];
+                script.onload = () => {
+                    if (window.fengari && fengari.luaL_newstate) {
+                        callback();
+                    } else {
+                        index++;
+                        tryNext();
+                    }
+                };
+                script.onerror = () => {
+                    index++;
+                    tryNext();
+                };
+                document.head.appendChild(script);
+            }
+            tryNext();
+        }
 
+        // ============== MAIN EMULATOR LOGIC ==============
+        loadFengari(FENGARI_SOURCES, function() {
             const logContainer = document.getElementById('logContainer');
             const notifContainer = document.getElementById('notifContainer');
             const payloadInput = document.getElementById('payloadInput');
             const btnRun = document.getElementById('btnRun');
             const statusDot = document.getElementById('statusDot');
             const statusLabel = document.getElementById('statusLabel');
+            const fwBadge = document.getElementById('fwBadge');
             let FW_VERSION = "10.01";
 
             function appendLog(msg, cls='') {
@@ -131,28 +163,27 @@
             }
             function updateStatus(ready) {
                 statusDot.style.background = ready ? '#22c55e' : '#eab308';
-                statusLabel.textContent = ready ? 'Lua VM Ready' : 'Booting...';
+                statusLabel.textContent = ready ? 'Lua VM Ready' : 'Lua VM pending...';
                 btnRun.disabled = !ready;
             }
 
-            // Simulated PS5 environment (identical to previous versions)
+            // Simulated PS5 memory and syscalls
             const simMem = new Map();
             let nextAlloc = 0x800000000n, nextFd = 100n;
             const openFds = new Map();
             let simJailbroken = false, simUid = 1n, simPid = 42n, simSandbox = 1n;
             const simFiles = new Map();
 
-            function simRead8(a) { const align = a & ~7n, off = Number(a & 7n); const q = simMem.get(align)||0n; return (q >> BigInt(off*8)) & 0xFFn; }
-            function simWrite8(a,v) { const align = a & ~7n, off = Number(a & 7n); const q = simMem.get(align)||0n; const m = 0xFFn << BigInt(off*8); simMem.set(align, (q & ~m) | ((BigInt(v) & 0xFFn) << BigInt(off*8))); }
+            function simRead8(a) { const al = a & ~7n, off = Number(a & 7n); const q = simMem.get(al)||0n; return (q >> BigInt(off*8)) & 0xFFn; }
+            function simWrite8(a,v) { const al = a & ~7n, off = Number(a & 7n); const q = simMem.get(al)||0n; const m = 0xFFn << BigInt(off*8); simMem.set(al, (q & ~m) | ((BigInt(v) & 0xFFn) << BigInt(off*8))); }
             function simRead32(a) { const q = simMem.get(a & ~7n)||0n; return (q >> BigInt((Number(a&7n))*8)) & 0xFFFFFFFFn; }
             function simRead64(a) { return simMem.get(a)||0n; }
-            function simWrite32(a,v) { const align = a & ~7n, off = Number(a & 7n); const q = simMem.get(align)||0n; const m = 0xFFFFFFFFn << BigInt(off*8); simMem.set(align, (q & ~m) | ((BigInt(v)&0xFFFFFFFFn) << BigInt(off*8))); }
+            function simWrite32(a,v) { const al = a & ~7n, off = Number(a & 7n); const q = simMem.get(al)||0n; const m = 0xFFFFFFFFn << BigInt(off*8); simMem.set(al, (q & ~m) | ((BigInt(v)&0xFFFFFFFFn) << BigInt(off*8))); }
             function simWrite64(a,v) { simMem.set(a, BigInt(v)); }
             function simMalloc(size) { const addr = nextAlloc; nextAlloc += BigInt(Math.ceil(Number(size)/8)*8+16); simWrite64(addr, BigInt(size)); return addr+8n; }
             function simAllocStr(s) { const b = new TextEncoder().encode(s); const a = simMalloc(b.length+1); for(let i=0;i<b.length;i++) simWrite8(a+BigInt(i), b[i]); simWrite8(a+BigInt(b.length),0); return a; }
             function simReadStr(a) { let r=''; let i=0n; while(true) { const c=Number(simRead8(a+i)); if(c===0) break; r+=String.fromCharCode(c); i++; } return r; }
             function simReadBuf(a,l) { const b=new Uint8Array(Number(l)); for(let i=0n;i<l;i++) b[Number(i)]=Number(simRead8(a+i)); return b; }
-            function simWriteBuf(a,b) { for(let i=0;i<b.length;i++) simWrite8(a+BigInt(i), b[i]); }
 
             function simSyscall(num, a1,a2,a3,a4,a5,a6) {
                 const n = BigInt(num);
@@ -179,107 +210,112 @@
                 return 0n;
             }
 
-            let L = null, luaReady = false;
+            let L, luaReady = false;
 
             function initLua() {
-                if (!window.fengari || !fengari.luaL_newstate) {
-                    throw new Error('fengari not available');
-                }
+                if (!window.fengari || !fengari.luaL_newstate) throw new Error('fengari missing');
                 if (L) fengari.lua_close(L);
                 L = fengari.luaL_newstate();
                 fengari.luaL_openlibs(L);
-                const def = (n,v) => { fengari.lua_pushjsvalue(L,v); fengari.lua_setglobal(L,n); };
+                const def = (name, value) => {
+                    fengari.lua_pushjsvalue(L, value);
+                    fengari.lua_setglobal(L, name);
+                };
 
-                def("PLATFORM","PS5");
-                def("FW_VERSION",FW_VERSION);
-                def("EBOOT_BASE",0x00400000n);
-                def("LIBC_BASE",0x00800000n);
-                def("LIBKERNEL_BASE",0x00C00000n);
-                def("PAGE_SIZE",0x4000);
-                def("AF_UNIX",1); def("AF_INET",2); def("AF_INET6",28);
-                def("SOCK_STREAM",1); def("SOCK_DGRAM",2);
-                def("IPPROTO_UDP",17); def("IPPROTO_IPV6",41);
-                def("SO_REUSEADDR",4); def("O_RDONLY",0); def("O_WRONLY",1); def("O_RDWR",2);
-                def("PROT_READ",1); def("PROT_WRITE",2); def("PROT_EXECUTE",4);
-                def("MAP_PRIVATE",2); def("MAP_ANONYMOUS",0x1000); def("MAP_SHARED",1);
-                def("read8",(a)=>simRead8(BigInt(a)));
-                def("read32",(a)=>simRead32(BigInt(a)));
-                def("read64",(a)=>simRead64(BigInt(a)));
-                def("write8",(a,v)=>simWrite8(BigInt(a),v));
-                def("write32",(a,v)=>simWrite32(BigInt(a),v));
-                def("write64",(a,v)=>simWrite64(BigInt(a),v));
-                def("malloc",(s)=>Number(simMalloc(BigInt(s))));
-                def("calloc",(s,n)=>Number(simMalloc(BigInt(s)*BigInt(n))));
-                def("read_buffer",(a,s)=>{ const b=simReadBuf(BigInt(a),s); return new TextDecoder().decode(b); });
-                def("write_buffer",(d,str)=>{ simWriteBuf(BigInt(d), new TextEncoder().encode(str)); });
-                def("memcpy",(d,s,l)=>{ for(let i=0n;i<BigInt(l);i++) simWrite8(BigInt(d)+i, simRead8(BigInt(s)+i)); });
-                def("memset",(d,v,l)=>{ for(let i=0n;i<BigInt(l);i++) simWrite8(BigInt(d)+i,Number(v)); });
+                // Standard LuaC0re globals
+                def('PLATFORM', 'PS5');
+                def('FW_VERSION', FW_VERSION);
+                def('EBOOT_BASE', 0x00400000n);
+                def('LIBC_BASE', 0x00800000n);
+                def('LIBKERNEL_BASE', 0x00C00000n);
+                def('PAGE_SIZE', 0x4000);
+                def('AF_UNIX', 1); def('AF_INET', 2); def('AF_INET6', 28);
+                def('SOCK_STREAM', 1); def('SOCK_DGRAM', 2);
+                def('IPPROTO_UDP', 17); def('IPPROTO_IPV6', 41);
+                def('SO_REUSEADDR', 4); def('O_RDONLY', 0); def('O_WRONLY', 1); def('O_RDWR', 2);
+                def('PROT_READ', 1); def('PROT_WRITE', 2); def('PROT_EXECUTE', 4);
+                def('MAP_PRIVATE', 2); def('MAP_ANONYMOUS', 0x1000); def('MAP_SHARED', 1);
 
+                def('read8', (a) => simRead8(BigInt(a)));
+                def('read16', (a) => simRead8(BigInt(a))); // stub
+                def('read32', (a) => simRead32(BigInt(a)));
+                def('read64', (a) => simRead64(BigInt(a)));
+                def('write8', (a,v) => simWrite8(BigInt(a),v));
+                def('write16', (a,v) => {});
+                def('write32', (a,v) => simWrite32(BigInt(a),v));
+                def('write64', (a,v) => simWrite64(BigInt(a),v));
+                def('malloc', (s) => Number(simMalloc(BigInt(s))));
+                def('calloc', (s,n) => Number(simMalloc(BigInt(s)*BigInt(n))));
+                def('read_buffer', (a,s) => { const b = simReadBuf(BigInt(a),s); return new TextDecoder().decode(b); });
+                def('write_buffer', (d,str) => { simWriteBuf(BigInt(d), new TextEncoder().encode(str)); });
+                def('memcpy', (d,s,l) => { for(let i=0n;i<BigInt(l);i++) simWrite8(BigInt(d)+i, simRead8(BigInt(s)+i)); });
+                def('memset', (d,v,l) => { for(let i=0n;i<BigInt(l);i++) simWrite8(BigInt(d)+i,Number(v)); });
+
+                // Syscall table
                 const sc = {};
                 const sysNums = {
-                    read:3,write:4,open:5,close:6,setuid:23,getuid:24,accept:30,pipe:42,mprotect:74,
-                    socket:97,connect:98,bind:104,setsockopt:105,listen:106,getsockopt:118,
-                    netgetiflist:125,socketpair:135,nanosleep:240,thr_self:432,
-                    dlsym:591,randomized_path:602,is_in_sandbox:585,mmap:477,getpid:20,
-                    jitshm_create:533,jitshm_alias:534,
-                    unlink:10,chmod:15,recvfrom:29,getsockname:32,rename:128,sendto:133,
-                    mkdir:136,rmdir:137,stat:188,getdents:272,lseek:478,
-                    fcntl:92,fstat:189,umtx_op:454,cpuset_setaffinity:488,rtprio_thread:466,
-                    sched_yield:331,munmap:73,thr_new:455,thr_exit:431,fsync:95,ioctl:54,kill:37,
-                    kqueue:362,evf_create:538,evf_delete:539,aio_multi_delete:662,aio_multi_wait:663,
-                    aio_multi_poll:664,aio_multi_cancel:666,aio_submit_cmd:669
+                    read:3, write:4, open:5, close:6, setuid:23, getuid:24, accept:30, pipe:42, mprotect:74,
+                    socket:97, connect:98, bind:104, setsockopt:105, listen:106, getsockopt:118,
+                    netgetiflist:125, socketpair:135, nanosleep:240, thr_self:432,
+                    dlsym:591, randomized_path:602, is_in_sandbox:585, mmap:477, getpid:20,
+                    jitshm_create:533, jitshm_alias:534,
+                    unlink:10, chmod:15, recvfrom:29, getsockname:32, rename:128, sendto:133,
+                    mkdir:136, rmdir:137, stat:188, getdents:272, lseek:478,
+                    fcntl:92, fstat:189, umtx_op:454, cpuset_setaffinity:488, rtprio_thread:466,
+                    sched_yield:331, munmap:73, thr_new:455, thr_exit:431, fsync:95, ioctl:54, kill:37,
+                    kqueue:362, evf_create:538, evf_delete:539, aio_multi_delete:662, aio_multi_wait:663,
+                    aio_multi_poll:664, aio_multi_cancel:666, aio_submit_cmd:669
                 };
-                for (const [name,num] of Object.entries(sysNums)) {
-                    sc[name] = (...args) => Number(simSyscall(BigInt(num), ...args.map(a=>BigInt(a||0))));
+                for (const [name, num] of Object.entries(sysNums)) {
+                    sc[name] = (...args) => Number(simSyscall(BigInt(num), ...args.map(a => BigInt(a||0))));
                 }
-                def("syscall", sc);
-                def("jit_syscall", sc);
+                def('syscall', sc);
+                def('jit_syscall', sc);
 
-                def("print",(...args)=>{ logUI(args.map(String).join('\t')); });
-                def("ulog",(...args)=>{ logUI(args.map(String).join('\t')); });
-                def("send_notification",(m)=>showNotification(String(m)));
-                def("to_hex",(v)=>'0x'+BigInt(v).toString(16).padStart(16,'0'));
-                def("hex",(v)=>'0x'+BigInt(v).toString(16).padStart(16,'0'));
-                def("dlsym",(h,s)=>0xC0000000n+BigInt(String(s).length*0x100));
-                def("func_wrap",(a)=>(...args)=>Number(a));
-                def("get_fwversion",()=>FW_VERSION);
-                def("get_current_ip",()=>"192.168.1.100");
-                def("get_title_id",()=>"PPSA01650");
-                def("is_jailbroken",()=>simJailbroken);
-                def("check_jailbroken",()=>{ if(!simJailbroken) throw new Error("not jailbroken"); });
-                def("file_exists",(p)=>simFiles.has(p)||String(p).includes('elfldr'));
-                def("file_read",(p)=>simFiles.get(p)||"mock_elf_data");
-                def("file_write",(p,d)=>{ simFiles.set(String(p),d); return true; });
-                def("create_socket",()=>Number(nextFd++));
-                def("microsleep",()=>{});
-                def("sleep",()=>{});
+                // UI
+                def('print', (...args) => { logUI(args.map(String).join('\t')); });
+                def('ulog', (...args) => { logUI(args.map(String).join('\t')); });
+                def('send_notification', (m) => showNotification(String(m)));
+                def('show_dialog', (m) => showNotification(String(m)));
+                def('to_hex', (v) => '0x' + BigInt(v).toString(16).padStart(16, '0'));
+                def('hex', (v) => '0x' + BigInt(v).toString(16).padStart(16, '0'));
+                def('dlsym', (h,s) => 0xC0000000n + BigInt(String(s).length * 0x100));
+                def('func_wrap', (a) => (...args) => Number(a));
+                def('get_fwversion', () => FW_VERSION);
+                def('get_current_ip', () => '192.168.1.100');
+                def('get_nidpath', () => 'user/home/abcd1234');
+                def('get_title_id', () => 'PPSA01650');
+                def('is_jailbroken', () => simJailbroken);
+                def('check_jailbroken', () => { if (!simJailbroken) throw new Error('not jailbroken'); });
+                def('file_exists', (p) => simFiles.has(p) || String(p).includes('elfldr'));
+                def('file_read', (p) => simFiles.get(p) || 'mock_elf_data');
+                def('file_write', (p,d) => { simFiles.set(String(p), d); return true; });
+                def('create_socket', () => Number(nextFd++));
+                def('microsleep', () => {});
+                def('sleep', () => {});
 
                 // Simulated exploits
-                def("poops_ps5", ()=>{
-                    logUI("Poops PS5 simulation...");
-                    logUI("Stage 0: triplets 2,7,12");
-                    logUI("Stage 1: proc_filedesc=0xFFFF804000010048");
-                    logUI("Stage 2: master_pipe=0xFFFF804000200000");
-                    logUI("Stage 3: kernel r/w achieved");
-                    simJailbroken=true; simUid=0n; simSandbox=0n;
-                    logUI("Jailbreak complete!");
-                    showNotification("Poops PS5: Jailbreak successful");
+                def('poops_ps5', () => {
+                    logUI('Poops PS5 simulation...');
+                    simJailbroken = true; simUid = 0n; simSandbox = 0n;
+                    logUI('Jailbreak complete!');
+                    showNotification('Poops PS5: Jailbreak successful');
                 });
-                def("elf_loader", ()=>{
-                    logUI("elf_loader: loaded elfldr.elf");
-                    logUI("elf_loader: running...");
-                    logUI("elf_loader: payloadout=0x00000000");
+                def('elf_loader', () => {
+                    logUI('elf_loader: loaded elfldr.elf');
+                    logUI('elf_loader: running...');
+                    logUI('elf_loader: payloadout=0x00000000');
                 });
 
                 luaReady = true;
             }
 
             function runLua(code) {
-                if (!luaReady) { logUI("Lua VM not ready."); return; }
+                if (!luaReady) { logUI('Lua VM not ready.'); return; }
                 try {
                     fengari.load(code)();
                 } catch(e) {
-                    logUI("Lua Error: " + e.message);
+                    logUI('Lua Error: ' + e.message);
                 }
             }
 
@@ -290,54 +326,61 @@
                 logUI('║  LuaC0re v2.2c Emulator     ║');
                 logUI('╚══════════════════════════════╝');
                 logUI('[BOOT] Initializing PS5 OS...');
-                await new Promise(r=>setTimeout(r,300));
+                await new Promise(r => setTimeout(r, 400));
                 logUI('[BOOT] Firmware: ' + FW_VERSION);
-                logUI('[BOOT] EBOOT @ 0x00400000');
+                logUI('[BOOT] EBOOT @ 0x0000000000400000');
+                logUI('[BOOT] libc @ 0x0000000000800000');
+                logUI('[BOOT] libkernel @ 0x0000000000C00000');
                 logUI('[INIT] JIT exploit initialized');
                 logUI('[INIT] Syscalls resolved');
-                logUI('[READY] Lua listener active on 192.168.1.100:9026');
+                logUI('[INIT] dlsym initialized');
+                logUI('[READY] Remote Lua Loader listening on 192.168.1.100:9026');
                 updateStatus(true);
                 payloadInput.value = 'send_notification("Hello from LuaC0re!")\nprint("Hello from remote Lua!")';
                 payloadInput.focus();
             }
 
-            // Initialize everything
-            try {
-                initLua();
-                bootSequence();
-            } catch(e) {
-                logUI('INIT ERROR: ' + e.message);
-                updateStatus(false);
-            }
+            initLua();
+            bootSequence();
 
             // UI events
-            btnRun.addEventListener('click',()=>{
+            btnRun.addEventListener('click', () => {
                 const code = payloadInput.value.trim();
-                if(!code) return;
+                if (!code) return;
                 btnRun.disabled = true;
                 btnRun.textContent = '⏳ Running...';
                 runLua(code);
                 btnRun.disabled = false;
                 btnRun.textContent = '▶ Run Script';
             });
-            document.getElementById('btnClear').addEventListener('click',()=>{
-                logContainer.innerHTML = ''; logUI('Log cleared.');
+
+            document.getElementById('btnClear').addEventListener('click', () => {
+                logContainer.innerHTML = '';
+                logUI('Log cleared.');
             });
-            document.querySelectorAll('.btn-example').forEach(btn=>{
-                btn.addEventListener('click',()=>{
+
+            document.querySelectorAll('.btn-example').forEach(btn => {
+                btn.addEventListener('click', () => {
                     const key = btn.dataset.p;
                     const examples = {
                         helloworld: 'send_notification("Hello from LuaC0re!")\nprint("Hello!")',
                         poops: 'poops_ps5()',
                         elf: 'elf_loader()'
                     };
-                    if(examples[key]) { payloadInput.value = examples[key]; payloadInput.focus(); }
+                    if (examples[key]) {
+                        payloadInput.value = examples[key];
+                        payloadInput.focus();
+                    }
                 });
             });
-            payloadInput.addEventListener('keydown',(e)=>{
-                if((e.ctrlKey||e.metaKey) && e.key==='Enter') { e.preventDefault(); btnRun.click(); }
+
+            payloadInput.addEventListener('keydown', (e) => {
+                if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                    e.preventDefault();
+                    btnRun.click();
+                }
             });
-        })();
+        });
     </script>
 </body>
 </html>
