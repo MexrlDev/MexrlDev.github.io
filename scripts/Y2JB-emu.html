@@ -1431,46 +1431,6 @@
     await log("sceKernelAllocateMainDirectMemory : " + toHex(fnAddr));
     send_notification("dlsym test passed!");
 })();`,
-                lapse: `(async function() {
-    await log("Y2JB Lapse 1.1 by Gezine (Simulated)");
-    send_notification("Lapse: Starting (simulated)");
-    const FW = get_fwversion();
-    await log("Detected firmware: " + FW);
-    if (parseFloat(FW) > 10.01) {
-        await log("Unsupported firmware. Aborting.");
-        return;
-    }
-    await log("=== STAGE 0: Setup ===");
-    await log("Pinned to core 4 with prio 256");
-    await log("Setup completed");
-    await log("=== STAGE 1: Double-free AIO ===");
-    await log("Race attempt 1/100...");
-    await log("Won race at attempt 42");
-    await log("Aliased rthdrs at attempt: 7");
-    await log("Stage 1 completed");
-    await log("=== STAGE 2: Leak kernel addresses ===");
-    await log('"evf cv" string addr: 0xffff804000500000');
-    await log("Kernel buffer addr: 0xffff804000500040");
-    await log("Stage 2 completed");
-    await log("=== STAGE 3: Double free SceKernelAioRWRequest ===");
-    await log("Aliased pktopts at attempt 15");
-    await log("Stage 3 completed!");
-    await log("=== STAGE 4: Get arbitrary kernel read/write ===");
-    await log('slow_kread8("evf cv"): 0x7666206676650000');
-    await log('*("evf cv"): evf cv');
-    await log("Arbitrary kernel r/w achieved!");
-    await log("=== STAGE 5: PS5 post-exploitation ===");
-    simJailbroken = true;
-    simUid = 0n;
-    simSandbox = 0n;
-    await log("we root now? uid: before 1 after 0");
-    await log("we escaped now? in sandbox: before 1 after 0");
-    await log("debug menu enabled");
-    await log("Stage 5 completed!");
-    await elf_loader();
-    await log("Lapse finished. Closing Y2JB...");
-    send_notification("Lapse: Jailbreak complete!");
-})();`,
             };
 
             // ==================== MAIN EXECUTION ====================
@@ -1699,7 +1659,7 @@
 
             // ==================== INITIAL STATE ====================
             updateStatus(false);
-            appendLog('Y2JB Emulator - PS5 YouTube Userland Exploit', 'cyan');
+            appendLog('Y2JB Emulator', 'cyan');
             appendLog('Select firmware version to begin...', 'dim');
             appendLog('');
 
