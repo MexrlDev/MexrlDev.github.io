@@ -7,7 +7,7 @@
     <style>
         /* ---- RESET & ROOT ---- */
         html {
-            -webkit-text-size-adjust: 100%;   /* prevent text scaling on rotate */
+            -webkit-text-size-adjust: 100%;
             text-size-adjust: 100%;
         }
         :root {
@@ -97,8 +97,12 @@
             animation: pulse-dot 2s infinite;
         }
         @keyframes pulse-dot {
-            0%, 100% { box-shadow: 0 0 4px var(--green); }
-            50% { box-shadow: 0 0 14px var(--green); }
+            0%, 100% {
+                box-shadow: 0 0 4px var(--green);
+            }
+            50% {
+                box-shadow: 0 0 14px var(--green);
+            }
         }
         .status-text {
             font-size: 11px;
@@ -152,9 +156,15 @@
             border-radius: 50%;
             background: #333;
         }
-        .yt-dot.red { background: #ff5f57; }
-        .yt-dot.yellow { background: #febc2e; }
-        .yt-dot.green { background: #28c840; }
+        .yt-dot.red {
+            background: #ff5f57;
+        }
+        .yt-dot.yellow {
+            background: #febc2e;
+        }
+        .yt-dot.green {
+            background: #28c840;
+        }
         .yt-frame-header span {
             font-size: 11px;
             color: #666;
@@ -166,29 +176,54 @@
             flex: 1;
             overflow-y: auto;
             padding: 12px 16px;
-            font-size: 12px;    /* fixed size */
+            font-size: 12px;
             line-height: 1.6;
             background: #080808;
             scroll-behavior: smooth;
         }
-        .log-container::-webkit-scrollbar { width: 6px; }
-        .log-container::-webkit-scrollbar-track { background: transparent; }
-        .log-container::-webkit-scrollbar-thumb { background: #222; border-radius: 3px; }
+        .log-container::-webkit-scrollbar {
+            width: 6px;
+        }
+        .log-container::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .log-container::-webkit-scrollbar-thumb {
+            background: #222;
+            border-radius: 3px;
+        }
         .log-line {
             white-space: pre-wrap;
             word-break: break-all;
             animation: fadeInLine 0.15s ease;
         }
         @keyframes fadeInLine {
-            from { opacity: 0; transform: translateY(4px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(4px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
-        .log-line.dim { color: #666; }
-        .log-line.accent { color: var(--accent); }
-        .log-line.green { color: var(--green); }
-        .log-line.yellow { color: var(--yellow); }
-        .log-line.red { color: var(--red); }
-        .log-line.cyan { color: var(--cyan); }
+        .log-line.dim {
+            color: #666;
+        }
+        .log-line.accent {
+            color: var(--accent);
+        }
+        .log-line.green {
+            color: var(--green);
+        }
+        .log-line.yellow {
+            color: var(--yellow);
+        }
+        .log-line.red {
+            color: var(--red);
+        }
+        .log-line.cyan {
+            color: var(--cyan);
+        }
 
         /* Input Area */
         .input-area {
@@ -206,7 +241,7 @@
             border: 1px solid #2a2a2a;
             color: #e0e0e0;
             font-family: var(--font-mono);
-            font-size: 16px;    /* prevent iOS auto-zoom on focus */
+            font-size: 16px;
             padding: 10px 14px;
             border-radius: 6px;
             resize: vertical;
@@ -241,7 +276,9 @@
             box-shadow: 0 0 24px var(--accent-glow);
             transform: translateY(-1px);
         }
-        .btn-run:active { transform: scale(0.96); }
+        .btn-run:active {
+            transform: scale(0.96);
+        }
         .btn-run:disabled {
             background: #333;
             color: #666;
@@ -268,12 +305,29 @@
             font-size: 11px;
             padding: 6px 12px;
         }
-        .btn-clear:hover { background: #1a1a1a; color: #fff; }
+        .btn-clear:hover {
+            background: #1a1a1a;
+            color: #fff;
+        }
         .examples-row {
             display: flex;
             gap: 6px;
             margin-top: 8px;
             flex-wrap: wrap;
+        }
+
+        /* Logger button */
+        .btn-logger {
+            background: transparent;
+            color: #aaa;
+            border: 1px solid #2a2a2a;
+            font-size: 11px;
+            padding: 6px 12px;
+            margin-left: auto;
+        }
+        .btn-logger.active {
+            border-color: var(--green);
+            color: var(--green);
         }
 
         /* Notification Overlay */
@@ -320,12 +374,23 @@
             word-break: break-word;
         }
         @keyframes slideInNotif {
-            from { transform: translateX(120%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
+            from {
+                transform: translateX(120%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
         }
         @keyframes fadeOutNotif {
-            from { opacity: 1; }
-            to { opacity: 0; transform: translateY(-10px); }
+            from {
+                opacity: 1;
+            }
+            to {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
         }
 
         /* Listener info bar */
@@ -353,7 +418,8 @@
         /* ---------- MODALS ---------- */
         .fw-modal-overlay,
         .jb-modal-overlay,
-        .panic-overlay {
+        .panic-overlay,
+        .logger-modal-overlay {
             position: fixed;
             inset: 0;
             background: rgba(0, 0, 0, 0.75);
@@ -364,7 +430,8 @@
         }
         .fw-modal,
         .jb-modal,
-        .panic-modal {
+        .panic-modal,
+        .logger-modal {
             background: #1a1a1a;
             border: 1px solid #333;
             border-radius: 12px;
@@ -374,7 +441,8 @@
         }
         .fw-modal h3,
         .jb-modal h3,
-        .panic-modal h2 {
+        .panic-modal h2,
+        .logger-modal h3 {
             margin-bottom: 16px;
             font-size: 16px;
             color: #fff;
@@ -393,7 +461,8 @@
         }
         .fw-modal .btn,
         .jb-modal .btn,
-        .panic-modal .btn {
+        .panic-modal .btn,
+        .logger-modal .btn {
             width: 100%;
         }
         .jb-modal .btn-jb,
@@ -419,6 +488,27 @@
             border: none;
             font-weight: bold;
         }
+        /* Logger modal specific */
+        .logger-modal input {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            background: #0a0a0a;
+            border: 1px solid #333;
+            color: #fff;
+            border-radius: 6px;
+            font-family: var(--font-mono);
+        }
+        .logger-modal .btn-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 16px;
+        }
+        .logger-modal .btn-row .btn {
+            flex: 1;
+        }
+        .btn-connect { background: var(--green); color: #000; }
+        .btn-disconnect { background: var(--red); color: #000; }
 
         /* Responsive */
         @media (max-width: 600px) {
@@ -475,6 +565,7 @@
                 <button class="btn btn-example" data-payload="setlogserver">📡 Set Log Server</button>
                 <button class="btn btn-example" data-payload="dlsym_test">🔍 dlsym Test</button>
                 <button class="btn btn-clear" id="btnClear">🗑 Clear Log</button>
+                <button class="btn btn-logger" id="btnLoggerToggle">📻 Logger</button>
             </div>
         </div>
     </div>
@@ -533,7 +624,7 @@
         </div>
     </div>
 
-    <!-- JB / Non-JB Modal (hidden initially) -->
+    <!-- JB / Non-JB Modal -->
     <div class="jb-modal-overlay" id="jbModal" style="display: none;">
         <div class="jb-modal">
             <h3>Select Mode</h3>
@@ -542,12 +633,26 @@
         </div>
     </div>
 
-    <!-- Kernel Panic Overlay (hidden) -->
+    <!-- Kernel Panic Overlay -->
     <div class="panic-overlay" id="panicOverlay" style="display: none;">
         <div class="panic-modal">
             <h2>⚠️ KERNEL PANIC!</h2>
             <p style="color:#aaa; margin-bottom:20px;">A critical system error has occurred.<br>Press the button below to reset the PS5 emulator.</p>
             <button class="btn" id="btnResetPanic">Reset PS5</button>
+        </div>
+    </div>
+
+    <!-- Logger Modal -->
+    <div class="logger-modal-overlay" id="loggerModal" style="display: none;">
+        <div class="logger-modal">
+            <h3>Remote Logger</h3>
+            <input type="text" id="loggerIp" placeholder="IP address" value="192.168.1.180">
+            <input type="number" id="loggerPort" placeholder="Port" value="8080">
+            <div class="btn-row">
+                <button class="btn btn-connect" id="btnLoggerConnect">Connect</button>
+                <button class="btn btn-disconnect" id="btnLoggerDisconnect">Disconnect</button>
+            </div>
+            <button class="btn" id="btnLoggerClose" style="margin-top:10px;">Close</button>
         </div>
     </div>
 
@@ -571,6 +676,16 @@
             const fwSelect = document.getElementById('fwSelect');
             const btnFwConfirm = document.getElementById('btnFwConfirm');
             const jbModal = document.getElementById('jbModal');
+            const loggerModal = document.getElementById('loggerModal');
+            const loggerIpInput = document.getElementById('loggerIp');
+            const loggerPortInput = document.getElementById('loggerPort');
+            const btnLoggerToggle = document.getElementById('btnLoggerToggle');
+
+            // Logger state
+            let loggerEnabled = false;
+            let loggerIp = "192.168.1.180";
+            let loggerPort = 8080;
+            let loggerEndpoint = "";
 
             // Simulated memory
             const simMemory = new Map();
@@ -721,11 +836,25 @@
                 logContainer.scrollTop = logContainer.scrollHeight;
             }
 
-            async function emuLog(msg) {
+            // Logger send function
+            function sendLogToServer(line) {
+                if (!loggerEnabled) return;
+                try {
+                    fetch(loggerEndpoint, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'text/plain' },
+                        body: line + '\n',
+                        mode: 'no-cors'
+                    }).catch(() => {});
+                } catch(e) {}
+            }
+
+            async function emuLog(msg, className = '') {
                 const text = String(msg);
                 const lines = text.split('\n');
                 for (const line of lines) {
-                    appendLog(line || '\u00A0');
+                    appendLog(line || '\u00A0', className);
+                    sendLogToServer(line);
                 }
                 await new Promise(r => requestAnimationFrame(() => setTimeout(r, 1)));
             }
@@ -950,23 +1079,50 @@
             };
 
             const DLSYM_OFFSETS = {
-                "4.03": 0x317D0n, "4.50": 0x317D0n, "4.51": 0x317D0n,
-                "5.00": 0x32160n, "5.02": 0x32160n, "5.10": 0x32160n,
-                "5.50": 0x32230n, "6.00": 0x330A0n, "6.02": 0x330A0n,
-                "6.50": 0x33110n, "7.00": 0x33E90n, "7.01": 0x33E90n,
-                "7.20": 0x33ED0n, "7.40": 0x33ED0n, "7.60": 0x33ED0n,
-                "7.61": 0x33ED0n, "8.00": 0x342E0n, "8.20": 0x342E0n,
-                "8.40": 0x342E0n, "8.60": 0x342E0n, "9.00": 0x350E0n,
-                "9.05": 0x350E0n, "9.20": 0x350E0n, "9.40": 0x350E0n,
-                "9.60": 0x350E0n, "10.00": 0x349C0n, "10.01": 0x349C0n,
-                "10.20": 0x349C0n, "10.40": 0x349C0n, "10.60": 0x349C0n,
-                "11.00": 0x349C0n, "11.20": 0x349C0n, "11.40": 0x349C0n,
-                "11.60": 0x349C0n, "12.00": 0x349C0n, "12.20": 0x349C0n,
-                "12.40": 0x349C0n, "12.60": 0x349C0n, "12.70": 0x349C0n,
-                "13.00": 0x349C0n, "13.20": 0x349C0n,
+                "4.03": 0x317D0n,
+                "4.50": 0x317D0n,
+                "4.51": 0x317D0n,
+                "5.00": 0x32160n,
+                "5.02": 0x32160n,
+                "5.10": 0x32160n,
+                "5.50": 0x32230n,
+                "6.00": 0x330A0n,
+                "6.02": 0x330A0n,
+                "6.50": 0x33110n,
+                "7.00": 0x33E90n,
+                "7.01": 0x33E90n,
+                "7.20": 0x33ED0n,
+                "7.40": 0x33ED0n,
+                "7.60": 0x33ED0n,
+                "7.61": 0x33ED0n,
+                "8.00": 0x342E0n,
+                "8.20": 0x342E0n,
+                "8.40": 0x342E0n,
+                "8.60": 0x342E0n,
+                "9.00": 0x350E0n,
+                "9.05": 0x350E0n,
+                "9.20": 0x350E0n,
+                "9.40": 0x350E0n,
+                "9.60": 0x350E0n,
+                "10.00": 0x349C0n,
+                "10.01": 0x349C0n,
+                "10.20": 0x349C0n,
+                "10.40": 0x349C0n,
+                "10.60": 0x349C0n,
+                "11.00": 0x349C0n,
+                "11.20": 0x349C0n,
+                "11.40": 0x349C0n,
+                "11.60": 0x349C0n,
+                "12.00": 0x349C0n,
+                "12.20": 0x349C0n,
+                "12.40": 0x349C0n,
+                "12.60": 0x349C0n,
+                "12.70": 0x349C0n,
+                "13.00": 0x349C0n,
+                "13.20": 0x349C0n,
             };
 
-            // ========== FIRMWARE OFFSETS ==========
+            // ========== FIRMWARE OFFSETS (from Y2JB kernel_offset.js) ==========
             const fw_offsets = {
                 ["4.00"]: { ALLPROC: 0x027EDCB8, SECURITY_FLAGS: 0x06506474, ROOTVNODE: 0x066E74C0, KERNEL_PMAP_STORE: 0x03257A78, GVMSPACE: 0x064C3F80 },
                 ["4.02"]: "4.00", ["4.03"]: "4.00", ["4.50"]: "4.00", ["4.51"]: "4.00",
@@ -986,7 +1142,7 @@
                 ["13.20"]: { ALLPROC: 0x028C5E00, SECURITY_FLAGS: 0x00D99064, ROOTVNODE: 0x03133510, KERNEL_PMAP_STORE: 0x02E74FF8, GVMSPACE: 0x02ED6570 }
             };
 
-            // ==================== EXPOSED API ====================
+            // ==================== EXPOSED API (what payloads can call) ====================
             function toHex(num) { return '0x' + BigInt(num).toString(16).padStart(16, '0'); }
             function get_fwversion() { return FW_VERSION; }
             function get_dlsym_offset(fw) {
@@ -1033,7 +1189,7 @@
             let kernel_offset = null;
             function update_kernel_offsets() { kernel_offset = get_kernel_offset(); }
 
-            // Kernel, GPU, IPv6 stubs (unchanged)
+            // Kernel object (simulated)
             const kernel = {
                 addr: { curproc: MOCK_CURPROC, allproc: MOCK_ALLPROC, data_base: DATA_BASE, dmap_base: 0xFFFF804000000000n, kernel_cr3: 0x100000n, rootvnode: MOCK_ROOTVNODE },
                 read_buffer: function(kaddr, size) { return simReadBuffer(kaddr, size); },
@@ -1071,7 +1227,7 @@
                 copyin: function(uaddr, kaddr, len) { const buf = simReadBuffer(uaddr, len); simWriteBuffer(kaddr, buf); },
             };
 
-            // Global variables for payloads (unchanged)
+            // Global variables for payloads
             let addrof = simAddrof;
             let read64 = simRead64;
             let write64 = simWrite64;
@@ -1162,7 +1318,7 @@
 
             const SYSCALL = SYSCALL_NUMBERS;
 
-            // Utility functions (unchanged)
+            // Utility functions for payloads
             function write_string(addr, str) { const encoder = new TextEncoder(); const bytes = encoder.encode(str); for (let i = 0; i < bytes.length; i++) simWrite8(addr + BigInt(i), bytes[i]); simWrite8(addr + BigInt(bytes.length), 0); }
             function alloc_string(str) { return simAllocString(str); }
             function send_notification(text) { showNotification(String(text)); }
@@ -1209,7 +1365,7 @@
             function restore_dynlib_restriction() {}
             async function load_localscript(src) { return; }
 
-            // Example payloads
+            // ==================== PAYLOAD EXAMPLES ====================
             const examplePayloads = {
                 helloworld: `(async () => {
     await log("Hello from remote JS!");
@@ -1284,9 +1440,9 @@
                 await emuLog('[SIM] Remote JS Loader starting...');
                 await emuLog('');
 
-                // simJailbroken is already set by user choice
-                simUid = simJailbroken ? 0n : 1n;
-                simSandbox = simJailbroken ? 0n : 1n;
+                simJailbroken = true;
+                simUid = 0n;
+                simSandbox = 0n;
 
                 emulatorReady = true;
                 exploitInitialized = true;
@@ -1307,12 +1463,25 @@
                     await emuLog('[ERROR] Emulator not ready. Please wait for initialization.');
                     return;
                 }
+
                 await emuLog('');
                 await emuLog('─'.repeat(40));
                 await emuLog('[CONN] Client connected, executing payload...');
                 await emuLog('─'.repeat(40));
+
                 try {
-                    const wrappedCode = `(async function() { try { ${jsCode} } catch (e) { await log('EXCEPTION: ' + e.message); await log(e.stack || ''); kernelPanic('Unhandled exception in payload'); } })();`;
+                    const wrappedCode = `
+                        (async function() {
+                            try {
+                                ${jsCode}
+                            } catch (e) {
+                                await log('EXCEPTION: ' + e.message);
+                                await log(e.stack || '');
+                                kernelPanic('Unhandled exception in payload');
+                            }
+                        })();
+                    `;
+
                     const AsyncFunction = Object.getPrototypeOf(async function() {}).constructor;
                     const fn = new AsyncFunction(
                         'log', 'toHex', 'send_notification', 'syscall', 'SYSCALL',
@@ -1355,6 +1524,7 @@
                         'load_localscript', 'FW_VERSION', 'kernelPanic',
                         wrappedCode
                     );
+
                     await fn(
                         emuLog, toHex, showNotification, emuSyscall, SYSCALL_NUMBERS,
                         simMalloc, simRead64, simWrite64, simRead32, simWrite32, simRead8, simWrite8,
@@ -1395,6 +1565,7 @@
                         elf_parse, elf_run, elf_wait_for_exit, elf_loader,
                         load_localscript, FW_VERSION, kernelPanic
                     );
+
                     await emuLog('[DONE] Payload executed successfully.');
                 } catch (e) {
                     await emuLog('[ERROR] ' + e.message);
@@ -1408,14 +1579,23 @@
             // ==================== EVENT HANDLERS ====================
             btnRun.addEventListener('click', async () => {
                 const code = payloadInput.value.trim();
-                if (!code) { showNotification('Please paste a JS payload first.'); return; }
-                btnRun.disabled = true; btnRun.textContent = '⏳ Running...';
-                try { await executePayload(code); }
-                finally { btnRun.disabled = false; btnRun.textContent = '▶ Run Script'; }
+                if (!code) {
+                    showNotification('Please paste a JS payload first.');
+                    return;
+                }
+                btnRun.disabled = true;
+                btnRun.textContent = '⏳ Running...';
+                try {
+                    await executePayload(code);
+                } finally {
+                    btnRun.disabled = false;
+                    btnRun.textContent = '▶ Run Script';
+                }
             });
 
             document.getElementById('btnClear').addEventListener('click', () => {
-                logContainer.innerHTML = ''; appendLog('Log cleared. Emulator still active.', 'dim');
+                logContainer.innerHTML = '';
+                appendLog('Log cleared. Emulator still active.', 'dim');
             });
 
             document.querySelectorAll('.btn-example').forEach(btn => {
@@ -1449,7 +1629,7 @@
                 initializeEmulator();
             });
 
-            // Keyboard shortcut
+            // Keyboard shortcut: Ctrl+Enter to run
             payloadInput.addEventListener('keydown', (e) => {
                 if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
                     e.preventDefault();
@@ -1457,15 +1637,71 @@
                 }
             });
 
+            // Logger UI logic
+            function openLoggerModal() {
+                loggerIpInput.value = loggerIp;
+                loggerPortInput.value = loggerPort;
+                loggerModal.style.display = 'flex';
+            }
+
+            function closeLoggerModal() {
+                loggerModal.style.display = 'none';
+            }
+
+            function connectLogger() {
+                const ip = loggerIpInput.value.trim();
+                const port = parseInt(loggerPortInput.value, 10);
+                if (!ip || !port) {
+                    showNotification('Invalid IP or port');
+                    return;
+                }
+                loggerIp = ip;
+                loggerPort = port;
+                loggerEndpoint = `http://${ip}:${port}/log`;
+                loggerEnabled = true;
+                btnLoggerToggle.classList.add('active');
+                btnLoggerToggle.textContent = '📻 Logger (ON)';
+                showNotification(`Logger connected to ${ip}:${port}`);
+                closeLoggerModal();
+            }
+
+            function disconnectLogger() {
+                loggerEnabled = false;
+                btnLoggerToggle.classList.remove('active');
+                btnLoggerToggle.textContent = '📻 Logger';
+                showNotification('Logger disconnected');
+                closeLoggerModal();
+            }
+
+            btnLoggerToggle.addEventListener('click', () => {
+                if (loggerEnabled) {
+                    disconnectLogger();
+                } else {
+                    openLoggerModal();
+                }
+            });
+
+            document.getElementById('btnLoggerConnect').addEventListener('click', connectLogger);
+            document.getElementById('btnLoggerDisconnect').addEventListener('click', disconnectLogger);
+            document.getElementById('btnLoggerClose').addEventListener('click', closeLoggerModal);
+
             // ==================== INITIAL STATE ====================
             updateStatus(false);
             appendLog('Y2JB Emulator', 'cyan');
             appendLog('Select firmware version to begin...', 'dim');
             appendLog('');
 
+            // Show firmware modal on load
             fwModal.style.display = 'flex';
             fwSelect.focus();
+
+            // Load default example in textarea
             payloadInput.value = examplePayloads.helloworld;
+
+            console.log('%cY2JB Emulator Ready%c | %cSelect firmware and click Confirm to start',
+                'color:#3b82f6;font-size:16px;', '', 'color:#888;');
+            console.log('%cAll Y2JB APIs are simulated in the browser sandbox.',
+            'color:#eab308;');
         })();
     </script>
 </body>
