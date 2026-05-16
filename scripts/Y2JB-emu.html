@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>PS5 – Y2JB</title>
+    <title>PS5 – YouTube & Netflix</title>
     <style>
         :root {
             --bg: #0a0a0a;
@@ -11,8 +11,10 @@
             --border: #2a2a2a;
             --text: #e0e0e0;
             --dim: #888;
-            --accent: #3b82f6;
-            --accent-glow: #3b82f680;
+            --accent-yt: #3b82f6;
+            --accent-yt-glow: #3b82f680;
+            --accent-nf: #e50914;
+            --accent-nf-glow: #e5091480;
             --green: #22c55e;
             --red: #ef4444;
             --yellow: #eab308;
@@ -23,44 +25,23 @@
         }
         * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; touch-action:manipulation; }
         html, body { width:100%; height:100%; overflow:hidden; background:#000; font-family:var(--font-mono); color:var(--text); user-select:none; -webkit-user-select:none; }
-        /* Modals */
-        .modal-overlay {
-            position:fixed; inset:0; background:rgba(0,0,0,0.92); z-index:500;
-            display:flex; align-items:center; justify-content:center;
-        }
-        .modal-dialog {
-            background:#141428; border:1px solid #2a2a4a; border-radius:20px;
-            padding:30px; text-align:center; max-width:320px; width:90%;
-            box-shadow:0 20px 40px rgba(0,0,0,0.8);
-        }
+        .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.92); z-index:500; display:flex; align-items:center; justify-content:center; }
+        .modal-dialog { background:#141428; border:1px solid #2a2a4a; border-radius:20px; padding:30px; text-align:center; max-width:320px; width:90%; box-shadow:0 20px 40px rgba(0,0,0,0.8); }
         .modal-dialog h2 { font-size:1.5rem; margin-bottom:20px; color:#fff; }
-        .mode-btn, .fw-btn {
-            display:block; width:100%; margin:12px 0; padding:14px;
-            border:2px solid #333; border-radius:12px; font-size:1.1rem;
-            font-weight:600; background:transparent; color:#fff; cursor:pointer;
-            transition:0.2s;
-        }
+        .mode-btn, .fw-btn { display:block; width:100%; margin:12px 0; padding:14px; border:2px solid #333; border-radius:12px; font-size:1.1rem; font-weight:600; background:transparent; color:#fff; cursor:pointer; transition:0.2s; }
         .mode-btn.jb { border-color:#22c55e; color:#22c55e; }
         .mode-btn.jb:hover { background:#22c55e20; }
         .mode-btn.stock { border-color:#ef4444; color:#ef4444; }
         .mode-btn.stock:hover { background:#ef444420; }
         .fw-select { background:#0a0a0a; color:#fff; border:1px solid #333; padding:10px; border-radius:8px; width:100%; margin:10px 0 20px; font-family:var(--font-mono); font-size:1rem; }
-        .fw-confirm { background:var(--accent); color:#fff; box-shadow:0 0 16px var(--accent-glow); width:100%; }
-        /* Boot */
-        #boot-screen {
-            position:fixed; inset:0; background:radial-gradient(circle at 30% 40%, #0a1a3a 0%, #000 70%);
-            display:flex; align-items:center; justify-content:center; flex-direction:column;
-            z-index:300; transition:opacity 0.8s ease;
-        }
+        .fw-confirm { background:var(--accent-yt); color:#fff; box-shadow:0 0 16px var(--accent-yt-glow); width:100%; }
+        #boot-screen { position:fixed; inset:0; background:radial-gradient(circle at 30% 40%, #0a1a3a 0%, #000 70%); display:flex; align-items:center; justify-content:center; flex-direction:column; z-index:300; transition:opacity 0.8s ease; }
         .boot-logo { font-size:4.5rem; font-weight:900; background:linear-gradient(135deg, #003087, #0070cc); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; animation:pulseBoot 1.8s infinite; }
         @keyframes pulseBoot { 0%,100%{ transform:scale(1); opacity:0.9; } 50%{ transform:scale(1.05); opacity:1; } }
         .boot-progress { width:220px; height:6px; background:#1a1a2e; border-radius:3px; margin-top:30px; overflow:hidden; }
         .boot-progress-bar { width:0%; height:100%; background:linear-gradient(90deg, #003087, #0070cc); border-radius:3px; transition:width 0.5s ease; }
         .boot-text { margin-top:16px; color:#aaa; font-size:0.9rem; letter-spacing:1px; }
-        /* Home */
-        #home-screen {
-            display:none; position:fixed; inset:0; background:#000; flex-direction:column; z-index:200;
-        }
+        #home-screen { display:none; position:fixed; inset:0; background:#000; flex-direction:column; z-index:200; }
         .home-bg { position:absolute; inset:0; background:radial-gradient(ellipse at 20% 30%, #08142b 0%, #000 80%); overflow:hidden; }
         .particles { position:absolute; inset:0; pointer-events:none; }
         .particle { position:absolute; border-radius:50%; background:rgba(255,255,255,0.15); animation:float 8s infinite ease-in-out; }
@@ -77,39 +58,40 @@
         .app-icon:hover { transform:scale(1.05); background:rgba(255,255,255,0.1); }
         .app-icon img { width:48px; height:48px; margin-bottom:6px; }
         .app-icon .app-name { font-size:11px; color:#ccc; text-align:center; max-width:90px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-        /* Emulator */
-        #emulator-screen { display:none; position:fixed; inset:0; background:#000; z-index:250; flex-direction:column; }
+        /* Emulator overlay */
+        .emulator-screen { display:none; position:fixed; inset:0; background:#000; z-index:250; flex-direction:column; }
         .ps5-topbar { background:#0c0c0c; border-bottom:1px solid #1a1a1a; padding:8px 20px; display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
         .ps5-topbar .logo-area { display:flex; align-items:center; gap:12px; }
         .ps5-logo { width:36px; height:36px; background:linear-gradient(135deg, #003087, #0044cc); border-radius:6px; display:flex; align-items:center; justify-content:center; font-weight:900; font-size:14px; color:#fff; }
+        .ps5-logo.yt { background:linear-gradient(135deg, #003087, #0044cc); } .ps5-logo.nf { background:linear-gradient(135deg, #b20710, #e50914); }
         .title { font-size:15px; font-weight:600; color:#fff; }
         .subtitle { font-size:11px; color:#888; margin-left:8px; }
         .fw-badge { background:#1a1a1a; border:1px solid #333; padding:4px 10px; border-radius:12px; font-size:11px; color:#ccc; }
-        .jb-badge { background:#1a1a1a; border:1px solid #333; padding:4px 10px; border-radius:12px; font-size:11px; margin-left:12px; cursor:pointer; transition:all 0.2s; }
-        .jb-badge.stock { color:#ef4444; border-color:#ef4444; }
-        .jb-badge.jb { color:#22c55e; border-color:#22c55e; }
+        .mode-badge { background:#1a1a1a; border:1px solid #333; padding:4px 10px; border-radius:12px; font-size:11px; margin-left:12px; }
+        .mode-badge.jb { color:#22c55e; border-color:#22c55e; }
+        .mode-badge.stock { color:#ef4444; border-color:#ef4444; }
         .status-dot { width:9px; height:9px; border-radius:50%; display:inline-block; margin-right:6px; box-shadow:0 0 8px; animation:pulse-dot 2s infinite; }
         @keyframes pulse-dot { 0%,100%{ box-shadow:0 0 4px; } 50%{ box-shadow:0 0 14px; } }
         .status-text { font-size:11px; color:#aaa; display:flex; align-items:center; gap:6px; }
         .main-content { flex:1; display:flex; flex-direction:column; overflow:hidden; }
-        .yt-frame { flex:1; display:flex; flex-direction:column; margin:10px; border:2px solid #1a1a1a; border-radius:8px; overflow:hidden; background:#0d0d0d; }
-        .yt-frame-header { background:#161616; padding:8px 16px; border-bottom:1px solid #222; display:flex; align-items:center; gap:10px; flex-shrink:0; }
-        .yt-dot { width:10px; height:10px; border-radius:50%; background:#333; }
-        .yt-dot.red { background:#ff5f57; } .yt-dot.yellow { background:#febc2e; } .yt-dot.green { background:#28c840; }
+        .console-frame { flex:1; display:flex; flex-direction:column; margin:10px; border:2px solid #1a1a1a; border-radius:8px; overflow:hidden; background:#0d0d0d; }
+        .console-frame-header { background:#161616; padding:8px 16px; border-bottom:1px solid #222; display:flex; align-items:center; gap:10px; flex-shrink:0; }
+        .dot { width:10px; height:10px; border-radius:50%; background:#333; }
+        .dot.red { background:#ff5f57; } .dot.yellow { background:#febc2e; } .dot.green { background:#28c840; }
         .log-container { flex:1; overflow-y:auto; padding:12px 16px; font-size:12px; line-height:1.6; background:#080808; scroll-behavior:smooth; }
         .log-container::-webkit-scrollbar { width:6px; }
         .log-container::-webkit-scrollbar-track { background:transparent; }
         .log-container::-webkit-scrollbar-thumb { background:#222; border-radius:3px; }
         .log-line { white-space:pre-wrap; word-break:break-all; animation:fadeInLine 0.15s ease; }
         @keyframes fadeInLine { from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:translateY(0);} }
-        .log-line.dim { color:#666; } .log-line.accent { color:var(--accent); } .log-line.green { color:var(--green); }
+        .log-line.dim { color:#666; } .log-line.accent { color:var(--accent-yt); } .log-line.accent-nf { color:var(--accent-nf); } .log-line.green { color:var(--green); }
         .log-line.yellow { color:var(--yellow); } .log-line.red { color:var(--red); } .log-line.cyan { color:var(--cyan); }
         .input-area { border-top:1px solid #1a1a1a; background:#0f0f0f; padding:12px 16px; flex-shrink:0; display:flex; gap:10px; align-items:flex-end; }
         .input-area textarea { flex:1; background:#1a1a1a; border:1px solid #2a2a2a; color:#e0e0e0; font-family:var(--font-mono); font-size:12px; padding:10px 14px; border-radius:6px; resize:vertical; min-height:60px; max-height:200px; outline:none; transition:border-color 0.2s; }
-        .input-area textarea:focus { border-color:var(--accent); box-shadow:0 0 12px var(--accent-glow); }
+        .input-area textarea:focus { border-color:var(--accent-yt); box-shadow:0 0 12px var(--accent-yt-glow); }
         .btn { padding:10px 20px; border:none; border-radius:6px; font-family:var(--font-mono); font-size:12px; font-weight:600; cursor:pointer; transition:all 0.2s; letter-spacing:0.5px; white-space:nowrap; }
-        .btn-run { background:var(--accent); color:#fff; box-shadow:0 0 16px var(--accent-glow); }
-        .btn-run:hover { background:#2563eb; box-shadow:0 0 24px var(--accent-glow); transform:translateY(-1px); }
+        .btn-run { background:var(--accent-yt); color:#fff; box-shadow:0 0 16px var(--accent-yt-glow); }
+        .btn-run:hover { background:#2563eb; box-shadow:0 0 24px var(--accent-yt-glow); transform:translateY(-1px); }
         .btn-run:disabled { background:#333; color:#666; box-shadow:none; cursor:not-allowed; }
         .btn-example { background:#1a1a1a; color:#aaa; border:1px solid #2a2a2a; font-size:11px; padding:6px 12px; }
         .btn-example:hover { background:#222; color:#fff; }
@@ -122,14 +104,10 @@
         @keyframes slideInNotif { from{transform:translateX(120%); opacity:0;} to{transform:translateX(0); opacity:1;} }
         @keyframes fadeOutNotif { from{opacity:1;} to{opacity:0; transform:translateY(-10px);} }
         @media (max-width:600px) {
-            .ps5-topbar { padding:6px 12px; }
-            .title { font-size:13px; }
-            .input-area { flex-direction:column; padding:8px 10px; }
-            .input-area textarea { min-height:50px; font-size:11px; }
-            .btn { padding:8px 14px; font-size:11px; }
-            .log-container { font-size:10px; padding:8px 10px; }
-            .notifications-container { right:4px; top:50px; }
-            .ps5-notification { max-width:260px; padding:10px 14px; font-size:10px; }
+            .ps5-topbar { padding:6px 12px; } .title { font-size:13px; }
+            .input-area { flex-direction:column; padding:8px 10px; } .input-area textarea { min-height:50px; font-size:11px; }
+            .btn { padding:8px 14px; font-size:11px; } .log-container { font-size:10px; padding:8px 10px; }
+            .notifications-container { right:4px; top:50px; } .ps5-notification { max-width:260px; padding:10px 14px; font-size:10px; }
         }
     </style>
 </head>
@@ -143,22 +121,25 @@
         </div>
     </div>
 
-    <!-- FIRMWARE SELECTION (after mode) -->
+    <!-- FIRMWARE SELECTION -->
     <div class="modal-overlay" id="fwModal" style="display:none;">
         <div class="modal-dialog">
             <h2>Select PS5 Firmware</h2>
             <select class="fw-select" id="fwSelect">
-                <option value="4.03">4.03</option><option value="4.50">4.50</option>
-                <option value="5.00">5.00</option><option value="5.50">5.50</option>
-                <option value="6.00">6.00</option><option value="6.50">6.50</option>
-                <option value="7.00">7.00</option><option value="7.50">7.50</option>
-                <option value="8.00">8.00</option><option value="8.50">8.50</option>
-                <option value="9.00">9.00</option><option value="9.60">9.60</option>
-                <option value="10.00">10.00</option><option value="10.01" selected>10.01</option>
-                <option value="10.50">10.50</option>
-                <option value="11.00">11.00</option>
-                <option value="12.00">12.00</option>
-                <option value="13.00">13.00</option>
+                <option value="4.03">4.03</option><option value="4.50">4.50</option><option value="4.51">4.51</option>
+                <option value="5.00">5.00</option><option value="5.02">5.02</option><option value="5.10">5.10</option>
+                <option value="5.50">5.50</option><option value="6.00">6.00</option><option value="6.02">6.02</option>
+                <option value="6.50">6.50</option><option value="7.00">7.00</option><option value="7.01">7.01</option>
+                <option value="7.20">7.20</option><option value="7.40">7.40</option><option value="7.60">7.60</option>
+                <option value="7.61">7.61</option><option value="8.00">8.00</option><option value="8.20">8.20</option>
+                <option value="8.40">8.40</option><option value="8.60">8.60</option><option value="9.00">9.00</option>
+                <option value="9.05">9.05</option><option value="9.20">9.20</option><option value="9.40">9.40</option>
+                <option value="9.60">9.60</option><option value="10.00">10.00</option><option value="10.01" selected>10.01</option>
+                <option value="10.20">10.20</option><option value="10.40">10.40</option><option value="10.60">10.60</option>
+                <option value="11.00">11.00</option><option value="11.20">11.20</option><option value="11.40">11.40</option>
+                <option value="11.60">11.60</option><option value="12.00">12.00</option><option value="12.20">12.20</option>
+                <option value="12.40">12.40</option><option value="12.60">12.60</option><option value="12.70">12.70</option>
+                <option value="13.00">13.00</option><option value="13.20">13.20</option>
             </select>
             <button class="btn fw-confirm" id="btnFwConfirm">Confirm & Boot</button>
         </div>
@@ -184,39 +165,79 @@
                 <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ff0000'%3E%3Cpath d='M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z'%3E%3C/path%3E%3C/svg%3E" alt="YouTube">
                 <div class="app-name">YouTube</div>
             </div>
+            <div class="app-icon" id="netflixAppIcon">
+                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23e50914'%3E%3Cpath d='M11.998 2c-5.523 0-10 4.477-10 10s4.477 10 10 10 10-4.477 10-10-4.477-10-10-10zm4.213 13.469l-4.386-8.102a.5.5 0 0 1 .87-.474l4.386 8.102a.5.5 0 0 1-.87.474zm-4.213 0V8.586L6.386 16.34a.5.5 0 1 1-.87-.474L9.902 7.764a.5.5 0 0 1 .87.474v8.102z'%3E%3C/path%3E%3C/svg%3E" alt="Netflix">
+                <div class="app-name">Netflix</div>
+            </div>
         </div>
     </div>
 
-    <!-- EMULATOR CONSOLE -->
-    <div id="emulator-screen">
+    <!-- YOUTUBE EMULATOR -->
+    <div class="emulator-screen" id="emulator-yt">
         <div class="ps5-topbar">
             <div class="logo-area">
-                <div class="ps5-logo">PS</div>
+                <div class="ps5-logo yt">PS</div>
                 <span class="title">YouTube</span>
                 <span class="subtitle">· Y2JB v1.4</span>
-                <span class="fw-badge" id="fwBadge">FW 10.01</span>
-                <span class="jb-badge jb" id="jbBadge" title="Toggle JB/Stock">🔓 JB</span>
+                <span class="fw-badge" id="ytFwBadge">FW 10.01</span>
+                <span class="mode-badge jb" id="ytModeBadge">🔓 JB</span>
             </div>
             <div class="status-text">
-                <span class="status-dot" id="statusDot"></span>
-                <span id="statusLabel">Remote JS Loader Active</span>
+                <span class="status-dot" id="ytStatusDot"></span>
+                <span id="ytStatusLabel">Remote JS Loader Active</span>
             </div>
         </div>
         <div class="main-content">
-            <div class="yt-frame">
-                <div class="yt-frame-header">
-                    <span class="yt-dot red"></span><span class="yt-dot yellow"></span><span class="yt-dot green"></span>
+            <div class="console-frame">
+                <div class="console-frame-header">
+                    <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
                     <span>Y2JB Console</span>
                 </div>
-                <div class="log-container" id="logContainer"></div>
+                <div class="log-container" id="ytLogContainer"></div>
                 <div class="input-area">
-                    <textarea id="payloadInput" placeholder="Paste your JS payload here..." spellcheck="false"></textarea>
-                    <button class="btn btn-run" id="btnRun">▶ Run Script</button>
+                    <textarea id="ytPayloadInput" placeholder="Paste your JS payload here..." spellcheck="false"></textarea>
+                    <button class="btn btn-run" id="ytBtnRun">▶ Run Script</button>
                 </div>
                 <div class="examples-row" style="padding:0 16px 8px;">
-                    <button class="btn btn-example" data-payload="helloworld">👋 Hello World</button>
-                    <button class="btn btn-example" data-payload="dlsym_test">🔍 dlsym Test</button>
-                    <button class="btn btn-clear" id="btnClear">🗑 Clear</button>
+                    <button class="btn btn-example" data-console="yt" data-payload="helloworld">👋 Hello World</button>
+                    <button class="btn btn-example" data-console="yt" data-payload="setlogserver">📡 Set Log Server</button>
+                    <button class="btn btn-example" data-console="yt" data-payload="dlsym_test">🔍 dlsym Test</button>
+                    <button class="btn btn-clear" data-console="yt">🗑 Clear</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- NETFLIX EMULATOR -->
+    <div class="emulator-screen" id="emulator-nf">
+        <div class="ps5-topbar">
+            <div class="logo-area">
+                <div class="ps5-logo nf">N</div>
+                <span class="title">Netflix</span>
+                <span class="subtitle">· Netflix N Hack v1.0</span>
+                <span class="fw-badge" id="nfFwBadge">FW 10.01</span>
+                <span class="mode-badge jb" id="nfModeBadge">🔓 JB</span>
+            </div>
+            <div class="status-text">
+                <span class="status-dot" id="nfStatusDot"></span>
+                <span id="nfStatusLabel">Remote JS Loader Active</span>
+            </div>
+        </div>
+        <div class="main-content">
+            <div class="console-frame">
+                <div class="console-frame-header">
+                    <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+                    <span>Netflix Console</span>
+                </div>
+                <div class="log-container" id="nfLogContainer"></div>
+                <div class="input-area">
+                    <textarea id="nfPayloadInput" placeholder="Paste your JS payload here..." spellcheck="false"></textarea>
+                    <button class="btn btn-run" id="nfBtnRun">▶ Run Script</button>
+                </div>
+                <div class="examples-row" style="padding:0 16px 8px;">
+                    <button class="btn btn-example" data-console="nf" data-payload="helloworld">👋 Hello World</button>
+                    <button class="btn btn-example" data-console="nf" data-payload="netflix_hack">🚀 Netflix‑N‑Hack</button>
+                    <button class="btn btn-clear" data-console="nf">🗑 Clear</button>
                 </div>
             </div>
         </div>
@@ -226,7 +247,7 @@
 
     <script>
         (() => {
-            /* ========== PS5 KEYS (for reference / future hardware crypto integration) ========== */
+            /* ========== KEYS (all supplied) ========== */
             const PS5_KEYS = {
                 ROM_KEYS: [
                     "EC0561F36B62400E6FA0EC2EDCFD8D17","33889AE0E03180AB6DAE39D54BE037E6",
@@ -263,30 +284,59 @@ MIIG4wIBAAKCAYEAqx29QzlJMxajXEBOLCKXuDNoXBrTVOjFuniI0bD68lqPFKoG
 -----END RSA PRIVATE KEY-----`
             };
 
-            /* ========== EMULATOR STATE ========== */
+            /* ========== NETFLIX GADGETS ========== */
+            const gadgets_eu_6 = {
+                pop_rax: 0x6c233n, pop_rdi: 0x1a729bn, pop_rsi: 0x14d8n, pop_rdx: 0x3ec42n,
+                pop_rcx: 0x2485n, pop_r8: 0x6c232n, pop_r9: 0x66511bn,
+                ret: 0x42n, pop_rbp: 0x79n, pop_rbx: 0x2e1ebn,
+                pop_rsp: 0x1df1e1n, pop_rsp_pop_rbp: 0x17ecb4en,
+                mov_qword_ptr_rdi_rax: 0x1dcba9n, mov_qword_ptr_rdi_rdx: 0x36db4en,
+                mov_rsi_qword_ptr_rsi_test_sil_1_jne: 0x12ee681n,
+                mov_rdi_rsi_mov_qword_ptr_rdx_rdi: 0x09776c4n,
+            };
+            const gadgets_us_5 = {
+                pop_rax: 0x6c233n, pop_rdi: 0x24f3c2n, pop_rsi: 0x14d8n, pop_rdx: 0x3ec42n,
+                pop_rcx: 0x2485n, pop_r8: 0x6c232n, pop_r9: 0x66511bn,
+                ret: 0x42n, pop_rbp: 0x79n, pop_rbx: 0x2e1ebn,
+                pop_rsp: 0x13c719n, pop_rsp_pop_rbp: 0x17ecb4en,
+                mov_qword_ptr_rdi_rax: 0x1dcba9n, mov_qword_ptr_rdi_rdx: 0x36db4en,
+                mov_rsi_qword_ptr_rsi_test_sil_1_jne: 0x12ee681n,
+                mov_rdi_rsi_mov_qword_ptr_rdx_rdi: 0x09776c4n,
+            };
+            const gadgets_list = { 'Gemini-U6-2': gadgets_eu_6, 'Gemini-U5-18': gadgets_us_5 };
+
+            /* ========== GLOBAL STATE ========== */
             let FW_VERSION = "10.01";
             let simJailbroken = false;
-            const EMULATOR_VERSION = "Y2JB 1.4 Emulator OS booting";
 
             // DOM elements
             const modeModal = document.getElementById('modeModal');
             const fwModal = document.getElementById('fwModal');
-            const fwSelect = document.getElementById('fwSelect');
-            const btnFwConfirm = document.getElementById('btnFwConfirm');
             const bootScreen = document.getElementById('boot-screen');
             const homeScreen = document.getElementById('home-screen');
-            const emulatorScreen = document.getElementById('emulator-screen');
+            const ytEmulator = document.getElementById('emulator-yt');
+            const nfEmulator = document.getElementById('emulator-nf');
             const bootProgressBar = document.getElementById('bootProgressBar');
             const bootStatus = document.getElementById('bootStatus');
-            const youtubeAppIcon = document.getElementById('youtubeAppIcon');
-            const fwBadge = document.getElementById('fwBadge');
-            const jbBadge = document.getElementById('jbBadge');
-            const statusDot = document.getElementById('statusDot');
-            const statusLabel = document.getElementById('statusLabel');
-            const logContainer = document.getElementById('logContainer');
-            const payloadInput = document.getElementById('payloadInput');
-            const btnRun = document.getElementById('btnRun');
             const notifContainer = document.getElementById('notificationsContainer');
+
+            // YouTube console elements
+            const ytLogContainer = document.getElementById('ytLogContainer');
+            const ytPayloadInput = document.getElementById('ytPayloadInput');
+            const ytBtnRun = document.getElementById('ytBtnRun');
+            const ytFwBadge = document.getElementById('ytFwBadge');
+            const ytModeBadge = document.getElementById('ytModeBadge');
+            const ytStatusDot = document.getElementById('ytStatusDot');
+            const ytStatusLabel = document.getElementById('ytStatusLabel');
+
+            // Netflix console elements
+            const nfLogContainer = document.getElementById('nfLogContainer');
+            const nfPayloadInput = document.getElementById('nfPayloadInput');
+            const nfBtnRun = document.getElementById('nfBtnRun');
+            const nfFwBadge = document.getElementById('nfFwBadge');
+            const nfModeBadge = document.getElementById('nfModeBadge');
+            const nfStatusDot = document.getElementById('nfStatusDot');
+            const nfStatusLabel = document.getElementById('nfStatusLabel');
 
             /* ========== SIMULATED HARDWARE ========== */
             const simMemory = new Map();
@@ -313,6 +363,7 @@ MIIG4wIBAAKCAYEAqx29QzlJMxajXEBOLCKXuDNoXBrTVOjFuniI0bD68lqPFKoG
 
             const EBOOT_BASE = 0x00400000n, LIBC_BASE = 0x00800000n, LIBKERNEL_BASE = 0x00C00000n;
 
+            /* ========== Y2JB ROP GADGETS ========== */
             const ROP = {
                 pop_rsp: EBOOT_BASE + 0x49f7fn, pop_rax: EBOOT_BASE + 0x2d954n,
                 pop_rdi: EBOOT_BASE + 0xb0ec5n, pop_rsi: EBOOT_BASE + 0xb8a81n,
@@ -323,31 +374,41 @@ MIIG4wIBAAKCAYEAqx29QzlJMxajXEBOLCKXuDNoXBrTVOjFuniI0bD68lqPFKoG
                 mov_rsp_rbp: EBOOT_BASE + 0xb1424n, ret: EBOOT_BASE + 0x32n,
             };
 
-            const DLSYM_OFFSETS = {
-                "4.03":0x317D0n,"4.50":0x317D0n,"5.00":0x32160n,"5.50":0x32230n,
-                "6.00":0x330A0n,"6.50":0x33110n,"7.00":0x33E90n,"7.50":0x33ED0n,
-                "8.00":0x342E0n,"8.50":0x342E0n,"9.00":0x350E0n,"9.60":0x350E0n,
-                "10.00":0x349C0n,"10.01":0x349C0n,"10.50":0x349C0n,
-                "11.00":0x349C0n,"12.00":0x349C0n,"13.00":0x349C0n
+            /* ========== UNIFIED SYSCALL TABLE ========== */
+            const SYSCALL = {
+                read: 0x3n, write: 0x4n, open: 0x5n, close: 0x6n,
+                setuid: 0x17n, getuid: 0x18n, getpid: 0x14n,
+                mprotect: 0x4an, dlsym: 0x24fn, jitshm_create: 0x215n, jitshm_alias: 0x216n,
+                sched_yield: 0x14bn, thr_self: 0x1b0n, thr_exit: 0x1afn, thr_new: 0x1c7n,
+                cpuset_setaffinity: 0x1e8n, cpuset_getaffinity: 0x1e7n, rtprio_thread: 0x1d2n,
+                pipe: 0x2an, socket: 0x61n, socketpair: 0x87n, bind: 0x68n, listen: 0x6an,
+                connect: 0x62n, setsockopt: 0x69n, getsockopt: 0x76n, getsockname: 0x20n,
+                evf_create: 0x21an, evf_delete: 0x21bn, evf_set: 0x220n, evf_clear: 0x221n,
+                thr_suspend_ucontext: 0x278n, thr_resume_ucontext: 0x279n,
+                aio_multi_delete: 0x296n, aio_multi_wait: 0x297n,
+                aio_multi_poll: 0x298n, aio_multi_cancel: 0x29an, aio_submit_cmd: 0x29dn,
+                unlink: 0xan, chmod: 0xfn, rename: 0x80n, mkdir: 0x88n, rmdir: 0x89n,
+                stat: 0xbcn, fstat: 0xbdn, mmap: 0x1ddn, munmap: 0x49n,
+                nanosleep: 0xf0n, sysctl: 0xcan, netgetiflist: 0x7dn,
+                is_in_sandbox: 0x249n, randomized_path: 0x25an, dynlib_load_prx: 0x252n,
+                kexec: 0x661n
             };
 
-            const SYSCALL = {
-                read:0x3n, write:0x4n, open:0x5n, close:0x6n,
-                setuid:0x17n, getuid:0x18n, getpid:0x14n,
-                mprotect:0x4an, dlsym:0x24fn, jitshm_create:0x215n, jitshm_alias:0x216n,
-                sched_yield:0x14bn, thr_self:0x1b0n, thr_exit:0x1afn, thr_new:0x1c7n,
-                cpuset_setaffinity:0x1e8n, cpuset_getaffinity:0x1e7n, rtprio_thread:0x1d2n,
-                pipe:0x2an, socket:0x61n, socketpair:0x87n, bind:0x68n, listen:0x6an,
-                connect:0x62n, setsockopt:0x69n, getsockopt:0x76n, getsockname:0x20n,
-                evf_create:0x21an, evf_delete:0x21bn, evf_set:0x220n, evf_clear:0x221n,
-                thr_suspend_ucontext:0x278n, thr_resume_ucontext:0x279n,
-                aio_multi_delete:0x296n, aio_multi_wait:0x297n,
-                aio_multi_poll:0x298n, aio_multi_cancel:0x29an, aio_submit_cmd:0x29dn,
-                unlink:0xan, chmod:0xfn, rename:0x80n, mkdir:0x88n, rmdir:0x89n,
-                stat:0xbcn, fstat:0xbdn, mmap:0x1ddn, munmap:0x49n,
-                nanosleep:0xf0n, sysctl:0xcan, netgetiflist:0x7dn,
-                is_in_sandbox:0x249n, randomized_path:0x25an, dynlib_load_prx:0x252n,
-                // ... (full table unchanged)
+            const DLSYM_OFFSETS = {
+                "4.03":0x317D0n,"4.50":0x317D0n,"4.51":0x317D0n,
+                "5.00":0x32160n,"5.02":0x32160n,"5.10":0x32160n,
+                "5.50":0x32230n,"6.00":0x330A0n,"6.02":0x330A0n,
+                "6.50":0x33110n,"7.00":0x33E90n,"7.01":0x33E90n,
+                "7.20":0x33ED0n,"7.40":0x33ED0n,"7.60":0x33ED0n,
+                "7.61":0x33ED0n,"8.00":0x342E0n,"8.20":0x342E0n,
+                "8.40":0x342E0n,"8.60":0x342E0n,"9.00":0x350E0n,
+                "9.05":0x350E0n,"9.20":0x350E0n,"9.40":0x350E0n,
+                "9.60":0x350E0n,"10.00":0x349C0n,"10.01":0x349C0n,
+                "10.20":0x349C0n,"10.40":0x349C0n,"10.60":0x349C0n,
+                "11.00":0x349C0n,"11.20":0x349C0n,"11.40":0x349C0n,
+                "11.60":0x349C0n,"12.00":0x349C0n,"12.20":0x349C0n,
+                "12.40":0x349C0n,"12.60":0x349C0n,"12.70":0x349C0n,
+                "13.00":0x349C0n,"13.20":0x349C0n
             };
 
             function emuSyscall(num, a1, a2, a3, a4, a5, a6) {
@@ -356,7 +417,6 @@ MIIG4wIBAAKCAYEAqx29QzlJMxajXEBOLCKXuDNoXBrTVOjFuniI0bD68lqPFKoG
                 a4 = BigInt(a4 || 0n); a5 = BigInt(a5 || 0n); a6 = BigInt(a6 || 0n);
                 const priv = [SYSCALL.setuid, SYSCALL.dlsym, SYSCALL.jitshm_create, SYSCALL.jitshm_alias, SYSCALL.mprotect];
                 if (!simJailbroken && priv.includes(n)) return 0n;
-
                 if (n === SYSCALL.getpid) return simPid;
                 if (n === SYSCALL.getuid) return simUid;
                 if (n === SYSCALL.is_in_sandbox) return simSandbox;
@@ -411,6 +471,7 @@ MIIG4wIBAAKCAYEAqx29QzlJMxajXEBOLCKXuDNoXBrTVOjFuniI0bD68lqPFKoG
                 if (n === SYSCALL.rename) return 0n;
                 if (n === SYSCALL.mkdir) return 0n;
                 if (n === SYSCALL.rmdir) return 0n;
+                if (n === SYSCALL.kexec) return 0x200000000n;
                 return 0n;
             }
 
@@ -444,7 +505,7 @@ MIIG4wIBAAKCAYEAqx29QzlJMxajXEBOLCKXuDNoXBrTVOjFuniI0bD68lqPFKoG
             function get_nidpath() { return 'user/home/abcd1234'; }
             function nanosleep() {}
             async function send_network() {}
-            async function kill_youtube() { await emuLog('kill_youtube: simulated app termination'); }
+            async function kill_youtube() { await emuLog('kill_youtube: simulated', 'dim'); }
             async function elf_parse() { return 0x926100000n; }
             async function elf_run() { return {thr_handle:500n,payloadout:simMalloc(4)}; }
             async function elf_wait_for_exit(handle,payloadout) { simWrite32(payloadout,0n); }
@@ -487,15 +548,7 @@ MIIG4wIBAAKCAYEAqx29QzlJMxajXEBOLCKXuDNoXBrTVOjFuniI0bD68lqPFKoG
             let NETWORK_LOGGING = false;
             let LOG_SERVER = 'http://192.168.1.180:8080/log';
 
-            // UI
-            function appendLog(msg, cls='') {
-                const div = document.createElement('div'); div.className = 'log-line '+cls; div.textContent = msg;
-                logContainer.appendChild(div); logContainer.scrollTop = logContainer.scrollHeight;
-            }
-            async function emuLog(msg) {
-                for (const line of String(msg).split('\n')) appendLog(line||'\u00A0');
-                await new Promise(r => requestAnimationFrame(()=>setTimeout(r,1)));
-            }
+            // UI helpers – generic
             function showNotification(text) {
                 const notif = document.createElement('div'); notif.className = 'ps5-notification';
                 notif.innerHTML = `<div class="notif-icon">📢</div><div class="notif-text">${text.replace(/\n/g,'<br>')}</div>`;
@@ -503,41 +556,68 @@ MIIG4wIBAAKCAYEAqx29QzlJMxajXEBOLCKXuDNoXBrTVOjFuniI0bD68lqPFKoG
                 setTimeout(()=>{ if(notif.parentNode) notif.remove(); }, 4200);
             }
 
-            function updateJbUI() {
-                if(simJailbroken) {
-                    jbBadge.className='jb-badge jb'; jbBadge.innerHTML='🔓 JB';
-                    statusDot.style.background='var(--green)'; statusDot.style.boxShadow='0 0 8px var(--green)';
-                    statusLabel.textContent='Remote JS Loader Active (JB)';
-                } else {
-                    jbBadge.className='jb-badge stock'; jbBadge.innerHTML='🔒 Stock';
-                    statusDot.style.background='#f97316'; statusDot.style.boxShadow='0 0 8px #f97316';
-                    statusLabel.textContent='Remote JS Loader Active (Stock)';
-                }
-                btnRun.disabled = false;
-            }
-            function toggleJb() {
-                simJailbroken = !simJailbroken;
-                simUid = simJailbroken ? 0n : 1n;
-                simSandbox = simJailbroken ? 0n : 1n;
-                updateJbUI();
-                showNotification(simJailbroken ? 'Switched to Jailbroken mode' : 'Switched to Stock mode');
-            }
-            jbBadge.addEventListener('click', toggleJb);
-
-            async function initEmulator() {
-                updateJbUI();
-                fwBadge.textContent = 'FW ' + FW_VERSION;
-                await emuLog('═'.repeat(50));
-                await emuLog(EMULATOR_VERSION);
-                await emuLog('═'.repeat(50));
-                await emuLog(`FW ${FW_VERSION} | ${simJailbroken?'JB':'STOCK'} mode`);
-                await emuLog('Kernel simulation loaded. Ready for payloads.\n');
-                await emuLog('[SYS] Real PS5 firmware detected: ' + FW_VERSION);
+            // Create log appender for a specific console
+            function makeLogger(logContainer) {
+                return async function emuLog(msg, cls='') {
+                    const lines = String(msg).split('\n');
+                    for (const line of lines) {
+                        const div = document.createElement('div');
+                        div.className = 'log-line ' + cls;
+                        div.textContent = line || '\u00A0';
+                        logContainer.appendChild(div);
+                    }
+                    logContainer.scrollTop = logContainer.scrollHeight;
+                    await new Promise(r => requestAnimationFrame(()=>setTimeout(r,1)));
+                };
             }
 
-            async function executePayload(code) {
-                await emuLog('─'.repeat(40));
-                await emuLog('[EXEC] Running script...');
+            // YouTube logger
+            const ytLog = makeLogger(ytLogContainer);
+            // Netflix logger
+            const nfLog = makeLogger(nfLogContainer);
+
+            // Update mode badge for both consoles
+            function updateModeBadges() {
+                const cls = simJailbroken ? 'jb' : 'stock';
+                const text = simJailbroken ? '🔓 JB' : '🔒 Stock';
+                ytModeBadge.className = `mode-badge ${cls}`; ytModeBadge.textContent = text;
+                nfModeBadge.className = `mode-badge ${cls}`; nfModeBadge.textContent = text;
+                const dotColor = simJailbroken ? 'var(--green)' : '#f97316';
+                const shadow = `0 0 8px ${dotColor}`;
+                ytStatusDot.style.background = dotColor; ytStatusDot.style.boxShadow = shadow;
+                nfStatusDot.style.background = dotColor; nfStatusDot.style.boxShadow = shadow;
+                ytStatusLabel.textContent = simJailbroken ? 'Remote JS Loader Active (JB)' : 'Remote JS Loader Active (Stock)';
+                nfStatusLabel.textContent = simJailbroken ? 'Remote JS Loader Active (JB)' : 'Remote JS Loader Active (Stock)';
+            }
+
+            // Initialize YouTube emulator
+            async function initYTEmulator() {
+                updateModeBadges();
+                ytFwBadge.textContent = 'FW ' + FW_VERSION;
+                await ytLog('═'.repeat(50), 'accent');
+                await ytLog('Y2JB 1.4 Emulator', 'accent');
+                await ytLog('═'.repeat(50), 'accent');
+                await ytLog(`FW ${FW_VERSION} | ${simJailbroken?'JB':'STOCK'} mode`);
+                await ytLog('Kernel simulation loaded. Ready for payloads.\n');
+                ytBtnRun.disabled = false;
+            }
+
+            // Initialize Netflix emulator
+            async function initNFEmulator() {
+                updateModeBadges();
+                nfFwBadge.textContent = 'FW ' + FW_VERSION;
+                await nfLog('═'.repeat(50), 'accent-nf');
+                await nfLog('Netflix N Hack 1.0 Emulator', 'accent-nf');
+                await nfLog('═'.repeat(50), 'accent-nf');
+                await nfLog(`FW ${FW_VERSION} | ${simJailbroken?'JB':'STOCK'} mode`);
+                await nfLog('Kernel simulation loaded. Ready for payloads.\n');
+                nfBtnRun.disabled = false;
+            }
+
+            // Generic payload executor
+            async function executePayload(code, logFunc) {
+                await logFunc('─'.repeat(40));
+                await logFunc('[EXEC] Running script...');
                 try {
                     const AsyncFunction = Object.getPrototypeOf(async function(){}).constructor;
                     const fn = new AsyncFunction(
@@ -566,10 +646,11 @@ MIIG4wIBAAKCAYEAqx29QzlJMxajXEBOLCKXuDNoXBrTVOjFuniI0bD68lqPFKoG
                         'get_gvmspace','get_relative_va','get_kernel_offset','update_kernel_offsets',
                         'patch_dynlib_restriction','restore_dynlib_restriction','elf_parse','elf_run',
                         'elf_wait_for_exit','elf_loader','load_localscript','FW_VERSION',
-                        'compare_version','PS5_KEYS', code
+                        'compare_version','PS5_KEYS','gadgets_eu_6','gadgets_us_5','gadgets_list',
+                        code
                     );
                     await fn(
-                        emuLog, toHex, showNotification, emuSyscall, SYSCALL,
+                        logFunc, toHex, showNotification, emuSyscall, SYSCALL,
                         simMalloc, simRead64, simWrite64, simRead32, simWrite32, simRead8, simWrite8,
                         simRead16, simWrite16, simAddrof, simCreateFakeobj, (obj)=>simAddrof(obj)+0x10n,
                         (x)=>x, ()=>0x900010000n, ()=>0x200000000n, ()=>0n, simMalloc(8), [0n], 0n, [], [], {},
@@ -577,7 +658,7 @@ MIIG4wIBAAKCAYEAqx29QzlJMxajXEBOLCKXuDNoXBrTVOjFuniI0bD68lqPFKoG
                         LIBC_BASE+0x73520n, LIBC_BASE+0xCC5A0n, LIBKERNEL_BASE+(DLSYM_OFFSETS[FW_VERSION]||0x350E0n),
                         EBOOT_BASE+0x2A65EF8n, EBOOT_BASE+0x2A65F00n,
                         LIBC_BASE+0x4BF0n, LIBC_BASE+0x49F0n, LIBC_BASE+0x113C08n,
-                        false, LOG_SERVER, null, null, EMULATOR_VERSION,
+                        false, LOG_SERVER, null, null, 'Netflix N Hack / Y2JB',
                         0x4000, 0x1000, 0x2001n, 2n, 28n, 1n, 1n, 2n, 17n, 6n, 41n,
                         46n, 51n, 61n, 48n, 25n, 0xffffn, 4n, 0x80n, 0n,
                         0x0n,0x1n,0x2n,0x4n, 0x10n,0x20n,0x30n,
@@ -602,33 +683,77 @@ MIIG4wIBAAKCAYEAqx29QzlJMxajXEBOLCKXuDNoXBrTVOjFuniI0bD68lqPFKoG
                         elf_parse, elf_run, elf_wait_for_exit, elf_loader,
                         load_localscript, FW_VERSION,
                         (a,b) => { const [am,an]=a.split('.').map(Number); const [bm,bn]=b.split('.').map(Number); return am===bm?an-bn:am-bm; },
-                        PS5_KEYS
+                        PS5_KEYS, gadgets_eu_6, gadgets_us_5, gadgets_list
                     );
-                    await emuLog('[DONE] Payload executed.');
-                } catch(e) { await emuLog('[ERROR] '+e.message); }
-                await emuLog('─'.repeat(40));
+                    await logFunc('[DONE] Payload executed.');
+                } catch(e) { await logFunc('[ERROR] '+e.message); }
+                await logFunc('─'.repeat(40));
             }
 
-            btnRun.addEventListener('click', async () => {
-                const code = payloadInput.value.trim();
+            // YouTube Run button
+            ytBtnRun.addEventListener('click', async () => {
+                const code = ytPayloadInput.value.trim();
                 if(!code) { showNotification('Enter a payload first.'); return; }
-                btnRun.disabled = true; btnRun.textContent = '⏳ Running...';
-                await executePayload(code);
-                btnRun.disabled = false; btnRun.textContent = '▶ Run Script';
+                ytBtnRun.disabled = true; ytBtnRun.textContent = '⏳ Running...';
+                await executePayload(code, ytLog);
+                ytBtnRun.disabled = false; ytBtnRun.textContent = '▶ Run Script';
             });
-            document.getElementById('btnClear').addEventListener('click', ()=>{ logContainer.innerHTML=''; appendLog('Console cleared.','dim'); });
+
+            // Netflix Run button
+            nfBtnRun.addEventListener('click', async () => {
+                const code = nfPayloadInput.value.trim();
+                if(!code) { showNotification('Enter a payload first.'); return; }
+                nfBtnRun.disabled = true; nfBtnRun.textContent = '⏳ Running...';
+                await executePayload(code, nfLog);
+                nfBtnRun.disabled = false; nfBtnRun.textContent = '▶ Run Script';
+            });
+
+            // Example buttons & clear for both consoles
             document.querySelectorAll('.btn-example').forEach(btn => {
-                btn.addEventListener('click', ()=>{
+                btn.addEventListener('click', () => {
+                    const console = btn.dataset.console;
                     const key = btn.dataset.payload;
                     const examples = {
-                        helloworld: `await log("Hello from Y2JB!");\nsend_notification("Hello!");`,
-                        dlsym_test: `check_jailbroken();\nlet addr = dlsym(0x2001n, "sceKernelAllocateMainDirectMemory");\nawait log("dlsym -> " + toHex(addr));`
+                        yt: {
+                            helloworld: `await log("Hello from Y2JB!");\nsend_notification("Hello!");`,
+                            setlogserver: `LOG_SERVER = 'http://192.168.1.180:8080/log';\nawait log("Log server set to " + LOG_SERVER);`,
+                            dlsym_test: `check_jailbroken();\nlet addr = dlsym(0x2001n, "sceKernelAllocateMainDirectMemory");\nawait log("dlsym -> " + toHex(addr));`
+                        },
+                        nf: {
+                            helloworld: `await log("Hello from Netflix N Hack!");\nsend_notification("Hello!");`,
+                            netflix_hack: `/* Netflix-N-Hack exploit simulation */
+(async () => {
+    await log("Netflix-N-Hack started...");
+    let hole = make_hole(); // mock
+    await log("Hole created: " + toHex(hole));
+    await log("Exploit chain complete. Enjoy!");
+})();`
+                        }
                     };
-                    if(examples[key]) { payloadInput.value = examples[key]; payloadInput.focus(); }
+                    if (console === 'yt') {
+                        ytPayloadInput.value = examples.yt[key] || '';
+                        ytPayloadInput.focus();
+                    } else {
+                        nfPayloadInput.value = examples.nf[key] || '';
+                        nfPayloadInput.focus();
+                    }
                 });
             });
 
-            // Boot & home
+            document.querySelectorAll('.btn-clear').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    if (btn.dataset.console === 'yt') {
+                        ytLogContainer.innerHTML = ''; ytLog('Console cleared.', 'dim');
+                    } else {
+                        nfLogContainer.innerHTML = ''; nfLog('Console cleared.', 'dim');
+                    }
+                });
+            });
+
+            // Mock make_hole for Netflix payloads
+            window.make_hole = function() { return 0x1337n; };
+
+            // Boot & home UI
             function generateParticles() {
                 const container = document.getElementById('particlesContainer');
                 container.innerHTML = '';
@@ -652,7 +777,10 @@ MIIG4wIBAAKCAYEAqx29QzlJMxajXEBOLCKXuDNoXBrTVOjFuniI0bD68lqPFKoG
             setInterval(updateClock, 1000); updateClock();
 
             function startBoot() {
-                bootScreen.style.display='flex'; homeScreen.style.display='none'; emulatorScreen.style.display='none';
+                bootScreen.style.display='flex';
+                homeScreen.style.display='none';
+                ytEmulator.style.display='none';
+                nfEmulator.style.display='none';
                 let progress = 0;
                 const interval = setInterval(() => {
                     progress += Math.random()*8;
@@ -674,21 +802,29 @@ MIIG4wIBAAKCAYEAqx29QzlJMxajXEBOLCKXuDNoXBrTVOjFuniI0bD68lqPFKoG
                 },500);
             }
 
-            youtubeAppIcon.addEventListener('click', ()=>{
-                homeScreen.style.display='none'; emulatorScreen.style.display='flex'; initEmulator();
+            // App icon click handlers
+            document.getElementById('youtubeAppIcon').addEventListener('click', () => {
+                homeScreen.style.display='none';
+                ytEmulator.style.display='flex';
+                initYTEmulator();
+            });
+            document.getElementById('netflixAppIcon').addEventListener('click', () => {
+                homeScreen.style.display='none';
+                nfEmulator.style.display='flex';
+                initNFEmulator();
             });
 
-            // Flow: mode -> FW -> boot
-            document.getElementById('btnJbMode').addEventListener('click', ()=>{
+            // Mode selection flow
+            document.getElementById('btnJbMode').addEventListener('click', () => {
                 simJailbroken = true; simUid=0n; simSandbox=0n;
                 modeModal.style.display='none'; fwModal.style.display='flex';
             });
-            document.getElementById('btnStockMode').addEventListener('click', ()=>{
+            document.getElementById('btnStockMode').addEventListener('click', () => {
                 simJailbroken = false; simUid=1n; simSandbox=1n;
                 modeModal.style.display='none'; fwModal.style.display='flex';
             });
-            btnFwConfirm.addEventListener('click', ()=>{
-                FW_VERSION = fwSelect.value;
+            document.getElementById('btnFwConfirm').addEventListener('click', () => {
+                FW_VERSION = document.getElementById('fwSelect').value;
                 fwModal.style.display='none';
                 startBoot();
             });
@@ -698,8 +834,10 @@ MIIG4wIBAAKCAYEAqx29QzlJMxajXEBOLCKXuDNoXBrTVOjFuniI0bD68lqPFKoG
             document.addEventListener('gesturechange', e=>e.preventDefault());
             document.addEventListener('gestureend', e=>e.preventDefault());
 
-            // Initial state: show mode modal
-            bootScreen.style.display='none'; fwModal.style.display='none'; modeModal.style.display='flex';
+            // Initial state
+            bootScreen.style.display='none';
+            fwModal.style.display='none';
+            modeModal.style.display='flex';
         })();
     </script>
 </body>
