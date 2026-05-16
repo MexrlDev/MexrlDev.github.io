@@ -3,669 +3,1381 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>PS5 – YouTube & Netflix</title>
+    <title>Y2JB Emulator</title>
     <style>
+        /* ---- RESET & ROOT ---- */
+        html {
+            -webkit-text-size-adjust: 100%;   /* prevent text scaling on rotate */
+            text-size-adjust: 100%;
+        }
         :root {
             --bg: #0a0a0a;
             --surface: #141414;
             --border: #2a2a2a;
             --text: #e0e0e0;
             --dim: #888;
-            --accent-yt: #3b82f6;
-            --accent-yt-glow: #3b82f680;
-            --accent-nf: #e50914;
-            --accent-nf-glow: #e5091480;
+            --accent: #3b82f6;
+            --accent-glow: #3b82f680;
             --green: #22c55e;
             --red: #ef4444;
             --yellow: #eab308;
             --cyan: #06b6d4;
             --ps-blue: #003087;
+            --ps-light: #1a5fcf;
             --notify-bg: #1a1a2e;
             --font-mono: 'SF Mono', 'Cascadia Code', 'Consolas', 'Monaco', 'Courier New', monospace;
         }
-        * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; touch-action:manipulation; }
-        html, body { width:100%; height:100%; overflow:hidden; background:#000; font-family:var(--font-mono); color:var(--text); user-select:none; -webkit-user-select:none; }
-        .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.92); z-index:500; display:flex; align-items:center; justify-content:center; }
-        .modal-dialog { background:#141428; border:1px solid #2a2a4a; border-radius:20px; padding:30px; text-align:center; max-width:320px; width:90%; box-shadow:0 20px 40px rgba(0,0,0,0.8); }
-        .modal-dialog h2 { font-size:1.5rem; margin-bottom:20px; color:#fff; }
-        .mode-btn, .fw-btn { display:block; width:100%; margin:12px 0; padding:14px; border:2px solid #333; border-radius:12px; font-size:1.1rem; font-weight:600; background:transparent; color:#fff; cursor:pointer; transition:0.2s; }
-        .mode-btn.jb { border-color:#22c55e; color:#22c55e; }
-        .mode-btn.jb:hover { background:#22c55e20; }
-        .mode-btn.stock { border-color:#ef4444; color:#ef4444; }
-        .mode-btn.stock:hover { background:#ef444420; }
-        .fw-select { background:#0a0a0a; color:#fff; border:1px solid #333; padding:10px; border-radius:8px; width:100%; margin:10px 0 20px; font-family:var(--font-mono); font-size:1rem; }
-        .fw-confirm { background:var(--accent-yt); color:#fff; box-shadow:0 0 16px var(--accent-yt-glow); width:100%; }
-        #boot-screen { position:fixed; inset:0; background:radial-gradient(circle at 30% 40%, #0a1a3a 0%, #000 70%); display:flex; align-items:center; justify-content:center; flex-direction:column; z-index:300; transition:opacity 0.8s ease; }
-        .boot-logo { font-size:4.5rem; font-weight:900; background:linear-gradient(135deg, #003087, #0070cc); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; animation:pulseBoot 1.8s infinite; }
-        @keyframes pulseBoot { 0%,100%{ transform:scale(1); opacity:0.9; } 50%{ transform:scale(1.05); opacity:1; } }
-        .boot-progress { width:220px; height:6px; background:#1a1a2e; border-radius:3px; margin-top:30px; overflow:hidden; }
-        .boot-progress-bar { width:0%; height:100%; background:linear-gradient(90deg, #003087, #0070cc); border-radius:3px; transition:width 0.5s ease; }
-        .boot-text { margin-top:16px; color:#aaa; font-size:0.9rem; letter-spacing:1px; }
-        #home-screen { display:none; position:fixed; inset:0; background:#000; flex-direction:column; z-index:200; }
-        .home-bg { position:absolute; inset:0; background:radial-gradient(ellipse at 20% 30%, #08142b 0%, #000 80%); overflow:hidden; }
-        .particles { position:absolute; inset:0; pointer-events:none; }
-        .particle { position:absolute; border-radius:50%; background:rgba(255,255,255,0.15); animation:float 8s infinite ease-in-out; }
-        @keyframes float { 0%,100%{ transform:translateY(0px) translateX(0px); opacity:0.2; } 25%{ transform:translateY(-30px) translateX(20px); opacity:0.5; } 50%{ transform:translateY(-60px) translateX(-10px); opacity:0.3; } 75%{ transform:translateY(-20px) translateX(-25px); opacity:0.7; } }
-        .top-bar { display:flex; align-items:center; justify-content:space-between; padding:12px 20px; background:rgba(10,10,20,0.7); backdrop-filter:blur(10px); z-index:10; color:#fff; }
-        .user-area { display:flex; align-items:center; gap:10px; }
-        .avatar { width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg, #003087, #0070cc); display:flex; align-items:center; justify-content:center; font-weight:bold; color:#fff; font-size:16px; }
-        .username { font-size:14px; font-weight:600; }
-        .time { font-size:14px; color:#ccc; }
-        .icons-area { display:flex; gap:18px; color:#aaa; }
-        .icons-area span { font-size:18px; }
-        .app-grid { display:flex; flex-wrap:wrap; justify-content:center; align-items:flex-start; padding:40px 20px; gap:28px; flex:1; overflow-y:auto; position:relative; z-index:5; }
-        .app-icon { width:100px; height:100px; background:rgba(255,255,255,0.05); border-radius:20px; display:flex; flex-direction:column; align-items:center; justify-content:center; cursor:pointer; transition:transform 0.2s, background 0.2s; backdrop-filter:blur(5px); border:1px solid rgba(255,255,255,0.08); }
-        .app-icon:hover { transform:scale(1.05); background:rgba(255,255,255,0.1); }
-        .app-icon img { width:48px; height:48px; margin-bottom:6px; }
-        .app-icon .app-name { font-size:11px; color:#ccc; text-align:center; max-width:90px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-        /* Emulator overlay */
-        .emulator-screen { display:none; position:fixed; inset:0; background:#000; z-index:250; flex-direction:column; }
-        .ps5-topbar { background:#0c0c0c; border-bottom:1px solid #1a1a1a; padding:8px 20px; display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
-        .ps5-topbar .logo-area { display:flex; align-items:center; gap:12px; }
-        .ps5-logo { width:36px; height:36px; background:linear-gradient(135deg, #003087, #0044cc); border-radius:6px; display:flex; align-items:center; justify-content:center; font-weight:900; font-size:14px; color:#fff; }
-        .ps5-logo.yt { background:linear-gradient(135deg, #003087, #0044cc); } .ps5-logo.nf { background:linear-gradient(135deg, #b20710, #e50914); }
-        .title { font-size:15px; font-weight:600; color:#fff; }
-        .subtitle { font-size:11px; color:#888; margin-left:8px; }
-        .fw-badge { background:#1a1a1a; border:1px solid #333; padding:4px 10px; border-radius:12px; font-size:11px; color:#ccc; }
-        .mode-badge { background:#1a1a1a; border:1px solid #333; padding:4px 10px; border-radius:12px; font-size:11px; margin-left:12px; }
-        .mode-badge.jb { color:#22c55e; border-color:#22c55e; }
-        .mode-badge.stock { color:#ef4444; border-color:#ef4444; }
-        .status-dot { width:9px; height:9px; border-radius:50%; display:inline-block; margin-right:6px; box-shadow:0 0 8px; animation:pulse-dot 2s infinite; }
-        @keyframes pulse-dot { 0%,100%{ box-shadow:0 0 4px; } 50%{ box-shadow:0 0 14px; } }
-        .status-text { font-size:11px; color:#aaa; display:flex; align-items:center; gap:6px; }
-        .main-content { flex:1; display:flex; flex-direction:column; overflow:hidden; }
-        .console-frame { flex:1; display:flex; flex-direction:column; margin:10px; border:2px solid #1a1a1a; border-radius:8px; overflow:hidden; background:#0d0d0d; }
-        .console-frame-header { background:#161616; padding:8px 16px; border-bottom:1px solid #222; display:flex; align-items:center; gap:10px; flex-shrink:0; }
-        .dot { width:10px; height:10px; border-radius:50%; background:#333; }
-        .dot.red { background:#ff5f57; } .dot.yellow { background:#febc2e; } .dot.green { background:#28c840; }
-        .log-container { flex:1; overflow-y:auto; padding:12px 16px; font-size:12px; line-height:1.6; background:#080808; scroll-behavior:smooth; }
-        .log-container::-webkit-scrollbar { width:6px; }
-        .log-container::-webkit-scrollbar-track { background:transparent; }
-        .log-container::-webkit-scrollbar-thumb { background:#222; border-radius:3px; }
-        .log-line { white-space:pre-wrap; word-break:break-all; animation:fadeInLine 0.15s ease; }
-        @keyframes fadeInLine { from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:translateY(0);} }
-        .log-line.dim { color:#666; } .log-line.accent { color:var(--accent-yt); } .log-line.accent-nf { color:var(--accent-nf); } .log-line.green { color:var(--green); }
-        .log-line.yellow { color:var(--yellow); } .log-line.red { color:var(--red); } .log-line.cyan { color:var(--cyan); }
-        .input-area { border-top:1px solid #1a1a1a; background:#0f0f0f; padding:12px 16px; flex-shrink:0; display:flex; gap:10px; align-items:flex-end; }
-        .input-area textarea { flex:1; background:#1a1a1a; border:1px solid #2a2a2a; color:#e0e0e0; font-family:var(--font-mono); font-size:12px; padding:10px 14px; border-radius:6px; resize:vertical; min-height:60px; max-height:200px; outline:none; transition:border-color 0.2s; }
-        .input-area textarea:focus { border-color:var(--accent-yt); box-shadow:0 0 12px var(--accent-yt-glow); }
-        .btn { padding:10px 20px; border:none; border-radius:6px; font-family:var(--font-mono); font-size:12px; font-weight:600; cursor:pointer; transition:all 0.2s; letter-spacing:0.5px; white-space:nowrap; }
-        .btn-run { background:var(--accent-yt); color:#fff; box-shadow:0 0 16px var(--accent-yt-glow); }
-        .btn-run:hover { background:#2563eb; box-shadow:0 0 24px var(--accent-yt-glow); transform:translateY(-1px); }
-        .btn-run:disabled { background:#333; color:#666; box-shadow:none; cursor:not-allowed; }
-        .btn-example { background:#1a1a1a; color:#aaa; border:1px solid #2a2a2a; font-size:11px; padding:6px 12px; }
-        .btn-example:hover { background:#222; color:#fff; }
-        .btn-clear { background:transparent; color:#888; border:1px solid #2a2a2a; font-size:11px; padding:6px 12px; }
-        .examples-row { display:flex; gap:6px; margin-top:8px; flex-wrap:wrap; }
-        .notifications-container { position:fixed; top:60px; right:16px; z-index:400; display:flex; flex-direction:column; gap:8px; pointer-events:none; }
-        .ps5-notification { background:var(--notify-bg); border:1px solid #2a2a4a; border-radius:8px; padding:14px 18px; max-width:380px; box-shadow:0 8px 32px rgba(0,0,0,0.6); animation:slideInNotif 0.35s ease, fadeOutNotif 0.5s ease forwards; animation-delay:0s, 3.5s; pointer-events:auto; display:flex; align-items:flex-start; gap:10px; }
-        .ps5-notification .notif-icon { width:28px; height:28px; border-radius:50%; background:#1a3a5c; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:14px; }
-        .ps5-notification .notif-text { font-size:12px; color:#ddd; line-height:1.4; white-space:pre-wrap; word-break:break-word; }
-        @keyframes slideInNotif { from{transform:translateX(120%); opacity:0;} to{transform:translateX(0); opacity:1;} }
-        @keyframes fadeOutNotif { from{opacity:1;} to{opacity:0; transform:translateY(-10px);} }
-        @media (max-width:600px) {
-            .ps5-topbar { padding:6px 12px; } .title { font-size:13px; }
-            .input-area { flex-direction:column; padding:8px 10px; } .input-area textarea { min-height:50px; font-size:11px; }
-            .btn { padding:8px 14px; font-size:11px; } .log-container { font-size:10px; padding:8px 10px; }
-            .notifications-container { right:4px; top:50px; } .ps5-notification { max-width:260px; padding:10px 14px; font-size:10px; }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #000;
+            color: var(--text);
+            font-family: var(--font-mono);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        /* PS5 Top Bar */
+        .ps5-topbar {
+            background: #0c0c0c;
+            border-bottom: 1px solid #1a1a1a;
+            padding: 8px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+            z-index: 10;
+        }
+        .ps5-topbar .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .ps5-logo {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #003087, #0044cc);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 14px;
+            color: #fff;
+            letter-spacing: -0.5px;
+        }
+        .ps5-topbar .title {
+            font-size: 15px;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+            color: #fff;
+        }
+        .ps5-topbar .subtitle {
+            font-size: 11px;
+            color: #888;
+            margin-left: 8px;
+        }
+        .status-dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: var(--green);
+            display: inline-block;
+            margin-right: 6px;
+            box-shadow: 0 0 8px var(--green);
+            animation: pulse-dot 2s infinite;
+        }
+        @keyframes pulse-dot {
+            0%, 100% { box-shadow: 0 0 4px var(--green); }
+            50% { box-shadow: 0 0 14px var(--green); }
+        }
+        .status-text {
+            font-size: 11px;
+            color: #aaa;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .fw-badge {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            color: #ccc;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* YouTube Frame */
+        .yt-frame {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            margin: 10px;
+            border: 2px solid #1a1a1a;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #0d0d0d;
+            position: relative;
+        }
+        .yt-frame-header {
+            background: #161616;
+            padding: 8px 16px;
+            border-bottom: 1px solid #222;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+        .yt-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #333;
+        }
+        .yt-dot.red { background: #ff5f57; }
+        .yt-dot.yellow { background: #febc2e; }
+        .yt-dot.green { background: #28c840; }
+        .yt-frame-header span {
+            font-size: 11px;
+            color: #666;
+            margin-left: 8px;
+        }
+
+        /* Log Output */
+        .log-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px 16px;
+            font-size: 12px;    /* fixed size */
+            line-height: 1.6;
+            background: #080808;
+            scroll-behavior: smooth;
+        }
+        .log-container::-webkit-scrollbar { width: 6px; }
+        .log-container::-webkit-scrollbar-track { background: transparent; }
+        .log-container::-webkit-scrollbar-thumb { background: #222; border-radius: 3px; }
+        .log-line {
+            white-space: pre-wrap;
+            word-break: break-all;
+            animation: fadeInLine 0.15s ease;
+        }
+        @keyframes fadeInLine {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .log-line.dim { color: #666; }
+        .log-line.accent { color: var(--accent); }
+        .log-line.green { color: var(--green); }
+        .log-line.yellow { color: var(--yellow); }
+        .log-line.red { color: var(--red); }
+        .log-line.cyan { color: var(--cyan); }
+
+        /* Input Area */
+        .input-area {
+            border-top: 1px solid #1a1a1a;
+            background: #0f0f0f;
+            padding: 12px 16px;
+            flex-shrink: 0;
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+        .input-area textarea {
+            flex: 1;
+            background: #1a1a1a;
+            border: 1px solid #2a2a2a;
+            color: #e0e0e0;
+            font-family: var(--font-mono);
+            font-size: 16px;    /* prevent iOS auto-zoom on focus */
+            padding: 10px 14px;
+            border-radius: 6px;
+            resize: vertical;
+            min-height: 60px;
+            max-height: 200px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .input-area textarea:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 12px var(--accent-glow);
+        }
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-family: var(--font-mono);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+        .btn-run {
+            background: var(--accent);
+            color: #fff;
+            box-shadow: 0 0 16px var(--accent-glow);
+        }
+        .btn-run:hover {
+            background: #2563eb;
+            box-shadow: 0 0 24px var(--accent-glow);
+            transform: translateY(-1px);
+        }
+        .btn-run:active { transform: scale(0.96); }
+        .btn-run:disabled {
+            background: #333;
+            color: #666;
+            box-shadow: none;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .btn-example {
+            background: #1a1a1a;
+            color: #aaa;
+            border: 1px solid #2a2a2a;
+            font-size: 11px;
+            padding: 6px 12px;
+        }
+        .btn-example:hover {
+            background: #222;
+            color: #fff;
+            border-color: #444;
+        }
+        .btn-clear {
+            background: transparent;
+            color: #888;
+            border: 1px solid #2a2a2a;
+            font-size: 11px;
+            padding: 6px 12px;
+        }
+        .btn-clear:hover { background: #1a1a1a; color: #fff; }
+        .examples-row {
+            display: flex;
+            gap: 6px;
+            margin-top: 8px;
+            flex-wrap: wrap;
+        }
+
+        /* Notification Overlay */
+        .notifications-container {
+            position: fixed;
+            top: 60px;
+            right: 16px;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            pointer-events: none;
+        }
+        .ps5-notification {
+            background: var(--notify-bg);
+            border: 1px solid #2a2a4a;
+            border-radius: 8px;
+            padding: 14px 18px;
+            max-width: 380px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+            animation: slideInNotif 0.35s ease, fadeOutNotif 0.5s ease forwards;
+            animation-delay: 0s, 3.5s;
+            pointer-events: auto;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+        .ps5-notification .notif-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #1a3a5c;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+        .ps5-notification .notif-text {
+            font-size: 12px;
+            color: #ddd;
+            line-height: 1.4;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        @keyframes slideInNotif {
+            from { transform: translateX(120%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes fadeOutNotif {
+            from { opacity: 1; }
+            to { opacity: 0; transform: translateY(-10px); }
+        }
+
+        /* Listener info bar */
+        .listener-bar {
+            background: #0d1117;
+            border: 1px solid #1a3a2a;
+            border-radius: 6px;
+            padding: 8px 14px;
+            margin: 6px 10px;
+            font-size: 11px;
+            color: #8b8;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+        .listener-bar .pulse {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #4f4;
+            animation: pulse-dot 1.5s infinite;
+        }
+
+        /* ---------- MODALS ---------- */
+        .fw-modal-overlay,
+        .jb-modal-overlay,
+        .panic-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.75);
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .fw-modal,
+        .jb-modal,
+        .panic-modal {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 24px;
+            min-width: 320px;
+            text-align: center;
+        }
+        .fw-modal h3,
+        .jb-modal h3,
+        .panic-modal h2 {
+            margin-bottom: 16px;
+            font-size: 16px;
+            color: #fff;
+        }
+        .fw-modal select {
+            background: #0a0a0a;
+            color: #fff;
+            border: 1px solid #333;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-family: var(--font-mono);
+            font-size: 13px;
+            width: 100%;
+            margin-bottom: 16px;
+            cursor: pointer;
+        }
+        .fw-modal .btn,
+        .jb-modal .btn,
+        .panic-modal .btn {
+            width: 100%;
+        }
+        .jb-modal .btn-jb,
+        .jb-modal .btn-stock {
+            display: block;
+            margin: 10px 0;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            background: transparent;
+            color: #fff;
+            border: 2px solid #333;
+            transition: 0.2s;
+        }
+        .jb-modal .btn-jb { border-color: #22c55e; color: #22c55e; }
+        .jb-modal .btn-jb:hover { background: #22c55e20; }
+        .jb-modal .btn-stock { border-color: #ef4444; color: #ef4444; }
+        .jb-modal .btn-stock:hover { background: #ef444420; }
+        .panic-modal .btn {
+            background: var(--red);
+            border: none;
+            font-weight: bold;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .ps5-topbar { padding: 6px 12px; }
+            .ps5-topbar .title { font-size: 13px; }
+            .input-area { flex-direction: column; padding: 8px 10px; }
+            .input-area textarea { min-height: 50px; }
+            .btn { padding: 8px 14px; font-size: 11px; }
+            .log-container { font-size: 10px; padding: 8px 10px; }
+            .notifications-container { right: 4px; top: 50px; }
+            .ps5-notification { max-width: 260px; padding: 10px 14px; font-size: 10px; }
         }
     </style>
 </head>
 <body>
-    <!-- MODE SELECTION -->
-    <div class="modal-overlay" id="modeModal">
-        <div class="modal-dialog">
-            <h2>Select Mode</h2>
-            <button class="mode-btn jb" id="btnJbMode">🔓 Jailbroken</button>
-            <button class="mode-btn stock" id="btnStockMode">🔒 Stock (Non‑JB)</button>
+
+    <!-- PS5 Top Bar -->
+    <div class="ps5-topbar">
+        <div class="logo-area">
+            <div class="ps5-logo">PS</div>
+            <span class="title">YouTube</span>
+            <span class="subtitle">· Y2JB v1.3</span>
+            <span class="fw-badge" id="fwBadge">FW 10.01</span>
+        </div>
+        <div class="status-text">
+            <span class="status-dot" id="statusDot"></span>
+            <span id="statusLabel">Remote JS Loader Active</span>
         </div>
     </div>
 
-    <!-- FIRMWARE SELECTION -->
-    <div class="modal-overlay" id="fwModal" style="display:none;">
-        <div class="modal-dialog">
-            <h2>Select PS5 Firmware</h2>
-            <select class="fw-select" id="fwSelect">
-                <option value="4.03">4.03</option><option value="4.50">4.50</option><option value="4.51">4.51</option>
-                <option value="5.00">5.00</option><option value="5.02">5.02</option><option value="5.10">5.10</option>
-                <option value="5.50">5.50</option><option value="6.00">6.00</option><option value="6.02">6.02</option>
-                <option value="6.50">6.50</option><option value="7.00">7.00</option><option value="7.01">7.01</option>
-                <option value="7.20">7.20</option><option value="7.40">7.40</option><option value="7.60">7.60</option>
-                <option value="7.61">7.61</option><option value="8.00">8.00</option><option value="8.20">8.20</option>
-                <option value="8.40">8.40</option><option value="8.60">8.60</option><option value="9.00">9.00</option>
-                <option value="9.05">9.05</option><option value="9.20">9.20</option><option value="9.40">9.40</option>
-                <option value="9.60">9.60</option><option value="10.00">10.00</option><option value="10.01" selected>10.01</option>
-                <option value="10.20">10.20</option><option value="10.40">10.40</option><option value="10.60">10.60</option>
-                <option value="11.00">11.00</option><option value="11.20">11.20</option><option value="11.40">11.40</option>
-                <option value="11.60">11.60</option><option value="12.00">12.00</option><option value="12.20">12.20</option>
-                <option value="12.40">12.40</option><option value="12.60">12.60</option><option value="12.70">12.70</option>
-                <option value="13.00">13.00</option><option value="13.20">13.20</option>
-            </select>
-            <button class="btn fw-confirm" id="btnFwConfirm">Confirm & Boot</button>
-        </div>
+    <!-- Listener Bar -->
+    <div class="listener-bar" id="listenerBar">
+        <span class="pulse"></span>
+        <span>Listening on <strong id="listenerAddr">192.168.1.100:50000</strong></span>
+        <span style="margin-left:auto;color:#666;">Paste payload below &amp; click Run</span>
     </div>
 
-    <!-- BOOT SCREEN -->
-    <div id="boot-screen" style="display:none;">
-        <div class="boot-logo">PS5</div>
-        <div class="boot-progress"><div class="boot-progress-bar" id="bootProgressBar"></div></div>
-        <div class="boot-text" id="bootStatus">Initializing...</div>
-    </div>
-
-    <!-- HOME SCREEN -->
-    <div id="home-screen">
-        <div class="home-bg"><div class="particles" id="particlesContainer"></div></div>
-        <div class="top-bar">
-            <div class="user-area"><div class="avatar">M</div><span class="username">mexrldev</span></div>
-            <div class="time" id="homeTime">12:00</div>
-            <div class="icons-area"><span>🔔</span><span>⚙️</span></div>
-        </div>
-        <div class="app-grid">
-            <div class="app-icon" id="youtubeAppIcon">
-                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ff0000'%3E%3Cpath d='M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z'%3E%3C/path%3E%3C/svg%3E" alt="YouTube">
-                <div class="app-name">YouTube</div>
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="yt-frame">
+            <div class="yt-frame-header">
+                <span class="yt-dot red"></span>
+                <span class="yt-dot yellow"></span>
+                <span class="yt-dot green"></span>
+                <span>Y2JB Console</span>
             </div>
-            <div class="app-icon" id="netflixAppIcon">
-                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23e50914'%3E%3Cpath d='M11.998 2c-5.523 0-10 4.477-10 10s4.477 10 10 10 10-4.477 10-10-4.477-10-10-10zm4.213 13.469l-4.386-8.102a.5.5 0 0 1 .87-.474l4.386 8.102a.5.5 0 0 1-.87.474zm-4.213 0V8.586L6.386 16.34a.5.5 0 1 1-.87-.474L9.902 7.764a.5.5 0 0 1 .87.474v8.102z'%3E%3C/path%3E%3C/svg%3E" alt="Netflix">
-                <div class="app-name">Netflix</div>
+            <div class="log-container" id="logContainer"></div>
+            <div class="input-area">
+                <textarea id="payloadInput" placeholder="Paste your JS payload here...&#10;&#10;Example:&#10;await log('Hello from remote JS!');&#10;send_notification('Hello from remote JS!');" spellcheck="false"></textarea>
+                <button class="btn btn-run" id="btnRun" title="Send payload to emulated PS5">▶ Run Script</button>
+            </div>
+            <div class="examples-row" style="padding:0 16px 8px;">
+                <button class="btn btn-example" data-payload="helloworld">👋 Hello World</button>
+                <button class="btn btn-example" data-payload="setlogserver">📡 Set Log Server</button>
+                <button class="btn btn-example" data-payload="dlsym_test">🔍 dlsym Test</button>
+                <button class="btn btn-clear" id="btnClear">🗑 Clear Log</button>
             </div>
         </div>
     </div>
 
-    <!-- YOUTUBE EMULATOR -->
-    <div class="emulator-screen" id="emulator-yt">
-        <div class="ps5-topbar">
-            <div class="logo-area">
-                <div class="ps5-logo yt">PS</div>
-                <span class="title">YouTube</span>
-                <span class="subtitle">· Y2JB v1.4</span>
-                <span class="fw-badge" id="ytFwBadge">FW 10.01</span>
-                <span class="mode-badge jb" id="ytModeBadge">🔓 JB</span>
-            </div>
-            <div class="status-text">
-                <span class="status-dot" id="ytStatusDot"></span>
-                <span id="ytStatusLabel">Remote JS Loader Active</span>
-            </div>
-        </div>
-        <div class="main-content">
-            <div class="console-frame">
-                <div class="console-frame-header">
-                    <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
-                    <span>Y2JB Console</span>
-                </div>
-                <div class="log-container" id="ytLogContainer"></div>
-                <div class="input-area">
-                    <textarea id="ytPayloadInput" placeholder="Paste your JS payload here..." spellcheck="false"></textarea>
-                    <button class="btn btn-run" id="ytBtnRun">▶ Run Script</button>
-                </div>
-                <div class="examples-row" style="padding:0 16px 8px;">
-                    <button class="btn btn-example" data-console="yt" data-payload="helloworld">👋 Hello World</button>
-                    <button class="btn btn-example" data-console="yt" data-payload="setlogserver">📡 Set Log Server</button>
-                    <button class="btn btn-example" data-console="yt" data-payload="dlsym_test">🔍 dlsym Test</button>
-                    <button class="btn btn-clear" data-console="yt">🗑 Clear</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- NETFLIX EMULATOR -->
-    <div class="emulator-screen" id="emulator-nf">
-        <div class="ps5-topbar">
-            <div class="logo-area">
-                <div class="ps5-logo nf">N</div>
-                <span class="title">Netflix</span>
-                <span class="subtitle">· Netflix N Hack v1.0</span>
-                <span class="fw-badge" id="nfFwBadge">FW 10.01</span>
-                <span class="mode-badge jb" id="nfModeBadge">🔓 JB</span>
-            </div>
-            <div class="status-text">
-                <span class="status-dot" id="nfStatusDot"></span>
-                <span id="nfStatusLabel">Remote JS Loader Active</span>
-            </div>
-        </div>
-        <div class="main-content">
-            <div class="console-frame">
-                <div class="console-frame-header">
-                    <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
-                    <span>Netflix Console</span>
-                </div>
-                <div class="log-container" id="nfLogContainer"></div>
-                <div class="input-area">
-                    <textarea id="nfPayloadInput" placeholder="Paste your JS payload here..." spellcheck="false"></textarea>
-                    <button class="btn btn-run" id="nfBtnRun">▶ Run Script</button>
-                </div>
-                <div class="examples-row" style="padding:0 16px 8px;">
-                    <button class="btn btn-example" data-console="nf" data-payload="helloworld">👋 Hello World</button>
-                    <button class="btn btn-example" data-console="nf" data-payload="netflix_hack">🚀 Netflix‑N‑Hack</button>
-                    <button class="btn btn-clear" data-console="nf">🗑 Clear</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
+    <!-- Notifications Container -->
     <div class="notifications-container" id="notificationsContainer"></div>
 
+    <!-- Firmware Selector Modal -->
+    <div class="fw-modal-overlay" id="fwModal">
+        <div class="fw-modal">
+            <h3>Select PS5 Firmware</h3>
+            <select id="fwSelect">
+                <option value="4.03">4.03</option>
+                <option value="4.50">4.50</option>
+                <option value="4.51">4.51</option>
+                <option value="5.00">5.00</option>
+                <option value="5.02">5.02</option>
+                <option value="5.10">5.10</option>
+                <option value="5.50">5.50</option>
+                <option value="6.00">6.00</option>
+                <option value="6.02">6.02</option>
+                <option value="6.50">6.50</option>
+                <option value="7.00">7.00</option>
+                <option value="7.01">7.01</option>
+                <option value="7.20">7.20</option>
+                <option value="7.40">7.40</option>
+                <option value="7.60">7.60</option>
+                <option value="7.61">7.61</option>
+                <option value="8.00">8.00</option>
+                <option value="8.20">8.20</option>
+                <option value="8.40">8.40</option>
+                <option value="8.60">8.60</option>
+                <option value="9.00">9.00</option>
+                <option value="9.05">9.05</option>
+                <option value="9.20">9.20</option>
+                <option value="9.40">9.40</option>
+                <option value="9.60">9.60</option>
+                <option value="10.00" selected>10.00</option>
+                <option value="10.01">10.01</option>
+                <option value="10.20">10.20</option>
+                <option value="10.40">10.40</option>
+                <option value="10.60">10.60</option>
+                <option value="11.00">11.00</option>
+                <option value="11.20">11.20</option>
+                <option value="11.40">11.40</option>
+                <option value="11.60">11.60</option>
+                <option value="12.00">12.00</option>
+                <option value="12.20">12.20</option>
+                <option value="12.40">12.40</option>
+                <option value="12.60">12.60</option>
+                <option value="12.70">12.70</option>
+                <option value="13.00">13.00</option>
+                <option value="13.20">13.20</option>
+            </select>
+            <button class="btn btn-run" id="btnFwConfirm">Confirm & Start Emulator</button>
+        </div>
+    </div>
+
+    <!-- JB / Non-JB Modal (hidden initially) -->
+    <div class="jb-modal-overlay" id="jbModal" style="display: none;">
+        <div class="jb-modal">
+            <h3>Select Mode</h3>
+            <button class="btn-jb" id="btnJbMode">🔓 Jailbroken</button>
+            <button class="btn-stock" id="btnStockMode">🔒 Stock (Non‑JB)</button>
+        </div>
+    </div>
+
+    <!-- Kernel Panic Overlay (hidden) -->
+    <div class="panic-overlay" id="panicOverlay" style="display: none;">
+        <div class="panic-modal">
+            <h2>⚠️ KERNEL PANIC!</h2>
+            <p style="color:#aaa; margin-bottom:20px;">A critical system error has occurred.<br>Press the button below to reset the PS5 emulator.</p>
+            <button class="btn" id="btnResetPanic">Reset PS5</button>
+        </div>
+    </div>
+
     <script>
-        (() => {
-            /* ========== KEYS (all supplied) ========== */
-            const PS5_KEYS = {
-                ROM_KEYS: [
-                    "EC0561F36B62400E6FA0EC2EDCFD8D17","33889AE0E03180AB6DAE39D54BE037E6",
-                    "7E5324285D0ABD7734747BE4341FB446","DB17D1E40947B1C5DB0F6B19CED5A0D5",
-                    "036CAEA074963831CB81C0F162EE3CD2","E3A64517BA22A205D1459FDB8E50CF2A",
-                    "4234474B4B389C70F08C2F02816B8F27","6FFA83C47E75802EFD2A03C8DFADA5A5",
-                    "A703A1BB130A4AC725B98839631F6910","5AF4BF2BA4E6D5198105CF26F6CC18C7",
-                    "98EB907FEF9B498D5ACEFE3B8AE13148","00FA9F7128DC79F914FBE12645AA2115",
-                    "8861EB7868C8D3295D28BA5D4FFBE648","42EA57BEE47A74704D7E5B37706440BD",
-                    "A5880A90A62CF2BE24C954D3CED225ED","DD51408C1DFD41492A22E44458AB5957",
-                    "C8D8FCAD0C461FB5F6F90AF080287D5C","B53B0FF9B30D1C1769091705B93BA82E",
-                    "7617400761C4CCA06377A6B5D2BE3D77","1B4C18922AE90FABB2593C6C5768010E",
-                    "E1A4A0350BEA15A4D8FCC8C637C078B1","46B4D765046F8622C4D2C130C83CD6D5",
-                    "D2DA74CA61A87C84073FC968579BE3DA","C7EB34E0E9DF186A4F1A1071EC098F61",
-                    "D14B060509F53F3E051A67F28D6AFE69","FDA68E24BE3D4F4784C2B2D6AAA74934",
-                    "AFFB54E11A8AAEB626E7B8E7EE511414","30D5AF68C2BFA6E277349E5BB464B33A",
-                    "CD1812894FC7806065BC3E5EEF16E0D9","69E0B1908A00826643624BB9717A2BAF",
-                    "CFD2AC9AAFF6015BFB8B61D5BB980A6D","86CCDD28A81D1E8199DC95792C77A6FB"
-                ],
-                KEY_2_KEYSEEDS: "C09355F88AC42B3B494EFF0B1C556BD2",
-                KEY_2_KEYSEEDS_ALTERNATE_3: "AB0A9CB9B3DC4118388512A2127AAAA8",
-                KEY_4_KEYSEEDS: "9A1A6BC1A8A1C0F22ED44CC84ABBD647",
-                KEY_4_KEYSEEDS_ALTERNATE: "ABAB2B75F6EDA2177314DBA2D294252C",
-                KEY_4_KEYSEEDS_ALTERNATE_2: "90ECFD2134AE59C8F1BEE41586B40DAB",
-                KEY_5_KEYSEEDS: "085AAF95FFD183F58D034CAA416D7904",
-                KEY_6_KEYSEEDS_ALTERNATE_2: "BCB4914433800577E933753CDF9B0530",
-                KEY_7_KEYSEEDS: "A2451EFC50D29C36795E7520D3EF766B",
-                KEY_8_KEYSEEDS: "AFC457975ADB0B40F981E87F96789213",
-                KEY_9_KEYSEEDS: "78E46F39DE022C96D96599BA90739515",
-                IV: "00000000000000000000000000000000",
-                PKG_META_RSA_KEY: `-----BEGIN RSA PRIVATE KEY-----
-MIIG4wIBAAKCAYEAqx29QzlJMxajXEBOLCKXuDNoXBrTVOjFuniI0bD68lqPFKoG
-... (truncated for length, full key available in previous messages)
------END RSA PRIVATE KEY-----`
-            };
+        (function() {
+            // ==================== Y2JB EMULATOR ENGINE ====================
 
-            /* ========== NETFLIX GADGETS ========== */
-            const gadgets_eu_6 = {
-                pop_rax: 0x6c233n, pop_rdi: 0x1a729bn, pop_rsi: 0x14d8n, pop_rdx: 0x3ec42n,
-                pop_rcx: 0x2485n, pop_r8: 0x6c232n, pop_r9: 0x66511bn,
-                ret: 0x42n, pop_rbp: 0x79n, pop_rbx: 0x2e1ebn,
-                pop_rsp: 0x1df1e1n, pop_rsp_pop_rbp: 0x17ecb4en,
-                mov_qword_ptr_rdi_rax: 0x1dcba9n, mov_qword_ptr_rdi_rdx: 0x36db4en,
-                mov_rsi_qword_ptr_rsi_test_sil_1_jne: 0x12ee681n,
-                mov_rdi_rsi_mov_qword_ptr_rdx_rdi: 0x09776c4n,
-            };
-            const gadgets_us_5 = {
-                pop_rax: 0x6c233n, pop_rdi: 0x24f3c2n, pop_rsi: 0x14d8n, pop_rdx: 0x3ec42n,
-                pop_rcx: 0x2485n, pop_r8: 0x6c232n, pop_r9: 0x66511bn,
-                ret: 0x42n, pop_rbp: 0x79n, pop_rbx: 0x2e1ebn,
-                pop_rsp: 0x13c719n, pop_rsp_pop_rbp: 0x17ecb4en,
-                mov_qword_ptr_rdi_rax: 0x1dcba9n, mov_qword_ptr_rdi_rdx: 0x36db4en,
-                mov_rsi_qword_ptr_rsi_test_sil_1_jne: 0x12ee681n,
-                mov_rdi_rsi_mov_qword_ptr_rdx_rdi: 0x09776c4n,
-            };
-            const gadgets_list = { 'Gemini-U6-2': gadgets_eu_6, 'Gemini-U5-18': gadgets_us_5 };
-
-            /* ========== GLOBAL STATE ========== */
-            let FW_VERSION = "10.01";
-            let simJailbroken = false;
-
-            // DOM elements
-            const modeModal = document.getElementById('modeModal');
-            const fwModal = document.getElementById('fwModal');
-            const bootScreen = document.getElementById('boot-screen');
-            const homeScreen = document.getElementById('home-screen');
-            const ytEmulator = document.getElementById('emulator-yt');
-            const nfEmulator = document.getElementById('emulator-nf');
-            const bootProgressBar = document.getElementById('bootProgressBar');
-            const bootStatus = document.getElementById('bootStatus');
+            const EMULATOR_VERSION = "Y2JB 1.3 Emulator OS booting";
+            let FW_VERSION = "10.00";
+            let emulatorReady = false;
+            let exploitInitialized = false;
+            const logContainer = document.getElementById('logContainer');
             const notifContainer = document.getElementById('notificationsContainer');
+            const payloadInput = document.getElementById('payloadInput');
+            const btnRun = document.getElementById('btnRun');
+            const fwBadge = document.getElementById('fwBadge');
+            const listenerAddr = document.getElementById('listenerAddr');
+            const statusDot = document.getElementById('statusDot');
+            const statusLabel = document.getElementById('statusLabel');
+            const fwModal = document.getElementById('fwModal');
+            const fwSelect = document.getElementById('fwSelect');
+            const btnFwConfirm = document.getElementById('btnFwConfirm');
+            const jbModal = document.getElementById('jbModal');
 
-            // YouTube console elements
-            const ytLogContainer = document.getElementById('ytLogContainer');
-            const ytPayloadInput = document.getElementById('ytPayloadInput');
-            const ytBtnRun = document.getElementById('ytBtnRun');
-            const ytFwBadge = document.getElementById('ytFwBadge');
-            const ytModeBadge = document.getElementById('ytModeBadge');
-            const ytStatusDot = document.getElementById('ytStatusDot');
-            const ytStatusLabel = document.getElementById('ytStatusLabel');
-
-            // Netflix console elements
-            const nfLogContainer = document.getElementById('nfLogContainer');
-            const nfPayloadInput = document.getElementById('nfPayloadInput');
-            const nfBtnRun = document.getElementById('nfBtnRun');
-            const nfFwBadge = document.getElementById('nfFwBadge');
-            const nfModeBadge = document.getElementById('nfModeBadge');
-            const nfStatusDot = document.getElementById('nfStatusDot');
-            const nfStatusLabel = document.getElementById('nfStatusLabel');
-
-            /* ========== SIMULATED HARDWARE ========== */
+            // Simulated memory
             const simMemory = new Map();
             let nextMallocAddr = 0x800000000n;
             let nextFdId = 100n;
             const simFileSystem = new Map();
             const simFileData = new Map();
-            let simUid = 1n, simPid = 42n, simSandbox = 1n;
+            let simJailbroken = false;
+            let simUid = 1n;
+            let simPid = 42n;
+            let simSandbox = 1n;
             const openFds = new Map();
 
-            function simRead8(addr) { const aligned = addr & ~7n; const offset = Number(addr & 7n); const qword = simMemory.get(aligned) || 0n; return (qword >> BigInt(offset * 8)) & 0xFFn; }
-            function simWrite8(addr, val) { const aligned = addr & ~7n; const offset = Number(addr & 7n); const qword = simMemory.get(aligned) || 0n; const mask = 0xFFn << BigInt(offset * 8); simMemory.set(aligned, (qword & ~mask) | ((BigInt(val) & 0xFFn) << BigInt(offset * 8))); }
-            function simRead16(addr) { const qword = simMemory.get(addr & ~7n) || 0n; const offset = Number(addr & 7n); return (qword >> BigInt(offset * 8)) & 0xFFFFn; }
-            function simWrite16(addr, val) { const aligned = addr & ~7n; const offset = Number(addr & 7n); const qword = simMemory.get(aligned) || 0n; const mask = 0xFFFFn << BigInt(offset * 8); simMemory.set(aligned, (qword & ~mask) | ((BigInt(val) & 0xFFFFn) << BigInt(offset * 8))); }
-            function simRead32(addr) { const qword = simMemory.get(addr & ~7n) || 0n; const offset = Number(addr & 7n); return (qword >> BigInt(offset * 8)) & 0xFFFFFFFFn; }
-            function simWrite32(addr, val) { const aligned = addr & ~7n; const offset = Number(addr & 7n); const qword = simMemory.get(aligned) || 0n; const mask = 0xFFFFFFFFn << BigInt(offset * 8); simMemory.set(aligned, (qword & ~mask) | ((BigInt(val) & 0xFFFFFFFFn) << BigInt(offset * 8))); }
-            function simRead64(addr) { return simMemory.get(addr) || 0n; }
-            function simWrite64(addr, val) { simMemory.set(addr, BigInt(val)); }
-            function simMalloc(size) { const addr = nextMallocAddr; nextMallocAddr += BigInt(Math.ceil(Number(size) / 8) * 8 + 16); simWrite64(addr, BigInt(size)); return addr + 8n; }
-            function simAllocString(str) { const encoder = new TextEncoder(); const bytes = encoder.encode(str); const addr = simMalloc(bytes.length + 1); for (let i = 0; i < bytes.length; i++) simWrite8(addr + BigInt(i), bytes[i]); simWrite8(addr + BigInt(bytes.length), 0); return addr; }
-            function simReadString(addr) { let result = ''; let i = 0n; while (true) { const b = Number(simRead8(addr + i)); if (b === 0) break; result += String.fromCharCode(b); i++; if (i > 10000n) break; } return result; }
-            function simReadBuffer(addr, len) { const buf = new Uint8Array(Number(len)); for (let i = 0n; i < len; i++) buf[Number(i)] = Number(simRead8(addr + i)); return buf; }
-            function simWriteBuffer(addr, buf) { for (let i = 0; i < buf.length; i++) simWrite8(addr + BigInt(i), buf[i]); }
+            // Memory helpers
+            function simRead8(addr) {
+                const aligned = addr & ~7n;
+                const offset = Number(addr & 7n);
+                const qword = simMemory.get(aligned) || 0n;
+                return (qword >> BigInt(offset * 8)) & 0xFFn;
+            }
 
-            const EBOOT_BASE = 0x00400000n, LIBC_BASE = 0x00800000n, LIBKERNEL_BASE = 0x00C00000n;
+            function simWrite8(addr, val) {
+                const aligned = addr & ~7n;
+                const offset = Number(addr & 7n);
+                const qword = simMemory.get(aligned) || 0n;
+                const mask = 0xFFn << BigInt(offset * 8);
+                const newVal = (qword & ~mask) | ((BigInt(val) & 0xFFn) << BigInt(offset * 8));
+                simMemory.set(aligned, newVal);
+            }
 
-            /* ========== Y2JB ROP GADGETS ========== */
-            const ROP = {
-                pop_rsp: EBOOT_BASE + 0x49f7fn, pop_rax: EBOOT_BASE + 0x2d954n,
-                pop_rdi: EBOOT_BASE + 0xb0ec5n, pop_rsi: EBOOT_BASE + 0xb8a81n,
-                pop_rdx: EBOOT_BASE + 0xb692n, pop_rcx: EBOOT_BASE + 0x187da3n,
-                pop_r8: EBOOT_BASE + 0x1a8ff9n, pop_r9: EBOOT_BASE + 0x1394e01n,
-                pop_rbp: EBOOT_BASE + 0x69n, mov_qword_rdi_rax: EBOOT_BASE + 0x49a77n,
-                mov_qword_rdi_rdx: EBOOT_BASE + 0x3a3b95n, mov_rax_0x200000000: EBOOT_BASE + 0x1283d40n,
-                mov_rsp_rbp: EBOOT_BASE + 0xb1424n, ret: EBOOT_BASE + 0x32n,
+            function simRead16(addr) {
+                const qword = simMemory.get(addr & ~7n) || 0n;
+                const offset = Number(addr & 7n);
+                return (qword >> BigInt(offset * 8)) & 0xFFFFn;
+            }
+
+            function simWrite16(addr, val) {
+                const aligned = addr & ~7n;
+                const offset = Number(addr & 7n);
+                const qword = simMemory.get(aligned) || 0n;
+                const mask = 0xFFFFn << BigInt(offset * 8);
+                simMemory.set(aligned, (qword & ~mask) | ((BigInt(val) & 0xFFFFn) << BigInt(offset * 8)));
+            }
+
+            function simRead32(addr) {
+                const qword = simMemory.get(addr & ~7n) || 0n;
+                const offset = Number(addr & 7n);
+                return (qword >> BigInt(offset * 8)) & 0xFFFFFFFFn;
+            }
+
+            function simWrite32(addr, val) {
+                const aligned = addr & ~7n;
+                const offset = Number(addr & 7n);
+                const qword = simMemory.get(aligned) || 0n;
+                const mask = 0xFFFFFFFFn << BigInt(offset * 8);
+                simMemory.set(aligned, (qword & ~mask) | ((BigInt(val) & 0xFFFFFFFFn) << BigInt(offset * 8)));
+            }
+
+            function simRead64(addr) {
+                return simMemory.get(addr) || 0n;
+            }
+
+            function simWrite64(addr, val) {
+                simMemory.set(addr, BigInt(val));
+            }
+
+            function simMalloc(size) {
+                const addr = nextMallocAddr;
+                nextMallocAddr += BigInt(Math.ceil(Number(size) / 8) * 8 + 16);
+                simWrite64(addr, BigInt(size));
+                return addr + 8n;
+            }
+
+            function simAllocString(str) {
+                const encoder = new TextEncoder();
+                const bytes = encoder.encode(str);
+                const addr = simMalloc(bytes.length + 1);
+                for (let i = 0; i < bytes.length; i++) {
+                    simWrite8(addr + BigInt(i), bytes[i]);
+                }
+                simWrite8(addr + BigInt(bytes.length), 0);
+                return addr;
+            }
+
+            function simReadString(addr) {
+                let result = '';
+                let i = 0n;
+                while (true) {
+                    const b = Number(simRead8(addr + i));
+                    if (b === 0) break;
+                    result += String.fromCharCode(b);
+                    i++;
+                    if (i > 10000n) break;
+                }
+                return result;
+            }
+
+            function simReadBuffer(addr, len) {
+                const buf = new Uint8Array(Number(len));
+                for (let i = 0n; i < len; i++) {
+                    buf[Number(i)] = Number(simRead8(addr + i));
+                }
+                return buf;
+            }
+
+            function simWriteBuffer(addr, buf) {
+                for (let i = 0; i < buf.length; i++) {
+                    simWrite8(addr + BigInt(i), buf[i]);
+                }
+            }
+
+            // Mock addresses
+            const EBOOT_BASE = 0x00400000n;
+            const LIBC_BASE = 0x00800000n;
+            const LIBKERNEL_BASE = 0x00C00000n;
+            const DATA_BASE = 0x0CC0000n;
+            const MOCK_CURPROC = 0xFFFF804000010000n;
+            const MOCK_ALLPROC = MOCK_CURPROC;
+            const MOCK_ROOTVNODE = 0xFFFF804000020000n;
+            const MOCK_KERNEL_PMAP = 0xFFFF804000030000n;
+            const MOCK_GVMSPACE = 0xFFFF804000040000n;
+
+            // Fake object tracking
+            let fakeObjCounter = 0;
+            const fakeObjAddrs = new Map();
+
+            function simAddrof(obj) {
+                if (obj === null || obj === undefined) return 0n;
+                if (typeof obj === 'bigint') return obj;
+                if (fakeObjAddrs.has(obj)) return fakeObjAddrs.get(obj);
+                const addr = 0x900000000n + BigInt(fakeObjCounter++) * 0x100n;
+                fakeObjAddrs.set(obj, addr);
+                return addr;
+            }
+
+            function simCreateFakeobj(addr) {
+                const key = { _fake: true, _addr: addr };
+                fakeObjAddrs.set(key, addr);
+                return key;
+            }
+
+            // ==================== UI Functions ====================
+            function appendLog(msg, className = '') {
+                const div = document.createElement('div');
+                div.className = 'log-line ' + (className || '');
+                div.textContent = msg;
+                logContainer.appendChild(div);
+                logContainer.scrollTop = logContainer.scrollHeight;
+            }
+
+            async function emuLog(msg) {
+                const text = String(msg);
+                const lines = text.split('\n');
+                for (const line of lines) {
+                    appendLog(line || '\u00A0');
+                }
+                await new Promise(r => requestAnimationFrame(() => setTimeout(r, 1)));
+            }
+
+            function showNotification(text) {
+                const notif = document.createElement('div');
+                notif.className = 'ps5-notification';
+                notif.innerHTML = `
+                    <div class="notif-icon">📢</div>
+                    <div class="notif-text">${text.replace(/\n/g, '<br>')}</div>
+                `;
+                notifContainer.appendChild(notif);
+                setTimeout(() => {
+                    if (notif.parentNode) notif.remove();
+                }, 4200);
+            }
+
+            function updateStatus(ready) {
+                if (ready) {
+                    statusDot.style.background = 'var(--green)';
+                    statusDot.style.boxShadow = '0 0 8px var(--green)';
+                    statusLabel.textContent = 'Remote JS Loader Active';
+                    listenerAddr.textContent = '192.168.1.100:50000';
+                    btnRun.disabled = false;
+                } else {
+                    statusDot.style.background = 'var(--yellow)';
+                    statusDot.style.boxShadow = '0 0 8px var(--yellow)';
+                    statusLabel.textContent = 'Initializing...';
+                    btnRun.disabled = true;
+                }
+            }
+
+            // Kernel panic function
+            function kernelPanic(message) {
+                emuLog('KERNEL PANIC: ' + message, 'red');
+                document.getElementById('panicOverlay').style.display = 'flex';
+            }
+
+            document.getElementById('btnResetPanic').addEventListener('click', () => {
+                location.reload();
+            });
+
+            // ==================== SYSCALL SIMULATION ====================
+            const SYSCALL_NUMBERS = {
+                read: 0x3n,
+                write: 0x4n,
+                open: 0x5n,
+                close: 0x6n,
+                setuid: 0x17n,
+                getuid: 0x18n,
+                getpid: 0x14n,
+                accept: 0x1en,
+                pipe: 0x2an,
+                mprotect: 0x4an,
+                socket: 0x61n,
+                connect: 0x62n,
+                bind: 0x68n,
+                setsockopt: 0x69n,
+                listen: 0x6an,
+                getsockopt: 0x76n,
+                getsockname: 0x20n,
+                netgetiflist: 0x7dn,
+                sendto: 0x85n,
+                sysctl: 0xcan,
+                nanosleep: 0xf0n,
+                sigaction: 0x1a0n,
+                thr_self: 0x1b0n,
+                thr_exit: 0x1afn,
+                thr_new: 0x1c7n,
+                dlsym: 0x24fn,
+                dynlib_load_prx: 0x252n,
+                dynlib_unload_prx: 0x253n,
+                randomized_path: 0x25an,
+                is_in_sandbox: 0x249n,
+                mmap: 0x1ddn,
+                jitshm_create: 0x215n,
+                jitshm_alias: 0x216n,
+                unlink: 0xan,
+                chmod: 0xfn,
+                recvfrom: 0x1dn,
+                rename: 0x80n,
+                mkdir: 0x88n,
+                rmdir: 0x89n,
+                stat: 0xbcn,
+                getdents: 0x110n,
+                lseek: 0x1den,
+                dup2: 0x5an,
+                fcntl: 0x5cn,
+                select: 0x5dn,
+                fstat: 0xbdn,
+                umtx_op: 0x1c6n,
+                cpuset_getaffinity: 0x1e7n,
+                cpuset_setaffinity: 0x1e8n,
+                rtprio_thread: 0x1d2n,
+                ftruncate: 0x1e0n,
+                sched_yield: 0x14bn,
+                munmap: 0x49n,
+                fsync: 0x5fn,
+                ioctl: 0x36n,
+                kill: 0x25n,
+                kqueue: 0x16An,
+                __sys_kqueueex: 0x8dn,
+                recvmsg: 0x1Bn,
+                readv: 0x78n,
+                writev: 0x79n,
+                socketpair: 0x87n,
+                evf_create: 0x21an,
+                evf_delete: 0x21bn,
+                evf_set: 0x220n,
+                evf_clear: 0x221n,
+                thr_suspend_ucontext: 0x278n,
+                thr_resume_ucontext: 0x279n,
+                aio_multi_delete: 0x296n,
+                aio_multi_wait: 0x297n,
+                aio_multi_poll: 0x298n,
+                aio_multi_cancel: 0x29an,
+                aio_submit_cmd: 0x29dn,
             };
 
-            /* ========== UNIFIED SYSCALL TABLE ========== */
-            const SYSCALL = {
-                read: 0x3n, write: 0x4n, open: 0x5n, close: 0x6n,
-                setuid: 0x17n, getuid: 0x18n, getpid: 0x14n,
-                mprotect: 0x4an, dlsym: 0x24fn, jitshm_create: 0x215n, jitshm_alias: 0x216n,
-                sched_yield: 0x14bn, thr_self: 0x1b0n, thr_exit: 0x1afn, thr_new: 0x1c7n,
-                cpuset_setaffinity: 0x1e8n, cpuset_getaffinity: 0x1e7n, rtprio_thread: 0x1d2n,
-                pipe: 0x2an, socket: 0x61n, socketpair: 0x87n, bind: 0x68n, listen: 0x6an,
-                connect: 0x62n, setsockopt: 0x69n, getsockopt: 0x76n, getsockname: 0x20n,
-                evf_create: 0x21an, evf_delete: 0x21bn, evf_set: 0x220n, evf_clear: 0x221n,
-                thr_suspend_ucontext: 0x278n, thr_resume_ucontext: 0x279n,
-                aio_multi_delete: 0x296n, aio_multi_wait: 0x297n,
-                aio_multi_poll: 0x298n, aio_multi_cancel: 0x29an, aio_submit_cmd: 0x29dn,
-                unlink: 0xan, chmod: 0xfn, rename: 0x80n, mkdir: 0x88n, rmdir: 0x89n,
-                stat: 0xbcn, fstat: 0xbdn, mmap: 0x1ddn, munmap: 0x49n,
-                nanosleep: 0xf0n, sysctl: 0xcan, netgetiflist: 0x7dn,
-                is_in_sandbox: 0x249n, randomized_path: 0x25an, dynlib_load_prx: 0x252n,
-                kexec: 0x661n
-            };
-
-            const DLSYM_OFFSETS = {
-                "4.03":0x317D0n,"4.50":0x317D0n,"4.51":0x317D0n,
-                "5.00":0x32160n,"5.02":0x32160n,"5.10":0x32160n,
-                "5.50":0x32230n,"6.00":0x330A0n,"6.02":0x330A0n,
-                "6.50":0x33110n,"7.00":0x33E90n,"7.01":0x33E90n,
-                "7.20":0x33ED0n,"7.40":0x33ED0n,"7.60":0x33ED0n,
-                "7.61":0x33ED0n,"8.00":0x342E0n,"8.20":0x342E0n,
-                "8.40":0x342E0n,"8.60":0x342E0n,"9.00":0x350E0n,
-                "9.05":0x350E0n,"9.20":0x350E0n,"9.40":0x350E0n,
-                "9.60":0x350E0n,"10.00":0x349C0n,"10.01":0x349C0n,
-                "10.20":0x349C0n,"10.40":0x349C0n,"10.60":0x349C0n,
-                "11.00":0x349C0n,"11.20":0x349C0n,"11.40":0x349C0n,
-                "11.60":0x349C0n,"12.00":0x349C0n,"12.20":0x349C0n,
-                "12.40":0x349C0n,"12.60":0x349C0n,"12.70":0x349C0n,
-                "13.00":0x349C0n,"13.20":0x349C0n
-            };
-
-            function emuSyscall(num, a1, a2, a3, a4, a5, a6) {
+            function emuSyscall(num, arg1, arg2, arg3, arg4, arg5, arg6) {
                 const n = BigInt(num);
-                a1 = BigInt(a1 || 0n); a2 = BigInt(a2 || 0n); a3 = BigInt(a3 || 0n);
-                a4 = BigInt(a4 || 0n); a5 = BigInt(a5 || 0n); a6 = BigInt(a6 || 0n);
-                const priv = [SYSCALL.setuid, SYSCALL.dlsym, SYSCALL.jitshm_create, SYSCALL.jitshm_alias, SYSCALL.mprotect];
-                if (!simJailbroken && priv.includes(n)) return 0n;
-                if (n === SYSCALL.getpid) return simPid;
-                if (n === SYSCALL.getuid) return simUid;
-                if (n === SYSCALL.is_in_sandbox) return simSandbox;
-                if (n === SYSCALL.setuid) { simUid = a1; return 0n; }
-                if (n === SYSCALL.sched_yield) return 0n;
-                if (n === SYSCALL.nanosleep) return 0n;
-                if (n === SYSCALL.cpuset_setaffinity) return 0n;
-                if (n === SYSCALL.cpuset_getaffinity) { if (a5) simWrite32(a5, 0x10); return 0n; }
-                if (n === SYSCALL.rtprio_thread) return 0n;
-                if (n === SYSCALL.thr_self) { if (a1) simWrite64(a1, 100n); return 0n; }
-                if (n === SYSCALL.thr_new) { if (a3 && a1) { const tidAddr = simRead64(a1 + 0x30n); if (tidAddr) simWrite64(tidAddr, 200n + BigInt(fakeObjCounter++)); } return 0n; }
-                if (n === SYSCALL.thr_exit) return 0n;
-                if (n === SYSCALL.thr_suspend_ucontext) { if (a1) simWrite64(a1, 0n); return 0n; }
-                if (n === SYSCALL.thr_resume_ucontext) return 0n;
-                if (n === SYSCALL.socket) { const fd = nextFdId++; openFds.set(fd, { type:'socket' }); return fd; }
-                if (n === SYSCALL.socketpair) { const fd1=nextFdId++; const fd2=nextFdId++; openFds.set(fd1,{}); openFds.set(fd2,{}); if(a1){ simWrite32(a1,Number(fd1)); simWrite32(a1+4n,Number(fd2));} return 0n; }
-                if (n === SYSCALL.pipe) { const fd1=nextFdId++; const fd2=nextFdId++; openFds.set(fd1,{}); openFds.set(fd2,{}); if(a1){ simWrite32(a1,Number(fd1)); simWrite32(a1+4n,Number(fd2));} return 0n; }
-                if (n === SYSCALL.close) { openFds.delete(a1); return 0n; }
-                if (n === SYSCALL.bind) return 0n;
-                if (n === SYSCALL.listen) return 0n;
-                if (n === SYSCALL.accept) { const fd=nextFdId++; openFds.set(fd,{}); return fd; }
-                if (n === SYSCALL.connect) return 0n;
-                if (n === SYSCALL.setsockopt) return 0n;
-                if (n === SYSCALL.getsockopt) return 0n;
-                if (n === SYSCALL.getsockname) { if(a2&&a3){ simWrite16(a2+2n,0xC350n); } if(a3) simWrite32(a3,16n); return 0n; }
-                if (n === SYSCALL.read) { const sz=Number(a3); return BigInt(Math.min(sz,4096)); }
-                if (n === SYSCALL.write) return a3;
-                if (n === SYSCALL.open) { const path=simReadString(a1); const fd=nextFdId++; openFds.set(fd,{type:'file',path}); if(!simFileSystem.has(path)) simFileSystem.set(path,fd); return fd; }
-                if (n === SYSCALL.fstat) { if(a2){ for(let i=0n;i<0x100n;i+=8n) simWrite64(a2+i,0n); simWrite64(a2+0x48n,1024n); } return 0n; }
-                if (n === SYSCALL.stat) { if(a1&&a2){ for(let i=0n;i<0x100n;i+=8n) simWrite64(a2+i,0n); simWrite64(a2+0x48n,1024n); } return 0n; }
-                if (n === SYSCALL.mmap) { const addr=simMalloc(Number(a2)); return a1||addr; }
-                if (n === SYSCALL.munmap) return 0n;
-                if (n === SYSCALL.mprotect) return 0n;
-                if (n === SYSCALL.jitshm_create) { const handle=nextFdId++; return handle; }
-                if (n === SYSCALL.jitshm_alias) { const handle=nextFdId++; return handle; }
-                if (n === SYSCALL.dlsym) { if(a2&&a3){ const symName=simReadString(a2); simWrite64(a3, LIBKERNEL_BASE+0x350E0n+BigInt(symName.length*0x100)); } return 0n; }
-                if (n === SYSCALL.dynlib_load_prx) { if(a3) simWrite32(a3,Number(nextFdId++)); return 0n; }
-                if (n === SYSCALL.randomized_path) { if(a1&&a2){ const str='/user/home/abcd1234'; const addr=simAllocString(str); if(a1) simWrite64(a1,addr); if(a2) simWrite64(a2,BigInt(str.length)); } return 0n; }
-                if (n === SYSCALL.sysctl) return 0n;
-                if (n === SYSCALL.netgetiflist) { if(!a1) return 2n; if(a1&&a2>=2n){ const ifaceSize=0x1e0n; for(let i=0n;i<a2;i++){ const off=ifaceSize*i; simWrite8(a1+off,0x65n); simWrite8(a1+off+1n,0x74n); simWrite8(a1+off+2n,0x68n); simWrite8(a1+off+3n,0x30n); simWrite8(a1+off+0x28n,192n); simWrite8(a1+off+0x29n,168n); simWrite8(a1+off+0x2An,1n); simWrite8(a1+off+0x2Bn,100n); } } return 0n; }
-                if (n === SYSCALL.evf_create) { const fd=nextFdId++; openFds.set(fd,{type:'evf'}); return fd; }
-                if (n === SYSCALL.evf_delete) { openFds.delete(a1); return 0n; }
-                if (n === SYSCALL.evf_set) return 0n;
-                if (n === SYSCALL.evf_clear) return 0n;
-                if (n === SYSCALL.aio_submit_cmd) { if(a5) simWrite32(a5,Number(nextFdId++)); return 0n; }
-                if (n === SYSCALL.aio_multi_delete) return 0n;
-                if (n === SYSCALL.aio_multi_wait) return 0n;
-                if (n === SYSCALL.aio_multi_poll) { if(a3) simWrite32(a3,0x80020003n); return 0n; }
-                if (n === SYSCALL.aio_multi_cancel) return 0n;
-                if (n === SYSCALL.unlink) return 0n;
-                if (n === SYSCALL.chmod) return 0n;
-                if (n === SYSCALL.rename) return 0n;
-                if (n === SYSCALL.mkdir) return 0n;
-                if (n === SYSCALL.rmdir) return 0n;
-                if (n === SYSCALL.kexec) return 0x200000000n;
+                arg1 = BigInt(arg1 || 0n);
+                arg2 = BigInt(arg2 || 0n);
+                arg3 = BigInt(arg3 || 0n);
+                arg4 = BigInt(arg4 || 0n);
+                arg5 = BigInt(arg5 || 0n);
+                arg6 = BigInt(arg6 || 0n);
+
+                if (n === SYSCALL_NUMBERS.getpid) return simPid;
+                if (n === SYSCALL_NUMBERS.getuid) return simUid;
+                if (n === SYSCALL_NUMBERS.is_in_sandbox) return simSandbox;
+                if (n === SYSCALL_NUMBERS.setuid) { simUid = arg1; return 0n; }
+                if (n === SYSCALL_NUMBERS.sched_yield) return 0n;
+                if (n === SYSCALL_NUMBERS.nanosleep) return 0n;
+                if (n === SYSCALL_NUMBERS.cpuset_setaffinity) return 0n;
+                if (n === SYSCALL_NUMBERS.cpuset_getaffinity) { if (arg5) simWrite32(arg5, 0x10); return 0n; }
+                if (n === SYSCALL_NUMBERS.rtprio_thread) return 0n;
+                if (n === SYSCALL_NUMBERS.thr_self) { if (arg1) simWrite64(arg1, 100n); return 0n; }
+                if (n === SYSCALL_NUMBERS.thr_new) { if (arg3 && arg1) { const tidAddr = simRead64(arg1 + 0x30n); if (tidAddr) simWrite64(tidAddr, 200n + BigInt(fakeObjCounter++)); } return 0n; }
+                if (n === SYSCALL_NUMBERS.thr_exit) return 0n;
+                if (n === SYSCALL_NUMBERS.thr_suspend_ucontext) return 0n;
+                if (n === SYSCALL_NUMBERS.thr_resume_ucontext) return 0n;
+                if (n === SYSCALL_NUMBERS.umtx_op) return 0n;
+                if (n === SYSCALL_NUMBERS.socket) { const fd = nextFdId++; openFds.set(fd, { type: 'socket', arg1, arg2, arg3 }); return fd; }
+                if (n === SYSCALL_NUMBERS.socketpair) { const fd1 = nextFdId++; const fd2 = nextFdId++;
+                    openFds.set(fd1, { type: 'socketpair' }); openFds.set(fd2, { type: 'socketpair' }); if (arg1) { simWrite32(arg1, Number(fd1)); simWrite32(arg1 + 4n, Number(fd2)); } return 0n; }
+                if (n === SYSCALL_NUMBERS.pipe) { const fd1 = nextFdId++; const fd2 = nextFdId++;
+                    openFds.set(fd1, { type: 'pipe' }); openFds.set(fd2, { type: 'pipe' }); if (arg1) { simWrite32(arg1, Number(fd1)); simWrite32(arg1 + 4n, Number(fd2)); } return 0n; }
+                if (n === SYSCALL_NUMBERS.close) { openFds.delete(arg1); return 0n; }
+                if (n === SYSCALL_NUMBERS.bind) return 0n;
+                if (n === SYSCALL_NUMBERS.listen) return 0n;
+                if (n === SYSCALL_NUMBERS.accept) { const fd = nextFdId++; openFds.set(fd, { type: 'accepted' }); return fd; }
+                if (n === SYSCALL_NUMBERS.connect) return 0n;
+                if (n === SYSCALL_NUMBERS.setsockopt) return 0n;
+                if (n === SYSCALL_NUMBERS.getsockopt) return 0n;
+                if (n === SYSCALL_NUMBERS.getsockname) { if (arg2 && arg3) { simWrite16(arg2 + 2n, 0xC350n); } if (arg3) simWrite32(arg3, 16n); return 0n; }
+                if (n === SYSCALL_NUMBERS.read) { const sz = Number(arg3); return BigInt(Math.min(sz, 4096)); }
+                if (n === SYSCALL_NUMBERS.write) return arg3;
+                if (n === SYSCALL_NUMBERS.readv) return arg3;
+                if (n === SYSCALL_NUMBERS.writev) return arg3;
+                if (n === SYSCALL_NUMBERS.recvmsg) return 0n;
+                if (n === SYSCALL_NUMBERS.sendto) return arg3;
+                if (n === SYSCALL_NUMBERS.recvfrom) return arg3;
+                if (n === SYSCALL_NUMBERS.open) { const path = simReadString(arg1); const fd = nextFdId++; openFds.set(fd, { type: 'file', path }); if (!simFileSystem.has(path)) simFileSystem.set(path, fd); return fd; }
+                if (n === SYSCALL_NUMBERS.fstat) { if (arg2) { for (let i = 0n; i < 0x100n; i += 8n) simWrite64(arg2 + i, 0n); simWrite64(arg2 + 0x48n, 1024n); } return 0n; }
+                if (n === SYSCALL_NUMBERS.stat) { if (arg1 && arg2) { for (let i = 0n; i < 0x100n; i += 8n) simWrite64(arg2 + i, 0n); simWrite64(arg2 + 0x48n, 1024n); } return 0n; }
+                if (n === SYSCALL_NUMBERS.mmap) { const addr = simMalloc(Number(arg2)); if (arg5 && arg5 !== 0xFFFFFFFFFFFFFFFFn) { return arg1 || addr; } return arg1 || addr; }
+                if (n === SYSCALL_NUMBERS.munmap) return 0n;
+                if (n === SYSCALL_NUMBERS.mprotect) return 0n;
+                if (n === SYSCALL_NUMBERS.jitshm_create) { const handle = nextFdId++; return handle; }
+                if (n === SYSCALL_NUMBERS.jitshm_alias) { const handle = nextFdId++; return handle; }
+                if (n === SYSCALL_NUMBERS.dlsym) { if (arg2 && arg3) { const symName = simReadString(arg2); simWrite64(arg3, LIBKERNEL_BASE + 0x350E0n + BigInt(symName.length * 0x100)); } return 0n; }
+                if (n === SYSCALL_NUMBERS.dynlib_load_prx) { if (arg3) simWrite32(arg3, Number(nextFdId++)); return 0n; }
+                if (n === SYSCALL_NUMBERS.randomized_path) { if (arg1 && arg2) { const str = '/user/home/abcd1234'; const addr = simAllocString(str); if (arg1) simWrite64(arg1, addr); if (arg2) simWrite64(arg2, BigInt(str.length)); } return 0n; }
+                if (n === SYSCALL_NUMBERS.sysctl) return 0n;
+                if (n === SYSCALL_NUMBERS.netgetiflist) { if (!arg1) return 2n; if (arg1 && arg2 >= 2n) { const ifaceSize = 0x1e0n; for (let i = 0n; i < arg2; i++) { const off = ifaceSize * i; simWrite8(arg1 + off, 0x65n); simWrite8(arg1 + off + 1n, 0x74n); simWrite8(arg1 + off + 2n, 0x68n); simWrite8(arg1 + off + 3n, 0x30n); simWrite8(arg1 + off + 0x28n, 192n); simWrite8(arg1 + off + 0x29n, 168n); simWrite8(arg1 + off + 0x2An, 1n); simWrite8(arg1 + off + 0x2Bn, 100n); } } return 0n; }
+                if (n === SYSCALL_NUMBERS.ioctl) return 0n;
+                if (n === SYSCALL_NUMBERS.kqueue) { const fd = nextFdId++; openFds.set(fd, { type: 'kqueue' }); return fd; }
+                if (n === SYSCALL_NUMBERS.__sys_kqueueex) return 0n;
+                if (n === SYSCALL_NUMBERS.fcntl) return 0n;
+                if (n === SYSCALL_NUMBERS.kill) return 0n;
+                if (n === SYSCALL_NUMBERS.sigaction) return 0n;
+                if (n === SYSCALL_NUMBERS.evf_create) { const fd = nextFdId++; openFds.set(fd, { type: 'evf' }); return fd; }
+                if (n === SYSCALL_NUMBERS.evf_delete) { openFds.delete(arg1); return 0n; }
+                if (n === SYSCALL_NUMBERS.evf_set) return 0n;
+                if (n === SYSCALL_NUMBERS.evf_clear) return 0n;
+                if (n === SYSCALL_NUMBERS.aio_submit_cmd) { if (arg5) simWrite32(arg5, Number(nextFdId++)); return 0n; }
+                if (n === SYSCALL_NUMBERS.aio_multi_delete) return 0n;
+                if (n === SYSCALL_NUMBERS.aio_multi_wait) return 0n;
+                if (n === SYSCALL_NUMBERS.aio_multi_poll) { if (arg3) simWrite32(arg3, 0x80020003n); return 0n; }
+                if (n === SYSCALL_NUMBERS.aio_multi_cancel) return 0n;
+                if (n === SYSCALL_NUMBERS.unlink) return 0n;
+                if (n === SYSCALL_NUMBERS.chmod) return 0n;
+                if (n === SYSCALL_NUMBERS.rename) return 0n;
+                if (n === SYSCALL_NUMBERS.mkdir) return 0n;
+                if (n === SYSCALL_NUMBERS.rmdir) return 0n;
+                if (n === SYSCALL_NUMBERS.getdents) return 0n;
+                if (n === SYSCALL_NUMBERS.lseek) return 0n;
+                if (n === SYSCALL_NUMBERS.dup2) return arg2;
+                if (n === SYSCALL_NUMBERS.select) return 0n;
+                if (n === SYSCALL_NUMBERS.ftruncate) return 0n;
+                if (n === SYSCALL_NUMBERS.fsync) return 0n;
                 return 0n;
             }
 
-            let fakeObjCounter = 0;
-            const fakeObjAddrs = new Map();
-            function simAddrof(obj) { if(obj===null||obj===undefined) return 0n; if(typeof obj==='bigint') return obj; if(fakeObjAddrs.has(obj)) return fakeObjAddrs.get(obj); const addr=0x900000000n+BigInt(fakeObjCounter++)*0x100n; fakeObjAddrs.set(obj,addr); return addr; }
-            function simCreateFakeobj(addr) { const key={_fake:true,_addr:addr}; fakeObjAddrs.set(key,addr); return key; }
-            function toHex(num) { return '0x'+BigInt(num).toString(16).padStart(16,'0'); }
+            // ==================== ROP GADGETS (Mock) ====================
+            const ROP = {
+                get pop_rsp() { return EBOOT_BASE + 0x49f7fn; },
+                get pop_rax() { return EBOOT_BASE + 0x2d954n; },
+                get pop_rdi() { return EBOOT_BASE + 0xb0ec5n; },
+                get pop_rsi() { return EBOOT_BASE + 0xb8a81n; },
+                get pop_rdx() { return EBOOT_BASE + 0xb692n; },
+                get pop_rcx() { return EBOOT_BASE + 0x187da3n; },
+                get pop_r8() { return EBOOT_BASE + 0x1a8ff9n; },
+                get pop_r9() { return EBOOT_BASE + 0x1394e01n; },
+                get pop_rbp() { return EBOOT_BASE + 0x69n; },
+                get mov_qword_rdi_rax() { return EBOOT_BASE + 0x49a77n; },
+                get mov_qword_rdi_rdx() { return EBOOT_BASE + 0x3a3b95n; },
+                get mov_rax_0x200000000() { return EBOOT_BASE + 0x1283d40n; },
+                get mov_rsp_rbp() { return EBOOT_BASE + 0xb1424n; },
+                get ret() { return EBOOT_BASE + 0x32n; },
+            };
+
+            const DLSYM_OFFSETS = {
+                "4.03": 0x317D0n, "4.50": 0x317D0n, "4.51": 0x317D0n,
+                "5.00": 0x32160n, "5.02": 0x32160n, "5.10": 0x32160n,
+                "5.50": 0x32230n, "6.00": 0x330A0n, "6.02": 0x330A0n,
+                "6.50": 0x33110n, "7.00": 0x33E90n, "7.01": 0x33E90n,
+                "7.20": 0x33ED0n, "7.40": 0x33ED0n, "7.60": 0x33ED0n,
+                "7.61": 0x33ED0n, "8.00": 0x342E0n, "8.20": 0x342E0n,
+                "8.40": 0x342E0n, "8.60": 0x342E0n, "9.00": 0x350E0n,
+                "9.05": 0x350E0n, "9.20": 0x350E0n, "9.40": 0x350E0n,
+                "9.60": 0x350E0n, "10.00": 0x349C0n, "10.01": 0x349C0n,
+                "10.20": 0x349C0n, "10.40": 0x349C0n, "10.60": 0x349C0n,
+                "11.00": 0x349C0n, "11.20": 0x349C0n, "11.40": 0x349C0n,
+                "11.60": 0x349C0n, "12.00": 0x349C0n, "12.20": 0x349C0n,
+                "12.40": 0x349C0n, "12.60": 0x349C0n, "12.70": 0x349C0n,
+                "13.00": 0x349C0n, "13.20": 0x349C0n,
+            };
+
+            // ========== FIRMWARE OFFSETS ==========
+            const fw_offsets = {
+                ["4.00"]: { ALLPROC: 0x027EDCB8, SECURITY_FLAGS: 0x06506474, ROOTVNODE: 0x066E74C0, KERNEL_PMAP_STORE: 0x03257A78, GVMSPACE: 0x064C3F80 },
+                ["4.02"]: "4.00", ["4.03"]: "4.00", ["4.50"]: "4.00", ["4.51"]: "4.00",
+                ["5.00"]: { ALLPROC: 0x0291DD00, SECURITY_FLAGS: 0x066466EC, ROOTVNODE: 0x06853510, KERNEL_PMAP_STORE: 0x03398A88, GVMSPACE: 0x06603FB0 },
+                ["5.02"]: "5.00", ["5.10"]: "5.00",
+                ["5.50"]: { ALLPROC: 0x0291DD00, SECURITY_FLAGS: 0x066466EC, ROOTVNODE: 0x06853510, KERNEL_PMAP_STORE: 0x03394A88, GVMSPACE: 0x06603FB0 },
+                ["6.xx"]: { ALLPROC: 0x02869D20, SECURITY_FLAGS: 0x065968EC, ROOTVNODE: 0x0679F510, KERNEL_PMAP_STORE: 0x032E4358, GVMSPACE: 0x065540F0 },
+                ["7.xx"]: { ALLPROC: 0x02859D50, SECURITY_FLAGS: 0x00AC8064, ROOTVNODE: 0x030C7510, KERNEL_PMAP_STORE: 0x02E2C848, GVMSPACE: 0x02E76090 },
+                ["8.xx"]: { ALLPROC: 0x02875D50, SECURITY_FLAGS: 0x00AC3064, ROOTVNODE: 0x030FB510, KERNEL_PMAP_STORE: 0x02E48848, GVMSPACE: 0x02EAA090 },
+                ["9.00"]: { ALLPROC: 0x02755D50, SECURITY_FLAGS: 0x00D72064, ROOTVNODE: 0x02FDB510, KERNEL_PMAP_STORE: 0x02D28B78, GVMSPACE: 0x02D8A570 },
+                ["9.05"]: { ALLPROC: 0x02755D50, SECURITY_FLAGS: 0x00D73064, ROOTVNODE: 0x02FDB510, KERNEL_PMAP_STORE: 0x02D28B78, GVMSPACE: 0x02D8A570 },
+                ["9.xx"]: "9.05",
+                ["10.xx"]: { ALLPROC: 0x02765D70, SECURITY_FLAGS: 0x00D79064, ROOTVNODE: 0x02FA3510, KERNEL_PMAP_STORE: 0x02CF0EF8, GVMSPACE: 0x02D52570 },
+                ["11.xx"]: { ALLPROC: 0x02875D70, SECURITY_FLAGS: 0x00D8C064, ROOTVNODE: 0x030B7510, KERNEL_PMAP_STORE: 0x02E04F18, GVMSPACE: 0x02E66570 },
+                ["12.xx"]: { ALLPROC: 0x02885E00, SECURITY_FLAGS: 0x00D83064, ROOTVNODE: 0x030D7510, KERNEL_PMAP_STORE: 0x02E1CFB8, GVMSPACE: 0x02E7E570 },
+                ["13.00"]: { ALLPROC: 0x028C5E00, SECURITY_FLAGS: 0x00D99064, ROOTVNODE: 0x03133510, KERNEL_PMAP_STORE: 0x02E74FF8, GVMSPACE: 0x02ED6570 },
+                ["13.20"]: { ALLPROC: 0x028C5E00, SECURITY_FLAGS: 0x00D99064, ROOTVNODE: 0x03133510, KERNEL_PMAP_STORE: 0x02E74FF8, GVMSPACE: 0x02ED6570 }
+            };
+
+            // ==================== EXPOSED API ====================
+            function toHex(num) { return '0x' + BigInt(num).toString(16).padStart(16, '0'); }
             function get_fwversion() { return FW_VERSION; }
-            function get_dlsym_offset(fw) { return DLSYM_OFFSETS[fw] || 0x350E0n; }
-            function write_string(addr, str) { const enc=new TextEncoder(); const bytes=enc.encode(str); for(let i=0;i<bytes.length;i++) simWrite8(addr+BigInt(i),bytes[i]); simWrite8(addr+BigInt(bytes.length),0); }
+            function get_dlsym_offset(fw) {
+                const key = fw;
+                if (DLSYM_OFFSETS[key]) return DLSYM_OFFSETS[key];
+                const parts = fw.split('.');
+                const major = parts[0];
+                const available = Object.keys(DLSYM_OFFSETS).filter(v => v.startsWith(major + '.'));
+                if (available.length > 0) return DLSYM_OFFSETS[available[available.length - 1]];
+                return 0x350E0n;
+            }
+            function get_kernel_offset() {
+                const offsets = {
+                    DATA_BASE: 0x0CC0000n,
+                    DATA_BASE_ALLPROC: 0x2765D70n,
+                    DATA_BASE_SECURITY_FLAGS: 0xD79064n,
+                    DATA_BASE_ROOTVNODE: 0x2FA3510n,
+                    DATA_BASE_KERNEL_PMAP_STORE: 0x2CF0EF8n,
+                    DATA_BASE_GVMSPACE: 0x2D52570n,
+                    DATA_BASE_TARGET_ID: 0xD7906Dn,
+                    DATA_BASE_QA_FLAGS: 0xD79088n,
+                    DATA_BASE_UTOKEN_FLAGS: 0xD790F0n,
+                    PROC_FD: 0x48n,
+                    PROC_PID: 0xBCn,
+                    PROC_VM_SPACE: 0x200n,
+                    PROC_UCRED: 0x40n,
+                    PROC_COMM: 0x3E8n,
+                    PROC_SYSENT: 0x3F0n,
+                    FILEDESC_OFILES: 0x8n,
+                    SIZEOF_OFILES: 0x30n,
+                    VMSPACE_VM_PMAP: 0x1D0n,
+                    VMSPACE_VM_VMID: 0x1DCn,
+                    PMAP_CR3: 0x28n,
+                    SIZEOF_GVMSPACE: 0x100n,
+                    GVMSPACE_START_VA: 0x8n,
+                    GVMSPACE_SIZE: 0x10n,
+                    GVMSPACE_PAGE_DIR_VA: 0x38n,
+                    SO_PCB: 0x18n,
+                    INPCB_PKTOPTS: 0x120n,
+                    PIPE_SIGIO: 0xD8n,
+                };
+                return offsets;
+            }
+            let kernel_offset = null;
+            function update_kernel_offsets() { kernel_offset = get_kernel_offset(); }
+
+            // Kernel, GPU, IPv6 stubs (unchanged)
+            const kernel = {
+                addr: { curproc: MOCK_CURPROC, allproc: MOCK_ALLPROC, data_base: DATA_BASE, dmap_base: 0xFFFF804000000000n, kernel_cr3: 0x100000n, rootvnode: MOCK_ROOTVNODE },
+                read_buffer: function(kaddr, size) { return simReadBuffer(kaddr, size); },
+                write_buffer: function(kaddr, buf) { simWriteBuffer(kaddr, buf); },
+                read_byte: function(kaddr) { return simRead8(kaddr); },
+                read_word: function(kaddr) { return simRead16(kaddr); },
+                read_dword: function(kaddr) { return simRead32(kaddr); },
+                read_qword: function(kaddr) { return simRead64(kaddr); },
+                write_byte: function(dest, val) { simWrite8(dest, val); },
+                write_word: function(dest, val) { simWrite16(dest, val); },
+                write_dword: function(dest, val) { simWrite32(dest, val); },
+                write_qword: function(dest, val) { simWrite64(dest, val); },
+                read_null_terminated_string: function(kaddr) { return simReadString(kaddr); },
+            };
+            const gpu = {
+                data_base: DATA_BASE,
+                setup: function() { return true; },
+                read_buffer: function(addr, size) { return simReadBuffer(addr, size); },
+                write_buffer: function(addr, buf) { simWriteBuffer(addr, buf); },
+                read_byte: function(kaddr) { return simRead8(kaddr); },
+                read_word: function(kaddr) { return simRead16(kaddr); },
+                read_dword: function(kaddr) { return simRead32(kaddr); },
+                read_qword: function(kaddr) { return simRead64(kaddr); },
+                write_byte: function(dest, val) { simWrite8(dest, val); },
+                write_word: function(dest, val) { simWrite16(dest, val); },
+                write_dword: function(dest, val) { simWrite32(dest, val); },
+                write_qword: function(dest, val) { simWrite64(dest, val); },
+            };
+            const ipv6_kernel_rw = {
+                data: { pipe_read_fd: 200n, pipe_write_fd: 201n, master_sock: 300n, victim_sock: 301n, pipe_addr: 0xFFFF804000100000n, pipemap_buffer: simMalloc(0x14), read_mem: simMalloc(0x4000), master_target_buffer: simMalloc(0x14), slave_buffer: simMalloc(0x14), pktinfo_size_store: simMalloc(8) },
+                init: function() {},
+                read_buffer: function(kaddr, len) { return simReadBuffer(kaddr, len); },
+                write_buffer: function(kaddr, buf) { simWriteBuffer(kaddr, buf); },
+                copyout: function(kaddr, uaddr, len) { const buf = simReadBuffer(kaddr, len); simWriteBuffer(uaddr, buf); },
+                copyin: function(uaddr, kaddr, len) { const buf = simReadBuffer(uaddr, len); simWriteBuffer(kaddr, buf); },
+            };
+
+            // Global variables for payloads (unchanged)
+            let addrof = simAddrof;
+            let read64 = simRead64;
+            let write64 = simWrite64;
+            let read8 = simRead8;
+            let write8 = simWrite8;
+            let read16 = simRead16;
+            let write16 = simWrite16;
+            let read32 = simRead32;
+            let write32 = simWrite32;
+            let create_fakeobj = simCreateFakeobj;
+            let get_backing_store = function(obj) { const a = simAddrof(obj); return a + 0x10n; };
+            let malloc = simMalloc;
+            let pwn = function(x) { return x; };
+            let get_bytecode_addr = function() { return 0x900010000n; };
+            let call_rop = function() { return 0x200000000n; };
+            let call = function(addr, a1, a2, a3, a4, a5, a6) { return 0n; };
+            let syscall = emuSyscall;
+            let return_value_addr = simMalloc(8);
+            let return_value_buf = [0n];
+            let saved_fp = 0n;
+            let rop_chain = [];
+            let fake_bc = [];
+            let fake_frame = {};
+            let eboot_base = EBOOT_BASE;
+            let libc_base = LIBC_BASE;
+            let libkernel_base = LIBKERNEL_BASE;
+            let syscall_wrapper = LIBC_BASE + 0x113B18n + 0x7n;
+            let libc_strerror = LIBC_BASE + 0x73520n;
+            let libc_error = LIBC_BASE + 0xCC5A0n;
+            let SCE_KERNEL_DLSYM = LIBKERNEL_BASE + 0x350E0n;
+            let sceKernelAllocateMainDirectMemory = EBOOT_BASE + 0x2A65EF8n;
+            let sceKernelMapNamedDirectMemory = EBOOT_BASE + 0x2A65F00n;
+            let Thrd_create = LIBC_BASE + 0x4BF0n;
+            let Thrd_join = LIBC_BASE + 0x49F0n;
+            let sceKernelGetModuleInfoFromAddr = LIBC_BASE + 0x113C08n;
+            let NETWORK_LOGGING = false;
+            let LOG_SERVER = 'http://192.168.1.180:8080/log';
+            let _log_socket_fd = null;
+            let _log_socket_buf = null;
+            const version_string = EMULATOR_VERSION;
+            const PAGE_SIZE = 0x4000;
+            const PHYS_PAGE_SIZE = 0x1000;
+            const LIBKERNEL_HANDLE = 0x2001n;
+            const AF_INET = 2n;
+            const AF_INET6 = 28n;
+            const AF_UNIX = 1n;
+            const SOCK_STREAM = 1n;
+            const SOCK_DGRAM = 2n;
+            const IPPROTO_UDP = 17n;
+            const IPPROTO_TCP = 6n;
+            const IPPROTO_IPV6 = 41n;
+            const IPV6_PKTINFO = 46n;
+            const IPV6_RTHDR = 51n;
+            const IPV6_TCLASS = 61n;
+            const IPV6_NEXTHOP = 48n;
+            const IPV6_2292PKTOPTIONS = 25n;
+            const SOL_SOCKET = 0xffffn;
+            const SO_REUSEADDR = 4n;
+            const SO_LINGER = 0x80n;
+            const INADDR_ANY = 0n;
+            const PROT_NONE = 0x0n;
+            const PROT_READ = 0x1n;
+            const PROT_WRITE = 0x2n;
+            const PROT_EXECUTE = 0x4n;
+            const GPU_READ = 0x10n;
+            const GPU_WRITE = 0x20n;
+            const GPU_RW = 0x30n;
+            const MAP_SHARED = 0x1n;
+            const MAP_PRIVATE = 0x2n;
+            const MAP_FIXED = 0x10n;
+            const MAP_ANONYMOUS = 0x1000n;
+            const MAP_NO_COALESCE = 0x400000n;
+            const O_RDONLY = 0n;
+            const O_WRONLY = 1n;
+            const O_RDWR = 2n;
+            const O_CREAT = 0x200n;
+            const O_TRUNC = 0x400n;
+            const O_APPEND = 0x8n;
+            const O_NONBLOCK = 0x4n;
+            const SIGILL = 4n;
+            const SIGKILL = 9n;
+            const SIGBUS = 10n;
+            const SIGSEGV = 11n;
+            const SA_SIGINFO = 0x4n;
+            const STDIN_FILENO = 0n;
+            const STDOUT_FILENO = 1n;
+            const STDERR_FILENO = 2n;
+
+            const SYSCALL = SYSCALL_NUMBERS;
+
+            // Utility functions (unchanged)
+            function write_string(addr, str) { const encoder = new TextEncoder(); const bytes = encoder.encode(str); for (let i = 0; i < bytes.length; i++) simWrite8(addr + BigInt(i), bytes[i]); simWrite8(addr + BigInt(bytes.length), 0); }
             function alloc_string(str) { return simAllocString(str); }
             function send_notification(text) { showNotification(String(text)); }
             function get_error_string() { return '0 Success'; }
-            function sysctlbyname() { return true; }
-            function create_pipe() { const fildes=simMalloc(16); const fd1=nextFdId++; const fd2=nextFdId++; openFds.set(fd1,{type:'pipe'}); openFds.set(fd2,{type:'pipe'}); simWrite32(fildes,Number(fd1)); simWrite32(fildes+4n,Number(fd2)); return [fd1,fd2]; }
-            function read_buffer(addr,len) { return simReadBuffer(addr,len); }
-            function write_buffer(addr,buf) { simWriteBuffer(addr,buf); }
+            function sysctlbyname(name, oldp, oldp_len, newp, newp_len) { return true; }
+            function create_pipe() { const fildes = simMalloc(16); const fd1 = nextFdId++; const fd2 = nextFdId++; openFds.set(fd1, { type: 'pipe' }); openFds.set(fd2, { type: 'pipe' }); simWrite32(fildes, Number(fd1)); simWrite32(fildes + 4n, Number(fd2)); return [fd1, fd2]; }
+            function read_buffer(addr, len) { return simReadBuffer(addr, len); }
+            function write_buffer(addr, buf) { simWriteBuffer(addr, buf); }
             function read_null_terminated_string(addr) { return simReadString(addr); }
-            function find_pattern() { return [0]; }
+            function find_pattern(buffer, pattern) { return [0]; }
             function get_current_ip() { return '192.168.1.100'; }
             function is_jailbroken() { return simJailbroken; }
-            function check_jailbroken() { if(!simJailbroken) throw new Error('process is not jailbroken'); }
-            function load_prx() { return Number(nextFdId++); }
-            function dlsym(handle,sym) { if(!simJailbroken) throw new Error('process is not jailbroken'); return LIBKERNEL_BASE+0x350E0n+BigInt(sym.length*0x100); }
+            function check_jailbroken() { if (!simJailbroken) throw new Error('process is not jailbroken'); }
+            function load_prx(path) { return Number(nextFdId++); }
+            function dlsym(handle, sym) { if (!simJailbroken) throw new Error('process is not jailbroken'); return LIBKERNEL_BASE + 0x350E0n + BigInt(sym.length * 0x100); }
             function get_title_id() { return 'PPSA01650'; }
-            function find_mod_by_name() { return {handle:1n,base_addr:EBOOT_BASE}; }
-            function file_exists(path) { return simFileSystem.has(path)||path.includes('elfldr')||path.includes('download0'); }
-            function read_file(path) { if(simFileData.has(path)) return simFileData.get(path); const dummy=new Uint8Array(256); for(let i=0;i<256;i++) dummy[i]=i; return dummy; }
-            function write_file(path,text) { const enc=new TextEncoder(); const data=enc.encode(text); simFileData.set(path,data); simFileSystem.set(path,nextFdId++); return data.length; }
+            function find_mod_by_name(name) { return { handle: 1n, base_addr: EBOOT_BASE }; }
+            function file_exists(path) { return simFileSystem.has(path) || path.includes('elfldr') || path.includes('download0'); }
+            function read_file(path) { if (simFileData.has(path)) return simFileData.get(path); const dummyData = new Uint8Array(256); for (let i = 0; i < 256; i++) dummyData[i] = i; return dummyData; }
+            function write_file(path, text) { const encoder = new TextEncoder(); const data = encoder.encode(text); simFileData.set(path, data); simFileSystem.set(path, nextFdId++); return data.length; }
             function get_nidpath() { return 'user/home/abcd1234'; }
-            function nanosleep() {}
-            async function send_network() {}
-            async function kill_youtube() { await emuLog('kill_youtube: simulated', 'dim'); }
-            async function elf_parse() { return 0x926100000n; }
-            async function elf_run() { return {thr_handle:500n,payloadout:simMalloc(4)}; }
-            async function elf_wait_for_exit(handle,payloadout) { simWrite32(payloadout,0n); }
-            async function elf_loader() { await emuLog('elf_loader: loading elfldr.elf...'); }
-            async function checkLogServer() { NETWORK_LOGGING=true; }
-            function phys_to_dmap(pa) { return (kernel.addr.dmap_base||0xFFFF804000000000n)+pa; }
-            function virt_to_phys(va) { return va&0xFFFFFFFFFFn; }
-            function get_proc_cr3() { return 0x100000n; }
-            function cpu_pde_field() { return 1; }
-            function cpu_walk_pt() { return 0x0n; }
-            function find_proc_by_name() { return 0xFFFF804000010000n; }
-            function find_proc_by_pid() { return 0xFFFF804000010000n; }
-            function get_pdb2_addr() { return 0xFFFF804000050000n; }
-            function get_ptb_entry_of_relative_va() { return [0xFFFF804000060000n,0x200000n]; }
-            function alloc_main_dmem(size) { return simMalloc(Number(size)); }
+            function nanosleep(nsec) { return; }
+            async function send_network(ip, port, sock_type, buffer) { return; }
+            async function kill_youtube() { await emuLog('kill_youtube: Simulated YouTube app termination'); }
+            async function elf_parse(elf_data) { return 0x926100000n; }
+            async function elf_run(entry, path) { return { thr_handle: 500n, payloadout: simMalloc(4) }; }
+            async function elf_wait_for_exit(handle, payloadout) { simWrite32(payloadout, 0n); }
+            async function elf_loader() { await emuLog('elf_loader: Loading elfldr.elf (simulated)...'); await emuLog('elf_loader: ELF loaded and executed successfully.'); }
+            async function checkLogServer() { NETWORK_LOGGING = true; }
+            function phys_to_dmap(pa) { return (kernel.addr.dmap_base || 0xFFFF804000000000n) + pa; }
+            function virt_to_phys(va, cr3) { return va & 0xFFFFFFFFFFn; }
+            function get_proc_cr3(proc) { return 0x100000n; }
+            function cpu_pde_field(pde, field) { return 1; }
+            function cpu_walk_pt(cr3, vaddr) { return vaddr & 0xFFFFFFFFFFn; }
+            function find_proc_by_name(name) { return MOCK_CURPROC; }
+            function find_proc_by_pid(pid) { return MOCK_CURPROC; }
+            function get_pdb2_addr(vmid) { return 0xFFFF804000050000n; }
+            function get_ptb_entry_of_relative_va(va) { return [0xFFFF804000060000n, 0x200000n]; }
+            function alloc_main_dmem(size, prot, flag) { return simMalloc(Number(size)); }
             function get_curproc_vmid() { return 1; }
-            function get_gvmspace() { return 0xFFFF804000040000n; }
-            function get_relative_va() { return 0x100000n; }
+            function get_gvmspace(vmid) { return MOCK_GVMSPACE; }
+            function get_relative_va(vmid, va) { return va; }
             function patch_dynlib_restriction() {}
             function restore_dynlib_restriction() {}
-            async function load_localscript() {}
-            const kernel_offset = {
-                DATA_BASE:0x0CC0000n, DATA_BASE_ALLPROC:0x2765D70n,
-                DATA_BASE_SECURITY_FLAGS:0xD79064n, DATA_BASE_ROOTVNODE:0x2FA3510n,
-                DATA_BASE_KERNEL_PMAP_STORE:0x2CF0EF8n, DATA_BASE_GVMSPACE:0x2D52570n,
-                PROC_FD:0x48n, PROC_PID:0xBCn, PROC_UCRED:0x40n,
-                SO_PCB:0x18n, INPCB_PKTOPTS:0x120n, PIPE_SIGIO:0xD8n,
-                SIZEOF_OFILES:0x30n, FILEDESC_OFILES:0x8n,
+            async function load_localscript(src) { return; }
+
+            // Example payloads
+            const examplePayloads = {
+                helloworld: `(async () => {
+    await log("Hello from remote JS!");
+    send_notification("Hello from remote JS!");
+    await log("Payload executed successfully on emulated PS5.");
+})();`,
+                setlogserver: `(async () => {
+    LOG_SERVER = 'http://192.168.1.180:8080/log';
+    await log("Setting log server url to " + LOG_SERVER);
+    await checkLogServer();
+    if(NETWORK_LOGGING) {
+        await log("Successfully connected with log server");
+        send_notification("Log server connected!");
+    } else {
+        await log("Failed to connect with log server");
+    }
+})();`,
+                dlsym_test: `(async function() {
+    check_jailbroken();
+    await log("Test 1 : Direct syscall dlsym");
+    let sym_addr = alloc_string("sceKernelAllocateMainDirectMemory");
+    let addr_out = malloc(0x10);
+    let result = syscall(SYSCALL.dlsym, LIBKERNEL_HANDLE, sym_addr, addr_out);
+    if (result === 0xffffffffffffffffn) {
+        await log("dlsym error: " + get_error_string());
+    } else {
+        await log("sceKernelAllocateMainDirectMemory : " + toHex(read64(addr_out)));
+    }
+    await log("Test 2 : sceKernelDlsym wrapper");
+    let fnAddr = dlsym(LIBKERNEL_HANDLE, "sceKernelAllocateMainDirectMemory");
+    await log("sceKernelAllocateMainDirectMemory : " + toHex(fnAddr));
+    send_notification("dlsym test passed!");
+})();`,
             };
-            let kernel = {
-                addr: { curproc:0xFFFF804000010000n, dmap_base:0xFFFF804000000000n },
-                read_qword: simRead64, write_qword: simWrite64,
-                read_dword: simRead32, write_dword: simWrite32,
-                read_byte: simRead8, write_byte: simWrite8,
-                read_buffer: simReadBuffer, write_buffer: simWriteBuffer,
-                read_null_terminated_string: simReadString,
-            };
-            const gpu = { setup:()=>true, read_buffer:simReadBuffer, write_buffer:simWriteBuffer, read_qword:simRead64, write_qword:simWrite64 };
-            const ipv6_kernel_rw = { data:{master_sock:300n,victim_sock:301n}, init(){}, read_buffer:simReadBuffer, write_buffer:simWriteBuffer, copyout(){}, copyin(){} };
-            let NETWORK_LOGGING = false;
-            let LOG_SERVER = 'http://192.168.1.180:8080/log';
 
-            // UI helpers – generic
-            function showNotification(text) {
-                const notif = document.createElement('div'); notif.className = 'ps5-notification';
-                notif.innerHTML = `<div class="notif-icon">📢</div><div class="notif-text">${text.replace(/\n/g,'<br>')}</div>`;
-                notifContainer.appendChild(notif);
-                setTimeout(()=>{ if(notif.parentNode) notif.remove(); }, 4200);
+            // ==================== MAIN EXECUTION ====================
+            async function initializeEmulator() {
+                updateStatus(false);
+                await emuLog('═'.repeat(50));
+                await emuLog(EMULATOR_VERSION);
+                await emuLog('═'.repeat(50));
+                await emuLog('');
+                await emuLog('Starting Exploit (Emulated)...');
+                await emuLog('');
+                await emuLog('[SIM] V8 exploit trigger... CVE-2021-38003 / CVE-2022-4174');
+                await emuLog('[SIM] Hole leak successful');
+                await emuLog('[SIM] oob_arr length: 0x0000000000000064');
+                await emuLog('[SIM] Unstable primitive achieved');
+                await emuLog('[SIM] Stable primitive achieved');
+                await emuLog('[SIM] Setting up ROP...');
+                await emuLog('[SIM] ROP test passed (0x0000000200000000)');
+                await emuLog('[SIM] Disabling PSN dialog and YouTube splash...');
+                await emuLog('[SIM] YT splash disabled!');
+                await emuLog('[SIM] PSN popup disabled!');
+                await emuLog('[SIM] eboot_base @ ' + toHex(EBOOT_BASE));
+                await emuLog('[SIM] libc_base @ ' + toHex(LIBC_BASE));
+                await emuLog('[SIM] libkernel_base @ ' + toHex(LIBKERNEL_BASE));
+
+                FW_VERSION = fwSelect.value;
+                fwBadge.textContent = 'FW ' + FW_VERSION;
+                await emuLog('[SIM] FW detected: ' + FW_VERSION);
+
+                const dlsymOff = get_dlsym_offset(FW_VERSION);
+                SCE_KERNEL_DLSYM = LIBKERNEL_BASE + dlsymOff;
+                await emuLog('[SIM] SCE_KERNEL_DLSYM @ ' + toHex(SCE_KERNEL_DLSYM));
+
+                kernel_offset = get_kernel_offset();
+                update_kernel_offsets();
+
+                await emuLog('');
+                await emuLog('[SIM] Exploit initialization complete.');
+                await emuLog('[SIM] Remote JS Loader starting...');
+                await emuLog('');
+
+                // simJailbroken is already set by user choice
+                simUid = simJailbroken ? 0n : 1n;
+                simSandbox = simJailbroken ? 0n : 1n;
+
+                emulatorReady = true;
+                exploitInitialized = true;
+                updateStatus(true);
+
+                await emuLog('Remote JS Loader listening on 192.168.1.100:50000');
+                await emuLog('Awaiting connection at 192.168.1.100:50000');
+                await emuLog('');
+                await emuLog('Paste your JS payload above and click "Run Script"');
+                await emuLog('or select an example payload below.');
+                await emuLog('═'.repeat(50));
+
+                showNotification('Y2JB Emulator Ready\nFW: ' + FW_VERSION + '\nListener on port 50000');
             }
 
-            // Create log appender for a specific console
-            function makeLogger(logContainer) {
-                return async function emuLog(msg, cls='') {
-                    const lines = String(msg).split('\n');
-                    for (const line of lines) {
-                        const div = document.createElement('div');
-                        div.className = 'log-line ' + cls;
-                        div.textContent = line || '\u00A0';
-                        logContainer.appendChild(div);
-                    }
-                    logContainer.scrollTop = logContainer.scrollHeight;
-                    await new Promise(r => requestAnimationFrame(()=>setTimeout(r,1)));
-                };
-            }
-
-            // YouTube logger
-            const ytLog = makeLogger(ytLogContainer);
-            // Netflix logger
-            const nfLog = makeLogger(nfLogContainer);
-
-            // Update mode badge for both consoles
-            function updateModeBadges() {
-                const cls = simJailbroken ? 'jb' : 'stock';
-                const text = simJailbroken ? '🔓 JB' : '🔒 Stock';
-                ytModeBadge.className = `mode-badge ${cls}`; ytModeBadge.textContent = text;
-                nfModeBadge.className = `mode-badge ${cls}`; nfModeBadge.textContent = text;
-                const dotColor = simJailbroken ? 'var(--green)' : '#f97316';
-                const shadow = `0 0 8px ${dotColor}`;
-                ytStatusDot.style.background = dotColor; ytStatusDot.style.boxShadow = shadow;
-                nfStatusDot.style.background = dotColor; nfStatusDot.style.boxShadow = shadow;
-                ytStatusLabel.textContent = simJailbroken ? 'Remote JS Loader Active (JB)' : 'Remote JS Loader Active (Stock)';
-                nfStatusLabel.textContent = simJailbroken ? 'Remote JS Loader Active (JB)' : 'Remote JS Loader Active (Stock)';
-            }
-
-            // Initialize YouTube emulator
-            async function initYTEmulator() {
-                updateModeBadges();
-                ytFwBadge.textContent = 'FW ' + FW_VERSION;
-                await ytLog('═'.repeat(50), 'accent');
-                await ytLog('Y2JB 1.4 Emulator', 'accent');
-                await ytLog('═'.repeat(50), 'accent');
-                await ytLog(`FW ${FW_VERSION} | ${simJailbroken?'JB':'STOCK'} mode`);
-                await ytLog('Kernel simulation loaded. Ready for payloads.\n');
-                ytBtnRun.disabled = false;
-            }
-
-            // Initialize Netflix emulator
-            async function initNFEmulator() {
-                updateModeBadges();
-                nfFwBadge.textContent = 'FW ' + FW_VERSION;
-                await nfLog('═'.repeat(50), 'accent-nf');
-                await nfLog('Netflix N Hack 1.0 Emulator', 'accent-nf');
-                await nfLog('═'.repeat(50), 'accent-nf');
-                await nfLog(`FW ${FW_VERSION} | ${simJailbroken?'JB':'STOCK'} mode`);
-                await nfLog('Kernel simulation loaded. Ready for payloads.\n');
-                nfBtnRun.disabled = false;
-            }
-
-            // Generic payload executor
-            async function executePayload(code, logFunc) {
-                await logFunc('─'.repeat(40));
-                await logFunc('[EXEC] Running script...');
+            async function executePayload(jsCode) {
+                if (!emulatorReady) {
+                    await emuLog('[ERROR] Emulator not ready. Please wait for initialization.');
+                    return;
+                }
+                await emuLog('');
+                await emuLog('─'.repeat(40));
+                await emuLog('[CONN] Client connected, executing payload...');
+                await emuLog('─'.repeat(40));
                 try {
-                    const AsyncFunction = Object.getPrototypeOf(async function(){}).constructor;
+                    const wrappedCode = `(async function() { try { ${jsCode} } catch (e) { await log('EXCEPTION: ' + e.message); await log(e.stack || ''); kernelPanic('Unhandled exception in payload'); } })();`;
+                    const AsyncFunction = Object.getPrototypeOf(async function() {}).constructor;
                     const fn = new AsyncFunction(
-                        'log','toHex','send_notification','syscall','SYSCALL','malloc','read64','write64','read32','write32',
-                        'read8','write8','read16','write16','addrof','create_fakeobj','get_backing_store','pwn',
-                        'get_bytecode_addr','call_rop','call','return_value_addr','return_value_buf','saved_fp',
-                        'rop_chain','fake_bc','fake_frame','eboot_base','libc_base','libkernel_base','syscall_wrapper',
-                        'libc_strerror','libc_error','SCE_KERNEL_DLSYM','sceKernelAllocateMainDirectMemory',
-                        'sceKernelMapNamedDirectMemory','Thrd_create','Thrd_join','sceKernelGetModuleInfoFromAddr',
-                        'NETWORK_LOGGING','LOG_SERVER','_log_socket_fd','_log_socket_buf','version_string',
-                        'PAGE_SIZE','PHYS_PAGE_SIZE','LIBKERNEL_HANDLE','AF_INET','AF_INET6','AF_UNIX',
-                        'SOCK_STREAM','SOCK_DGRAM','IPPROTO_UDP','IPPROTO_TCP','IPPROTO_IPV6','IPV6_PKTINFO',
-                        'IPV6_RTHDR','IPV6_TCLASS','IPV6_NEXTHOP','IPV6_2292PKTOPTIONS','SOL_SOCKET','SO_REUSEADDR',
-                        'SO_LINGER','INADDR_ANY','PROT_NONE','PROT_READ','PROT_WRITE','PROT_EXECUTE','GPU_READ','GPU_WRITE',
-                        'GPU_RW','MAP_SHARED','MAP_PRIVATE','MAP_FIXED','MAP_ANONYMOUS','MAP_NO_COALESCE',
-                        'O_RDONLY','O_WRONLY','O_RDWR','O_CREAT','O_TRUNC','O_APPEND','O_NONBLOCK',
-                        'SIGILL','SIGKILL','SIGBUS','SIGSEGV','SA_SIGINFO','STDIN_FILENO','STDOUT_FILENO','STDERR_FILENO',
-                        'ROP','DLSYM_OFFSETS','write_string','alloc_string','get_error_string','sysctlbyname',
-                        'get_fwversion','create_pipe','read_buffer','write_buffer','read_null_terminated_string',
-                        'find_pattern','get_current_ip','is_jailbroken','check_jailbroken','load_prx','dlsym',
-                        'get_title_id','find_mod_by_name','file_exists','read_file','write_file','get_nidpath',
-                        'nanosleep','get_dlsym_offset','send_network','kill_youtube','checkLogServer',
-                        'kernel','kernel_offset','gpu','ipv6_kernel_rw','phys_to_dmap','virt_to_phys',
-                        'get_proc_cr3','cpu_pde_field','cpu_walk_pt','find_proc_by_name','find_proc_by_pid',
-                        'get_pdb2_addr','get_ptb_entry_of_relative_va','alloc_main_dmem','get_curproc_vmid',
-                        'get_gvmspace','get_relative_va','get_kernel_offset','update_kernel_offsets',
-                        'patch_dynlib_restriction','restore_dynlib_restriction','elf_parse','elf_run',
-                        'elf_wait_for_exit','elf_loader','load_localscript','FW_VERSION',
-                        'compare_version','PS5_KEYS','gadgets_eu_6','gadgets_us_5','gadgets_list',
-                        code
+                        'log', 'toHex', 'send_notification', 'syscall', 'SYSCALL',
+                        'malloc', 'read64', 'write64', 'read32', 'write32', 'read8', 'write8',
+                        'read16', 'write16', 'addrof', 'create_fakeobj', 'get_backing_store',
+                        'pwn', 'get_bytecode_addr', 'call_rop', 'call', 'return_value_addr',
+                        'return_value_buf', 'saved_fp', 'rop_chain', 'fake_bc', 'fake_frame',
+                        'eboot_base', 'libc_base', 'libkernel_base', 'syscall_wrapper',
+                        'libc_strerror', 'libc_error', 'SCE_KERNEL_DLSYM',
+                        'sceKernelAllocateMainDirectMemory', 'sceKernelMapNamedDirectMemory',
+                        'Thrd_create', 'Thrd_join', 'sceKernelGetModuleInfoFromAddr',
+                        'NETWORK_LOGGING', 'LOG_SERVER', '_log_socket_fd', '_log_socket_buf',
+                        'version_string', 'PAGE_SIZE', 'PHYS_PAGE_SIZE',
+                        'LIBKERNEL_HANDLE', 'AF_INET', 'AF_INET6', 'AF_UNIX',
+                        'SOCK_STREAM', 'SOCK_DGRAM', 'IPPROTO_UDP', 'IPPROTO_TCP',
+                        'IPPROTO_IPV6', 'IPV6_PKTINFO', 'IPV6_RTHDR', 'IPV6_TCLASS',
+                        'IPV6_NEXTHOP', 'IPV6_2292PKTOPTIONS', 'SOL_SOCKET', 'SO_REUSEADDR',
+                        'SO_LINGER', 'INADDR_ANY', 'PROT_NONE', 'PROT_READ', 'PROT_WRITE',
+                        'PROT_EXECUTE', 'GPU_READ', 'GPU_WRITE', 'GPU_RW',
+                        'MAP_SHARED', 'MAP_PRIVATE', 'MAP_FIXED', 'MAP_ANONYMOUS',
+                        'MAP_NO_COALESCE', 'O_RDONLY', 'O_WRONLY', 'O_RDWR', 'O_CREAT',
+                        'O_TRUNC', 'O_APPEND', 'O_NONBLOCK', 'SIGILL', 'SIGKILL',
+                        'SIGBUS', 'SIGSEGV', 'SA_SIGINFO', 'STDIN_FILENO', 'STDOUT_FILENO',
+                        'STDERR_FILENO', 'ROP', 'DLSYM_OFFSETS',
+                        'write_string', 'alloc_string', 'get_error_string', 'sysctlbyname',
+                        'get_fwversion', 'create_pipe', 'read_buffer', 'write_buffer',
+                        'read_null_terminated_string', 'find_pattern', 'get_current_ip',
+                        'is_jailbroken', 'check_jailbroken', 'load_prx', 'dlsym',
+                        'get_title_id', 'find_mod_by_name', 'file_exists', 'read_file',
+                        'write_file', 'get_nidpath', 'nanosleep', 'get_dlsym_offset',
+                        'send_network', 'kill_youtube', 'checkLogServer',
+                        'kernel', 'kernel_offset', 'gpu', 'ipv6_kernel_rw',
+                        'phys_to_dmap', 'virt_to_phys', 'get_proc_cr3', 'cpu_pde_field',
+                        'cpu_walk_pt', 'find_proc_by_name', 'find_proc_by_pid',
+                        'get_pdb2_addr', 'get_ptb_entry_of_relative_va',
+                        'alloc_main_dmem', 'get_curproc_vmid', 'get_gvmspace',
+                        'get_relative_va', 'get_kernel_offset', 'update_kernel_offsets',
+                        'patch_dynlib_restriction', 'restore_dynlib_restriction',
+                        'elf_parse', 'elf_run', 'elf_wait_for_exit', 'elf_loader',
+                        'load_localscript', 'FW_VERSION', 'kernelPanic',
+                        wrappedCode
                     );
                     await fn(
-                        logFunc, toHex, showNotification, emuSyscall, SYSCALL,
+                        emuLog, toHex, showNotification, emuSyscall, SYSCALL_NUMBERS,
                         simMalloc, simRead64, simWrite64, simRead32, simWrite32, simRead8, simWrite8,
-                        simRead16, simWrite16, simAddrof, simCreateFakeobj, (obj)=>simAddrof(obj)+0x10n,
-                        (x)=>x, ()=>0x900010000n, ()=>0x200000000n, ()=>0n, simMalloc(8), [0n], 0n, [], [], {},
-                        EBOOT_BASE, LIBC_BASE, LIBKERNEL_BASE, LIBC_BASE+0x113B18n+0x7n,
-                        LIBC_BASE+0x73520n, LIBC_BASE+0xCC5A0n, LIBKERNEL_BASE+(DLSYM_OFFSETS[FW_VERSION]||0x350E0n),
-                        EBOOT_BASE+0x2A65EF8n, EBOOT_BASE+0x2A65F00n,
-                        LIBC_BASE+0x4BF0n, LIBC_BASE+0x49F0n, LIBC_BASE+0x113C08n,
-                        false, LOG_SERVER, null, null, 'Netflix N Hack / Y2JB',
-                        0x4000, 0x1000, 0x2001n, 2n, 28n, 1n, 1n, 2n, 17n, 6n, 41n,
-                        46n, 51n, 61n, 48n, 25n, 0xffffn, 4n, 0x80n, 0n,
-                        0x0n,0x1n,0x2n,0x4n, 0x10n,0x20n,0x30n,
-                        0x1n,0x2n,0x10n,0x1000n,0x400000n,
-                        0n,1n,2n,0x200n,0x400n,0x8n,0x4n,
-                        4n,9n,10n,11n,0x4n,0n,1n,2n,
-                        ROP, DLSYM_OFFSETS,
+                        simRead16, simWrite16, simAddrof, simCreateFakeobj, get_backing_store,
+                        pwn, get_bytecode_addr, call_rop, call, return_value_addr,
+                        return_value_buf, saved_fp, rop_chain, fake_bc, fake_frame,
+                        EBOOT_BASE, LIBC_BASE, LIBKERNEL_BASE, syscall_wrapper,
+                        libc_strerror, libc_error, SCE_KERNEL_DLSYM,
+                        sceKernelAllocateMainDirectMemory, sceKernelMapNamedDirectMemory,
+                        Thrd_create, Thrd_join, sceKernelGetModuleInfoFromAddr,
+                        NETWORK_LOGGING, LOG_SERVER, _log_socket_fd, _log_socket_buf,
+                        EMULATOR_VERSION, PAGE_SIZE, PHYS_PAGE_SIZE,
+                        LIBKERNEL_HANDLE, AF_INET, AF_INET6, AF_UNIX,
+                        SOCK_STREAM, SOCK_DGRAM, IPPROTO_UDP, IPPROTO_TCP,
+                        IPPROTO_IPV6, IPV6_PKTINFO, IPV6_RTHDR, IPV6_TCLASS,
+                        IPV6_NEXTHOP, IPV6_2292PKTOPTIONS, SOL_SOCKET, SO_REUSEADDR,
+                        SO_LINGER, INADDR_ANY, PROT_NONE, PROT_READ, PROT_WRITE,
+                        PROT_EXECUTE, GPU_READ, GPU_WRITE, GPU_RW,
+                        MAP_SHARED, MAP_PRIVATE, MAP_FIXED, MAP_ANONYMOUS,
+                        MAP_NO_COALESCE, O_RDONLY, O_WRONLY, O_RDWR, O_CREAT,
+                        O_TRUNC, O_APPEND, O_NONBLOCK, SIGILL, SIGKILL,
+                        SIGBUS, SIGSEGV, SA_SIGINFO, STDIN_FILENO, STDOUT_FILENO,
+                        STDERR_FILENO, ROP, DLSYM_OFFSETS,
                         write_string, alloc_string, get_error_string, sysctlbyname,
                         get_fwversion, create_pipe, read_buffer, write_buffer,
                         read_null_terminated_string, find_pattern, get_current_ip,
@@ -678,166 +1390,82 @@ MIIG4wIBAAKCAYEAqx29QzlJMxajXEBOLCKXuDNoXBrTVOjFuniI0bD68lqPFKoG
                         cpu_walk_pt, find_proc_by_name, find_proc_by_pid,
                         get_pdb2_addr, get_ptb_entry_of_relative_va,
                         alloc_main_dmem, get_curproc_vmid, get_gvmspace,
-                        get_relative_va, ()=>({}), ()=>{},
+                        get_relative_va, get_kernel_offset, update_kernel_offsets,
                         patch_dynlib_restriction, restore_dynlib_restriction,
                         elf_parse, elf_run, elf_wait_for_exit, elf_loader,
-                        load_localscript, FW_VERSION,
-                        (a,b) => { const [am,an]=a.split('.').map(Number); const [bm,bn]=b.split('.').map(Number); return am===bm?an-bn:am-bm; },
-                        PS5_KEYS, gadgets_eu_6, gadgets_us_5, gadgets_list
+                        load_localscript, FW_VERSION, kernelPanic
                     );
-                    await logFunc('[DONE] Payload executed.');
-                } catch(e) { await logFunc('[ERROR] '+e.message); }
-                await logFunc('─'.repeat(40));
+                    await emuLog('[DONE] Payload executed successfully.');
+                } catch (e) {
+                    await emuLog('[ERROR] ' + e.message);
+                    await emuLog(e.stack || '');
+                    showNotification('Payload Error: ' + e.message);
+                }
+                await emuLog('─'.repeat(40));
+                await emuLog('');
             }
 
-            // YouTube Run button
-            ytBtnRun.addEventListener('click', async () => {
-                const code = ytPayloadInput.value.trim();
-                if(!code) { showNotification('Enter a payload first.'); return; }
-                ytBtnRun.disabled = true; ytBtnRun.textContent = '⏳ Running...';
-                await executePayload(code, ytLog);
-                ytBtnRun.disabled = false; ytBtnRun.textContent = '▶ Run Script';
+            // ==================== EVENT HANDLERS ====================
+            btnRun.addEventListener('click', async () => {
+                const code = payloadInput.value.trim();
+                if (!code) { showNotification('Please paste a JS payload first.'); return; }
+                btnRun.disabled = true; btnRun.textContent = '⏳ Running...';
+                try { await executePayload(code); }
+                finally { btnRun.disabled = false; btnRun.textContent = '▶ Run Script'; }
             });
 
-            // Netflix Run button
-            nfBtnRun.addEventListener('click', async () => {
-                const code = nfPayloadInput.value.trim();
-                if(!code) { showNotification('Enter a payload first.'); return; }
-                nfBtnRun.disabled = true; nfBtnRun.textContent = '⏳ Running...';
-                await executePayload(code, nfLog);
-                nfBtnRun.disabled = false; nfBtnRun.textContent = '▶ Run Script';
+            document.getElementById('btnClear').addEventListener('click', () => {
+                logContainer.innerHTML = ''; appendLog('Log cleared. Emulator still active.', 'dim');
             });
 
-            // Example buttons & clear for both consoles
             document.querySelectorAll('.btn-example').forEach(btn => {
                 btn.addEventListener('click', () => {
-                    const console = btn.dataset.console;
                     const key = btn.dataset.payload;
-                    const examples = {
-                        yt: {
-                            helloworld: `await log("Hello from Y2JB!");\nsend_notification("Hello!");`,
-                            setlogserver: `LOG_SERVER = 'http://192.168.1.180:8080/log';\nawait log("Log server set to " + LOG_SERVER);`,
-                            dlsym_test: `check_jailbroken();\nlet addr = dlsym(0x2001n, "sceKernelAllocateMainDirectMemory");\nawait log("dlsym -> " + toHex(addr));`
-                        },
-                        nf: {
-                            helloworld: `await log("Hello from Netflix N Hack!");\nsend_notification("Hello!");`,
-                            netflix_hack: `/* Netflix-N-Hack exploit simulation */
-(async () => {
-    await log("Netflix-N-Hack started...");
-    let hole = make_hole(); // mock
-    await log("Hole created: " + toHex(hole));
-    await log("Exploit chain complete. Enjoy!");
-})();`
-                        }
-                    };
-                    if (console === 'yt') {
-                        ytPayloadInput.value = examples.yt[key] || '';
-                        ytPayloadInput.focus();
-                    } else {
-                        nfPayloadInput.value = examples.nf[key] || '';
-                        nfPayloadInput.focus();
+                    if (examplePayloads[key]) {
+                        payloadInput.value = examplePayloads[key];
+                        payloadInput.focus();
+                        showNotification('Loaded: ' + btn.textContent.trim());
                     }
                 });
             });
 
-            document.querySelectorAll('.btn-clear').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    if (btn.dataset.console === 'yt') {
-                        ytLogContainer.innerHTML = ''; ytLog('Console cleared.', 'dim');
-                    } else {
-                        nfLogContainer.innerHTML = ''; nfLog('Console cleared.', 'dim');
-                    }
-                });
+            // Firmware confirm -> show JB modal
+            btnFwConfirm.addEventListener('click', () => {
+                FW_VERSION = fwSelect.value;
+                fwBadge.textContent = 'FW ' + FW_VERSION;
+                fwModal.style.display = 'none';
+                jbModal.style.display = 'flex';
             });
 
-            // Mock make_hole for Netflix payloads
-            window.make_hole = function() { return 0x1337n; };
-
-            // Boot & home UI
-            function generateParticles() {
-                const container = document.getElementById('particlesContainer');
-                container.innerHTML = '';
-                for(let i=0;i<30;i++) {
-                    const p = document.createElement('div'); p.className='particle';
-                    const size = Math.random()*4+2;
-                    p.style.width=size+'px'; p.style.height=size+'px';
-                    p.style.left=Math.random()*100+'%'; p.style.top=Math.random()*100+'%';
-                    p.style.animationDelay=Math.random()*5+'s';
-                    container.appendChild(p);
-                }
-            }
-            function updateClock() {
-                const now = new Date();
-                let hours = now.getHours();
-                const ampm = hours >= 12 ? 'PM' : 'AM';
-                hours = hours % 12 || 12;
-                const mins = String(now.getMinutes()).padStart(2,'0');
-                document.getElementById('homeTime').textContent = `${hours}:${mins} ${ampm}`;
-            }
-            setInterval(updateClock, 1000); updateClock();
-
-            function startBoot() {
-                bootScreen.style.display='flex';
-                homeScreen.style.display='none';
-                ytEmulator.style.display='none';
-                nfEmulator.style.display='none';
-                let progress = 0;
-                const interval = setInterval(() => {
-                    progress += Math.random()*8;
-                    if(progress>100) progress=100;
-                    bootProgressBar.style.width = progress+'%';
-                    bootStatus.textContent = progress<30?'Initializing...':progress<70?'Loading system...':'Almost ready...';
-                    if(progress>=100) {
-                        clearInterval(interval);
-                        bootStatus.textContent = 'Welcome';
-                        setTimeout(()=>{
-                            bootScreen.style.opacity='0';
-                            setTimeout(()=>{
-                                bootScreen.style.display='none';
-                                homeScreen.style.display='flex';
-                                generateParticles();
-                            },800);
-                        },600);
-                    }
-                },500);
-            }
-
-            // App icon click handlers
-            document.getElementById('youtubeAppIcon').addEventListener('click', () => {
-                homeScreen.style.display='none';
-                ytEmulator.style.display='flex';
-                initYTEmulator();
-            });
-            document.getElementById('netflixAppIcon').addEventListener('click', () => {
-                homeScreen.style.display='none';
-                nfEmulator.style.display='flex';
-                initNFEmulator();
-            });
-
-            // Mode selection flow
+            // JB / Non-JB buttons -> start emulator
             document.getElementById('btnJbMode').addEventListener('click', () => {
-                simJailbroken = true; simUid=0n; simSandbox=0n;
-                modeModal.style.display='none'; fwModal.style.display='flex';
+                simJailbroken = true;
+                jbModal.style.display = 'none';
+                initializeEmulator();
             });
             document.getElementById('btnStockMode').addEventListener('click', () => {
-                simJailbroken = false; simUid=1n; simSandbox=1n;
-                modeModal.style.display='none'; fwModal.style.display='flex';
-            });
-            document.getElementById('btnFwConfirm').addEventListener('click', () => {
-                FW_VERSION = document.getElementById('fwSelect').value;
-                fwModal.style.display='none';
-                startBoot();
+                simJailbroken = false;
+                jbModal.style.display = 'none';
+                initializeEmulator();
             });
 
-            // Prevent zoom
-            document.addEventListener('gesturestart', e=>e.preventDefault());
-            document.addEventListener('gesturechange', e=>e.preventDefault());
-            document.addEventListener('gestureend', e=>e.preventDefault());
+            // Keyboard shortcut
+            payloadInput.addEventListener('keydown', (e) => {
+                if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                    e.preventDefault();
+                    btnRun.click();
+                }
+            });
 
-            // Initial state
-            bootScreen.style.display='none';
-            fwModal.style.display='none';
-            modeModal.style.display='flex';
+            // ==================== INITIAL STATE ====================
+            updateStatus(false);
+            appendLog('Y2JB Emulator', 'cyan');
+            appendLog('Select firmware version to begin...', 'dim');
+            appendLog('');
+
+            fwModal.style.display = 'flex';
+            fwSelect.focus();
+            payloadInput.value = examplePayloads.helloworld;
         })();
     </script>
 </body>
