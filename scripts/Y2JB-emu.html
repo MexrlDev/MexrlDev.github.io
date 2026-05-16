@@ -316,7 +316,7 @@
             flex-wrap: wrap;
         }
 
-        /* Logger button (always visible, toggles the live panel) */
+        /* Logger button (always visible) */
         .btn-logger {
             background: transparent;
             color: #aaa;
@@ -324,14 +324,23 @@
             font-size: 11px;
             padding: 6px 12px;
             margin-left: auto;
-            display: none;  /* hidden until logger active */
-        }
-        .btn-logger.visible {
-            display: inline-block;
         }
         .btn-logger.active {
             border-color: var(--green);
             color: var(--green);
+        }
+
+        /* Live Logs button (hidden initially) */
+        .btn-live-logs {
+            display: none;
+            background: transparent;
+            color: #aaa;
+            border: 1px solid #2a2a2a;
+            font-size: 11px;
+            padding: 6px 12px;
+        }
+        .btn-live-logs.visible {
+            display: inline-block;
         }
 
         /* Notification Overlay */
@@ -610,7 +619,7 @@
                 <button class="btn btn-example" data-payload="dlsym_test">🔍 dlsym Test</button>
                 <button class="btn btn-clear" id="btnClear">🗑 Clear Log</button>
                 <button class="btn btn-logger" id="btnLoggerToggle">📻 Logger</button>
-                <button class="btn btn-logger" id="btnLoggerLive" style="display:none;">📟 Live Logs</button>
+                <button class="btn btn-live-logs" id="btnLoggerLive">📟 Live Logs</button>
             </div>
         </div>
     </div>
@@ -913,10 +922,16 @@
             // Logger send function
             function sendLogToServer(line) {
                 if (!loggerEnabled) return;
-                // Append to live panel if visible
+                // Store in live log buffer
+                loggerLiveLogLines.push(line);
+                if (loggerLiveLogLines.length > MAX_LIVE_LOG_LINES) {
+                    loggerLiveLogLines.shift();
+                }
+                // If live panel is visible, append line directly
                 if (loggerLivePanel.style.display === 'flex') {
                     appendLiveLog(line);
                 }
+                // Send to remote server
                 try {
                     fetch(loggerEndpoint, {
                         method: 'POST',
@@ -1716,19 +1731,29 @@
             });
 
             // ==================== LOGGER UI ====================
-            // Button to open/close live log panel
+            function updateLoggerButtons() {
+                // Logger toggle button always visible, just change style
+                btnLoggerToggle.classList.toggle('active', loggerEnabled);
+                btnLoggerToggle.textContent = loggerEnabled ? '📻 Logger (ON)' : '📻 Logger';
+                // Live Logs button visible only when logger enabled
+                btnLoggerLive.style.display = loggerEnabled ? 'inline-block' : 'none';
+                if (!loggerEnabled && loggerLivePanel.style.display === 'flex') {
+                    loggerLivePanel.style.display = 'none';
+                }
+            }
+
+            // Open live log panel
             function toggleLiveLogPanel() {
                 if (loggerLivePanel.style.display === 'flex') {
                     loggerLivePanel.style.display = 'none';
                 } else {
                     loggerLivePanel.style.display = 'flex';
-                    // Populate with existing log lines (if any) from the buffer
+                    // Populate from buffer
                     refreshLiveLogPanel();
                 }
             }
 
             function refreshLiveLogPanel() {
-                // We keep a separate array of line strings; update the container
                 loggerLiveLogContainer.innerHTML = '';
                 for (const line of loggerLiveLogLines) {
                     const div = document.createElement('div');
@@ -1736,30 +1761,6 @@
                     loggerLiveLogContainer.appendChild(div);
                 }
                 loggerLiveLogContainer.scrollTop = loggerLiveLogContainer.scrollHeight;
-            }
-
-            // Update sendLogToServer to also store in the live log array and update panel if visible
-            const originalSendLogToServer = sendLogToServer;
-            sendLogToServer = function(line) {
-                if (!loggerEnabled) return;
-                // Store in live log buffer
-                loggerLiveLogLines.push(line);
-                if (loggerLiveLogLines.length > MAX_LIVE_LOG_LINES) {
-                    loggerLiveLogLines.shift();
-                }
-                // If live panel is visible, append line directly
-                if (loggerLivePanel.style.display === 'flex') {
-                    appendLiveLog(line);
-                }
-                // Call original fetch
-                originalSendLogToServer(line);
-            };
-
-            // Function to show/hide logger live button
-            function updateLoggerLiveButton() {
-                btnLoggerLive.style.display = loggerEnabled ? 'inline-block' : 'none';
-                btnLoggerToggle.classList.toggle('active', loggerEnabled);
-                btnLoggerToggle.textContent = loggerEnabled ? '📻 Logger (ON)' : '📻 Logger';
             }
 
             // Connect logger
@@ -1774,23 +1775,18 @@
                 loggerPort = port;
                 loggerEndpoint = `http://${ip}:${port}/log`;
                 loggerEnabled = true;
-                updateLoggerLiveButton();
+                updateLoggerButtons();
                 showNotification(`Logger connected to ${ip}:${port}`);
                 closeLoggerModal();
             }
 
             function disconnectLogger() {
                 loggerEnabled = false;
-                // Close live panel if open
-                if (loggerLivePanel.style.display === 'flex') {
-                    loggerLivePanel.style.display = 'none';
-                }
-                updateLoggerLiveButton();
+                updateLoggerButtons();
                 showNotification('Logger disconnected');
                 closeLoggerModal();
             }
 
-            // Open/close the config modal
             function openLoggerModal() {
                 loggerIpInput.value = loggerIp;
                 loggerPortInput.value = loggerPort;
@@ -1820,8 +1816,8 @@
                 loggerLivePanel.style.display = 'none';
             });
 
-            // Initial state of logger buttons
-            updateLoggerLiveButton();
+            // Initial state
+            updateLoggerButtons();
 
             // ==================== INITIAL STATE ====================
             updateStatus(false);
