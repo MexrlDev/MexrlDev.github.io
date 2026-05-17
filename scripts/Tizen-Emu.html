@@ -2,31 +2,22 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Samsung Tizen TV Browser Emulator – WebKit 538.1 / Tizen 2.4.0</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Samsung UA55K6500 - Tizen TV Browser Emulator</title>
     <style>
         :root {
-            --bg: #1a1a1e;
-            --panel-bg: #1e1e24;
-            --editor-bg: #121218;
-            --text: #c9d1d9;
-            --text-light: #8b949e;
-            --accent: #3b82f6;
-            --accent-glow: #60a5fa;
-            --run-btn: #22c55e;
-            --run-btn-hover: #16a34a;
-            --error: #ef4444;
-            --warn: #f59e0b;
-            --info: #3b82f6;
-            --log: #a3e635;
-            --debug: #a78bfa;
-            --tv-bezel: #1c1c1e;
-            --tv-bezel-inner: #2a2a2e;
-            --tv-screen-bg: #0a0a0c;
-            --border: #2d2d35;
-            --header-bg: #16161c;
-            --scrollbar-bg: #1e1e24;
-            --scrollbar-thumb: #3a3a44;
+            --tv-bezel: #2c2c2e;
+            --tv-bezel-light: #3e3e42;
+            --tv-bezel-dark: #1c1c1e;
+            --tv-chin: #1a1a1d;
+            --screen-bg: #0a0a0a;
+            --accent-red: #e53935;
+            --samsung-blue: #1428a0;
+            --text-light: #ccc;
+            --panel-bg: #1e1e22;
+            --button-bg: #1428a0;
+            --button-hover: #1a35c8;
+            --border-subtle: #333;
         }
 
         * {
@@ -36,541 +27,509 @@
         }
 
         body {
-            font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
-            background: #0d0d12;
-            color: var(--text);
-            height: 100vh;
-            width: 100vw;
-            overflow: hidden;
+            background: #0d0d0f;
             display: flex;
-            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            overflow-x: hidden;
+            overflow-y: auto;
+            -webkit-tap-highlight-color: transparent;
             user-select: none;
             -webkit-user-select: none;
         }
 
-        /* ── HEADER ─────────────────────── */
-        .header {
-            background: var(--header-bg);
-            border-bottom: 1px solid var(--border);
-            padding: 10px 20px;
+        /* Force landscape orientation message */
+        .rotate-warning {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: #000;
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            color: #fff;
+            text-align: center;
+            font-size: 1.2rem;
+            gap: 20px;
+        }
+        .rotate-warning .icon {
+            font-size: 4rem;
+            animation: rotateHint 1.5s ease-in-out infinite;
+        }
+        @keyframes rotateHint {
+            0%,
+            100% {
+                transform: rotate(0deg);
+            }
+            40% {
+                transform: rotate(90deg);
+            }
+            60% {
+                transform: rotate(90deg);
+            }
+        }
+
+        @media (orientation: portrait) and (max-width: 768px) {
+            .rotate-warning {
+                display: flex;
+            }
+            .emulator-wrapper {
+                display: none !important;
+            }
+        }
+
+        /* Main wrapper - scaled by JS for consistent sizing */
+        .emulator-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            padding: 20px;
+            transform-origin: top center;
+            transition: transform 0.1s ease-out;
+        }
+
+        /* ============ TV FRAME ============ */
+        .tv-frame {
+            position: relative;
+            width: 1060px;
+            height: 660px;
+            background: linear-gradient(180deg,
+                    #3a3a3f 0%, #2e2e33 3%, #26262b 8%, #222228 20%,
+                    #1e1e24 40%, #1c1c22 60%, #1e1e24 80%,
+                    #222228 92%, #2a2a30 97%, #333338 100%);
+            border-radius: 18px 18px 6px 6px;
+            box-shadow:
+                0 0 0 3px #1a1a1e,
+                0 0 0 6px #111114,
+                0 0 0 8px #0a0a0c,
+                0 20px 60px rgba(0, 0, 0, 0.7),
+                0 8px 20px rgba(0, 0, 0, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.03),
+                inset 0 -2px 4px rgba(0, 0, 0, 0.4);
+            flex-shrink: 0;
+        }
+
+        /* Subtle metallic grain texture */
+        .tv-frame::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 18px 18px 6px 6px;
+            background:
+                repeating-linear-gradient(0deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(255, 255, 255, 0.004) 2px,
+                    rgba(255, 255, 255, 0.004) 3px),
+                repeating-linear-gradient(90deg,
+                    transparent,
+                    transparent 3px,
+                    rgba(0, 0, 0, 0.006) 3px,
+                    rgba(0, 0, 0, 0.006) 4px);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* Screen container */
+        .screen-container {
+            position: absolute;
+            top: 32px;
+            left: 50px;
+            width: 960px;
+            height: 540px;
+            background: #000;
+            border-radius: 3px;
+            overflow: hidden;
+            box-shadow:
+                inset 0 0 80px rgba(0, 0, 0, 0.9),
+                inset 0 0 4px rgba(0, 0, 0, 0.8),
+                0 0 0 2px #0d0d0f;
+            z-index: 2;
+        }
+
+        /* Subtle screen curve simulation */
+        .screen-container::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: 5;
+            background:
+                radial-gradient(ellipse at center,
+                    transparent 60%,
+                    rgba(0, 0, 0, 0.25) 85%,
+                    rgba(0, 0, 0, 0.5) 100%);
+            border-radius: 3px;
+        }
+
+        /* Screen glare */
+        .screen-glare {
+            position: absolute;
+            top: -30%;
+            left: -20%;
+            width: 140%;
+            height: 60%;
+            background: linear-gradient(180deg,
+                    rgba(255, 255, 255, 0.04) 0%,
+                    rgba(255, 255, 255, 0.01) 40%,
+                    transparent 100%);
+            z-index: 6;
+            pointer-events: none;
+            border-radius: 3px;
+            transform: rotate(-3deg);
+        }
+
+        /* Iframe inside screen */
+        .tv-iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 1920px;
+            height: 1080px;
+            border: none;
+            transform: scale(0.5);
+            transform-origin: top left;
+            z-index: 3;
+            background: #fff;
+        }
+
+        /* Samsung logo area */
+        .tv-logo-area {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 4;
             display: flex;
             align-items: center;
-            gap: 14px;
+            gap: 8px;
+        }
+        .tv-logo-text {
+            font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            font-weight: 700;
+            font-size: 20px;
+            letter-spacing: 3px;
+            color: #555;
+            text-transform: uppercase;
+        }
+        .tv-logo-dot {
+            width: 5px;
+            height: 5px;
+            background: #555;
+            border-radius: 50%;
+            margin: 0 2px;
+        }
+
+        /* Red power LED */
+        .power-led {
+            position: absolute;
+            bottom: 26px;
+            right: 60px;
+            width: 6px;
+            height: 6px;
+            background: #e53935;
+            border-radius: 50%;
+            z-index: 4;
+            box-shadow: 0 0 8px #e53935, 0 0 16px rgba(229, 57, 53, 0.6);
+            animation: ledPulse 3s ease-in-out infinite;
+        }
+        @keyframes ledPulse {
+            0%,
+            100% {
+                box-shadow: 0 0 6px #e53935, 0 0 12px rgba(229, 57, 53, 0.4);
+            }
+            50% {
+                box-shadow: 0 0 10px #e53935, 0 0 22px rgba(229, 57, 53, 0.8);
+            }
+        }
+
+        /* Smart Hub bar at bottom of screen */
+        .smart-hub-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 44px;
+            background: rgba(20, 20, 24, 0.9);
+            z-index: 4;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            gap: 16px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            pointer-events: none;
+        }
+        .smart-hub-item {
+            color: #999;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .smart-hub-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 2px;
+            background: #666;
+        }
+        .smart-hub-item.active .smart-hub-dot {
+            background: #fff;
+        }
+        .smart-hub-item.active {
+            color: #fff;
+        }
+
+        /* Model badge */
+        .model-badge {
+            position: absolute;
+            top: 10px;
+            right: 55px;
+            z-index: 4;
+            font-size: 9px;
+            color: #555;
+            letter-spacing: 1px;
+            pointer-events: none;
+        }
+
+        /* ============ STAND ============ */
+        .tv-stand {
+            width: 400px;
+            height: 30px;
+            margin: 0 auto;
+            background: linear-gradient(180deg, #1a1a1e, #111114);
+            border-radius: 0 0 8px 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+            flex-shrink: 0;
+            position: relative;
+            top: -4px;
+            z-index: 0;
+        }
+        .tv-stand-neck {
+            width: 120px;
+            height: 16px;
+            margin: 0 auto;
+            background: #1a1a1e;
+            border-radius: 0 0 4px 4px;
+            position: relative;
+            top: -2px;
+            flex-shrink: 0;
+            z-index: -1;
+        }
+
+        /* ============ CONTROL PANEL ============ */
+        .control-panel {
+            width: 960px;
+            background: #1e1e24;
+            border-radius: 12px;
+            padding: 20px 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            border: 1px solid #2a2a30;
             flex-shrink: 0;
             z-index: 10;
         }
-        .header .logo {
+        .control-panel-header {
             display: flex;
             align-items: center;
-            gap: 8px;
-            font-weight: 700;
-            font-size: 15px;
-            letter-spacing: -0.3px;
-            color: #e0e0e0;
+            justify-content: space-between;
+            margin-bottom: 14px;
         }
-        .header .logo .tv-icon {
-            width: 28px;
-            height: 22px;
-            background: #3b3b45;
-            border-radius: 4px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        .control-panel-title {
+            color: #ccc;
             font-size: 14px;
-            position: relative;
-            box-shadow: inset 0 0 0 2px #555;
-        }
-        .header .logo .tv-icon::after {
-            content: '';
-            position: absolute;
-            bottom: -5px;
-            width: 10px;
-            height: 4px;
-            background: #555;
-            border-radius: 0 0 3px 3px;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-        .header .badge {
-            font-size: 10px;
-            background: #2a2a35;
-            color: #9ca3af;
-            padding: 4px 10px;
-            border-radius: 20px;
-            letter-spacing: 0.3px;
-            white-space: nowrap;
-            border: 1px solid #333;
-        }
-        .header .badge.tv-badge {
-            background: #1a1a24;
-            color: #60a5fa;
-            border-color: #3b5998;
-        }
-        .header .spacer {
-            flex: 1;
-        }
-        .header .info-dot {
-            width: 7px;
-            height: 7px;
-            border-radius: 50%;
-            background: #22c55e;
-            box-shadow: 0 0 8px #22c55e88;
-            animation: pulse-dot 2s infinite;
-            flex-shrink: 0;
-        }
-        @keyframes pulse-dot {
-            0%,
-            100% {
-                box-shadow: 0 0 6px #22c55e88;
-            }
-            50% {
-                box-shadow: 0 0 14px #22c55ebb;
-            }
-        }
-        .header .status-text {
-            font-size: 11px;
-            color: #8b949e;
-            letter-spacing: 0.3px;
-        }
-
-        /* ── MAIN LAYOUT ────────────────── */
-        .main-container {
-            display: flex;
-            flex: 1;
-            min-height: 0;
-            gap: 0;
-            overflow: hidden;
-        }
-
-        /* ── LEFT PANEL (EDITOR) ───────── */
-        .editor-panel {
-            width: 42%;
-            min-width: 340px;
-            max-width: 600px;
-            background: var(--panel-bg);
-            border-right: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-            flex-shrink: 0;
-        }
-        .editor-toolbar {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 10px 14px;
-            border-bottom: 1px solid var(--border);
-            flex-wrap: wrap;
-            flex-shrink: 0;
-        }
-        .editor-toolbar .tab-label {
-            font-size: 12px;
             font-weight: 600;
-            letter-spacing: 0.4px;
-            text-transform: uppercase;
-            color: #9ca3af;
-            margin-right: 6px;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
-        .sample-btn {
+        .control-panel-title .dot {
+            width: 8px;
+            height: 8px;
+            background: #4caf50;
+            border-radius: 50%;
+            box-shadow: 0 0 6px #4caf50;
+        }
+        .env-info {
+            color: #777;
             font-size: 10px;
-            padding: 5px 10px;
-            border-radius: 14px;
-            border: 1px solid #3a3a48;
-            background: #1e1e28;
-            color: #b0b8c4;
-            cursor: pointer;
-            white-space: nowrap;
-            transition: all 0.15s;
-            letter-spacing: 0.2px;
+            letter-spacing: 0.5px;
         }
-        .sample-btn:hover {
-            background: #2a2a38;
-            border-color: #555;
-            color: #e0e0e0;
-        }
-        .sample-btn.active-sample {
-            border-color: var(--accent);
-            color: var(--accent-glow);
-            background: #1a2740;
-        }
-        .editor-wrap {
-            flex: 1;
-            position: relative;
-            min-height: 0;
-        }
-        .editor-wrap textarea {
+        .code-textarea {
             width: 100%;
-            height: 100%;
-            border: none;
-            resize: none;
-            background: var(--editor-bg);
-            color: #d4d4d8;
-            font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', 'Consolas', 'Monaco', 'Courier New', monospace;
-            font-size: 13px;
-            line-height: 1.6;
-            padding: 16px 18px;
-            tab-size: 2;
-            outline: none;
-            overflow: auto;
-            caret-color: #60a5fa;
-        }
-        .editor-wrap textarea::selection {
-            background: #3b5998aa;
-        }
-        .editor-wrap .line-numbers {
-            position: absolute;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            width: 42px;
-            background: #0e0e16;
-            color: #4a4a58;
-            font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', 'Consolas', monospace;
-            font-size: 13px;
-            line-height: 1.6;
-            padding: 16px 0;
-            text-align: right;
-            pointer-events: none;
-            overflow: hidden;
-            border-right: 1px solid #1e1e2a;
-        }
-        .editor-footer {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px 14px;
-            border-top: 1px solid var(--border);
-            flex-shrink: 0;
-        }
-        .run-btn {
-            flex: 1;
-            padding: 11px 20px;
-            background: var(--run-btn);
-            color: #000;
-            border: none;
+            height: 200px;
+            background: #141419;
+            color: #d4d4d4;
+            border: 1px solid #2a2a30;
             border-radius: 8px;
-            font-weight: 700;
-            font-size: 14px;
+            padding: 14px 16px;
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', 'Monaco', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            resize: vertical;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .code-textarea:focus {
+            border-color: #3a5af0;
+            box-shadow: 0 0 0 3px rgba(58, 90, 240, 0.1);
+        }
+        .code-textarea::placeholder {
+            color: #555;
+        }
+        .button-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 14px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .btn {
+            padding: 10px 24px;
+            border-radius: 6px;
+            border: none;
             cursor: pointer;
-            letter-spacing: 0.3px;
-            transition: all 0.15s;
-            box-shadow: 0 2px 10px #22c55e33;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            transition: all 0.2s;
             display: flex;
             align-items: center;
-            justify-content: center;
             gap: 6px;
+            white-space: nowrap;
         }
-        .run-btn:hover {
-            background: var(--run-btn-hover);
-            box-shadow: 0 4px 18px #22c55e55;
+        .btn-run {
+            background: #1428a0;
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(20, 40, 160, 0.4);
+        }
+        .btn-run:hover {
+            background: #1a35c8;
+            box-shadow: 0 6px 20px rgba(20, 40, 160, 0.6);
             transform: translateY(-1px);
         }
-        .run-btn:active {
+        .btn-run:active {
+            background: #0f1f7a;
             transform: scale(0.97);
-            transition: transform 0.08s;
+            box-shadow: 0 2px 8px rgba(20, 40, 160, 0.3);
         }
-        .run-btn .play-icon {
-            font-size: 16px;
+        .btn-reset {
+            background: #2a2a32;
+            color: #bbb;
+            border: 1px solid #3a3a40;
         }
-        .clear-btn {
-            padding: 8px 14px;
+        .btn-reset:hover {
+            background: #33333d;
+            color: #fff;
+        }
+        .btn-preset {
             background: transparent;
-            border: 1px solid #3a3a48;
-            color: #8b949e;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 12px;
-            transition: all 0.15s;
+            color: #888;
+            border: 1px solid #333;
+            font-size: 11px;
+            padding: 8px 14px;
         }
-        .clear-btn:hover {
-            background: #2a2a38;
-            color: #e0e0e0;
+        .btn-preset:hover {
+            background: #25252d;
+            color: #ccc;
+            border-color: #555;
         }
-        .shortcut-hint {
-            font-size: 10px;
-            color: #555;
-            letter-spacing: 0.3px;
+        .btn-preset.active-preset {
+            background: #1a1a30;
+            color: #8ab4f8;
+            border-color: #3a5af0;
         }
-
-        /* ── RIGHT PANEL (TV + CONSOLE) ── */
-        .display-panel {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            background: #0d0d16;
-            background-image: radial-gradient(ellipse at center, #1a1a28 0%, #0d0d16 70%);
-            min-width: 0;
-            overflow: auto;
-        }
-
-        /* ── TV FRAME ───────────────────── */
-        .tv-wrapper {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            flex-shrink: 0;
-            max-width: 100%;
-            max-height: 70%;
-        }
-        .tv-frame {
-            background: var(--tv-bezel);
-            border-radius: 18px;
-            padding: 18px 18px 22px;
-            box-shadow:
-                0 0 0 3px #1a1a22,
-                0 0 0 7px #252530,
-                0 8px 40px #00000066,
-                0 20px 70px #00000044,
-                inset 0 1px 0 #3a3a44;
-            position: relative;
+        .status-text {
+            color: #4caf50;
+            font-size: 11px;
+            margin-left: auto;
             display: flex;
             align-items: center;
-            justify-content: center;
+            gap: 5px;
         }
-        .tv-inner-bezel {
-            background: #1a1a22;
-            border-radius: 10px;
-            padding: 8px;
-            box-shadow: inset 0 2px 6px #00000088;
-        }
-        .tv-screen {
-            width: 720px;
-            height: 405px;
-            max-width: 65vw;
-            max-height: 36vw;
-            background: var(--tv-screen-bg);
-            border-radius: 4px;
-            overflow: hidden;
-            position: relative;
-            box-shadow:
-                inset 0 0 30px #000000cc,
-                0 0 2px #ffffff22;
-            transition: box-shadow 0.3s;
-        }
-        .tv-screen.active-screen {
-            box-shadow:
-                inset 0 0 20px #00000099,
-                0 0 15px #3b82f633,
-                0 0 60px #3b82f611;
-        }
-        .tv-screen iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-            display: block;
-            background: #fff;
-        }
-        .tv-screen .screen-off {
-            position: absolute;
-            inset: 0;
-            background: #000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #1a1a1a;
-            font-size: 14px;
-            pointer-events: none;
-            z-index: 2;
-            transition: opacity 0.4s;
-        }
-        .tv-screen.active-screen .screen-off {
-            opacity: 0;
-        }
-        .tv-stand {
-            width: 100px;
-            height: 16px;
-            background: #1c1c22;
-            border-radius: 0 0 10px 10px;
-            margin-top: -2px;
-            box-shadow: 0 4px 12px #00000055;
-            position: relative;
-            z-index: -1;
-        }
-        .tv-led {
-            position: absolute;
-            bottom: -14px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 5px;
-            height: 5px;
+        .status-text .pulse {
+            width: 6px;
+            height: 6px;
+            background: #4caf50;
             border-radius: 50%;
-            background: #22c55e;
-            box-shadow: 0 0 6px #22c55eaa;
-            z-index: 3;
-            transition: all 0.4s;
-        }
-        .tv-led.off {
-            background: #333;
-            box-shadow: none;
-        }
-        .tv-brand {
-            position: absolute;
-            bottom: -28px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 9px;
-            letter-spacing: 1.5px;
-            color: #3a3a44;
-            text-transform: uppercase;
-            font-weight: 500;
-            z-index: 3;
+            animation: ledPulse 2s infinite;
         }
 
-        /* ── CONSOLE ────────────────────── */
-        .console-panel {
-            width: 100%;
-            max-width: 800px;
-            margin-top: 14px;
-            background: #0e0e16;
+        /* ============ CONSOLE OUTPUT ============ */
+        .console-output {
+            width: 960px;
+            background: #0d0d12;
+            border-radius: 8px;
             border: 1px solid #222;
-            border-radius: 10px;
-            overflow: hidden;
+            max-height: 150px;
+            overflow-y: auto;
+            padding: 10px 14px;
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            font-size: 11px;
+            color: #aaa;
             flex-shrink: 0;
-            max-height: 180px;
-            display: flex;
-            flex-direction: column;
+            display: none;
+        }
+        .console-output.visible {
+            display: block;
+        }
+        .console-output .log-line {
+            padding: 2px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            word-break: break-all;
+        }
+        .console-output .log-line.warn {
+            color: #f0a030;
+        }
+        .console-output .log-line.error {
+            color: #e53935;
         }
         .console-header {
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 8px;
-            padding: 8px 14px;
-            background: #12121c;
-            border-bottom: 1px solid #1e1e2a;
-            font-size: 11px;
-            letter-spacing: 0.4px;
-            color: #8b949e;
-            text-transform: uppercase;
-            flex-shrink: 0;
+            margin-bottom: 6px;
+            color: #666;
+            font-size: 10px;
+            letter-spacing: 1px;
         }
-        .console-header .dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #555;
-        }
-        .console-output {
-            flex: 1;
-            overflow-y: auto;
-            padding: 10px 14px;
-            font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', 'Consolas', monospace;
-            font-size: 11px;
-            line-height: 1.5;
-            min-height: 60px;
-            max-height: 140px;
-        }
-        .console-output .log-entry {
-            padding: 2px 0;
-            border-bottom: 1px solid #1a1a24;
-            word-break: break-all;
-            white-space: pre-wrap;
-        }
-        .console-output .log-entry.log-level {
-            color: #c9d1d9;
-        }
-        .console-output .log-entry.warn-level {
-            color: #f59e0b;
-        }
-        .console-output .log-entry.error-level {
-            color: #ef4444;
-            background: #1f1215;
-            padding: 4px 6px;
-            border-radius: 3px;
-            margin: 2px 0;
-        }
-        .console-output .log-entry.info-level {
-            color: #60a5fa;
-        }
-        .console-output .log-entry.debug-level {
-            color: #a78bfa;
-        }
-        .console-output .log-meta {
-            font-size: 9px;
+        .console-clear {
+            cursor: pointer;
             color: #555;
-            margin-right: 6px;
+            font-size: 10px;
         }
-        .console-empty {
-            color: #333;
-            font-style: italic;
-            text-align: center;
-            padding: 20px;
+        .console-clear:hover {
+            color: #fff;
         }
 
-        /* ── RESPONSIVE ─────────────────── */
+        /* ============ RESPONSIVE SCALING ============ */
+        @media (max-width: 1100px) {
+            .emulator-wrapper {
+                transform: scale(0.85);
+                transform-origin: top center;
+                padding: 10px;
+            }
+        }
         @media (max-width: 900px) {
-            .main-container {
-                flex-direction: column;
-            }
-            .editor-panel {
-                width: 100%;
-                max-width: 100%;
-                min-width: 0;
-                height: 45%;
-                border-right: none;
-                border-bottom: 1px solid var(--border);
-            }
-            .display-panel {
-                padding: 12px;
-                height: 55%;
-            }
-            .tv-screen {
-                width: 90vw;
-                height: 50.6vw;
-                max-width: 560px;
-                max-height: 315px;
-            }
-            .console-panel {
-                max-height: 120px;
-                margin-top: 8px;
-            }
-            .console-output {
-                max-height: 90px;
+            .emulator-wrapper {
+                transform: scale(0.65);
             }
         }
-        @media (max-width: 500px) {
-            .header {
-                padding: 8px 10px;
-                gap: 6px;
+        @media (max-width: 650px) {
+            .emulator-wrapper {
+                transform: scale(0.45);
             }
-            .header .logo {
-                font-size: 12px;
-            }
-            .header .badge {
-                font-size: 8px;
-                padding: 3px 7px;
-            }
-            .editor-toolbar {
-                gap: 4px;
-                padding: 6px 8px;
-            }
-            .sample-btn {
-                font-size: 9px;
-                padding: 3px 7px;
-            }
-            .run-btn {
-                font-size: 12px;
-                padding: 9px 14px;
-            }
-            .tv-frame {
-                padding: 10px 10px 14px;
-                border-radius: 10px;
-            }
-            .tv-inner-bezel {
-                padding: 4px;
-                border-radius: 5px;
-            }
-            .tv-screen {
-                border-radius: 2px;
-                width: 85vw;
-                height: 48vw;
-                max-width: 380px;
-                max-height: 214px;
+        }
+        @media (max-width: 420px) {
+            .emulator-wrapper {
+                transform: scale(0.32);
             }
         }
 
-        /* ── SCROLLBARS ─────────────────── */
+        /* Scrollbar styling */
         ::-webkit-scrollbar {
             width: 6px;
             height: 6px;
@@ -579,974 +538,690 @@
             background: transparent;
         }
         ::-webkit-scrollbar-thumb {
-            background: var(--scrollbar-thumb);
+            background: #333;
             border-radius: 3px;
         }
         ::-webkit-scrollbar-thumb:hover {
-            background: #4a4a58;
+            background: #555;
         }
     </style>
 </head>
 <body>
 
-    <!-- ── HEADER ──────────────────────────────────────────── -->
-    <div class="header">
-        <div class="logo">
-            <div class="tv-icon">📺</div>
-            Tizen TV Emulator
-        </div>
-        <span class="badge tv-badge">Tizen 2.4.0</span>
-        <span class="badge">WebKit 538.1</span>
-        <span class="badge">SamsungBrowser 1.1</span>
-        <span class="spacer"></span>
-        <div class="info-dot" id="statusDot"></div>
-        <span class="status-text" id="statusText">Ready</span>
+    <!-- Rotation warning for portrait mobile -->
+    <div class="rotate-warning">
+        <div class="icon">📱</div>
+        <div>Please rotate your device to<br><strong>Landscape Mode</strong></div>
+        <div style="font-size:0.8rem;color:#888;">This emulator requires landscape orientation</div>
     </div>
 
-    <!-- ── MAIN CONTENT ────────────────────────────────────── -->
-    <div class="main-container">
-        <!-- LEFT: EDITOR PANEL -->
-        <div class="editor-panel">
-            <div class="editor-toolbar">
-                <span class="tab-label">📝 HTML Code</span>
-                <button class="sample-btn" data-sample="tv-app" title="Sample TV App UI">📱 TV App</button>
-                <button class="sample-btn" data-sample="ua-test" title="User Agent & API Test">🔍 UA Test</button>
-                <button class="sample-btn" data-sample="canvas" title="Canvas 2D Demo">🎨 Canvas</button>
-                <button class="sample-btn" data-sample="api-check" title="API Availability Check">✅ API Check</button>
-                <button class="sample-btn" data-sample="storage" title="Storage Test">💾 Storage</button>
-            </div>
-            <div class="editor-wrap">
-                <textarea id="codeEditor" placeholder="Enter your HTML code here...&#10;&#10;Click one of the sample buttons above or write your own HTML.&#10;Press Ctrl+Enter or click Run to execute in the TV emulator." spellcheck="false"></textarea>
-            </div>
-            <div class="editor-footer">
-                <button class="run-btn" id="runBtn" title="Run (Ctrl+Enter)">
-                    <span class="play-icon">▶</span> Run on TV
-                </button>
-                <button class="clear-btn" id="clearConsoleBtn" title="Clear Console">🗑 Clear</button>
-                <span class="shortcut-hint">Ctrl+Enter</span>
-            </div>
-        </div>
+    <!-- Main emulator wrapper -->
+    <div class="emulator-wrapper" id="emulatorWrapper">
 
-        <!-- RIGHT: TV DISPLAY + CONSOLE -->
-        <div class="display-panel" id="displayPanel">
-            <!-- TV Frame -->
-            <div class="tv-wrapper">
-                <div class="tv-frame">
-                    <div class="tv-inner-bezel">
-                        <div class="tv-screen" id="tvScreen">
-                            <div class="screen-off" id="screenOff">
-                                <span style="color:#1a1a1e;">■</span>
-                            </div>
-                            <iframe
-                            id="tvIframe"
-                            sandbox="allow-scripts allow-same-origin allow-modals allow-forms allow-popups"
-                            title="TV Browser Emulator Screen"
-                            style="display:none;"
-                        ></iframe>
-                    </div>
+        <!-- TV Frame -->
+        <div class="tv-frame">
+            <div class="model-badge">UA55K6500 · Series 6</div>
+
+            <!-- Screen -->
+            <div class="screen-container" id="screenContainer">
+                <iframe
+                class="tv-iframe"
+                id="tvIframe"
+                sandbox="allow-scripts allow-same-origin allow-forms allow-modals allow-popups"
+                title="TV Browser Screen"
+                loading="lazy"
+            ></iframe>
+            <div class="screen-glare"></div>
+            <!-- Smart Hub bar overlay -->
+            <div class="smart-hub-bar">
+                <div class="smart-hub-item active">
+                    <div class="smart-hub-dot"></div> Web Browser
                 </div>
-                <div class="tv-led" id="tvLed"></div>
-                <span class="tv-brand">SAMSUNG</span>
+                <div class="smart-hub-item">
+                    <div class="smart-hub-dot"></div> Netflix
+                </div>
+                <div class="smart-hub-item">
+                    <div class="smart-hub-dot"></div> YouTube
+                </div>
+                <div class="smart-hub-item">
+                    <div class="smart-hub-dot"></div> Prime
+                </div>
             </div>
-            <div class="tv-stand"></div>
         </div>
 
-        <!-- Console -->
-        <div class="console-panel" id="consolePanel">
-            <div class="console-header">
-                <span>📋 Console Output</span>
-                <span style="flex:1;"></span>
-                <span style="font-size:9px;color:#444;" id="consoleCount">0 entries</span>
-            </div>
-            <div class="console-output" id="consoleOutput">
-                <div class="console-empty">Waiting for code execution...<br><small style="color:#2a2a2a;">Console logs from the TV browser will appear here</small></div>
-            </div>
+        <!-- Samsung logo -->
+        <div class="tv-logo-area">
+            <span class="tv-logo-text">SAMSUNG</span>
         </div>
+
+        <!-- Power LED -->
+        <div class="power-led" title="Power On"></div>
     </div>
+
+    <!-- TV Stand -->
+    <div class="tv-stand-neck"></div>
+    <div class="tv-stand"></div>
+
+    <!-- Control Panel -->
+    <div class="control-panel" id="controlPanel">
+        <div class="control-panel-header">
+            <span class="control-panel-title">
+                <span class="dot"></span> HTML Code Input
+            </span>
+            <span class="env-info">
+                Tizen 2.4.0 · SamsungBrowser/1.1 · WebKit 538.1 · 1920×1080
+            </span>
+        </div>
+        <textarea
+        class="code-textarea"
+        id="codeInput"
+        placeholder="Paste your HTML code here and click Run..."
+        spellcheck="false"
+    ></textarea>
+    <div class="button-row">
+        <button class="btn btn-run" id="btnRun" title="Run code in TV browser (Ctrl+Enter)">
+            ▶ Run in TV Browser
+        </button>
+        <button class="btn btn-reset" id="btnReset">↺ Reset</button>
+        <button class="btn btn-preset active-preset" data-preset="demo">📺 Demo</button>
+        <button class="btn btn-preset" data-preset="canvas">🎨 Canvas</button>
+        <button class="btn btn-preset" data-preset="video">🎬 Media</button>
+        <button class="btn btn-preset" data-preset="form">📝 Form</button>
+        <span class="status-text" id="statusText">
+            <span class="pulse"></span> Ready
+        </span>
+    </div>
+</div>
+
+<!-- Console Output -->
+<div class="console-output visible" id="consoleOutput">
+    <div class="console-header">
+        <span>📋 Console Output <em style="color:#555;">(Tizen Browser Log)</em></span>
+        <span class="console-clear" id="consoleClear">Clear</span>
+    </div>
+    <div id="consoleLines">
+        <div class="log-line" style="color:#4caf50;">[Tizen Emulator] UA55K6500 · Screen: 1920×1080 · Ready.</div>
+    </div>
+</div>
 </div>
 
 <script>
     (function() {
-        // ── DOM ELEMENTS ──────────────────────────
-        const codeEditor = document.getElementById('codeEditor');
-        const runBtn = document.getElementById('runBtn');
-        const clearConsoleBtn = document.getElementById('clearConsoleBtn');
-        const tvScreen = document.getElementById('tvScreen');
+        // ============ DOM ELEMENTS ============
         const tvIframe = document.getElementById('tvIframe');
-        const screenOff = document.getElementById('screenOff');
-        const tvLed = document.getElementById('tvLed');
-        const consoleOutput = document.getElementById('consoleOutput');
-        const consoleCount = document.getElementById('consoleCount');
-        const statusDot = document.getElementById('statusDot');
+        const codeInput = document.getElementById('codeInput');
+        const btnRun = document.getElementById('btnRun');
+        const btnReset = document.getElementById('btnReset');
         const statusText = document.getElementById('statusText');
-        const sampleBtns = document.querySelectorAll('.sample-btn');
+        const consoleOutput = document.getElementById('consoleOutput');
+        const consoleLines = document.getElementById('consoleLines');
+        const consoleClear = document.getElementById('consoleClear');
+        const presetButtons = document.querySelectorAll('.btn-preset');
+        const emulatorWrapper = document.getElementById('emulatorWrapper');
 
-        let consoleEntries = 0;
-        let currentSample = null;
-        let isRunning = false;
-
-        // ── OVERRIDE SCRIPT (injected into iframe) ──
-        function getOverrideScript() {
-            return `
-<script>
-(function() {
-    'use strict';
-    // ── Navigator Overrides ──────────────────
-    var uaStr = 'Mozilla/5.0 (SMART-TV; Linux; Tizen 2.4.0) AppleWebKit/538.1 (KHTML, like Gecko) SamsungBrowser/1.1 TV Safari/538.1';
-    Object.defineProperty(navigator, 'userAgent', {
-        get: function() { return uaStr; },
-        configurable: true, enumerable: true
-    });
-    Object.defineProperty(navigator, 'platform', {
-        get: function() { return 'Linux armv7l'; },
-        configurable: true, enumerable: true
-    });
-    Object.defineProperty(navigator, 'product', {
-        get: function() { return 'Gecko'; },
-        configurable: true, enumerable: true
-    });
-    Object.defineProperty(navigator, 'appVersion', {
-        get: function() { return '5.0 (SMART-TV; Linux; Tizen 2.4.0) AppleWebKit/538.1 (KHTML, like Gecko) SamsungBrowser/1.1 TV Safari/538.1'; },
-        configurable: true
-    });
-    Object.defineProperty(navigator, 'appCodeName', {
-        get: function() { return 'Mozilla'; },
-        configurable: true
-    });
-    Object.defineProperty(navigator, 'vendor', {
-        get: function() { return 'Apple Computer, Inc.'; },
-        configurable: true
-    });
-    Object.defineProperty(navigator, 'vendorSub', {
-        get: function() { return ''; },
-        configurable: true
-    });
-
-    // ── Screen Overrides ─────────────────────
-    Object.defineProperty(screen, 'width', {
-        get: function() { return 1920; },
-        configurable: true, enumerable: true
-    });
-    Object.defineProperty(screen, 'height', {
-        get: function() { return 1080; },
-        configurable: true, enumerable: true
-    });
-    Object.defineProperty(screen, 'availWidth', {
-        get: function() { return 1920; },
-        configurable: true
-    });
-    Object.defineProperty(screen, 'availHeight', {
-        get: function() { return 1080; },
-        configurable: true
-    });
-    Object.defineProperty(screen, 'colorDepth', {
-        get: function() { return 24; },
-        configurable: true, enumerable: true
-    });
-    Object.defineProperty(screen, 'pixelDepth', {
-        get: function() { return 24; },
-        configurable: true
-    });
-    Object.defineProperty(window, 'devicePixelRatio', {
-        get: function() { return 1; },
-        configurable: true
-    });
-    Object.defineProperty(window, 'innerWidth', {
-        get: function() { return 1920; },
-        configurable: true
-    });
-    Object.defineProperty(window, 'innerHeight', {
-        get: function() { return 1080; },
-        configurable: true
-    });
-    Object.defineProperty(window, 'outerWidth', {
-        get: function() { return 1920; },
-        configurable: true
-    });
-    Object.defineProperty(window, 'outerHeight', {
-        get: function() { return 1080; },
-        configurable: true
-    });
-
-    // ── Remove Unsupported APIs ──────────────
-    try { delete window.fetch; } catch(e) {}
-    try { delete window.WebAssembly; } catch(e) {}
-    try { delete window.BigInt; } catch(e) {}
-    try { delete window.Atomics; } catch(e) {}
-    try { delete window.SharedArrayBuffer; } catch(e) {}
-    try { if (window.crypto && window.crypto.subtle) { delete window.crypto.subtle; } } catch(e) {}
-    try { delete window.TrustedTypes; } catch(e) {}
-    try { delete window.ResizeObserver; } catch(e) {}
-    try { delete window.IntersectionObserver; } catch(e) {}
-    try { delete window.MutationObserver; } catch(e) {}
-
-    // ── Mock Samsung/Tizen APIs ──────────────
-    if (!window.tizCamera) {
-        window.tizCamera = {
-            capture: function(success, error, options) {
-                parent.postMessage({ type: 'console', method: 'info',
-                    args: JSON.stringify(['[tizCamera] capture() called – emulated (no real camera)']) }, '*');
-                if (error) error({ message: 'Camera not available in emulator' });
-            }
-        };
-    }
-    if (!window.webapis) {
-        window.webapis = {
-            tvnetwork: { getActiveConnectionType: function() { return 'wifi'; } },
-            tvinputdevice: {
-                registerKey: function(k) {},
-                unregisterKey: function(k) {}
-            }
-        };
-    }
-    if (!window.tizen) {
-        window.tizen = {
-            systeminfo: {
-                getPropertyValue: function(prop, success, error) {
-                    var vals = {
-                        'BATTERY': { level: 1, isCharging: false },
-                        'DISPLAY': { resolutionWidth: 1920, resolutionHeight: 1080, dpi: 72 },
-                        'WIFI_NETWORK': { status: 'connected', ssid: 'Emulated-TV-Network' }
-                    };
-                    if (success && vals[prop]) success(vals[prop]);
-                    else if (error) error('Not available');
-                }
-            }
-        };
-    }
-
-    // ── Console Capture ──────────────────────
-    var _originalConsole = {};
-    var _methods = ['log', 'warn', 'error', 'info', 'debug'];
-    _methods.forEach(function(m) {
-        _originalConsole[m] = console[m];
-        console[m] = function() {
-            var args = [];
-            for (var i = 0; i < arguments.length; i++) {
-                args.push(serializeArg(arguments[i]));
-            }
-            try {
-                parent.postMessage({
-                    type: 'console',
-                    method: m,
-                    args: JSON.stringify(args),
-                    timestamp: Date.now()
-                }, '*');
-            } catch(e) {}
-            // Still call original
-            try { _originalConsole[m].apply(console, arguments); } catch(e) {}
-        };
-    });
-
-    function serializeArg(arg) {
-        if (arg === null) return 'null';
-        if (arg === undefined) return 'undefined';
-        if (typeof arg === 'string') return arg;
-        if (typeof arg === 'number' || typeof arg === 'boolean') return String(arg);
-        if (typeof arg === 'function') return '[Function]';
-        if (typeof arg === 'symbol') return String(arg);
-        if (arg instanceof Error) return arg.name + ': ' + arg.message;
-        try {
-            var seen = [];
-            return JSON.stringify(arg, function(key, val) {
-                if (typeof val === 'object' && val !== null) {
-                    if (seen.indexOf(val) >= 0) return '[Circular]';
-                    seen.push(val);
-                }
-                if (typeof val === 'function') return '[Function]';
-                if (typeof val === 'symbol') return String(val);
-                return val;
-            }, 2);
-        } catch(e) {
-            return String(arg);
-        }
-    }
-
-    // ── Global Error Capture ─────────────────
-    window.addEventListener('error', function(e) {
-        var msg = (e.message || 'Unknown error') + ' — at line ' + (e.lineno || '?') + ':' + (e.colno || '?');
-        try {
-            parent.postMessage({
-                type: 'console',
-                method: 'error',
-                args: JSON.stringify([msg]),
-                timestamp: Date.now()
-            }, '*');
-        } catch(ex) {}
-    });
-
-    window.addEventListener('unhandledrejection', function(e) {
-        var msg = 'Unhandled Promise Rejection: ' + (e.reason ? String(e.reason) : 'unknown');
-        try {
-            parent.postMessage({
-                type: 'console',
-                method: 'error',
-                args: JSON.stringify([msg]),
-                timestamp: Date.now()
-            }, '*');
-        } catch(ex) {}
-    });
-
-    // ── Signal that overrides are loaded ─────
-    try {
-        parent.postMessage({ type: 'iframe-ready', timestamp: Date.now() }, '*');
-    } catch(e) {}
-})();
-<\/script>
-`;
-        }
-
-        // ── SAMPLE CODE DEFINITIONS ──────────────
-        const samples = {
-            'tv-app': {
-                label: '📱 TV App',
-                code: `<!DOCTYPE html>
-                <html lang="en">
-                <head>
-                    <meta charset="UTF-8">
-                    <title>TV App Sample</title>
-                    <style>
-                        * { margin: 0; padding: 0; box-sizing: border-box; }
-                        body {
-                            font-family: 'Helvetica Neue', Arial, sans-serif;
-                            background: #1a1a2e;
-                            color: #fff;
-                            display: flex;
-                            flex-direction: column;
-                            align-items: center;
-                            justify-content: center;
-                            height: 100vh;
-                            overflow: hidden;
-                        }
-                        .app-card {
-                            background: #252545;
-                            border-radius: 16px;
-                            padding: 30px 40px;
-                            text-align: center;
-                            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-                        }
-                        .app-card h1 { font-size: 28px; margin-bottom: 10px; color: #60a5fa; }
-                        .app-card p { font-size: 14px; color: #aab; margin-bottom: 20px; }
-                        .btn {
-                            display: inline-block;
-                            padding: 12px 28px;
-                            background: #3b82f6;
-                            color: #fff;
-                            border: none;
-                            border-radius: 25px;
-                            font-size: 16px;
-                            cursor: pointer;
-                            text-decoration: none;
-                        }
-                        .btn:hover { background: #2563eb; }
-                        .info-bar {
-                            margin-top: 20px;
-                            font-size: 10px;
-                            color: #666;
-                        }
-                    </style>
-                </head>
-            <body>
-                <div class="app-card">
-                    <h1>📺 Tizen TV App</h1>
-                    <p>This is a sample TV application running on the emulated Samsung Tizen browser.</p>
-                    <button class="btn" onclick="showInfo()">Click Me</button>
-                    <div class="info-bar" id="info"></div>
-                </div>
-                <script>
-                    function showInfo() {
-                        var info = document.getElementById('info');
-                        info.innerHTML = 'User Agent: ' + navigator.userAgent.substring(0, 60) + '...<br>' +
-                            'Screen: ' + screen.width + '×' + screen.height + '<br>' +
-                            'Platform: ' + navigator.platform + '<br>' +
-                            'WebAssembly: ' + (typeof WebAssembly !== 'undefined' ? 'YES' : 'NO') + '<br>' +
-                            'Fetch API: ' + (typeof fetch !== 'undefined' ? 'YES' : 'NO') + '<br>' +
-                            'Promise: ' + (typeof Promise !== 'undefined' ? 'YES' : 'NO');
-                        console.log('Button clicked on TV app!');
-                        console.info('Navigator platform:', navigator.platform);
-                    }
-                <\/script>
-            </body>
-        </html>`
-    },
-    'ua-test': {
-        label: '🔍 UA Test',
-        code: `<!DOCTYPE html>
+        // ============ PRESETS ============
+        const presets = {
+            demo: `<!DOCTYPE html>
         <html lang="en">
         <head>
             <meta charset="UTF-8">
-            <title>User Agent & Browser Test</title>
+            <title>Samsung TV Browser Test</title>
             <style>
+                * { margin: 0; padding: 0; box-sizing: border-box; }
                 body {
-                    font-family: monospace;
-                    background: #0a0a14;
-                    color: #0f0;
-                    padding: 20px;
-                    font-size: 13px;
-                    line-height: 1.7;
+                    background: linear-gradient(135deg, #0a0a1a 0%, #12122a 40%, #0d1a2d 100%);
+                    color: #fff;
+                    font-family: 'Segoe UI', Arial, sans-serif;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    min-height: 100vh;
+                    text-align: center;
+                    padding: 40px;
                 }
-                h2 { color: #ff0; border-bottom: 1px solid #333; padding-bottom: 5px; }
-                .pass { color: #0f0; }
-                .fail { color: #f44; }
-                pre { background: #111; padding: 10px;
-                    border-radius: 5px; overflow-x: auto; }
+                .card {
+                    background: rgba(255,255,255,0.06);
+                    border: 1px solid rgba(255,255,255,0.12);
+                    border-radius: 16px;
+                    padding: 40px 50px;
+                    max-width: 700px;
+                    backdrop-filter: blur(10px);
+                }
+                h1 { font-size: 2.4rem; font-weight: 300; letter-spacing: 2px; margin-bottom: 10px; }
+                h1 span { font-weight: 700; color: #4a90d9; }
+                .model { font-size: 1rem; color: #888; letter-spacing: 3px; margin-bottom: 24px; }
+                .specs { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; margin: 20px 0; }
+                .spec {
+                    background: rgba(74,144,217,0.15);
+                    border: 1px solid rgba(74,144,217,0.3);
+                    border-radius: 8px;
+                    padding: 12px 18px;
+                    font-size: 0.85rem;
+                    color: #aac4e8;
+                }
+                .spec strong { display: block; font-size: 1.1rem; color: #fff; }
+                .info { margin-top: 20px; font-size: 0.75rem; color: #666; }
+                .check { color: #4caf50; } .cross { color: #e53935; }
             </style>
         </head>
         <body>
-            <h2>🔍 Browser Detection Report</h2>
-            <pre id="report"></pre>
+            <div class="card">
+                <h1>Samsung <span>Smart TV</span></h1>
+                <div class="model">UA55K6500 · Series 6 · 55" Curved</div>
+                <div class="specs">
+                    <div class="spec"><strong>1920×1080</strong>Full HD</div>
+                    <div class="spec"><strong>Tizen 2.4.0</strong>OS</div>
+                    <div class="spec"><strong>WebKit 538.1</strong>Browser Engine</div>
+                    <div class="spec"><strong>4200R</strong>Curvature</div>
+                </div>
+                <p style="margin-top:16px;color:#aaa;font-size:0.9rem;">
+                    ✅ Canvas 2D &nbsp;|&nbsp; ✅ XMLHttpRequest &nbsp;|&nbsp; ✅ localStorage<br>
+                    ❌ No Fetch API &nbsp;|&nbsp; ❌ No Promises &nbsp;|&nbsp; ❌ No ES6+
+                </p>
+                <div class="info" id="uaDisplay">Loading user agent...</div>
+            </div>
             <script>
-                var r = document.getElementById('report');
-                var lines = [];
-                lines.push('User Agent: ' + navigator.userAgent);
-                lines.push('Platform: ' + navigator.platform);
-                lines.push('Product: ' + navigator.product);
-                lines.push('Screen: ' + screen.width + '×' + screen.height + ' @ ' + screen.colorDepth + 'bit');
-                lines.push('devicePixelRatio: ' + window.devicePixelRatio);
-                lines.push('---');
-                lines.push('WebAssembly: ' + (typeof WebAssembly !== 'undefined' ? '✅ YES' : '❌ NO'));
-                lines.push('Fetch API: ' + (typeof fetch !== 'undefined' ? '✅ YES' : '❌ NO'));
-                lines.push('BigInt: ' + (typeof BigInt !== 'undefined' ? '✅ YES' : '❌ NO'));
-                lines.push('Atomics: ' + (typeof Atomics !== 'undefined' ? '✅ YES' : '❌ NO'));
-                lines.push('Promise: ' + (typeof Promise !== 'undefined' ? '✅ YES' : '❌ NO'));
-                lines.push('Proxy: ' + (typeof Proxy !== 'undefined' ? '✅ YES' : '❌ NO'));
-                lines.push('Symbol: ' + (typeof Symbol !== 'undefined' ? '✅ YES' : '❌ NO'));
-                lines.push('Map/Set/WeakMap: ' + (typeof Map !== 'undefined' ? '✅ YES' : '❌ NO'));
-                lines.push('WebSocket: ' + (typeof WebSocket !== 'undefined' ? '✅ YES' : '❌ NO'));
-                lines.push('Worker: ' + (typeof Worker !== 'undefined' ? '✅ YES' : '❌ NO'));
-                lines.push('Canvas 2D: ' + (typeof document.createElement('canvas').getContext === 'function' ? '✅ YES' : '❌ NO'));
-                lines.push('localStorage: ' + (typeof localStorage !== 'undefined' ? '✅ YES' : '❌ NO'));
-                lines.push('crypto.getRandomValues: ' + (typeof crypto !== 'undefined' && crypto.getRandomValues ? '✅ YES' : '❌ NO'));
-                lines.push('crypto.subtle: ' + (typeof crypto !== 'undefined' && crypto.subtle ? '✅ YES (unexpected!)' : '❌ NO (correct)'));
-                r.textContent = lines.join('\\n');
-                console.log('UA Test complete!');
-            <\/script>
-        </body>
-    </html>`
-},
-'canvas': {
-    label: '🎨 Canvas',
-    code: `<!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <title>Canvas 2D Demo</title>
-        <style>
-            body { margin: 0; background: #000; display: flex;
-                align-items: center; justify-content: center;
-                height: 100vh; overflow: hidden; }
-            canvas { display: block; }
-        </style>
-    </head>
-    <body>
-        <canvas id="c"></canvas>
-        <script>
-            var c = document.getElementById('c');
-            var ctx = c.getContext('2d');
-            c.width = 1920;
-            c.height = 1080;
-            var t = 0;
-            function draw() {
-                ctx.fillStyle = 'rgba(0,0,0,0.1)';
-                ctx.fillRect(0, 0, c.width, c.height);
-                for (var i = 0; i < 30; i++) {
-                    var x = c.width / 2 + Math.cos(t + i * 0.4) * 300;
-                    var y = c.height / 2 + Math.sin(t + i * 0.6) * 200;
-                    var r = 8 + Math.sin(t + i) * 4;
-                    var hue = (t * 40 + i * 12) % 360;
-                    ctx.fillStyle = 'hsl(' + hue + ', 80%, 60%)';
-                    ctx.beginPath();
-                    ctx.arc(x, y, r, 0, Math.PI * 2);
-                    ctx.fill();
-                    ctx.shadowBlur = 15;
-                    ctx.shadowColor = 'hsl(' + hue + ', 80%, 60%)';
-                }
-                ctx.shadowBlur = 0;
-                t += 0.02;
-                requestAnimationFrame(draw);
-            }
-            draw();
-            console.log('Canvas 2D animation started!');
-        <\/script>
+                document.getElementById('uaDisplay').textContent = navigator.userAgent;
+        </script>
     </body>
-</html>`
-},
-'api-check': {
-    label: '✅ API Check',
-    code: `<!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8"><title>API Availability Check</title>
-        <style>
-            body { font-family: monospace; background: #0d0d16; color: #ddd;
-                padding: 20px; font-size: 12px; }
-            table { border-collapse: collapse; width: 100%; }
-            td, th { border: 1px solid #333; padding: 6px 10px; text-align: left; }
-            th { background: #1a1a2e; color: #8af; }
-            .yes { color: #4f4; }
-            .no { color: #f44; }
-            .warn { color: #fa0; }
-        </style>
-    </head>
-    <body>
-        <h2>✅ Tizen TV Browser API Compatibility</h2>
-        <table id="tbl">
-            <tr><th>API</th><th>Status</th><th>Expected</th></tr>
-        </table>
-        <script>
-            var tests = [
-                ['XMLHttpRequest', typeof XMLHttpRequest !== 'undefined', true],
-                ['WebSocket', typeof WebSocket !== 'undefined', true],
-                ['Worker', typeof Worker !== 'undefined', true],
-                ['SharedWorker', typeof SharedWorker !== 'undefined', true],
-                ['EventSource', typeof EventSource !== 'undefined', true],
-                ['Canvas 2D', typeof document.createElement('canvas').getContext === 'function', true],
-                ['WebGL', typeof WebGLRenderingContext !== 'undefined', true],
-                ['localStorage', typeof localStorage !== 'undefined', true],
-                ['sessionStorage', typeof sessionStorage !== 'undefined', true],
-                ['Promise', typeof Promise !== 'undefined', true],
-                ['Proxy', typeof Proxy !== 'undefined', true],
-                ['Reflect', typeof Reflect !== 'undefined', true],
-                ['Symbol', typeof Symbol !== 'undefined', true],
-                ['Map', typeof Map !== 'undefined', true],
-                ['Set', typeof Set !== 'undefined', true],
-                ['WeakMap', typeof WeakMap !== 'undefined', true],
-                ['TypedArrays', typeof Uint8Array !== 'undefined', true],
-                ['ArrayBuffer', typeof ArrayBuffer !== 'undefined', true],
-                ['DataView', typeof DataView !== 'undefined', true],
-                ['performance.now', typeof performance !== 'undefined' && typeof performance.now === 'function',
-                    true
-                ],
-                ['requestAnimationFrame', typeof requestAnimationFrame !== 'undefined', true],
-                ['crypto.getRandomValues', typeof crypto !== 'undefined' && !!crypto.getRandomValues, true],
-                ['WebAssembly', typeof WebAssembly !== 'undefined', false],
-                ['fetch', typeof fetch !== 'undefined', false],
-                ['BigInt', typeof BigInt !== 'undefined', false],
-                ['Atomics', typeof Atomics !== 'undefined', false],
-                ['crypto.subtle', typeof crypto !== 'undefined' && !!crypto.subtle, false],
-                ['CSS Grid (detect)', typeof document.body.style.grid !== 'undefined', false],
-                ['CSS Variables', typeof document.body.style.getPropertyValue === 'function', true],
-            ];
-            var tbody = document.getElementById('tbl');
-            tests.forEach(function(t) {
-                var row = tbody.insertRow();
-                row.insertCell(0).textContent = t[0];
-                var actual = t[1];
-                var expected = t[2];
-                var statusCell = row.insertCell(1);
-                if (actual) {
-                    statusCell.innerHTML = '<span class="yes">✅ Available</span>';
-                } else {
-                    statusCell.innerHTML = '<span class="no">❌ Not Available</span>';
-                }
-                var match = (actual === expected);
-                row.insertCell(2).innerHTML = match ?
-                    '<span class="yes">✓ Correct</span>' :
-                '<span class="warn">⚠ Mismatch (expected ' + (expected ? 'YES' : 'NO') + ')</span>';
-            });
-            console.log('API check complete! ' + tests.length + ' APIs tested.');
-        <\/script>
-    </body>
-</html>`
-},
-'storage': {
-    label: '💾 Storage',
-    code: `<!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8"><title>Storage Test</title>
-        <style>
-            body { font-family: monospace; background: #0d0d16; color: #ddd;
-                padding: 20px; font-size: 13px; line-height: 1.7; }
-            .ok { color: #4f4; }
-            .err { color: #f44; }
-            pre { background: #111; padding: 10px; border-radius: 5px; }
-        </style>
-    </head>
-    <body>
-        <h2>💾 Storage API Test</h2>
-        <pre id="out"></pre>
-        <script>
-            var out = document.getElementById('out');
-            var lines = [];
-            try {
-                localStorage.setItem('_tizen_test', 'hello-tv-storage');
-                var val = localStorage.getItem('_tizen_test');
-                lines.push('localStorage setItem/getItem: ' + (val === 'hello-tv-storage' ? '✅ OK' : '❌ FAIL'));
-                localStorage.removeItem('_tizen_test');
-                lines.push('localStorage removeItem: ✅ OK');
-                lines.push('localStorage length: ' + localStorage.length);
-            } catch(e) {
-                lines.push('localStorage: ❌ ERROR - ' + e.message);
+</html>`,
+canvas: `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Canvas Test</title>
+    <style>
+        body {
+            margin: 0;
+            background: #111;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+        canvas { display: block; border: 1px solid #333; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <canvas id="c" width="800" height="500"></canvas>
+    <script>
+        var c = document.getElementById('c');
+        var ctx = c.getContext('2d');
+        var t = 0;
+        function draw() {
+            t += 0.02;
+            ctx.fillStyle = '#0a0a14';
+            ctx.fillRect(0, 0, 800, 500);
+            for (var i = 0; i < 60; i++) {
+                var x = 400 + Math.sin(t + i * 0.3) * 180 + Math.cos(i * 1.7 + t) * 60;
+                var y = 250 + Math.cos(t + i * 0.25) * 120 + Math.sin(i * 2.1 + t) * 40;
+                var r = 4 + Math.sin(i + t) * 3;
+                var hue = (i * 6 + t * 100) % 360;
+                ctx.beginPath();
+                ctx.arc(x, y, r, 0, Math.PI * 2);
+                ctx.fillStyle = 'hsl(' + hue + ', 80%, 60%)';
+                ctx.fill();
+                ctx.shadowColor = 'hsl(' + hue + ', 80%, 60%)';
+                ctx.shadowBlur = 8;
             }
-            try {
-                sessionStorage.setItem('_session_test', 'session-val');
-                var sv = sessionStorage.getItem('_session_test');
-                lines.push('sessionStorage: ' + (sv === 'session-val' ? '✅ OK' : '❌ FAIL'));
-                sessionStorage.removeItem('_session_test');
-            } catch(e) {
-                lines.push('sessionStorage: ❌ ERROR - ' + e.message);
+            ctx.shadowBlur = 0;
+            ctx.fillStyle = '#fff';
+            ctx.font = '20px Arial';
+            ctx.fillText('Canvas 2D · Samsung TV Browser', 250, 40);
+            requestAnimationFrame(draw);
+        }
+        draw();
+    </script>
+</body>
+</html>`,
+video: `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Media Test</title>
+    <style>
+        body {
+            margin: 0;
+            background: #000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            color: #fff;
+            font-family: Arial, sans-serif;
+        }
+        .player {
+            background: #1a1a1a;
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            border: 1px solid #333;
+            max-width: 700px;
+        }
+        video {
+            width: 100%;
+            max-width: 640px;
+            border-radius: 8px;
+            background: #000;
+        }
+        .controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 16px;
+            flex-wrap: wrap;
+        }
+        button {
+            padding: 10px 20px;
+            border-radius: 6px;
+            border: 1px solid #555;
+            background: #222;
+            color: #fff;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        button:hover { background: #333; }
+        .info { margin-top: 14px; color: #888; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <div class="player">
+        <h2>📺 Media Playback Test</h2>
+        <video id="vid" controls loop muted playsinline
+        poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='640' height='360'%3E%3Crect fill='%23111' width='640' height='360'/%3E%3Ctext fill='%23555' x='50%25' y='50%25' text-anchor='middle' dy='.3em' font-size='24'%3E🎬 Video Placeholder%3C/text%3E%3C/svg%3E">
+        <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+    <div class="controls">
+        <button onclick="document.getElementById('vid').play()">▶ Play</button>
+        <button onclick="document.getElementById('vid').pause()">⏸ Pause</button>
+        <button onclick="document.getElementById('vid').currentTime=0">⏮ Reset</button>
+    </div>
+    <div class="info">
+        Test video: Big Buck Bunny · Check if media playback works in this browser
+    </div>
+</div>
+</body>
+</html>`,
+form: `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Form Test</title>
+    <style>
+        body {
+            margin: 0;
+            background: #1a1a24;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            color: #ddd;
+        }
+        .form-card {
+            background: #22222c;
+            border: 1px solid #333;
+            border-radius: 14px;
+            padding: 36px 40px;
+            width: 500px;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+        }
+        h2 { margin-bottom: 20px; color: #fff; font-weight: 300; letter-spacing: 1px; }
+        label { display: block; margin: 12px 0 4px; font-size: 12px; color: #999; text-transform: uppercase; letter-spacing: 1px; }
+        input, textarea, select {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #444;
+            border-radius: 6px;
+            background: #1a1a22;
+            color: #ddd;
+            font-size: 14px;
+            font-family: inherit;
+            box-sizing: border-box;
+        }
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #4a90d9;
+            box-shadow: 0 0 0 3px rgba(74,144,217,0.12);
+        }
+        button {
+            margin-top: 18px;
+            width: 100%;
+            padding: 12px;
+            background: #4a90d9;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-size: 15px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        button:hover { background: #5a9fe8; }
+        .result { margin-top: 14px; padding: 12px; background: #1a2a1a; border: 1px solid #2a4a2a; border-radius: 6px; color: #8f8; font-size: 13px; display: none; }
+    </style>
+</head>
+<body>
+    <div class="form-card">
+        <h2>📝 Form Test</h2>
+        <form id="testForm" onsubmit="handleSubmit(event)">
+            <label>Name</label>
+            <input type="text" id="name" placeholder="Enter your name" required>
+            <label>Email</label>
+            <input type="email" id="email" placeholder="Enter email" required>
+            <label>Favorite Feature</label>
+            <select id="feature">
+                <option>Curved Screen</option>
+                <option>Smart Hub</option>
+                <option>4K Upscaling</option>
+                <option>ConnectShare</option>
+            </select>
+            <label>Message</label>
+            <textarea id="msg" rows="3" placeholder="Your message..."></textarea>
+            <button type="submit">Submit (Test)</button>
+        </form>
+        <div class="result" id="result"></div>
+    </div>
+    <script>
+        function handleSubmit(e) {
+            e.preventDefault();
+            var r = document.getElementById('result');
+            r.style.display = 'block';
+            r.textContent = '✅ Form submitted! Name: ' + document.getElementById('name').value +
+            ' | Feature: ' + document.getElementById('feature').value +
+            ' | localStorage: ' + (typeof localStorage !== 'undefined' ? 'Available ✅' : 'Not Available ❌');
+            if (typeof localStorage !== 'undefined') {
+                localStorage.setItem('tv_test_form', JSON.stringify({
+                    name: document.getElementById('name').value,
+                    time: new Date().toISOString()
+                }));
             }
-            lines.push('');
-            lines.push('crypto.getRandomValues: ' + (typeof crypto !== 'undefined' && crypto.getRandomValues ?
-                '✅ Available' : '❌ Not available'));
-            if (crypto && crypto.getRandomValues) {
-                var arr = new Uint8Array(8);
-                crypto.getRandomValues(arr);
-                lines.push('Random bytes: ' + Array.from(arr).map(function(b) {
-                    return b.toString(16).padStart(2, '0');
-                }).join(' '));
-            }
-            lines.push('');
-            lines.push('Cookies enabled: ' + (navigator.cookieEnabled ? '✅ Yes' : '❌ No'));
-            out.textContent = lines.join('\\n');
-            console.log('Storage test complete!');
-        <\/script>
-    </body>
+        }
+    </script>
+</body>
 </html>`
-}
 };
 
-// ── DEFAULT CODE ──────────────────────────
-const defaultCode = samples['tv-app'].code;
-codeEditor.value = defaultCode;
-currentSample = 'tv-app';
-updateActiveSampleButton();
+// ============ TIZEN ENVIRONMENT SIMULATION SCRIPT ============
+function getTizenSimScript() {
+    return `
+    <script>
+    (function() {
+        // Override navigator properties to match Tizen 2.4.0 SamsungBrowser/1.1
+        var _ua = '5.0 (SMART-TV; Linux; Tizen 2.4.0) AppleWebkit/538.1 (KHTML, like Gecko) SamsungBrowser/1.1 TV Safari/538.1';
+        try {
+            Object.defineProperty(navigator, 'userAgent', {
+                get: function() { return _ua; },
+                configurable: true
+            });
+        } catch(e) {}
 
-// ── UPDATE ACTIVE SAMPLE BUTTON ──────────
-function updateActiveSampleButton() {
-    sampleBtns.forEach(btn => {
-        const sample = btn.getAttribute('data-sample');
-        if (sample === currentSample) {
-            btn.classList.add('active-sample');
-        } else {
-            btn.classList.remove('active-sample');
-        }
-    });
+        try {
+            Object.defineProperty(screen, 'width', { get: function() { return 1920; }, configurable: true });
+            Object.defineProperty(screen, 'height', { get: function() { return 1080; }, configurable: true });
+            Object.defineProperty(screen, 'availWidth', { get: function() { return 1920; }, configurable: true });
+            Object.defineProperty(screen, 'availHeight', { get: function() { return 1080; }, configurable: true });
+            Object.defineProperty(screen, 'colorDepth', { get: function() { return 24; }, configurable: true });
+            Object.defineProperty(screen, 'pixelDepth', { get: function() { return 24; }, configurable: true });
+        } catch(e) {}
+
+        try {
+            Object.defineProperty(window, 'devicePixelRatio', { get: function() { return 1; }, configurable: true });
+        } catch(e) {}
+
+        // Log environment info (matching the debug output style)
+        console.log('+--------------------------------------------------+');
+        console.log('|   Tizen TV Browser Environment (Emulated)        |');
+        console.log('|   UA55K6500 · Series 6 · 55" Curved             |');
+        console.log('+--------------------------------------------------+');
+        console.log('+ Screen width: ' + screen.width);
+        console.log('+ Screen height: ' + screen.height);
+        console.log('+ Color Depth: ' + screen.colorDepth);
+        console.log('+ Device Pixel Ratio: ' + window.devicePixelRatio);
+        console.log('+ Cookie Enabled: ' + navigator.cookieEnabled);
+        console.log('+ OnLine: ' + navigator.onLine);
+        console.log('App Version: ' + navigator.userAgent);
+        console.log('+ XMLHttpRequest: ' + (typeof XMLHttpRequest !== 'undefined'));
+        console.log('- fetch: ' + (typeof fetch !== 'undefined' ? 'true (NOT on real Tizen 2.4!)' : 'false'));
+        console.log('- Promise: ' + (typeof Promise !== 'undefined' ? 'true (NOT on real Tizen 2.4!)' : 'false'));
+        console.log('+ localStorage: ' + (typeof localStorage !== 'undefined'));
+        console.log('+ sessionStorage: ' + (typeof sessionStorage !== 'undefined'));
+        console.log('+ Canvas 2D: ' + (!!document.createElement('canvas').getContext));
+        console.log('+ ArrayBuffer: ' + (typeof ArrayBuffer !== 'undefined'));
+        console.log('+ requestAnimationFrame: ' + (typeof requestAnimationFrame !== 'undefined'));
+        console.log('- window.tizen: ' + (typeof window.tizen !== 'undefined'));
+        console.log('- window.webapis: ' + (typeof window.webapis !== 'undefined'));
+        console.log('+ eval: true');
+        console.log('+ __defineGetter__: ' + (typeof Object.prototype.__defineGetter__ !== 'undefined'));
+        console.log('=== Tizen 2.4.0 Environment Ready ===');
+        console.log('⚠ Note: This emulator runs on your modern browser.');
+        console.log('⚠ Some ES6+ features (Promise, fetch, etc.) are available here');
+        console.log('⚠ but were NOT supported on the real Tizen 2.4.0 TV browser.');
+    })();
+</scrip` + `t>`;
 }
 
-// ── SAMPLE BUTTON HANDLERS ───────────────
-sampleBtns.forEach(btn => {
-    btn.addEventListener('click', function() {
-        const sampleKey = this.getAttribute('data-sample');
-        if (samples[sampleKey]) {
-            codeEditor.value = samples[sampleKey].code;
-            currentSample = sampleKey;
-            updateActiveSampleButton();
-            // Auto-run when selecting a sample
-            runCode();
+// ============ BUILD FULL HTML DOCUMENT ============
+function buildFullDocument(userCode) {
+    // Check if user provided a complete HTML document
+    const hasDoctype = /<!DOCTYPE\s+html/i.test(userCode);
+    const hasHtmlTag = /<html[\s>]/i.test(userCode);
+    const hasBodyTag = /<body[\s>]/i.test(userCode);
+    const hasHeadTag = /<head[\s>]/i.test(userCode);
+
+    if (hasDoctype || hasHtmlTag) {
+        // User provided full document - inject simulation script before </head> or after <head>
+        if (hasHeadTag) {
+            userCode = userCode.replace(/<head([^>]*)>/i, '<head$1>' + getTizenSimScript());
+        } else if (hasHtmlTag) {
+            userCode = userCode.replace(/<html([^>]*)>/i, '<html$1><head>' + getTizenSimScript() + '</head>');
+        } else {
+            userCode = getTizenSimScript() + userCode;
         }
-    });
-});
-
-// ── RUN CODE ──────────────────────────────
-function runCode() {
-    if (isRunning) return;
-    isRunning = true;
-
-    const userCode = codeEditor.value.trim();
-    if (!userCode) {
-        addConsoleEntry('warn', ['⚠️ Please enter some HTML code first.']);
-        isRunning = false;
-        return;
+        return userCode;
+    } else {
+        // User provided a fragment - wrap in full document
+        return `<!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=1920, initial-scale=1.0, user-scalable=yes">
+            <title>TV Browser · UA55K6500</title>
+            ${getTizenSimScript()}
+        </head>
+        <body>
+            ${userCode}
+        </body>
+        </html>`;
     }
+}
 
-    // Update UI state
-    tvScreen.classList.add('active-screen');
-    screenOff.style.opacity = '0';
-    tvLed.classList.remove('off');
-    statusDot.style.background = '#f59e0b';
-    statusDot.style.boxShadow = '0 0 10px #f59e0baa';
-    statusText.textContent = 'Loading...';
-    runBtn.disabled = true;
-    runBtn.style.opacity = '0.6';
-
-    // Clear previous iframe
-    tvIframe.style.display = 'none';
-    tvIframe.src = 'about:blank';
-
-    // Prepare the HTML with injected override script
-    const processedHTML = injectOverrideScript(userCode);
-
-    // Use a blob URL for better isolation
-    const blob = new Blob([processedHTML], { type: 'text/html;charset=UTF-8' });
+// ============ RENDER IN IFRAME ============
+function renderInTV(userCode) {
+    const fullDoc = buildFullDocument(userCode);
+    const blob = new Blob([fullDoc], { type: 'text/html;charset=utf-8' });
     const blobUrl = URL.createObjectURL(blob);
 
-    // Set up a temporary iframe to load the blob
-    // We need to handle the iframe load event
-    const tempIframe = document.createElement('iframe');
-    tempIframe.style.cssText = 'position:absolute;width:0;height:0;border:none;visibility:hidden;';
-    tempIframe.sandbox = 'allow-scripts allow-same-origin allow-modals allow-forms allow-popups';
-    document.body.appendChild(tempIframe);
-
-    tempIframe.onload = function() {
-        // Now swap to the actual TV iframe
-        tvIframe.src = blobUrl;
-        tvIframe.style.display = 'block';
-        screenOff.style.display = 'none';
-        tvScreen.classList.add('active-screen');
-
-        tvIframe.onload = function() {
-            // Iframe loaded
-            statusDot.style.background = '#22c55e';
-            statusDot.style.boxShadow = '0 0 10px #22c55eaa';
-            statusText.textContent = 'Running';
-            runBtn.disabled = false;
-            runBtn.style.opacity = '1';
-            isRunning = false;
-            addConsoleEntry('info', ['✅ TV browser emulator ready – code loaded successfully.']);
-            addConsoleEntry('info',
-                ['📐 Emulated: Tizen 2.4.0 | WebKit 538.1 | SamsungBrowser 1.1 | 1920×1080']);
-
-            // Clean up temp iframe
-            setTimeout(() => {
-                if (tempIframe.parentNode) tempIframe.parentNode.removeChild(tempIframe);
-                URL.revokeObjectURL(blobUrl);
-            }, 500);
-        };
-
-        tvIframe.onerror = function() {
-            addConsoleEntry('error', ['❌ Failed to load code in TV browser emulator.']);
-            statusDot.style.background = '#ef4444';
-            statusDot.style.boxShadow = '0 0 10px #ef4444aa';
-            statusText.textContent = 'Error';
-            runBtn.disabled = false;
-            runBtn.style.opacity = '1';
-            isRunning = false;
-            if (tempIframe.parentNode) tempIframe.parentNode.removeChild(tempIframe);
-            URL.revokeObjectURL(blobUrl);
-        };
-    };
-
-    tempIframe.onerror = function() {
-        // Fallback: try loading directly
-        tvIframe.src = blobUrl;
-        tvIframe.style.display = 'block';
-        screenOff.style.display = 'none';
-        tvScreen.classList.add('active-screen');
-        statusDot.style.background = '#22c55e';
-        statusDot.style.boxShadow = '0 0 10px #22c55eaa';
-        statusText.textContent = 'Running';
-        runBtn.disabled = false;
-        runBtn.style.opacity = '1';
-        isRunning = false;
-        addConsoleEntry('warn', ['⚠️ Loaded with fallback method. Some emulation features may be limited.']);
-        setTimeout(() => {
-            if (tempIframe.parentNode) tempIframe.parentNode.removeChild(tempIframe);
-            URL.revokeObjectURL(blobUrl);
-        }, 500);
-    };
-
-    // Trigger the temp iframe load
-    tempIframe.src = blobUrl;
-
-    // Safety timeout
-    setTimeout(() => {
-        if (isRunning) {
-            // Force complete
-            if (!tvIframe.src || tvIframe.src === 'about:blank') {
-                tvIframe.src = blobUrl;
-                tvIframe.style.display = 'block';
-                screenOff.style.display = 'none';
-                tvScreen.classList.add('active-screen');
-            }
-            statusDot.style.background = '#22c55e';
-            statusDot.style.boxShadow = '0 0 10px #22c55eaa';
-            statusText.textContent = 'Running';
-            runBtn.disabled = false;
-            runBtn.style.opacity = '1';
-            isRunning = false;
-            addConsoleEntry('warn', ['⚠️ Load timed out – code may still render. Check the TV screen.']);
-            setTimeout(() => {
-                if (tempIframe.parentNode) tempIframe.parentNode.removeChild(tempIframe);
-                try { URL.revokeObjectURL(blobUrl); } catch(e) {}
-            }, 500);
-        }
-    }, 4000);
-
-    // Add a small screen flash effect
-    tvScreen.style.boxShadow = 'inset 0 0 40px #3b82f644, 0 0 20px #3b82f633';
-    setTimeout(() => {
-        tvScreen.style.boxShadow = 'inset 0 0 20px #00000099, 0 0 15px #3b82f622';
-    }, 600);
-}
-
-// ── INJECT OVERRIDE SCRIPT ────────────────
-function injectOverrideScript(userHTML) {
-    const overrideScript = getOverrideScript();
-    // Remove the outer <script> tags from the override script for injection
-    // (it already includes them)
-    let html = userHTML;
-
-    // Find the best injection point
-    const doctypeMatch = html.match(/<!DOCTYPE[^>]*>/i);
-    if (doctypeMatch) {
-        const afterDoctype = html.indexOf(doctypeMatch[0]) + doctypeMatch[0].length;
-        html = html.slice(0, afterDoctype) + '\n' + overrideScript + '\n' + html.slice(afterDoctype);
-    } else {
-        // Check for <html> tag
-        const htmlTagMatch = html.match(/<html[^>]*>/i);
-        if (htmlTagMatch) {
-            const afterHtmlTag = html.indexOf(htmlTagMatch[0]) + htmlTagMatch[0].length;
-            html = html.slice(0, afterHtmlTag) + '\n' + overrideScript + '\n' + html.slice(afterHtmlTag);
-        } else {
-            // Check for <head> tag
-            const headMatch = html.match(/<head[^>]*>/i);
-            if (headMatch) {
-                const afterHead = html.indexOf(headMatch[0]) + headMatch[0].length;
-                html = html.slice(0, afterHead) + '\n' + overrideScript + '\n' + html.slice(afterHead);
-            } else {
-                // Prepend
-                html = overrideScript + '\n' + html;
-            }
-        }
+    // Revoke old blob URL if exists
+    if (tvIframe.dataset.blobUrl) {
+        URL.revokeObjectURL(tvIframe.dataset.blobUrl);
     }
+    tvIframe.dataset.blobUrl = blobUrl;
 
-    return html;
+    // Set iframe source
+    tvIframe.src = blobUrl;
+
+    // Update status
+    updateStatus('Rendered ✓', '#4caf50');
+
+    // Log to console
+    addConsoleLine('[Emulator] Code rendered in TV browser (1920×1080 viewport)', '');
 }
 
-// ── CONSOLE OUTPUT ────────────────────────
-function addConsoleEntry(method, argsArray) {
-    consoleEntries++;
-    const entryDiv = document.createElement('div');
-    entryDiv.className = 'log-entry ' + method + '-level';
-
-    const now = new Date();
-    const timeStr = now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit',
-        second: '2-digit' });
-    const metaSpan = document.createElement('span');
-    metaSpan.className = 'log-meta';
-    metaSpan.textContent = '[' + timeStr + '] ';
-
-    entryDiv.appendChild(metaSpan);
-    const textSpan = document.createElement('span');
-    textSpan.textContent = argsArray.join(' ');
-    entryDiv.appendChild(textSpan);
-
-    // Remove empty state if present
-    const emptyMsg = consoleOutput.querySelector('.console-empty');
-    if (emptyMsg) emptyMsg.remove();
-
-    consoleOutput.appendChild(entryDiv);
+// ============ CONSOLE FUNCTIONS ============
+function addConsoleLine(message, type) {
+    const line = document.createElement('div');
+    line.className = 'log-line ' + (type || '');
+    line.textContent = '> ' + message;
+    consoleLines.appendChild(line);
     consoleOutput.scrollTop = consoleOutput.scrollHeight;
-    consoleCount.textContent = consoleEntries + ' entry' + (consoleEntries !== 1 ? 'ies' : '');
+
+    // Limit lines
+    while (consoleLines.children.length > 100) {
+        consoleLines.removeChild(consoleLines.firstChild);
+    }
 }
 
 function clearConsole() {
-    consoleOutput.innerHTML = '<div class="console-empty">Console cleared. Waiting for new output...</div>';
-    consoleEntries = 0;
-    consoleCount.textContent = '0 entries';
+    consoleLines.innerHTML = '';
+    addConsoleLine('[Console cleared]', '');
 }
 
-// ── LISTEN FOR MESSAGES FROM IFRAME ──────
-window.addEventListener('message', function(event) {
-    // Accept messages from any origin (since we're using blob URLs and srcdoc)
-    if (event.data && event.data.type === 'console') {
-        const method = event.data.method || 'log';
-        let args;
-        try {
-            args = JSON.parse(event.data.args || '[]');
-        } catch (e) {
-            args = [event.data.args || ''];
+// ============ STATUS UPDATE ============
+function updateStatus(msg, color) {
+    statusText.innerHTML = '<span class="pulse" style="background:' + (color || '#4caf50') +
+        ';box-shadow:0 0 6px ' + (color || '#4caf50') + ';"></span> ' + msg;
+}
+
+// ============ RUN BUTTON ============
+function runCode() {
+    const code = codeInput.value.trim();
+    if (!code) {
+        updateStatus('Please enter some HTML code', '#f0a030');
+        addConsoleLine('⚠ No code to run. Please enter HTML in the input box.', 'warn');
+        return;
+    }
+    updateStatus('Rendering...', '#f0a030');
+    addConsoleLine('Running code in TV browser...', '');
+    // Small delay for visual feedback
+    setTimeout(function() {
+        renderInTV(code);
+    }, 150);
+}
+
+// ============ RESET ============
+function resetAll() {
+    codeInput.value = '';
+    tvIframe.src = 'about:blank';
+    updateStatus('Ready', '#4caf50');
+    addConsoleLine('[Reset] TV screen cleared.', '');
+}
+
+// ============ LOAD PRESET ============
+function loadPreset(presetName) {
+    if (presets[presetName]) {
+        codeInput.value = presets[presetName];
+        updateStatus('Preset loaded: ' + presetName, '#8ab4f8');
+        addConsoleLine('[Preset] Loaded: ' + presetName, '');
+        // Auto-run the preset
+        setTimeout(function() {
+            renderInTV(presets[presetName]);
+        }, 200);
+    }
+    // Update active preset button
+    presetButtons.forEach(function(btn) {
+        btn.classList.remove('active-preset');
+        if (btn.dataset.preset === presetName) {
+            btn.classList.add('active-preset');
         }
-        addConsoleEntry(method, args);
-    }
-    if (event.data && event.data.type === 'iframe-ready') {
-        // Iframe has initialized its overrides
-        addConsoleEntry('info', ['🔧 Browser environment overrides applied (UA, screen, APIs removed).']);
-    }
+    });
+}
+
+// ============ EVENT LISTENERS ============
+btnRun.addEventListener('click', runCode);
+btnReset.addEventListener('click', resetAll);
+consoleClear.addEventListener('click', clearConsole);
+
+presetButtons.forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        loadPreset(btn.dataset.preset);
+    });
 });
 
-// ── BUTTON HANDLERS ──────────────────────
-runBtn.addEventListener('click', runCode);
-clearConsoleBtn.addEventListener('click', clearConsole);
-
-// ── KEYBOARD SHORTCUTS ───────────────────
-document.addEventListener('keydown', function(e) {
-    // Ctrl+Enter or Cmd+Enter to run
+// Ctrl+Enter shortcut
+codeInput.addEventListener('keydown', function(e) {
     if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
         e.preventDefault();
         runCode();
     }
-    // Ctrl+L to clear console
-    if ((e.ctrlKey || e.metaKey) && e.key === 'l' && !e.shiftKey && document.activeElement !== codeEditor) {
-        e.preventDefault();
-        clearConsole();
-    }
 });
 
-// ── EDITOR CHANGE DETECTION ──────────────
-codeEditor.addEventListener('input', function() {
-    // Check if the content matches any sample
-    let matchedSample = null;
-    for (const [key, sample] of Object.entries(samples)) {
-        if (codeEditor.value.trim() === sample.code.trim()) {
-            matchedSample = key;
-            break;
+// ============ INITIALIZATION ============
+function initEmulator() {
+    addConsoleLine('[Tizen Emulator] UA55K6500 · Screen: 1920×1080 · Ready.', '');
+    addConsoleLine('[System] Model: Samsung 55" Full HD Curved Smart LED TV (Series 6)', '');
+    addConsoleLine('[System] OS: Tizen 2.4.0 · Browser: SamsungBrowser/1.1 · WebKit 538.1', '');
+    addConsoleLine('[System] Resolution: 1920×1080 · Color Depth: 24-bit · DPR: 1', '');
+    addConsoleLine('[System] Curvature: 4200R · Refresh: 60Hz · Processor: Quad-Core', '');
+    addConsoleLine('[System] Smart Hub ID: MA7ZOMUODWK7J · Device: SHCGDNNV7YPB6', '');
+    addConsoleLine('[Emulator] Ready for input. Paste HTML code and click Run.', '');
+
+    // Load demo preset by default
+    loadPreset('demo');
+
+    // Handle iframe load events for console capture
+    tvIframe.addEventListener('load', function() {
+        try {
+            var iframeWin = tvIframe.contentWindow;
+            if (iframeWin && iframeWin.console) {
+                var origLog = iframeWin.console.log;
+                var origWarn = iframeWin.console.warn;
+                var origError = iframeWin.console.error;
+                iframeWin.console.log = function() {
+                    var args = Array.prototype.slice.call(arguments);
+                    addConsoleLine('[TV] ' + args.join(' '), '');
+                    if (origLog) origLog.apply(iframeWin.console, args);
+                };
+                iframeWin.console.warn = function() {
+                    var args = Array.prototype.slice.call(arguments);
+                    addConsoleLine('[TV⚠] ' + args.join(' '), 'warn');
+                    if (origWarn) origWarn.apply(iframeWin.console, args);
+                };
+                iframeWin.console.error = function() {
+                    var args = Array.prototype.slice.call(arguments);
+                    addConsoleLine('[TV❌] ' + args.join(' '), 'error');
+                    if (origError) origError.apply(iframeWin.console, args);
+                };
+            }
+        } catch (e) {
+            // Cross-origin or sandbox restriction - silent
         }
-    }
-    if (matchedSample !== currentSample) {
-        currentSample = matchedSample;
-        updateActiveSampleButton();
-    }
-    if (!matchedSample && currentSample !== null) {
-        // User modified a sample or wrote custom code
-        const stillMatches = currentSample && samples[currentSample] &&
-            codeEditor.value.trim() === samples[currentSample].code.trim();
-        if (!stillMatches) {
-            currentSample = null;
-            updateActiveSampleButton();
-        }
-    }
+    });
+}
+
+// ============ RESPONSIVE SCALING ============
+function updateScale() {
+    var viewportWidth = window.innerWidth;
+    var baseWidth = 1100; // Base design width
+    var scale = Math.min(1, viewportWidth / baseWidth);
+    // Don't go below 0.3 scale
+    scale = Math.max(0.3, scale);
+    emulatorWrapper.style.transform = 'scale(' + scale + ')';
+    emulatorWrapper.style.transformOrigin = 'top center';
+}
+
+window.addEventListener('resize', updateScale);
+window.addEventListener('orientationchange', function() {
+    setTimeout(updateScale, 300);
 });
+updateScale();
 
-// ── INITIALIZATION ───────────────────────
-function init() {
-    updateActiveSampleButton();
-    // Auto-run the default sample after a short delay
-    setTimeout(() => {
-        runCode();
-    }, 400);
-    // Set initial TV LED state
-    tvLed.classList.remove('off');
-    statusDot.style.background = '#22c55e';
-    statusDot.style.boxShadow = '0 0 8px #22c55e88';
-    statusText.textContent = 'Ready';
-    addConsoleEntry('info', ['🖥️ Samsung Tizen TV Browser Emulator initialized.']);
-    addConsoleEntry('info', ['📋 Select a sample or write your own HTML, then click Run.']);
-    addConsoleEntry('info', ['💡 Tip: Press Ctrl+Enter to run code quickly.']);
-}
+// ============ START ============
+initEmulator();
 
-init();
-
-// ── HANDLE WINDOW RESIZE FOR TV SCREEN ──
-function handleResize() {
-    const displayPanel = document.getElementById('displayPanel');
-    const tvWrapper = document.querySelector('.tv-wrapper');
-    if (displayPanel && tvWrapper) {
-        const panelWidth = displayPanel.clientWidth - 40;
-        const panelHeight = displayPanel.clientHeight - 180;
-        const maxScreenWidth = Math.min(720, panelWidth * 0.85);
-        const maxScreenHeight = Math.min(405, panelHeight * 0.55);
-        const scale = Math.min(maxScreenWidth / 720, maxScreenHeight / 405);
-        if (scale < 1 && window.innerWidth > 500) {
-            tvWrapper.style.transform = 'scale(' + scale + ')';
-            tvWrapper.style.transformOrigin = 'center center';
-        } else {
-            tvWrapper.style.transform = '';
-            tvWrapper.style.transformOrigin = '';
-        }
-    }
-}
-window.addEventListener('resize', handleResize);
-setTimeout(handleResize, 500);
-
-console.log('%c🖥️ Tizen TV Browser Emulator Ready %c| %cWebKit 538.1 | Tizen 2.4.0 | SamsungBrowser 1.1',
-    'color:#60a5fa;font-size:14px;', '', 'color:#8b949e;');
-console.log('%c📐 Emulated screen: 1920×1080 @ 24bit | Platform: Linux armv7l',
-    'color:#a3e635;');
-console.log('%c💡 Open this page and use the code editor to test HTML in a simulated Tizen TV environment.',
-    'color:#f59e0b;');
+// Expose for debugging
+window.tvEmulator = {
+    runCode: runCode,
+    resetAll: resetAll,
+    loadPreset: loadPreset,
+    renderInTV: renderInTV,
+    presets: presets,
+    addConsoleLine: addConsoleLine,
+    clearConsole: clearConsole,
+};
 })();
 </script>
 </body>
