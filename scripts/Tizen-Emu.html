@@ -1,599 +1,948 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Samsung UA55K6500 · Tizen TV Browser Emulator</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Samsung UA55K6500 - Tizen TV Browser Emulator</title>
+    <style>
+        :root {
+            --tv-bezel: #1a1a1a;
+            --tv-inner-bezel: #111;
+            --screen-bg: #000;
+            --text-color: #ccc;
+            --accent: #3a7bd5;
+            --accent-hover: #4d8de8;
+            --input-bg: #1e1e1e;
+            --input-border: #333;
+            --overlay-bg: rgba(0, 0, 0, 0.92);
+        }
 
-    html, body {
-      width: 100%;
-      height: 100%;
-      background: #0a0a0f;
-      font-family: 'Segoe UI', system-ui, sans-serif;
-      overflow-y: auto;
-      overflow-x: hidden;
-    }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    /* Landscape enforcement warning */
-    .rotate-warning {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: #000;
-      z-index: 9999;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      color: #fff;
-      font-size: 1.4rem;
-      text-align: center;
-      gap: 1rem;
-      padding: 20px;
-    }
-    .rotate-warning .icon {
-      font-size: 4.5rem;
-      animation: rotatePulse 2s infinite;
-    }
-    @keyframes rotatePulse {
-      0%,100%{ transform: rotate(0deg); }
-      50%{ transform: rotate(90deg); }
-    }
-    @media (orientation: portrait) and (max-width: 768px) {
-      .rotate-warning { display: flex; }
-      .emulator-container { display: none !important; }
-    }
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #0a0a0a;
+            font-family: 'SF Mono', 'Consolas', 'Monaco', 'Menlo', 'Courier New', monospace;
+            -webkit-font-smoothing: antialiased;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            -webkit-user-select: none;
+        }
 
-    /* Main container scales everything */
-    .emulator-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 1rem;
-      min-height: 100vh;
-      width: 100%;
-    }
+        /* Main container - always landscape 16:9 */
+        .emulator-wrapper {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100vw;
+            height: 56.25vw;
+            /* 16:9 based on width */
+            max-height: 100vh;
+            max-width: 177.78vh;
+            /* 16:9 based on height */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1;
+        }
 
-    .scaler {
-      width: 100%;
-      max-width: 1100px;
-      transform-origin: top center;
-      transition: transform 0.1s ease;
-    }
+        /* TV Frame */
+        .tv-frame {
+            width: 100%;
+            height: 100%;
+            background: var(--tv-bezel);
+            border-radius: 12px;
+            padding: 2.2%;
+            box-shadow:
+                0 0 0 1px #222,
+                0 0 0 4px #1a1a1a,
+                0 0 0 6px #111,
+                0 20px 60px rgba(0, 0, 0, 0.7),
+                inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
 
-    /* TV Frame */
-    .tv-frame {
-      position: relative;
-      width: 100%;
-      aspect-ratio: 1060 / 660;
-      background: linear-gradient(180deg, #3f3f47 0%, #2a2a30 8%, #222228 25%, #1c1c22 60%, #222228 85%, #2a2a30 96%, #36363d 100%);
-      border-radius: 20px 20px 8px 8px;
-      box-shadow: 0 0 0 3px #16161a, 0 0 0 6px #0e0e11, 0 20px 45px rgba(0,0,0,0.7);
-      margin-bottom: 6px;
-    }
-    .tv-frame::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      border-radius: inherit;
-      background: repeating-linear-gradient(0deg, transparent 0px, transparent 2px, rgba(255,255,255,0.008) 2px, rgba(255,255,255,0.008) 3px);
-      pointer-events: none;
-      z-index: 2;
-    }
+        /* Inner bezel */
+        .tv-inner-bezel {
+            width: 100%;
+            height: 100%;
+            background: var(--tv-inner-bezel);
+            border-radius: 4px;
+            padding: 0.8%;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: inset 0 0 0 1px #1c1c1c;
+        }
 
-    .screen-area {
-      position: absolute;
-      top: 4.5%;
-      left: 7.2%;
-      width: 85.6%;
-      height: 85%;
-      background: #000;
-      border-radius: 4px;
-      overflow: hidden;
-      box-shadow: inset 0 0 60px rgba(0,0,0,0.9);
-      z-index: 3;
-    }
-    .screen-area::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.35) 85%);
-      pointer-events: none;
-      z-index: 8;
-    }
-    .tv-iframe {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 1920px;
-      height: 1080px;
-      border: none;
-      transform: scale(0.5);
-      transform-origin: top left;
-      background: white;
-      z-index: 5;
-    }
-    .glare {
-      position: absolute;
-      top: -15%;
-      left: -10%;
-      width: 120%;
-      height: 50%;
-      background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, transparent 70%);
-      transform: rotate(-3deg);
-      z-index: 9;
-      pointer-events: none;
-    }
+        /* Screen area */
+        .tv-screen {
+            width: 100%;
+            height: 100%;
+            background: var(--screen-bg);
+            border-radius: 2px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.5);
+        }
 
-    .samsung-logo {
-      position: absolute;
-      bottom: 12px;
-      left: 50%;
-      transform: translateX(-50%);
-      font-weight: 700;
-      font-size: 1.2rem;
-      letter-spacing: 4px;
-      color: #6a6a72;
-      z-index: 4;
-      text-transform: uppercase;
-    }
-    .power-led {
-      position: absolute;
-      bottom: 15px;
-      right: 45px;
-      width: 7px;
-      height: 7px;
-      background: #e53935;
-      border-radius: 50%;
-      box-shadow: 0 0 8px #e53935;
-      z-index: 4;
-    }
+        /* The iframe that renders user code */
+        .tv-screen iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+            background: #fff;
+            /* default white for HTML content */
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
 
-    .smart-hub-bar {
-      position: absolute;
-      bottom: 0;
-      left: 7.2%;
-      right: 7.2%;
-      height: 6%;
-      background: rgba(18,18,22,0.9);
-      display: flex;
-      align-items: center;
-      padding: 0 20px;
-      gap: 16px;
-      font-size: 0.55rem;
-      color: #888;
-      z-index: 10;
-      border-top: 1px solid rgba(255,255,255,0.08);
-    }
-    .smart-hub-bar span.active {
-      color: #fff;
-    }
+        /* Overlay for code input */
+        .code-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--overlay-bg);
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 5%;
+            transition: opacity 0.3s ease;
+            border-radius: 2px;
+        }
 
-    .tv-stand {
-      width: 60%;
-      max-width: 400px;
-      height: 24px;
-      background: linear-gradient(180deg, #222, #121216);
-      border-radius: 0 0 12px 12px;
-      margin: 0 auto;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.6);
-    }
+        .code-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
 
-    /* Controls */
-    .control-panel {
-      width: 100%;
-      max-width: 960px;
-      background: #1e1e26;
-      border-radius: 16px;
-      padding: 20px;
-      margin-top: 20px;
-      border: 1px solid #2e2e36;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
-    }
-    .panel-title {
-      color: #ccc;
-      font-weight: 600;
-      margin-bottom: 12px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .status-indicator {
-      width: 8px;
-      height: 8px;
-      background: #4caf50;
-      border-radius: 50%;
-      box-shadow: 0 0 6px #4caf50;
-    }
-    textarea {
-      width: 100%;
-      height: 180px;
-      background: #14141a;
-      color: #d2d2d8;
-      border: 1px solid #2a2a34;
-      border-radius: 10px;
-      padding: 14px;
-      font-family: 'Fira Code', monospace;
-      font-size: 0.8rem;
-      resize: vertical;
-      outline: none;
-      margin-bottom: 12px;
-    }
-    textarea:focus {
-      border-color: #3d6df0;
-    }
-    .btn-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      align-items: center;
-    }
-    .btn {
-      padding: 10px 20px;
-      border-radius: 8px;
-      border: none;
-      font-weight: 600;
-      cursor: pointer;
-      font-size: 0.85rem;
-      transition: 0.2s;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .btn-primary {
-      background: #1a3ab5;
-      color: #fff;
-    }
-    .btn-primary:hover { background: #1f46d9; }
-    .btn-secondary {
-      background: #2d2d36;
-      color: #ccc;
-      border: 1px solid #3d3d48;
-    }
-    .btn-secondary:hover { background: #383844; }
-    .btn-preset {
-      background: transparent;
-      color: #999;
-      border: 1px solid #3a3a42;
-    }
-    .btn-preset.active {
-      background: #1e1e32;
-      color: #9ab9ff;
-      border-color: #3d6df0;
-    }
-    .status-text {
-      margin-left: auto;
-      color: #4caf50;
-      font-size: 0.8rem;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-    .console {
-      width: 100%;
-      max-width: 960px;
-      background: #0d0d14;
-      border: 1px solid #202028;
-      border-radius: 10px;
-      margin-top: 16px;
-      padding: 10px 16px;
-      max-height: 150px;
-      overflow-y: auto;
-      font-family: monospace;
-      font-size: 0.7rem;
-      color: #aaa;
-      display: none;
-    }
-    .console.visible { display: block; }
-    .console-line { border-bottom: 1px solid rgba(255,255,255,0.03); padding: 2px 0; }
-    .console-header { display: flex; justify-content: space-between; color: #555; margin-bottom: 6px; }
-    .console-clear { cursor: pointer; color: #666; }
-    .console-clear:hover { color: #fff; }
-  </style>
+        .overlay-title {
+            color: #888;
+            font-size: clamp(10px, 1.6vw, 18px);
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            margin-bottom: 2%;
+            text-align: center;
+            font-weight: 400;
+        }
+
+        .overlay-model {
+            color: #555;
+            font-size: clamp(8px, 1.1vw, 13px);
+            letter-spacing: 0.1em;
+            margin-bottom: 3%;
+            text-align: center;
+            font-weight: 300;
+        }
+
+        .code-textarea {
+            width: 88%;
+            height: 55%;
+            background: var(--input-bg);
+            border: 1px solid var(--input-border);
+            border-radius: 6px;
+            color: #d4d4d4;
+            font-family: 'SF Mono', 'Consolas', 'Monaco', 'Menlo', 'Courier New', monospace;
+            font-size: clamp(10px, 1.3vw, 15px);
+            padding: 2.5%;
+            resize: none;
+            outline: none;
+            line-height: 1.6;
+            tab-size: 2;
+            transition: border-color 0.2s ease;
+            user-select: text;
+            -webkit-user-select: text;
+        }
+
+        .code-textarea:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 20px rgba(58, 123, 213, 0.15);
+        }
+
+        .code-textarea::placeholder {
+            color: #444;
+            font-style: italic;
+        }
+
+        .btn-row {
+            display: flex;
+            gap: 2%;
+            margin-top: 2.5%;
+            width: 88%;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 1.2% 4%;
+            border-radius: 5px;
+            border: 1px solid var(--accent);
+            background: transparent;
+            color: var(--accent);
+            cursor: pointer;
+            font-family: 'SF Mono', 'Consolas', 'Monaco', 'Menlo', 'Courier New', monospace;
+            font-size: clamp(9px, 1.2vw, 14px);
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+            min-width: 80px;
+        }
+
+        .btn-run {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+            font-weight: 600;
+        }
+
+        .btn-run:hover {
+            background: var(--accent-hover);
+            border-color: var(--accent-hover);
+            box-shadow: 0 0 25px rgba(58, 123, 213, 0.35);
+        }
+
+        .btn-clear {
+            border-color: #444;
+            color: #888;
+        }
+        .btn-clear:hover {
+            border-color: #666;
+            color: #bbb;
+        }
+
+        /* Edit button (floating, shown after run) */
+        .edit-btn {
+            position: absolute;
+            bottom: 2%;
+            right: 2%;
+            z-index: 20;
+            padding: 0.7% 2.5%;
+            border-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            background: rgba(0, 0, 0, 0.75);
+            color: #ccc;
+            cursor: pointer;
+            font-family: 'SF Mono', 'Consolas', 'Monaco', 'Menlo', 'Courier New', monospace;
+            font-size: clamp(8px, 1vw, 12px);
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            transition: all 0.2s ease;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .edit-btn.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .edit-btn:hover {
+            background: rgba(58, 123, 213, 0.7);
+            border-color: var(--accent);
+            color: #fff;
+        }
+
+        /* TV brand marker */
+        .tv-brand {
+            position: absolute;
+            bottom: 5%;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 5;
+            color: rgba(255, 255, 255, 0.06);
+            font-size: clamp(7px, 0.9vw, 11px);
+            letter-spacing: 0.25em;
+            pointer-events: none;
+            text-align: center;
+        }
+
+        /* LED indicator */
+        .led-indicator {
+            position: absolute;
+            bottom: 0.6%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #1a3a1a;
+            z-index: 30;
+            pointer-events: none;
+            box-shadow: 0 0 6px rgba(0, 180, 0, 0.3);
+            transition: background 0.3s ease, box-shadow 0.3s ease;
+        }
+        .led-indicator.active {
+            background: #0f0;
+            box-shadow: 0 0 12px rgba(0, 255, 0, 0.6);
+        }
+
+        /* Responsive scaling handled by the wrapper */
+        @media (orientation: portrait) {
+            .emulator-wrapper {
+                width: 100vw;
+                height: 56.25vw;
+                max-height: 100vh;
+                max-width: 177.78vh;
+            }
+        }
+
+        @media (orientation: landscape) {
+            .emulator-wrapper {
+                width: 100vw;
+                height: 56.25vw;
+                max-height: 100vh;
+                max-width: 177.78vh;
+            }
+        }
+
+        /* Very small screens - ensure minimum usable size */
+        @media (max-width: 360px) {
+            .tv-frame {
+                border-radius: 6px;
+                padding: 3%;
+            }
+            .tv-inner-bezel {
+                border-radius: 2px;
+                padding: 1.5%;
+            }
+            .btn {
+                min-width: 55px;
+                padding: 2% 3%;
+            }
+        }
+    </style>
 </head>
 <body>
-<div class="rotate-warning">
-  <div class="icon">📱</div>
-  <div>Please rotate your device<br><strong>to Landscape</strong></div>
-</div>
 
-<div class="emulator-container">
-  <div class="scaler" id="scaler">
-    <!-- TV Hardware -->
-    <div class="tv-frame">
-      <div class="screen-area">
-        <iframe class="tv-iframe" id="tvIframe" sandbox="allow-scripts allow-same-origin allow-forms" title="TV Browser"></iframe>
-        <div class="glare"></div>
-        <div class="smart-hub-bar">
-          <span class="active">Web Browser</span>
-          <span>Netflix</span>
-          <span>YouTube</span>
-          <span>Prime Video</span>
+    <div class="emulator-wrapper">
+        <!-- TV Frame -->
+        <div class="tv-frame">
+            <div class="tv-inner-bezel">
+                <div class="tv-screen" id="tvScreen">
+                    <!-- iframe injected dynamically -->
+                    <iframe
+                    id="tizenFrame"
+                    title="Tizen TV Browser Emulation"
+                    sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals allow-downloads"
+                    loading="eager"
+                ></iframe>
+
+                <!-- Code input overlay -->
+                <div class="code-overlay" id="codeOverlay">
+                    <div class="overlay-title">Tizen TV Browser · Web Emulator</div>
+                    <div class="overlay-model">Samsung UA55K6500 · Series 6 · Tizen 2.4.0 · 02N33KDH700787N</div>
+                    <textarea
+                    class="code-textarea"
+                    id="codeTextarea"
+                    placeholder="Paste your HTML code here...&#10;&#10;Example:&#10;<h1 style='color:red'>Hello Tizen!</h1>&#10;<script>document.write('Screen: '+screen.width+'x'+screen.height);<\/script>"
+                    spellcheck="false"
+                ></textarea>
+                <div class="btn-row">
+                    <button class="btn btn-run" id="btnRun" title="Run code in emulated Tizen browser">▶ &nbsp;Run</button>
+                    <button class="btn btn-clear" id="btnClear" title="Clear the editor">✕ &nbsp;Clear</button>
+                </div>
+            </div>
+
+            <!-- Edit button -->
+            <button class="edit-btn" id="editBtn" title="Return to code editor">✎ &nbsp;Edit Code</button>
+
+            <!-- Subtle TV brand watermark -->
+            <div class="tv-brand">SAMSUNG · TIZEN TV</div>
         </div>
-      </div>
-      <div class="samsung-logo">SAMSUNG</div>
-      <div class="power-led"></div>
     </div>
-    <div class="tv-stand"></div>
+    <!-- LED indicator -->
+    <div class="led-indicator active" id="ledIndicator"></div>
+</div>
+</div>
 
-    <!-- Control Panel -->
-    <div class="control-panel">
-      <div class="panel-title">
-        <span class="status-indicator" id="statusDot"></span> HTML Code Input
-      </div>
-      <textarea id="codeInput" placeholder="Paste HTML code here and click Run..." spellcheck="false"></textarea>
-      <div class="btn-row">
-        <button class="btn btn-primary" id="runBtn">▶ Run in TV</button>
-        <button class="btn btn-secondary" id="resetBtn">↺ Clear</button>
-        <button class="btn btn-preset active" data-preset="demo">📺 Demo</button>
-        <button class="btn btn-preset" data-preset="canvas">🎨 Canvas</button>
-        <button class="btn btn-preset" data-preset="media">🎬 Media</button>
-        <button class="btn btn-preset" data-preset="form">📝 Form</button>
-        <span class="status-text" id="statusMsg"><span style="display:inline-block;width:6px;height:6px;background:#4caf50;border-radius:50%;margin-right:4px;"></span> Ready</span>
-      </div>
+<script>
+    (function() {
+        // ─────────────────────────────────────
+        // DOM References
+        // ─────────────────────────────────────
+        const codeOverlay = document.getElementById('codeOverlay');
+        const codeTextarea = document.getElementById('codeTextarea');
+        const btnRun = document.getElementById('btnRun');
+        const btnClear = document.getElementById('btnClear');
+        const editBtn = document.getElementById('editBtn');
+        const tizenFrame = document.getElementById('tizenFrame');
+        const ledIndicator = document.getElementById('ledIndicator');
+        const tvScreen = document.getElementById('tvScreen');
+
+        // ─────────────────────────────────────
+        // Tizen TV Browser Polyfill Script
+        // This is injected into the iframe BEFORE user code
+        // It accurately emulates the Tizen 2.4.0 browser environment
+        // based on real debug logs from UA55K6500
+        // ─────────────────────────────────────
+        const TIZEN_POLYFILL = `
+<script>
+(function() {
+    'use strict';
+
+    // ── Navigator Overrides ─────────────────
+    var TIZEN_UA = '5.0 (SMART-TV; Linux; Tizen 2.4.0) AppleWebkit/538.1 (KHTML, like Gecko) SamsungBrowser/1.1 TV Safari/538.1';
+    var TIZEN_APPVERSION = '5.0 (SMART-TV; Linux; Tizen 2.4.0) AppleWebkit/538.1 (KHTML, like Gecko) SamsungBrowser/1.1 TV Safari/538.1';
+    var TIZEN_PLATFORM = 'Linux armv7l';
+
+    // Override navigator.userAgent
+    try {
+        Object.defineProperty(navigator, 'userAgent', {
+            get: function() { return TIZEN_UA; },
+            configurable: true,
+            enumerable: true
+        });
+    } catch(e) {}
+
+    // Override navigator.appVersion
+    try {
+        Object.defineProperty(navigator, 'appVersion', {
+            get: function() { return TIZEN_APPVERSION; },
+            configurable: true,
+            enumerable: true
+        });
+    } catch(e) {}
+
+    // Override navigator.platform
+    try {
+        Object.defineProperty(navigator, 'platform', {
+            get: function() { return TIZEN_PLATFORM; },
+            configurable: true,
+            enumerable: true
+        });
+    } catch(e) {}
+
+    // Override navigator.appName
+    try {
+        Object.defineProperty(navigator, 'appName', {
+            get: function() { return 'Netscape'; },
+            configurable: true,
+            enumerable: true
+        });
+    } catch(e) {}
+
+    // Override navigator.appCodeName
+    try {
+        Object.defineProperty(navigator, 'appCodeName', {
+            get: function() { return 'Mozilla'; },
+            configurable: true,
+            enumerable: true
+        });
+    } catch(e) {}
+
+    // Override navigator.product
+    try {
+        Object.defineProperty(navigator, 'product', {
+            get: function() { return 'Gecko'; },
+            configurable: true,
+            enumerable: true
+        });
+    } catch(e) {}
+
+    // Override navigator.vendor
+    try {
+        Object.defineProperty(navigator, 'vendor', {
+            get: function() { return 'Samsung'; },
+            configurable: true,
+            enumerable: true
+        });
+    } catch(e) {}
+
+    // Override navigator.language
+    try {
+        Object.defineProperty(navigator, 'language', {
+            get: function() { return 'en-US'; },
+            configurable: true,
+            enumerable: true
+        });
+    } catch(e) {}
+
+    // Override navigator.cookieEnabled
+    try {
+        Object.defineProperty(navigator, 'cookieEnabled', {
+            get: function() { return true; },
+            configurable: true,
+            enumerable: true
+        });
+    } catch(e) {}
+
+    // Override navigator.onLine
+    try {
+        Object.defineProperty(navigator, 'onLine', {
+            get: function() { return true; },
+            configurable: true,
+            enumerable: true
+        });
+    } catch(e) {}
+
+    // ── Screen Overrides ────────────────────
+    try {
+        Object.defineProperty(screen, 'width', {
+            get: function() { return 1920; },
+            configurable: true,
+            enumerable: true
+        });
+    } catch(e) {}
+    try {
+        Object.defineProperty(screen, 'height', {
+            get: function() { return 1080; },
+            configurable: true,
+            enumerable: true
+        });
+    } catch(e) {}
+    try {
+        Object.defineProperty(screen, 'availWidth', {
+            get: function() { return 1920; },
+            configurable: true,
+            enumerable: true
+        });
+    } catch(e) {}
+    try {
+        Object.defineProperty(screen, 'availHeight', {
+            get: function() { return 1080; },
+            configurable: true,
+            enumerable: true
+        });
+    } catch(e) {}
+    try {
+        Object.defineProperty(screen, 'colorDepth', {
+            get: function() { return 24; },
+            configurable: true,
+            enumerable: true
+        });
+    } catch(e) {}
+    try {
+        Object.defineProperty(screen, 'pixelDepth', {
+            get: function() { return 24; },
+            configurable: true,
+            enumerable: true
+        });
+    } catch(e) {}
+
+    // ── Device Pixel Ratio ──────────────────
+    try {
+        Object.defineProperty(window, 'devicePixelRatio', {
+            get: function() { return 1; },
+            configurable: true,
+            enumerable: true
+        });
+    } catch(e) {}
+
+    // ── Override innerWidth/innerHeight ─────
+    try {
+        Object.defineProperty(window, 'innerWidth', {
+            get: function() { return 1920; },
+            configurable: true,
+            enumerable: true
+        });
+    } catch(e) {}
+    try {
+        Object.defineProperty(window, 'innerHeight', {
+            get: function() { return 1080; },
+            configurable: true,
+            enumerable: true
+        });
+    } catch(e) {}
+    try {
+        Object.defineProperty(window, 'outerWidth', {
+            get: function() { return 1920; },
+            configurable: true,
+            enumerable: true
+        });
+    } catch(e) {}
+    try {
+        Object.defineProperty(window, 'outerHeight', {
+            get: function() { return 1080; },
+            configurable: true,
+            enumerable: true
+        });
+    } catch(e) {}
+
+    // ── Delete Modern APIs (Tizen 2.4.0 doesn't have them) ──
+    var apisToDelete = [
+        'Promise',
+        'Set',
+        'Symbol',
+        'WeakMap',
+        'Proxy',
+        'Reflect',
+        'BigInt',
+        'BigInt64Array',
+        'BigUint64Array',
+        'fetch',
+        'Atomics',
+        'SharedArrayBuffer'
+    ];
+
+    for (var i = 0; i < apisToDelete.length; i++) {
+        try {
+            delete window[apisToDelete[i]];
+        } catch(e) {
+            // Some properties are non-configurable; set to undefined as fallback
+            try { window[apisToDelete[i]] = undefined; } catch(e2) {}
+        }
+    }
+
+    // ── Delete Cache API ────────────────────
+    try { delete window.caches; } catch(e) {}
+    try { window.caches = undefined; } catch(e) {}
+
+    // ── Override crypto.subtle ──────────────
+    if (window.crypto) {
+        try {
+            Object.defineProperty(window.crypto, 'subtle', {
+                get: function() { return undefined; },
+                configurable: true,
+                enumerable: true
+            });
+        } catch(e) {}
+    }
+
+    // ── Ensure Tizen/WebAPI properties are undefined ──
+    try { window.tizen = undefined; } catch(e) {}
+    try { window.webapis = undefined; } catch(e) {}
+    try { window.Orsay = undefined; } catch(e) {}
+    try { window.PalmSystem = undefined; } catch(e) {}
+    try { window.CommonPlugin = undefined; } catch(e) {}
+
+    // ── Timezone Offset ─────────────────────
+    try {
+        var origGetTZOffset = Date.prototype.getTimezoneOffset;
+        Date.prototype.getTimezoneOffset = function() {
+            return -180;
+        };
+    } catch(e) {}
+
+    // ── CSP / Security Headers (none on Tizen) ──
+    // No action needed; the iframe won't have CSP by default
+
+    // ── Preserve legacy capabilities ────────
+    // eval: kept (available on Tizen)
+    // Function constructor: kept
+    // __defineGetter__: kept
+    // XMLHttpRequest: kept
+    // localStorage, sessionStorage, indexedDB: kept
+    // Canvas 2D: kept
+    // requestAnimationFrame: kept
+    // SharedWorker: kept (though may not function in iframe)
+    // EventSource: kept
+    // ArrayBuffer, typed arrays: kept
+
+    // ── Mark emulation as active ────────────
+    window.__TIZEN_EMULATOR_ACTIVE__ = true;
+    window.__TIZEN_VERSION__ = '2.4.0';
+    window.__TIZEN_MODEL__ = 'UA55K6500';
+    window.__TIZEN_SERIAL__ = '02N33KDH700787N';
+
+    // Notify parent frame that polyfill is loaded
+    try {
+        window.parent.postMessage({ type: 'TIZEN_POLYFILL_LOADED', version: '2.4.0' }, '*');
+    } catch(e) {}
+
+})();
+<\/script>
+`;
+
+        // ─────────────────────────────────────
+        // Build the complete srcdoc for the iframe
+        // ─────────────────────────────────────
+        function buildSrcdoc(userCode) {
+            // Trim user code
+            const trimmed = (userCode || '').trim();
+
+            // If empty, show a placeholder
+            if (!trimmed) {
+                return `<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8">${TIZEN_POLYFILL}</head>
+<body style="background:#111;color:#888;display:flex;align-items:center;justify-content:center;height:100vh;font-family:monospace;font-size:18px;">
+    <div style="text-align:center;">
+        <p style="font-size:28px;color:#555;">📺</p>
+        <p>Tizen TV Browser Emulator Ready</p>
+        <p style="font-size:12px;color:#444;">UA55K6500 · 1920×1080 · Tizen 2.4.0</p>
+        <p style="font-size:10px;color:#333;">Paste HTML code and press Run</p>
     </div>
+</body></html>`;
+            }
 
-    <!-- Console -->
-    <div class="console visible" id="consoleBox">
-      <div class="console-header">
-        <span>📋 Tizen Console</span>
-        <span class="console-clear" id="consoleClear">clear</span>
-      </div>
-      <div id="consoleContent"></div>
-    </div>
-  </div>
-</div>
+            // Check if user code is a full HTML document
+            const hasDoctype = /<!DOCTYPE\s+/i.test(trimmed);
+            const hasHtmlTag = /<html[\s>]/i.test(trimmed);
+            const hasHeadTag = /<head[\s>]/i.test(trimmed);
+            const hasBodyTag = /<body[\s>]/i.test(trimmed);
 
-<script>
-  (function() {
-    // DOM elements
-    const tvIframe = document.getElementById('tvIframe');
-    const codeInput = document.getElementById('codeInput');
-    const runBtn = document.getElementById('runBtn');
-    const resetBtn = document.getElementById('resetBtn');
-    const statusMsg = document.getElementById('statusMsg');
-    const statusDot = document.getElementById('statusDot');
-    const consoleBox = document.getElementById('consoleBox');
-    const consoleContent = document.getElementById('consoleContent');
-    const consoleClearBtn = document.getElementById('consoleClear');
-    const presetBtns = document.querySelectorAll('.btn-preset');
-
-    // Presets
-    const PRESETS = {
-      demo: `<!DOCTYPE html>
+            if (hasDoctype || hasHtmlTag) {
+                // Full HTML document: inject polyfill after <head> or after <html>
+                if (hasHeadTag) {
+                    // Inject right after opening head tag
+                    const injected = trimmed.replace(
+                        /(<head[\s>][\s\S]*?>)/i,
+                        '$1' + TIZEN_POLYFILL
+                    );
+                    return injected;
+                } else if (hasHtmlTag) {
+                    // Has html but no head: add head with polyfill after html tag
+                    const injected = trimmed.replace(
+                        /(<html[\s>][\s\S]*?>)/i,
+                        '$1\n<head><meta charset="UTF-8">' + TIZEN_POLYFILL + '</head>'
+                    );
+                    return injected;
+                } else {
+                    // Has doctype but weird structure: prepend polyfill
+                    return TIZEN_POLYFILL + '\n' + trimmed;
+                }
+            } else {
+                // HTML snippet: wrap in full document with polyfill
+                return `<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Demo</title>
-<style>
-  body { background: #0b0b1a; color: white; display: flex; align-items: center; justify-content: center; height: 100vh; margin:0; font-family: Arial; }
-  .card { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; padding: 40px; text-align: center; max-width: 700px; }
-  h1 { font-weight: 300; font-size: 2.5rem; } h1 span { font-weight: 700; color: #4a90d9; }
-  .ua { font-size: 0.7rem; color: #777; margin-top: 20px; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1920, initial-scale=1.0">
+    ${TIZEN_POLYFILL}
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+    </style>
 </head>
 <body>
-<div class="card">
-  <h1>Samsung <span>Smart TV</span></h1>
-  <p>UA55K6500 · 55" Curved · Series 6</p>
-  <div class="ua" id="ua"></div>
-</div>
-<script>
-  document.getElementById('ua').textContent = navigator.userAgent;
-</script>
+${trimmed}
 </body>
-</html>`,
-      canvas: `<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<title>Canvas</title>
-<style>
-  body { margin:0; background:#0a0a14; display:flex; align-items:center; justify-content:center; height:100vh; }
-  canvas { border:1px solid #2a2a3a; }
-</style>
-</head>
-<body>
-<canvas id="c" width="800" height="500"></canvas>
-<script>
-  var c=document.getElementById('c'), ctx=c.getContext('2d'), t=0;
-  function draw(){
-    t+=0.02;
-    ctx.fillStyle='#0a0a14'; ctx.fillRect(0,0,800,500);
-    for(var i=0;i<50;i++){
-      var x=400+Math.sin(t+i*0.4)*180+Math.cos(i*1.8+t)*50;
-      var y=250+Math.cos(t+i*0.3)*130+Math.sin(i*2.1+t)*40;
-      var r=3+Math.sin(i+t)*3;
-      ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2);
-      ctx.fillStyle='hsl('+((i*8+t*120)%360)+',80%,65%)';
-      ctx.fill();
-    }
-    requestAnimationFrame(draw);
-  }
-  draw();
-</script>
-</body>
-</html>`,
-      media: `<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<title>Media</title>
-<style>
-  body { margin:0; background:#000; display:flex; align-items:center; justify-content:center; height:100vh; color:white; font-family:Arial; }
-  .player { background:#1a1a1a; border-radius:16px; padding:30px; text-align:center; }
-  video { width:100%; max-width:640px; border-radius:8px; }
-  button { padding:8px 18px; margin:10px 5px; border-radius:6px; border:1px solid #555; background:#222; color:white; cursor:pointer; }
-</style>
-</head>
-<body>
-<div class="player">
-  <h2>🎬 Media Playback</h2>
-  <video id="vid" controls loop muted playsinline
-    poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='640' height='360'%3E%3Crect fill='%23111' width='640' height='360'/%3E%3Ctext fill='%23555' x='50%25' y='50%25' text-anchor='middle' dy='.3em' font-size='24'%3E🎬%3C/text%3E%3C/svg%3E">
-    <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
-  </video>
-  <div>
-    <button onclick="document.getElementById('vid').play()">▶ Play</button>
-    <button onclick="document.getElementById('vid').pause()">⏸ Pause</button>
-  </div>
-</div>
-</body>
-</html>`,
-      form: `<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<title>Form</title>
-<style>
-  body { margin:0; background:#1a1a26; display:flex; align-items:center; justify-content:center; height:100vh; font-family:Arial; color:#ddd; }
-  .card { background:#24242f; border:1px solid #3a3a44; border-radius:16px; padding:30px; width:450px; }
-  h2 { margin-bottom:16px; }
-  label { font-size:0.7rem; color:#999; display:block; margin-top:10px; }
-  input, select { width:100%; padding:10px; background:#1a1a22; border:1px solid #444; border-radius:6px; color:#ddd; margin-top:4px; }
-  button { margin-top:16px; width:100%; padding:12px; background:#4a90d9; border:none; border-radius:6px; color:white; font-weight:bold; cursor:pointer; }
-  .result { margin-top:14px; padding:10px; background:#1a2e1a; border-radius:6px; color:#8f8; display:none; }
-</style>
-</head>
-<body>
-<div class="card">
-  <h2>📝 Form Test</h2>
-  <form id="f">
-    <label>Name</label>
-    <input type="text" id="name" placeholder="Your name">
-    <label>Favorite Feature</label>
-    <select id="feature"><option>Curved Screen</option><option>Smart Hub</option></select>
-    <button type="submit">Submit</button>
-  </form>
-  <div class="result" id="res"></div>
-</div>
-<script>
-  document.getElementById('f').addEventListener('submit', function(e){
-    e.preventDefault();
-    var r=document.getElementById('res');
-    r.style.display='block';
-    r.textContent='✅ Hello '+document.getElementById('name').value+'! localStorage: '+(typeof localStorage!=='undefined'?'available':'unavailable');
-  });
-</script>
-</body>
-</html>`
-    };
+</html>`;
+            }
+        }
 
-    // Tizen simulation script (injected into iframe)
-    function getTizenScript() {
-      return `
-<script>
-  (function(){
-    var ua = '5.0 (SMART-TV; Linux; Tizen 2.4.0) AppleWebkit/538.1 (KHTML, like Gecko) SamsungBrowser/1.1 TV Safari/538.1';
-    try{ Object.defineProperty(navigator,'userAgent',{get:function(){return ua;}}); }catch(e){}
-    try{
-      Object.defineProperty(screen,'width',{get:function(){return 1920;}});
-      Object.defineProperty(screen,'height',{get:function(){return 1080;}});
-      Object.defineProperty(screen,'availWidth',{get:function(){return 1920;}});
-      Object.defineProperty(screen,'availHeight',{get:function(){return 1080;}});
-      Object.defineProperty(screen,'colorDepth',{get:function(){return 24;}});
-    }catch(e){}
-    try{ Object.defineProperty(window,'devicePixelRatio',{get:function(){return 1;}}); }catch(e){}
-    console.log('[Tizen] Screen: '+screen.width+'x'+screen.height);
-    console.log('[Tizen] UA: '+navigator.userAgent);
-  })();
-</sc`+`ript>`;
-    }
+        // ─────────────────────────────────────
+        // Set up the iframe with initial content
+        // ─────────────────────────────────────
+        function initializeIframe() {
+            tizenFrame.srcdoc = buildSrcdoc('');
+        }
 
-    // Build full HTML document
-    function buildDoc(userCode) {
-      if (/<head[\s>]/i.test(userCode)) {
-        return userCode.replace(/(<head[\s>])/i, '$1' + getTizenScript());
-      } else if (/<html[\s>]/i.test(userCode)) {
-        return userCode.replace(/(<html[\s>])/i, '$1<head>' + getTizenScript() + '</head>');
-      } else {
-        return `<!DOCTYPE html>
-<html><head><meta charset="UTF-8"><title>TV Browser</title>${getTizenScript()}</head><body>${userCode}</body></html>`;
-      }
-    }
+        // ─────────────────────────────────────
+        // Run user code in the emulator
+        // ─────────────────────────────────────
+        function runCode() {
+            const userCode = codeTextarea.value;
+            const srcdoc = buildSrcdoc(userCode);
 
-    function render(code) {
-      if (!code.trim()) return;
-      tvIframe.srcdoc = buildDoc(code);
-      updateStatus('✅ Displayed', '#4caf50');
-      addConsoleLine('Code rendered on TV screen');
-    }
+            // Set the iframe srcdoc
+            tizenFrame.srcdoc = srcdoc;
 
-    function addConsoleLine(msg, type='') {
-      const line = document.createElement('div');
-      line.className = 'console-line ' + (type||'');
-      line.textContent = '> ' + msg;
-      consoleContent.appendChild(line);
-      consoleBox.scrollTop = consoleBox.scrollHeight;
-      while(consoleContent.children.length > 60) consoleContent.firstChild.remove();
-    }
+            // Hide overlay, show edit button
+            codeOverlay.classList.add('hidden');
+            editBtn.classList.add('visible');
+            ledIndicator.classList.add('active');
 
-    function updateStatus(text, color='#4caf50') {
-      statusMsg.innerHTML = `<span style="display:inline-block;width:6px;height:6px;background:${color};border-radius:50%;margin-right:4px;"></span> ${text}`;
-      statusDot.style.background = color;
-      statusDot.style.boxShadow = `0 0 6px ${color}`;
-    }
+            // Pulse the LED
+            ledIndicator.style.boxShadow = '0 0 18px rgba(0,255,0,0.8)';
+            setTimeout(() => {
+                ledIndicator.style.boxShadow = '0 0 8px rgba(0,200,0,0.5)';
+            }, 300);
 
-    function loadPreset(name) {
-      if (PRESETS[name]) {
-        codeInput.value = PRESETS[name];
-        render(PRESETS[name]);
-        presetBtns.forEach(b => b.classList.remove('active'));
-        document.querySelector(`.btn-preset[data-preset="${name}"]`).classList.add('active');
-        updateStatus('Preset: ' + name, '#9ab9ff');
-        addConsoleLine('Loaded preset: ' + name);
-      }
-    }
+            // Store code in sessionStorage so it persists across accidental reloads
+            try {
+                sessionStorage.setItem('tizen_emulator_code', userCode);
+            } catch (e) {}
+        }
 
-    // Event listeners
-    runBtn.addEventListener('click', () => {
-      if (!codeInput.value.trim()) {
-        updateStatus('⚠️ Enter code', '#e6a23c');
-        return;
-      }
-      render(codeInput.value);
-    });
-    resetBtn.addEventListener('click', () => {
-      tvIframe.srcdoc = '';
-      codeInput.value = '';
-      updateStatus('Cleared', '#aaa');
-      addConsoleLine('Screen cleared');
-    });
-    consoleClearBtn.addEventListener('click', () => {
-      consoleContent.innerHTML = '';
-      addConsoleLine('Console cleared');
-    });
-    presetBtns.forEach(b => b.addEventListener('click', () => loadPreset(b.dataset.preset)));
-    codeInput.addEventListener('keydown', e => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-        e.preventDefault();
-        runBtn.click();
-      }
-    });
+        // ─────────────────────────────────────
+        // Show editor overlay
+        // ─────────────────────────────────────
+        function showEditor() {
+            codeOverlay.classList.remove('hidden');
+            editBtn.classList.remove('visible');
+            ledIndicator.classList.remove('active');
+            ledIndicator.style.boxShadow = '0 0 6px rgba(0,180,0,0.3)';
 
-    // Scaling for mobile landscape
-    function resizeScaler() {
-      const scaler = document.getElementById('scaler');
-      const vw = window.innerWidth;
-      const baseWidth = 1100;
-      let scale = Math.min(1, vw / baseWidth);
-      scale = Math.max(0.32, scale);
-      scaler.style.transform = `scale(${scale})`;
-    }
-    window.addEventListener('resize', resizeScaler);
-    window.addEventListener('orientationchange', () => setTimeout(resizeScaler, 200));
-    resizeScaler();
+            // Focus textarea
+            setTimeout(() => {
+                codeTextarea.focus();
+            }, 150);
+        }
 
-    // Init
-    addConsoleLine('UA55K6500 emulator ready · 1920×1080 · Tizen 2.4.0');
-    loadPreset('demo');
-  })();
+        // ─────────────────────────────────────
+        // Clear editor
+        // ─────────────────────────────────────
+        function clearEditor() {
+            codeTextarea.value = '';
+            codeTextarea.focus();
+            try {
+                sessionStorage.removeItem('tizen_emulator_code');
+            } catch (e) {}
+        }
+
+        // ─────────────────────────────────────
+        // Event Listeners
+        // ─────────────────────────────────────
+        btnRun.addEventListener('click', runCode);
+        btnClear.addEventListener('click', clearEditor);
+        editBtn.addEventListener('click', showEditor);
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            // Ctrl+Enter or Cmd+Enter to run
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                e.preventDefault();
+                if (!codeOverlay.classList.contains('hidden')) {
+                    runCode();
+                }
+            }
+            // Ctrl+E or Cmd+E to edit
+            if ((e.ctrlKey || e.metaKey) && e.key === 'e' && !e.shiftKey) {
+                e.preventDefault();
+                if (codeOverlay.classList.contains('hidden')) {
+                    showEditor();
+                }
+            }
+            // Escape to edit
+            if (e.key === 'Escape' && codeOverlay.classList.contains('hidden')) {
+                e.preventDefault();
+                showEditor();
+            }
+        });
+
+        // ─────────────────────────────────────
+        // Handle messages from iframe
+        // ─────────────────────────────────────
+        window.addEventListener('message', function(e) {
+            if (e.data && e.data.type === 'TIZEN_POLYFILL_LOADED') {
+                console.log('[Tizen Emulator] Polyfill loaded in iframe - v' + e.data.version);
+                ledIndicator.classList.add('active');
+            }
+        });
+
+        // ─────────────────────────────────────
+        // Restore previous code from sessionStorage
+        // ─────────────────────────────────────
+        function restoreSession() {
+            try {
+                const saved = sessionStorage.getItem('tizen_emulator_code');
+                if (saved !== null && saved !== undefined && saved.trim() !== '') {
+                    codeTextarea.value = saved;
+                }
+            } catch (e) {}
+        }
+
+        // ─────────────────────────────────────
+        // Handle iframe load events
+        // ─────────────────────────────────────
+        tizenFrame.addEventListener('load', function() {
+            ledIndicator.classList.add('active');
+            console.log('[Tizen Emulator] Iframe content loaded');
+        });
+
+        // ─────────────────────────────────────
+        // Handle orientation changes for mobile
+        // ─────────────────────────────────────
+        function handleResize() {
+            // The CSS handles scaling via the emulator-wrapper rules
+            // This function ensures the iframe remains properly sized
+            const screenEl = tvScreen;
+            if (screenEl) {
+                // Force reflow if needed
+                const rect = screenEl.getBoundingClientRect();
+                // Log for debugging (silent in production)
+                // console.log('[Tizen Emulator] Screen rect:', rect.width, 'x', rect.height);
+            }
+        }
+
+        window.addEventListener('resize', handleResize);
+        window.addEventListener('orientationchange', function() {
+            setTimeout(handleResize, 200);
+        });
+
+        // ─────────────────────────────────────
+        // Handle touch events on mobile for better UX
+        // ─────────────────────────────────────
+        codeTextarea.addEventListener('touchstart', function(e) {
+            e.stopPropagation(); // Prevent parent scroll interference
+        });
+
+        // ─────────────────────────────────────
+        // Initialization
+        // ─────────────────────────────────────
+        function init() {
+            initializeIframe();
+            restoreSession();
+            handleResize();
+
+            // Show the overlay on first visit
+            codeOverlay.classList.remove('hidden');
+            editBtn.classList.remove('visible');
+            ledIndicator.classList.add('active');
+
+            // Focus the textarea after a short delay
+            setTimeout(() => {
+                codeTextarea.focus();
+            }, 400);
+
+            console.log('%c📺 Samsung UA55K6500 Tizen TV Browser Emulator %cReady',
+                'color:#3a7bd5;font-size:16px;', 'color:#888;');
+            console.log('%cModel: UA55K6500 | Serial: 02N33KDH700787N | Tizen 2.4.0 | 1920×1080',
+                'color:#555;font-size:11px;');
+            console.log('%cPaste HTML code and press Run (or Ctrl+Enter) to test in the emulated environment.',
+                'color:#666;');
+            console.log('%cModern APIs removed: Promise, fetch, Set, Symbol, WeakMap, Proxy, Reflect, BigInt',
+                'color:#444;font-size:10px;');
+        }
+
+        // ─────────────────────────────────────
+        // Start the emulator
+        // ─────────────────────────────────────
+        init();
+
+        // ─────────────────────────────────────
+        // Expose API for external control
+        // ─────────────────────────────────────
+        window.TizenEmulator = {
+            run: runCode,
+            edit: showEditor,
+            clear: clearEditor,
+            getCode: function() { return codeTextarea.value; },
+            setCode: function(code) {
+                codeTextarea.value = code;
+                try { sessionStorage.setItem('tizen_emulator_code', code); } catch (e) {}
+            },
+            getModel: function() { return 'UA55K6500'; },
+            getSerial: function() { return '02N33KDH700787N'; },
+            getTizenVersion: function() { return '2.4.0'; },
+            getResolution: function() { return { width: 1920, height: 1080 }; },
+            isRunning: function() { return codeOverlay.classList.contains('hidden'); },
+            getIframe: function() { return tizenFrame; },
+            reset: function() {
+                clearEditor();
+                showEditor();
+                initializeIframe();
+            }
+        };
+
+        console.log('%c[TizenEmulator API available at window.TizenEmulator]', 'color:#3a7bd5;font-size:10px;');
+    })();
 </script>
 </body>
 </html>
