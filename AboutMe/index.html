@@ -17,16 +17,15 @@
         :root {
             --mouse-x: 0.5;
             --mouse-y: 0.5;
-            --glass-blur: 18px;
-            --glass-opacity: 0.55;
+            --glass-blur: 0px;
+            --glass-opacity: 1;
             --edge-glow: 0.4;
             --chromatic-shift: 0px;
-            --fresnel-intensity: 0.35;
+            --fresnel-intensity: 0.5;
             --lens-distort: 0;
             --ripple-x: 0.5;
             --ripple-y: 0.5;
             --ripple-strength: 0;
-            --bg-hue: 192;
         }
 
         * {
@@ -72,37 +71,6 @@
             will-change: transform;
         }
 
-        #background::after {
-            content: "";
-            position: absolute;
-            inset: 0;
-            background: radial-gradient(ellipse at center, transparent 50%, rgba(0, 255, 255, 0.04) 100%);
-            pointer-events: none;
-            animation: breath 6s ease-in-out infinite alternate;
-            z-index: 1;
-        }
-
-        @keyframes breath {
-            0% {
-                opacity: 0.6;
-            }
-            100% {
-                opacity: 1;
-            }
-        }
-
-        #liquid-glass-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
-            pointer-events: none;
-            will-change: transform;
-            opacity: 0.7;
-        }
-
         #container {
             position: relative;
             z-index: 10;
@@ -131,10 +99,7 @@
             background: #0a0a0a;
             position: relative;
             z-index: 2;
-            box-shadow:
-                0 0 45px rgba(0, 255, 255, 0.5),
-                0 0 20px rgba(0, 255, 255, 0.3) inset,
-                0 0 0 1px rgba(255, 255, 255, 0.12);
+            box-shadow: 0 0 45px rgba(0, 255, 255, 0.5), 0 0 20px rgba(0, 255, 255, 0.3) inset, 0 0 0 1px rgba(255, 255, 255, 0.12);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
             will-change: transform, box-shadow;
         }
@@ -146,29 +111,19 @@
             z-index: 1;
             pointer-events: none;
             background: transparent;
-            box-shadow:
-                0 0 60px rgba(0, 255, 255, 0.55),
-                0 0 120px rgba(0, 200, 255, 0.3),
-                0 0 200px rgba(0, 180, 255, 0.15);
+            box-shadow: 0 0 60px rgba(0, 255, 255, 0.55), 0 0 120px rgba(0, 200, 255, 0.3), 0 0 200px rgba(0, 180, 255, 0.15);
             transition: all 0.4s ease;
             will-change: box-shadow, transform;
         }
 
         #logo-container:hover #profile-pic-glow {
-            box-shadow:
-                0 0 90px rgba(0, 255, 255, 0.75),
-                0 0 160px rgba(0, 220, 255, 0.5),
-                0 0 250px rgba(0, 200, 255, 0.3),
-                0 0 350px rgba(0, 180, 255, 0.15);
+            box-shadow: 0 0 90px rgba(0, 255, 255, 0.75), 0 0 160px rgba(0, 220, 255, 0.5), 0 0 250px rgba(0, 200, 255, 0.3), 0 0 350px rgba(0, 180, 255, 0.15);
             transform: scale(1.06);
         }
 
         #profile-pic:hover {
             transform: scale(1.04);
-            box-shadow:
-                0 0 70px cyan,
-                0 0 35px rgba(0, 255, 255, 0.6) inset,
-                0 0 0 2px rgba(255, 255, 255, 0.25);
+            box-shadow: 0 0 70px cyan, 0 0 35px rgba(0, 255, 255, 0.6) inset, 0 0 0 2px rgba(255, 255, 255, 0.25);
         }
 
         #logo {
@@ -177,11 +132,7 @@
             letter-spacing: 0.3em;
             text-transform: uppercase;
             color: #fff;
-            text-shadow:
-                0 0 18px cyan,
-                0 0 45px cyan,
-                0 0 80px rgba(0, 255, 255, 0.7),
-                0 0 120px rgba(0, 200, 255, 0.35);
+            text-shadow: 0 0 18px cyan, 0 0 45px cyan, 0 0 80px rgba(0, 255, 255, 0.7), 0 0 120px rgba(0, 200, 255, 0.35);
             animation: pulseText 2.5s infinite;
             margin-bottom: 2rem;
             position: relative;
@@ -192,72 +143,41 @@
         @keyframes pulseText {
             0%,
             100% {
-                text-shadow:
-                    0 0 15px cyan,
-                    0 0 35px cyan,
-                    0 0 70px rgba(0, 255, 255, 0.6);
+                text-shadow: 0 0 15px cyan, 0 0 35px cyan, 0 0 70px rgba(0, 255, 255, 0.6);
             }
             50% {
-                text-shadow:
-                    0 0 28px cyan,
-                    0 0 65px cyan,
-                    0 0 100px cyan,
-                    0 0 160px rgba(0, 200, 255, 0.5);
+                text-shadow: 0 0 28px cyan, 0 0 65px cyan, 0 0 100px cyan, 0 0 160px rgba(0, 200, 255, 0.5);
             }
         }
 
         .glass-panel {
             position: relative;
-            background: rgba(10, 10, 10, 0.35);
-            backdrop-filter: blur(var(--glass-blur)) saturate(1.4);
-            -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.4);
+            background: transparent;
             border-radius: 28px;
             padding: 1.8rem 2.2rem;
             margin: 0.4rem 0;
-            border: 1px solid rgba(255, 255, 255, 0.18);
-            box-shadow:
-                0 8px 32px rgba(0, 0, 0, 0.4),
-                inset 0 1px 0 rgba(255, 255, 255, 0.08),
-                0 0 0 1px rgba(0, 255, 255, 0.08),
-                0 0 40px rgba(0, 255, 255, var(--fresnel-intensity));
-            transition: all 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
-            will-change: box-shadow, border-color, transform;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 0 0 1px rgba(0, 255, 255, 0.1);
+            transition: box-shadow 0.5s ease;
+            overflow: hidden;
             z-index: 10;
-            overflow: visible;
+            will-change: box-shadow;
         }
 
-        .glass-panel::before {
-            content: "";
+        .glass-canvas {
             position: absolute;
-            inset: -2px;
-            border-radius: 30px;
-            z-index: -1;
-            pointer-events: none;
-            background: linear-gradient(135deg,
-                    rgba(0, 255, 255, 0.35) 0%,
-                    rgba(255, 255, 255, 0.08) 25%,
-                    rgba(0, 200, 255, 0.2) 50%,
-                    rgba(255, 255, 255, 0.05) 75%,
-                    rgba(0, 255, 255, 0.3) 100%);
-            filter: blur(8px);
-            opacity: 0.7;
-            transition: opacity 0.5s ease, filter 0.5s ease;
-            will-change: opacity, filter;
-        }
-
-        .glass-panel::after {
-            content: "";
-            position: absolute;
-            inset: 0;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             border-radius: 28px;
-            pointer-events: none;
-            background: radial-gradient(ellipse at calc(var(--mouse-x) * 100%) calc(var(--mouse-y) * 100%),
-                    rgba(255, 255, 255, 0.14) 0%,
-                    rgba(255, 255, 255, 0.03) 40%,
-                    transparent 70%);
             z-index: 0;
-            transition: background 0.3s ease;
-            will-change: background;
+            pointer-events: none;
+        }
+
+        .glass-content {
+            position: relative;
+            z-index: 1;
         }
 
         .info-line {
@@ -283,10 +203,7 @@
         .info-line i {
             color: cyan;
             font-size: 1.2em;
-            text-shadow:
-                0 0 12px cyan,
-                0 0 24px rgba(0, 255, 255, 0.5),
-                0 0 40px rgba(0, 200, 255, 0.3);
+            text-shadow: 0 0 12px cyan, 0 0 24px rgba(0, 255, 255, 0.5), 0 0 40px rgba(0, 200, 255, 0.3);
             width: 1.5rem;
             text-align: center;
             flex-shrink: 0;
@@ -297,10 +214,7 @@
         .info-line span {
             color: #ffffff;
             font-weight: 500;
-            text-shadow:
-                0 0 12px rgba(255, 255, 255, 0.35),
-                0 0 4px rgba(255, 255, 255, 0.2),
-                0 0 30px rgba(0, 255, 255, 0.25);
+            text-shadow: 0 0 12px rgba(255, 255, 255, 0.35), 0 0 4px rgba(255, 255, 255, 0.2), 0 0 30px rgba(0, 255, 255, 0.25);
             touch-action: manipulation;
             transition: text-shadow 0.3s ease;
         }
@@ -322,68 +236,27 @@
             font-weight: 700;
             font-size: clamp(0.85rem, 3.5vw, 1rem);
             letter-spacing: 0.08em;
-            background: rgba(10, 10, 10, 0.45);
+            background: rgba(10, 10, 10, 0.5);
             border: 1.5px solid rgba(0, 255, 255, 0.6);
             color: cyan;
-            text-shadow:
-                0 0 6px cyan,
-                0 0 18px rgba(0, 255, 255, 0.5);
-            box-shadow:
-                0 0 20px rgba(0, 255, 255, 0.3),
-                0 0 50px rgba(0, 255, 255, 0.1),
-                inset 0 1px 0 rgba(255, 255, 255, 0.06);
-            backdrop-filter: blur(14px) saturate(1.3);
-            -webkit-backdrop-filter: blur(14px) saturate(1.3);
+            text-shadow: 0 0 6px cyan, 0 0 18px rgba(0, 255, 255, 0.5);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.3), 0 0 50px rgba(0, 255, 255, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
             transition: 0.35s cubic-bezier(0.25, 0.1, 0.25, 1);
             display: flex;
             align-items: center;
             gap: 0.5rem;
             position: relative;
             will-change: transform, box-shadow, background, border-color;
-            overflow: visible;
-        }
-
-        .neon-btn::after {
-            content: "";
-            position: absolute;
-            inset: -3px;
-            border-radius: 54px;
-            pointer-events: none;
-            background: transparent;
-            box-shadow:
-                0 0 18px rgba(0, 255, 255, 0.4),
-                0 0 40px rgba(0, 200, 255, 0.2);
-            opacity: 0.6;
-            transition: all 0.35s ease;
-            z-index: -1;
-            will-change: box-shadow, opacity;
-        }
-
-        .neon-btn:hover::after {
-            box-shadow:
-                0 0 35px rgba(0, 255, 255, 0.7),
-                0 0 70px rgba(0, 220, 255, 0.45),
-                0 0 110px rgba(0, 200, 255, 0.25);
-            opacity: 1;
-        }
-
-        .neon-btn i {
-            font-size: 1.1em;
-            text-shadow:
-                0 0 6px cyan,
-                0 0 16px rgba(0, 255, 255, 0.5);
-            transition: text-shadow 0.3s ease;
+            z-index: 14;
         }
 
         .neon-btn:hover {
             background: rgba(0, 255, 255, 0.85);
             color: #0a0a0a;
             text-shadow: none;
-            box-shadow:
-                0 0 40px cyan,
-                0 0 80px cyan,
-                0 0 130px rgba(0, 255, 255, 0.5),
-                inset 0 0 20px rgba(255, 255, 255, 0.3);
+            box-shadow: 0 0 40px cyan, 0 0 80px cyan, 0 0 130px rgba(0, 255, 255, 0.5), inset 0 0 20px rgba(255, 255, 255, 0.3);
             border-color: rgba(255, 255, 255, 0.9);
             transform: translateY(-3px) scale(1.03);
         }
@@ -401,9 +274,7 @@
             z-index: 20;
             font-size: 0.8rem;
             color: #555;
-            text-shadow:
-                0 0 10px rgba(0, 255, 255, 0.3),
-                0 0 25px rgba(0, 200, 255, 0.15);
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.3), 0 0 25px rgba(0, 200, 255, 0.15);
             white-space: nowrap;
             pointer-events: none;
         }
@@ -425,10 +296,7 @@
                 padding: 1.2rem 1.4rem;
                 border-radius: 22px;
             }
-            .glass-panel::before {
-                border-radius: 24px;
-            }
-            .glass-panel::after {
+            .glass-canvas {
                 border-radius: 22px;
             }
             .neon-btn {
@@ -439,7 +307,6 @@
 </head>
 <body>
     <div id="background"></div>
-    <canvas id="liquid-glass-overlay"></canvas>
 
     <div id="container">
         <div id="logo-container">
@@ -447,36 +314,37 @@
             <img id="profile-pic" src="https://raw.githubusercontent.com/MexrlDev/MexrlDev.github.io/refs/heads/main/AboutMe/wifu.jpeg" alt="MexrlDev avatar" />
         </div>
 
-        <div class="glass-panel" style="display: flex; flex-direction: column; align-items: center; min-width: 260px;">
-            <div id="logo">About Me</div>
-
-            <div class="info-line">
-                <i class="fa-solid fa-user"></i>
-                <span>MexrlDev</span>
-            </div>
-            <div class="info-line">
-                <i class="fa-solid fa-cake-candles"></i>
-                <span>March</span>
-            </div>
-            <div class="info-line">
-                <i class="fa-solid fa-code"></i>
-                <span>Python, Lua, JS</span>
-            </div>
-            <div class="info-line">
-                <i class="fa-solid fa-gamepad"></i>
-                <span>Anime, Manga, Music, Console Hacking</span>
-            </div>
-
-            <div id="links">
-                <a href="https://git.etawen.dev/X" target="_blank" class="neon-btn">
-                    <i class="fa-solid fa-code-branch"></i> git.etawen
-                </a>
-                <a href="https://github.com/MexrlDev" target="_blank" class="neon-btn">
-                    <i class="fa-brands fa-github"></i> GitHub
-                </a>
-                <a href="https://x.com/mexrl" target="_blank" class="neon-btn">
-                    <i class="fa-brands fa-x-twitter"></i> X
-                </a>
+        <div class="glass-panel" id="glassPanel">
+            <canvas class="glass-canvas" id="glassCanvas"></canvas>
+            <div class="glass-content">
+                <div id="logo">About Me</div>
+                <div class="info-line">
+                    <i class="fa-solid fa-user"></i>
+                    <span>MexrlDev</span>
+                </div>
+                <div class="info-line">
+                    <i class="fa-solid fa-cake-candles"></i>
+                    <span>March</span>
+                </div>
+                <div class="info-line">
+                    <i class="fa-solid fa-code"></i>
+                    <span>Python, Lua, JS</span>
+                </div>
+                <div class="info-line">
+                    <i class="fa-solid fa-gamepad"></i>
+                    <span>Anime, Manga, Music, Console Hacking</span>
+                </div>
+                <div id="links">
+                    <a href="https://git.etawen.dev/X" target="_blank" class="neon-btn">
+                        <i class="fa-solid fa-code-branch"></i> git.etawen
+                    </a>
+                    <a href="https://github.com/MexrlDev" target="_blank" class="neon-btn">
+                        <i class="fa-brands fa-github"></i> GitHub
+                    </a>
+                    <a href="https://x.com/mexrl" target="_blank" class="neon-btn">
+                        <i class="fa-brands fa-x-twitter"></i> X
+                    </a>
+                </div>
             </div>
         </div>
     </div>
@@ -486,14 +354,11 @@
     </div>
 
     <audio id="bgAudio" preload="auto">
-        <source src="https://raw.githubusercontent.com/MexrlDev/MexrlDev.github.io/refs/heads/main/AboutMe/Floods%20_outro.mp3"
-        type="audio/mpeg">
+        <source src="https://raw.githubusercontent.com/MexrlDev/MexrlDev.github.io/refs/heads/main/AboutMe/Floods%20_outro.mp3" type="audio/mpeg">
     </audio>
 
-    <script src="https://unpkg.com/three@0.134.0/build/three.min.js">
-    </script>
-    <script src="https://cdn.jsdelivr.net/npm/vanta@0.5.24/dist/vanta.net.min.js">
-    </script>
+    <script src="https://unpkg.com/three@0.134.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vanta@0.5.24/dist/vanta.net.min.js"></script>
     <script>
         document.getElementById('year').textContent = new Date().getFullYear();
 
@@ -517,10 +382,10 @@
             showDots: true
         });
 
-        var canvas = document.querySelector("#background canvas");
-        if (canvas) {
-            canvas.style.filter = "drop-shadow(0 0 12px rgba(0,255,255,0.7))";
-            canvas.style.willChange = "transform";
+        var vantaCanvas = document.querySelector("#background canvas");
+        if (vantaCanvas) {
+            vantaCanvas.style.filter = "drop-shadow(0 0 12px rgba(0,255,255,0.7))";
+            vantaCanvas.style.willChange = "transform";
         }
 
         var initialPinchDist = null;
@@ -605,292 +470,12 @@
         document.addEventListener('gestureend', function(e) { e.preventDefault(); });
 
         (function() {
-            const root = document.documentElement;
-            const liquidCanvas = document.getElementById('liquid-glass-overlay');
-            const ctx = liquidCanvas.getContext('2d');
-            let ripplePoints = [];
-            const maxRipples = 12;
-            let mouseX = window.innerWidth / 2;
-            let mouseY = window.innerHeight / 2;
-            let targetMouseX = mouseX;
-            let targetMouseY = mouseY;
-            let prevMouseX = mouseX;
-            let prevMouseY = mouseY;
-            let mouseVelocityX = 0;
-            let mouseVelocityY = 0;
-            let isInteracting = false;
-            let interactionTimeout;
-            let gyroAlpha = 0;
-            let gyroBeta = 0;
-            let gyroGamma = 0;
-            let hasGyro = false;
-
-            function resizeLiquidCanvas() {
-                liquidCanvas.width = window.innerWidth;
-                liquidCanvas.height = window.innerHeight;
-            }
-            resizeLiquidCanvas();
-            window.addEventListener('resize', resizeLiquidCanvas);
-
-            if (isMobile && window.DeviceOrientationEvent) {
-                window.addEventListener('deviceorientation', function(e) {
-                    if (e.alpha !== null) {
-                        gyroAlpha = e.alpha;
-                        gyroBeta = e.beta;
-                        gyroGamma = e.gamma;
-                        hasGyro = true;
-                    }
-                }, true);
-            }
-
-            document.addEventListener('mousemove', function(e) {
-                prevMouseX = targetMouseX;
-                prevMouseY = targetMouseY;
-                targetMouseX = e.clientX;
-                targetMouseY = e.clientY;
-                isInteracting = true;
-                clearTimeout(interactionTimeout);
-                interactionTimeout = setTimeout(function() {
-                    isInteracting = false;
-                }, 2000);
-            });
-
-            document.addEventListener('touchmove', function(e) {
-                if (e.touches.length === 1 && !isPinching) {
-                    prevMouseX = targetMouseX;
-                    prevMouseY = targetMouseY;
-                    targetMouseX = e.touches[0].clientX;
-                    targetMouseY = e.touches[0].clientY;
-                    isInteracting = true;
-                    clearTimeout(interactionTimeout);
-                    interactionTimeout = setTimeout(function() {
-                        isInteracting = false;
-                    }, 2000);
-                }
-            }, { passive: true });
-
-            document.addEventListener('click', function(e) {
-                ripplePoints.push({
-                    x: e.clientX,
-                    y: e.clientY,
-                    radius: 0,
-                    maxRadius: 180 + Math.random() * 140,
-                    life: 1.0,
-                    decay: 0.012 + Math.random() * 0.018,
-                    hue: 190 + Math.random() * 15,
-                    strength: 0.6 + Math.random() * 0.4,
-                });
-                if (ripplePoints.length > maxRipples) {
-                    ripplePoints.shift();
-                }
-            });
-
-            function lerp(a, b, t) {
-                return a + (b - a) * t;
-            }
-
-            function lerpPoint(ax, ay, bx, by, t) {
-                return [lerp(ax, bx, t), lerp(ay, by, t)];
-            }
-
-            function animateLiquidGlass(timestamp) {
-                const smoothFactor = isInteracting ? 0.22 : 0.06;
-                const [smX, smY] = lerpPoint(mouseX, mouseY, targetMouseX, targetMouseY, smoothFactor);
-                mouseX = smX;
-                mouseY = smY;
-
-                mouseVelocityX = (targetMouseX - prevMouseX) * 0.7;
-                mouseVelocityY = (targetMouseY - prevMouseY) * 0.7;
-
-                if (hasGyro && !isInteracting) {
-                    const gx = (gyroGamma / 90) * window.innerWidth * 0.5 + window.innerWidth / 2;
-                    const gy = (gyroBeta / 90) * window.innerHeight * 0.5 + window.innerHeight / 2;
-                    mouseX = lerp(mouseX, gx, 0.04);
-                    mouseY = lerp(mouseY, gy, 0.04);
-                }
-
-                const normX = mouseX / window.innerWidth;
-                const normY = mouseY / window.innerHeight;
-                const clampedX = Math.max(0, Math.min(1, normX));
-                const clampedY = Math.max(0, Math.min(1, normY));
-
-                root.style.setProperty('--mouse-x', clampedX.toFixed(3));
-                root.style.setProperty('--mouse-y', clampedY.toFixed(3));
-
-                const velMag = Math.sqrt(mouseVelocityX * mouseVelocityX + mouseVelocityY * mouseVelocityY);
-                const dynamicBlur = 14 + velMag * 0.04;
-                const clampedBlur = Math.max(12, Math.min(28, dynamicBlur));
-                root.style.setProperty('--glass-blur', clampedBlur.toFixed(1) + 'px');
-
-                const fresnelBase = 0.25;
-                const fresnelDynamic = fresnelBase + velMag * 0.002;
-                const clampedFresnel = Math.max(0.2, Math.min(0.7, fresnelDynamic));
-                root.style.setProperty('--fresnel-intensity', clampedFresnel.toFixed(3));
-
-                const chromaticShift = (clampedX - 0.5) * 2.5 + mouseVelocityX * 0.015;
-                root.style.setProperty('--chromatic-shift', chromaticShift.toFixed(2) + 'px');
-
-                const lensDistort = velMag * 0.003;
-                root.style.setProperty('--lens-distort', Math.min(lensDistort, 4).toFixed(2));
-
-                root.style.setProperty('--ripple-x', clampedX.toFixed(3));
-                root.style.setProperty('--ripple-y', clampedY.toFixed(3));
-
-                ctx.clearRect(0, 0, liquidCanvas.width, liquidCanvas.height);
-
-                ripplePoints = ripplePoints.filter(function(rp) {
-                    rp.radius += (rp.maxRadius - rp.radius) * 0.08 + 0.6;
-                    rp.life -= rp.decay;
-                    if (rp.life <= 0) return false;
-
-                    const alpha = rp.life * 0.5;
-                    const gradient = ctx.createRadialGradient(rp.x, rp.y, rp.radius * 0.1, rp.x, rp.y, rp.radius);
-                    gradient.addColorStop(0,
-                        'rgba(0,255,255,' + (alpha * rp.strength * 0.7).toFixed(3) + ')');
-                    gradient.addColorStop(0.35,
-                        'rgba(0,220,255,' + (alpha * rp.strength * 0.45).toFixed(3) + ')');
-                    gradient.addColorStop(0.7,
-                        'rgba(0,180,255,' + (alpha * rp.strength * 0.2).toFixed(3) + ')');
-                    gradient.addColorStop(1, 'rgba(0,150,255,0)');
-
-                    ctx.beginPath();
-                    ctx.arc(rp.x, rp.y, rp.radius, 0, Math.PI * 2);
-                    ctx.fillStyle = gradient;
-                    ctx.fill();
-
-                    const innerGlow = ctx.createRadialGradient(rp.x, rp.y, 0, rp.x, rp.y, rp.radius * 0.5);
-                    innerGlow.addColorStop(0, 'rgba(255,255,255,' + (alpha * 0.35).toFixed(3) + ')');
-                    innerGlow.addColorStop(1, 'rgba(255,255,255,0)');
-                    ctx.beginPath();
-                    ctx.arc(rp.x, rp.y, rp.radius * 0.5, 0, Math.PI * 2);
-                    ctx.fillStyle = innerGlow;
-                    ctx.fill();
-
-                    return true;
-                });
-
-                if (ripplePoints.length === 0 && Math.random() < 0.015) {
-                    ripplePoints.push({
-                        x: mouseX + (Math.random() - 0.5) * 300,
-                        y: mouseY + (Math.random() - 0.5) * 300,
-                        radius: 0,
-                        maxRadius: 100 + Math.random() * 200,
-                        life: 1.0,
-                        decay: 0.008 + Math.random() * 0.02,
-                        hue: 190 + Math.random() * 15,
-                        strength: 0.3 + Math.random() * 0.4,
-                    });
-                    if (ripplePoints.length > maxRipples) ripplePoints.shift();
-                }
-
-                const cursorGlow = ctx.createRadialGradient(mouseX, mouseY, 0, mouseX, mouseY, 180);
-                cursorGlow.addColorStop(0, 'rgba(0,255,255,' + (0.18 + velMag * 0.001).toFixed(3) + ')');
-                cursorGlow.addColorStop(0.4, 'rgba(0,200,255,' + (0.08).toFixed(3) + ')');
-                cursorGlow.addColorStop(1, 'rgba(0,150,255,0)');
-                ctx.beginPath();
-                ctx.arc(mouseX, mouseY, 180, 0, Math.PI * 2);
-                ctx.fillStyle = cursorGlow;
-                ctx.fill();
-
-                const edgeGlowTop = ctx.createLinearGradient(0, 0, 0, 120);
-                edgeGlowTop.addColorStop(0, 'rgba(0,255,255,0.06)');
-                edgeGlowTop.addColorStop(1, 'rgba(0,255,255,0)');
-                ctx.fillStyle = edgeGlowTop;
-                ctx.fillRect(0, 0, liquidCanvas.width, 120);
-
-                const edgeGlowBottom = ctx.createLinearGradient(0, liquidCanvas.height - 120, 0, liquidCanvas.height);
-                edgeGlowBottom.addColorStop(0, 'rgba(0,255,255,0)');
-                edgeGlowBottom.addColorStop(1, 'rgba(0,255,255,0.06)');
-                ctx.fillStyle = edgeGlowBottom;
-                ctx.fillRect(0, liquidCanvas.height - 120, liquidCanvas.width, 120);
-
-                const edgeGlowLeft = ctx.createLinearGradient(0, 0, 120, 0);
-                edgeGlowLeft.addColorStop(0, 'rgba(0,255,255,0.05)');
-                edgeGlowLeft.addColorStop(1, 'rgba(0,255,255,0)');
-                ctx.fillStyle = edgeGlowLeft;
-                ctx.fillRect(0, 0, 120, liquidCanvas.height);
-
-                const edgeGlowRight = ctx.createLinearGradient(liquidCanvas.width - 120, 0, liquidCanvas.width, 0);
-                edgeGlowRight.addColorStop(0, 'rgba(0,255,255,0)');
-                edgeGlowRight.addColorStop(1, 'rgba(0,255,255,0.05)');
-                ctx.fillStyle = edgeGlowRight;
-                ctx.fillRect(liquidCanvas.width - 120, 0, 120, liquidCanvas.height);
-
-                const chromaticEdgeTop = ctx.createLinearGradient(0, 0, 0, 40);
-                chromaticEdgeTop.addColorStop(0, 'rgba(255,100,100,0.04)');
-                chromaticEdgeTop.addColorStop(0.5, 'rgba(100,255,100,0.03)');
-                chromaticEdgeTop.addColorStop(1, 'rgba(100,100,255,0.04)');
-                ctx.fillStyle = chromaticEdgeTop;
-                ctx.fillRect(0, 0, liquidCanvas.width, 40);
-
-                const chromaticEdgeBottom = ctx.createLinearGradient(0, liquidCanvas.height - 40, 0, liquidCanvas.height);
-                chromaticEdgeBottom.addColorStop(0, 'rgba(100,100,255,0.04)');
-                chromaticEdgeBottom.addColorStop(0.5, 'rgba(255,100,100,0.03)');
-                chromaticEdgeBottom.addColorStop(1, 'rgba(100,255,100,0.04)');
-                ctx.fillStyle = chromaticEdgeBottom;
-                ctx.fillRect(0, liquidCanvas.height - 40, liquidCanvas.width, 40);
-
-                requestAnimationFrame(animateLiquidGlass);
-            }
-
-            requestAnimationFrame(animateLiquidGlass);
-
-            const glassPanel = document.querySelector('.glass-panel');
-            if (glassPanel) {
-                glassPanel.addEventListener('mousemove', function(e) {
-                    const rect = glassPanel.getBoundingClientRect();
-                    const localX = (e.clientX - rect.left) / rect.width;
-                    const localY = (e.clientY - rect.top) / rect.height;
-                    const rotateY = (localX - 0.5) * 6;
-                    const rotateX = (localY - 0.5) * -6;
-                    glassPanel.style.transform =
-                        'perspective(800px) rotateX(' + rotateX.toFixed(2) + 'deg) rotateY(' + rotateY.toFixed(
-                            2) + 'deg)';
-                    glassPanel.style.boxShadow =
-                        '0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.08), 0 0 0 1px rgba(0,255,255,0.12), 0 0 55px rgba(0,255,255,' +
-                        (0.35 + Math.abs(localX - 0.5) * 0.5).toFixed(3) + ')';
-                });
-                glassPanel.addEventListener('mouseleave', function() {
-                    glassPanel.style.transform = 'perspective(800px) rotateX(0deg) rotateY(0deg)';
-                    glassPanel.style.boxShadow =
-                        '0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.08), 0 0 0 1px rgba(0,255,255,0.08), 0 0 40px rgba(0,255,255,0.35)';
-                });
-            }
-
-            const profilePic = document.getElementById('profile-pic');
-            const profileGlow = document.getElementById('profile-pic-glow');
-            if (profilePic && profileGlow) {
-                document.addEventListener('mousemove', function(e) {
-                    const rect = profilePic.getBoundingClientRect();
-                    const cx = rect.left + rect.width / 2;
-                    const cy = rect.top + rect.height / 2;
-                    const dx = (e.clientX - cx) / window.innerWidth;
-                    const dy = (e.clientY - cy) / window.innerHeight;
-                    const dist = Math.sqrt(dx * dx + dy * dy);
-                    const glowIntensity = Math.max(0, 1 - dist * 2.5);
-                    profileGlow.style.boxShadow =
-                        '0 0 ' + (60 + glowIntensity * 70).toFixed(0) + 'px rgba(0,255,255,' + (0.55 + glowIntensity *
-                            0.4).toFixed(3) + '), 0 0 ' + (120 + glowIntensity * 100).toFixed(0) +
-                        'px rgba(0,200,255,' + (0.3 + glowIntensity * 0.35).toFixed(3) + '), 0 0 ' + (200 + glowIntensity *
-                            120).toFixed(0) + 'px rgba(0,180,255,' + (0.15 + glowIntensity * 0.25).toFixed(3) + ')';
-                    profileGlow.style.transform = 'translate(' + (dx * 10).toFixed(1) + 'px, ' + (dy * 10).toFixed(1) +
-                        'px)';
-                });
-            }
-        })();
-    </script>
-    <script>
-        (function() {
             if (localStorage.getItem('bgMusicPlayed')) return;
-
             const audio = document.getElementById('bgAudio');
             if (!audio) return;
-
             audio.loop = false;
             audio.volume = 0.85;
-
             let isMutedFallback = false;
-
             audio.play().then(() => {
                 localStorage.setItem('bgMusicPlayed', 'true');
             }).catch(() => {
@@ -913,6 +498,345 @@
                     window.addEventListener('keydown', unmuteHandler, { once: true });
                 }
             }).catch(() => {});
+        })();
+    </script>
+
+    <script id="vertex-shader" type="x-shader/x-vertex">
+        attribute vec2 a_position;
+        varying vec2 v_texCoord;
+        void main() {
+            gl_Position = vec4(a_position, 0.0, 1.0);
+            v_texCoord = (a_position + 1.0) / 2.0;
+        }
+    </script>
+    <script id="fragment-shader" type="x-shader/x-fragment">
+        precision highp float;
+        varying vec2 v_texCoord;
+        uniform sampler2D u_background;
+        uniform sampler2D u_heightMap;
+        uniform vec2 u_resolution;
+        uniform float u_time;
+        uniform float u_strength;
+
+        void main() {
+            vec2 texCoord = v_texCoord;
+            vec2 texelSize = 1.0 / u_resolution;
+
+            // Sample height map at current and neighboring texels
+            float h = texture2D(u_heightMap, texCoord).r;
+            float hL = texture2D(u_heightMap, texCoord + vec2(-texelSize.x, 0.0)).r;
+            float hR = texture2D(u_heightMap, texCoord + vec2(texelSize.x, 0.0)).r;
+            float hB = texture2D(u_heightMap, texCoord + vec2(0.0, -texelSize.y)).r;
+            float hT = texture2D(u_heightMap, texCoord + vec2(0.0, texelSize.y)).r;
+
+            // Compute gradient (normal) from height differences
+            float dx = (hR - hL) * 0.5;
+            float dy = (hT - hB) * 0.5;
+
+            // Strength factor for distortion
+            float distort = u_strength * 0.03;
+
+            // Apply chromatic aberration and refraction
+            float rOffset = distort * 0.9;
+            float gOffset = distort * 1.0;
+            float bOffset = distort * 1.1;
+
+            vec2 coordR = texCoord + vec2(dx * rOffset, dy * rOffset);
+            vec2 coordG = texCoord + vec2(dx * gOffset, dy * gOffset);
+            vec2 coordB = texCoord + vec2(dx * bOffset, dy * bOffset);
+
+            // Sample background texture with chromatic shift
+            float r = texture2D(u_background, coordR).r;
+            float g = texture2D(u_background, coordG).g;
+            float b = texture2D(u_background, coordB).b;
+
+            // Fresnel-like edge brightening
+            vec2 edge = abs(v_texCoord - 0.5) * 2.0;
+            float fresnel = max(edge.x, edge.y);
+            fresnel = smoothstep(0.6, 1.0, fresnel);
+            vec3 fresnelColor = mix(vec3(0.0), vec3(0.2, 0.8, 1.0), fresnel * 0.35);
+
+            vec3 color = vec3(r, g, b) + fresnelColor;
+
+            // Subtle overall glow
+            float glow = 1.0 - length(v_texCoord - 0.5) * 1.8;
+            glow = max(0.0, glow);
+            color += vec3(0.0, 0.3, 0.5) * glow * 0.15;
+
+            gl_FragColor = vec4(color, 1.0);
+        }
+    </script>
+    <script>
+        (function() {
+            const glassPanel = document.getElementById('glassPanel');
+            const glassCanvas = document.getElementById('glassCanvas');
+            const gl = glassCanvas.getContext('webgl', { alpha: false, preserveDrawingBuffer: true });
+            if (!gl) {
+                console.warn('WebGL not supported, falling back to simple glass effect.');
+                glassCanvas.style.display = 'none';
+                glassPanel.style.background = 'rgba(10,10,10,0.35)';
+                glassPanel.style.backdropFilter = 'blur(14px) saturate(1.4)';
+                glassPanel.style.WebkitBackdropFilter = 'blur(14px) saturate(1.4)';
+                return;
+            }
+
+            const vertexShaderSource = document.getElementById('vertex-shader').textContent;
+            const fragmentShaderSource = document.getElementById('fragment-shader').textContent;
+
+            function createShader(gl, type, source) {
+                const shader = gl.createShader(type);
+                gl.shaderSource(shader, source);
+                gl.compileShader(shader);
+                if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+                    console.error(gl.getShaderInfoLog(shader));
+                    gl.deleteShader(shader);
+                    return null;
+                }
+                return shader;
+            }
+
+            const vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
+            const fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource);
+            const program = gl.createProgram();
+            gl.attachShader(program, vertexShader);
+            gl.attachShader(program, fragmentShader);
+            gl.linkProgram(program);
+            if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+                console.error(gl.getProgramInfoLog(program));
+                return;
+            }
+            gl.useProgram(program);
+
+            const positionBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+            const positions = new Float32Array([
+                -1, -1,
+                1, -1,
+                -1, 1,
+                1, 1
+            ]);
+            gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
+            const positionLocation = gl.getAttribLocation(program, 'a_position');
+            gl.enableVertexAttribArray(positionLocation);
+            gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
+
+            const backgroundLocation = gl.getUniformLocation(program, 'u_background');
+            const heightMapLocation = gl.getUniformLocation(program, 'u_heightMap');
+            const resolutionLocation = gl.getUniformLocation(program, 'u_resolution');
+            const timeLocation = gl.getUniformLocation(program, 'u_time');
+            const strengthLocation = gl.getUniformLocation(program, 'u_strength');
+
+            // Offscreen canvas to capture Vanta background
+            const offscreenCanvas = document.createElement('canvas');
+            const offCtx = offscreenCanvas.getContext('2d', { willReadFrequently: true });
+
+            // Height map grid dimensions
+            const GRID_W = 128;
+            const GRID_H = 128;
+            const heightSize = GRID_W * GRID_H;
+            let heightField = new Float32Array(heightSize);
+            let velocityField = new Float32Array(heightSize);
+            let heightTexture = gl.createTexture();
+            gl.bindTexture(gl.TEXTURE_2D, heightTexture);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.LUMINANCE, GRID_W, GRID_H, 0, gl.LUMINANCE, gl.FLOAT, heightField);
+
+            // Background texture (will be updated each frame)
+            let bgTexture = gl.createTexture();
+            gl.bindTexture(gl.TEXTURE_2D, bgTexture);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+            function resizeGlassCanvas() {
+                const rect = glassPanel.getBoundingClientRect();
+                const w = rect.width;
+                const h = rect.height;
+                if (w === 0 || h === 0) return;
+                glassCanvas.width = w;
+                glassCanvas.height = h;
+                gl.viewport(0, 0, w, h);
+                gl.uniform2f(resolutionLocation, w, h);
+            }
+
+            function updateHeightTexture() {
+                gl.bindTexture(gl.TEXTURE_2D, heightTexture);
+                gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, GRID_W, GRID_H, gl.LUMINANCE, gl.FLOAT, heightField);
+            }
+
+            function waveStep() {
+                const damping = 0.97;
+                const propagation = 0.2;
+                for (let y = 1; y < GRID_H - 1; y++) {
+                    for (let x = 1; x < GRID_W - 1; x++) {
+                        const idx = y * GRID_W + x;
+                        const avg = (heightField[idx - 1] + heightField[idx + 1] + heightField[idx - GRID_W] + heightField[
+                            idx + GRID_W]) * 0.25;
+                        velocityField[idx] = (velocityField[idx] + (avg - heightField[idx]) * propagation) * damping;
+                    }
+                }
+                for (let i = 0; i < heightSize; i++) {
+                    heightField[i] += velocityField[i];
+                }
+            }
+
+            function addDisturbance(cx, cy, strength) {
+                const gx = Math.floor(cx * (GRID_W - 1));
+                const gy = Math.floor(cy * (GRID_H - 1));
+                const radius = 4;
+                for (let dy = -radius; dy <= radius; dy++) {
+                    for (let dx = -radius; dx <= radius; dx++) {
+                        const nx = gx + dx;
+                        const ny = gy + dy;
+                        if (nx < 0 || nx >= GRID_W || ny < 0 || ny >= GRID_H) continue;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+                        if (dist > radius) continue;
+                        const influence = Math.exp(-dist * dist / (radius * radius * 0.5)) * strength;
+                        const idx = ny * GRID_W + nx;
+                        heightField[idx] += influence;
+                        velocityField[idx] += influence * 0.5;
+                    }
+                }
+            }
+
+            let mouseOverPanel = false;
+            let lastPanelMouseX = 0.5;
+            let lastPanelMouseY = 0.5;
+
+            glassPanel.addEventListener('mousemove', function(e) {
+                const rect = glassPanel.getBoundingClientRect();
+                const localX = (e.clientX - rect.left) / rect.width;
+                const localY = (e.clientY - rect.top) / rect.height;
+                lastPanelMouseX = Math.max(0, Math.min(1, localX));
+                lastPanelMouseY = Math.max(0, Math.min(1, localY));
+                addDisturbance(lastPanelMouseX, lastPanelMouseY, 0.03);
+            });
+
+            glassPanel.addEventListener('mouseenter', function() {
+                mouseOverPanel = true;
+            });
+
+            glassPanel.addEventListener('mouseleave', function() {
+                mouseOverPanel = false;
+            });
+
+            glassPanel.addEventListener('click', function(e) {
+                const rect = glassPanel.getBoundingClientRect();
+                const localX = (e.clientX - rect.left) / rect.width;
+                const localY = (e.clientY - rect.top) / rect.height;
+                addDisturbance(localX, localY, 0.15);
+            });
+
+            document.addEventListener('touchmove', function(e) {
+                if (e.touches.length === 1 && !isPinching) {
+                    const touch = e.touches[0];
+                    const rect = glassPanel.getBoundingClientRect();
+                    if (touch.clientX >= rect.left && touch.clientX <= rect.right &&
+                        touch.clientY >= rect.top && touch.clientY <= rect.bottom) {
+                        const localX = (touch.clientX - rect.left) / rect.width;
+                        const localY = (touch.clientY - rect.top) / rect.height;
+                        lastPanelMouseX = Math.max(0, Math.min(1, localX));
+                        lastPanelMouseY = Math.max(0, Math.min(1, localY));
+                        addDisturbance(lastPanelMouseX, lastPanelMouseY, 0.04);
+                    }
+                }
+            }, { passive: true });
+
+            window.addEventListener('resize', resizeGlassCanvas);
+
+            function captureBackground() {
+                if (!vantaCanvas) return null;
+                const vw = vantaCanvas.width;
+                const vh = vantaCanvas.height;
+                if (vw === 0 || vh === 0) return null;
+                offscreenCanvas.width = vw;
+                offscreenCanvas.height = vh;
+                offCtx.clearRect(0, 0, vw, vh);
+                offCtx.drawImage(vantaCanvas, 0, 0, vw, vh);
+                return offscreenCanvas;
+            }
+
+            let lastTime = performance.now();
+
+            function render(timestamp) {
+                const dt = Math.min((timestamp - lastTime) / 1000, 0.1);
+                lastTime = timestamp;
+
+                resizeGlassCanvas();
+
+                // Update wave simulation
+                for (let i = 0; i < 3; i++) {
+                    waveStep();
+                }
+
+                // Slight continuous disturbance from mouse if over panel
+                if (mouseOverPanel) {
+                    addDisturbance(lastPanelMouseX, lastPanelMouseY, 0.004 * dt * 60);
+                }
+
+                updateHeightTexture();
+
+                const bgSource = captureBackground();
+                if (bgSource) {
+                    gl.bindTexture(gl.TEXTURE_2D, bgTexture);
+                    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, bgSource);
+                }
+
+                gl.clearColor(0, 0, 0, 1);
+                gl.clear(gl.COLOR_BUFFER_BIT);
+
+                gl.activeTexture(gl.TEXTURE0);
+                gl.bindTexture(gl.TEXTURE_2D, bgTexture);
+                gl.uniform1i(backgroundLocation, 0);
+
+                gl.activeTexture(gl.TEXTURE1);
+                gl.bindTexture(gl.TEXTURE_2D, heightTexture);
+                gl.uniform1i(heightMapLocation, 1);
+
+                gl.uniform1f(timeLocation, timestamp * 0.001);
+                gl.uniform1f(strengthLocation, 1.0 + (mouseOverPanel ? 0.5 : 0.0));
+
+                gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+
+                requestAnimationFrame(render);
+            }
+
+            resizeGlassCanvas();
+            requestAnimationFrame(render);
+
+            const profilePic = document.getElementById('profile-pic');
+            const profileGlow = document.getElementById('profile-pic-glow');
+            if (profilePic && profileGlow) {
+                document.addEventListener('mousemove', function(e) {
+                    const rect = profilePic.getBoundingClientRect();
+                    const cx = rect.left + rect.width / 2;
+                    const cy = rect.top + rect.height / 2;
+                    const dx = (e.clientX - cx) / window.innerWidth;
+                    const dy = (e.clientY - cy) / window.innerHeight;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    const glowIntensity = Math.max(0, 1 - dist * 2.5);
+                    profileGlow.style.boxShadow =
+                        '0 0 ' + (60 + glowIntensity * 70).toFixed(0) + 'px rgba(0,255,255,' + (0.55 + glowIntensity * 0.4).toFixed(3) + '), 0 0 ' + (120 + glowIntensity * 100).toFixed(0) + 'px rgba(0,200,255,' + (0.3 + glowIntensity * 0.35).toFixed(3) + '), 0 0 ' + (200 + glowIntensity * 120).toFixed(0) + 'px rgba(0,180,255,' + (0.15 + glowIntensity * 0.25).toFixed(3) + ')';
+                    profileGlow.style.transform = 'translate(' + (dx * 10).toFixed(1) + 'px, ' + (dy * 10).toFixed(1) + 'px)';
+                });
+            }
+
+            // 3D tilt for glass panel (subtle)
+            glassPanel.addEventListener('mousemove', function(e) {
+                const rect = glassPanel.getBoundingClientRect();
+                const localX = (e.clientX - rect.left) / rect.width;
+                const localY = (e.clientY - rect.top) / rect.height;
+                const rotateY = (localX - 0.5) * 4;
+                const rotateX = (localY - 0.5) * -4;
+                glassPanel.style.transform = 'perspective(800px) rotateX(' + rotateX.toFixed(2) + 'deg) rotateY(' + rotateY.toFixed(2) + 'deg)';
+            });
+            glassPanel.addEventListener('mouseleave', function() {
+                glassPanel.style.transform = 'perspective(800px) rotateX(0deg) rotateY(0deg)';
+            });
         })();
     </script>
 </body>
