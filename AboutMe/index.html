@@ -104,23 +104,6 @@
             will-change: transform, box-shadow;
         }
 
-        #profile-pic-glow {
-            position: absolute;
-            inset: -8px;
-            border-radius: 50%;
-            z-index: 1;
-            pointer-events: none;
-            background: transparent;
-            box-shadow: 0 0 60px rgba(0, 255, 255, 0.55), 0 0 120px rgba(0, 200, 255, 0.3), 0 0 200px rgba(0, 180, 255, 0.15);
-            transition: all 0.4s ease;
-            will-change: box-shadow, transform;
-        }
-
-        #logo-container:hover #profile-pic-glow {
-            box-shadow: 0 0 90px rgba(0, 255, 255, 0.75), 0 0 160px rgba(0, 220, 255, 0.5), 0 0 250px rgba(0, 200, 255, 0.3), 0 0 350px rgba(0, 180, 255, 0.15);
-            transform: scale(1.06);
-        }
-
         #profile-pic:hover {
             transform: scale(1.04);
             box-shadow: 0 0 70px cyan, 0 0 35px rgba(0, 255, 255, 0.6) inset, 0 0 0 2px rgba(255, 255, 255, 0.25);
@@ -310,7 +293,6 @@
 
     <div id="container">
         <div id="logo-container">
-            <div id="profile-pic-glow"></div>
             <img id="profile-pic" src="https://raw.githubusercontent.com/MexrlDev/MexrlDev.github.io/refs/heads/main/AboutMe/wifu.jpeg" alt="MexrlDev avatar" />
         </div>
 
@@ -522,21 +504,17 @@
             vec2 texCoord = v_texCoord;
             vec2 texelSize = 1.0 / u_resolution;
 
-            // Sample height map at current and neighboring texels
             float h = texture2D(u_heightMap, texCoord).r;
             float hL = texture2D(u_heightMap, texCoord + vec2(-texelSize.x, 0.0)).r;
             float hR = texture2D(u_heightMap, texCoord + vec2(texelSize.x, 0.0)).r;
             float hB = texture2D(u_heightMap, texCoord + vec2(0.0, -texelSize.y)).r;
             float hT = texture2D(u_heightMap, texCoord + vec2(0.0, texelSize.y)).r;
 
-            // Compute gradient (normal) from height differences
             float dx = (hR - hL) * 0.5;
             float dy = (hT - hB) * 0.5;
 
-            // Strength factor for distortion
             float distort = u_strength * 0.03;
 
-            // Apply chromatic aberration and refraction
             float rOffset = distort * 0.9;
             float gOffset = distort * 1.0;
             float bOffset = distort * 1.1;
@@ -545,12 +523,10 @@
             vec2 coordG = texCoord + vec2(dx * gOffset, dy * gOffset);
             vec2 coordB = texCoord + vec2(dx * bOffset, dy * bOffset);
 
-            // Sample background texture with chromatic shift
             float r = texture2D(u_background, coordR).r;
             float g = texture2D(u_background, coordG).g;
             float b = texture2D(u_background, coordB).b;
 
-            // Fresnel-like edge brightening
             vec2 edge = abs(v_texCoord - 0.5) * 2.0;
             float fresnel = max(edge.x, edge.y);
             fresnel = smoothstep(0.6, 1.0, fresnel);
@@ -558,7 +534,6 @@
 
             vec3 color = vec3(r, g, b) + fresnelColor;
 
-            // Subtle overall glow
             float glow = 1.0 - length(v_texCoord - 0.5) * 1.8;
             glow = max(0.0, glow);
             color += vec3(0.0, 0.3, 0.5) * glow * 0.15;
@@ -626,11 +601,9 @@
             const timeLocation = gl.getUniformLocation(program, 'u_time');
             const strengthLocation = gl.getUniformLocation(program, 'u_strength');
 
-            // Offscreen canvas to capture Vanta background
             const offscreenCanvas = document.createElement('canvas');
             const offCtx = offscreenCanvas.getContext('2d', { willReadFrequently: true });
 
-            // Height map grid dimensions
             const GRID_W = 128;
             const GRID_H = 128;
             const heightSize = GRID_W * GRID_H;
@@ -644,7 +617,6 @@
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
             gl.texImage2D(gl.TEXTURE_2D, 0, gl.LUMINANCE, GRID_W, GRID_H, 0, gl.LUMINANCE, gl.FLOAT, heightField);
 
-            // Background texture (will be updated each frame)
             let bgTexture = gl.createTexture();
             gl.bindTexture(gl.TEXTURE_2D, bgTexture);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
@@ -674,8 +646,7 @@
                 for (let y = 1; y < GRID_H - 1; y++) {
                     for (let x = 1; x < GRID_W - 1; x++) {
                         const idx = y * GRID_W + x;
-                        const avg = (heightField[idx - 1] + heightField[idx + 1] + heightField[idx - GRID_W] + heightField[
-                            idx + GRID_W]) * 0.25;
+                        const avg = (heightField[idx - 1] + heightField[idx + 1] + heightField[idx - GRID_W] + heightField[idx + GRID_W]) * 0.25;
                         velocityField[idx] = (velocityField[idx] + (avg - heightField[idx]) * propagation) * damping;
                     }
                 }
@@ -768,12 +739,10 @@
 
                 resizeGlassCanvas();
 
-                // Update wave simulation
                 for (let i = 0; i < 3; i++) {
                     waveStep();
                 }
 
-                // Slight continuous disturbance from mouse if over panel
                 if (mouseOverPanel) {
                     addDisturbance(lastPanelMouseX, lastPanelMouseY, 0.004 * dt * 60);
                 }
@@ -807,23 +776,6 @@
 
             resizeGlassCanvas();
             requestAnimationFrame(render);
-
-            const profilePic = document.getElementById('profile-pic');
-            const profileGlow = document.getElementById('profile-pic-glow');
-            if (profilePic && profileGlow) {
-                document.addEventListener('mousemove', function(e) {
-                    const rect = profilePic.getBoundingClientRect();
-                    const cx = rect.left + rect.width / 2;
-                    const cy = rect.top + rect.height / 2;
-                    const dx = (e.clientX - cx) / window.innerWidth;
-                    const dy = (e.clientY - cy) / window.innerHeight;
-                    const dist = Math.sqrt(dx * dx + dy * dy);
-                    const glowIntensity = Math.max(0, 1 - dist * 2.5);
-                    profileGlow.style.boxShadow =
-                        '0 0 ' + (60 + glowIntensity * 70).toFixed(0) + 'px rgba(0,255,255,' + (0.55 + glowIntensity * 0.4).toFixed(3) + '), 0 0 ' + (120 + glowIntensity * 100).toFixed(0) + 'px rgba(0,200,255,' + (0.3 + glowIntensity * 0.35).toFixed(3) + '), 0 0 ' + (200 + glowIntensity * 120).toFixed(0) + 'px rgba(0,180,255,' + (0.15 + glowIntensity * 0.25).toFixed(3) + ')';
-                    profileGlow.style.transform = 'translate(' + (dx * 10).toFixed(1) + 'px, ' + (dy * 10).toFixed(1) + 'px)';
-                });
-            }
 
             // 3D tilt for glass panel (subtle)
             glassPanel.addEventListener('mousemove', function(e) {
