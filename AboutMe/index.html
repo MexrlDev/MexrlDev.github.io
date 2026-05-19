@@ -17,15 +17,6 @@
         :root {
             --mouse-x: 0.5;
             --mouse-y: 0.5;
-            --glass-blur: 0px;
-            --glass-opacity: 1;
-            --edge-glow: 0.4;
-            --chromatic-shift: 0px;
-            --fresnel-intensity: 0.5;
-            --lens-distort: 0;
-            --ripple-x: 0.5;
-            --ripple-y: 0.5;
-            --ripple-strength: 0;
         }
 
         * {
@@ -69,6 +60,7 @@
         #background canvas {
             touch-action: none;
             will-change: transform;
+            filter: drop-shadow(0 0 12px rgba(0, 255, 255, 0.7));
         }
 
         #container {
@@ -97,8 +89,6 @@
             border-radius: 50%;
             object-fit: cover;
             background: #0a0a0a;
-            position: relative;
-            z-index: 2;
             box-shadow: 0 0 45px rgba(0, 255, 255, 0.5), 0 0 20px rgba(0, 255, 255, 0.3) inset, 0 0 0 1px rgba(255, 255, 255, 0.12);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
             will-change: transform, box-shadow;
@@ -141,21 +131,11 @@
             margin: 0.4rem 0;
             border: 1px solid rgba(255, 255, 255, 0.15);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 0 0 1px rgba(0, 255, 255, 0.1);
-            transition: box-shadow 0.5s ease;
-            overflow: hidden;
+            backdrop-filter: blur(14px) saturate(1.4);
+            backdrop-filter: url(#liquidGlassFilter);
+            transition: box-shadow 0.5s ease, backdrop-filter 0.3s ease;
+            will-change: backdrop-filter, box-shadow;
             z-index: 10;
-            will-change: box-shadow;
-        }
-
-        .glass-canvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border-radius: 28px;
-            z-index: 0;
-            pointer-events: none;
         }
 
         .glass-content {
@@ -279,9 +259,6 @@
                 padding: 1.2rem 1.4rem;
                 border-radius: 22px;
             }
-            .glass-canvas {
-                border-radius: 22px;
-            }
             .neon-btn {
                 padding: 0.55rem 1.3rem;
             }
@@ -297,7 +274,6 @@
         </div>
 
         <div class="glass-panel" id="glassPanel">
-            <canvas class="glass-canvas" id="glassCanvas"></canvas>
             <div class="glass-content">
                 <div id="logo">About Me</div>
                 <div class="info-line">
@@ -338,6 +314,16 @@
     <audio id="bgAudio" preload="auto">
         <source src="https://raw.githubusercontent.com/MexrlDev/MexrlDev.github.io/refs/heads/main/AboutMe/Floods%20_outro.mp3" type="audio/mpeg">
     </audio>
+
+    <!-- Hidden SVG for the Liquid Glass filter -->
+    <svg style="display:none" id="liquidGlassSvg">
+        <filter id="liquidGlassFilter" colorInterpolationFilters="sRGB" filterUnits="userSpaceOnUse">
+            <feImage id="dispMapImage" x="0" y="0" result="displacement_map" />
+            <feDisplacementMap in="SourceGraphic" in2="displacement_map" scale="1" xChannelSelector="R" yChannelSelector="G" result="refracted" />
+            <feImage id="specMapImage" x="0" y="0" result="specular_map" />
+            <feBlend in="refracted" in2="specular_map" mode="screen" />
+        </filter>
+    </svg>
 
     <script src="https://unpkg.com/three@0.134.0/build/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vanta@0.5.24/dist/vanta.net.min.js"></script>
@@ -483,312 +469,244 @@
         })();
     </script>
 
-    <script id="vertex-shader" type="x-shader/x-vertex">
-        attribute vec2 a_position;
-        varying vec2 v_texCoord;
-        void main() {
-            gl_Position = vec4(a_position, 0.0, 1.0);
-            v_texCoord = (a_position + 1.0) / 2.0;
-        }
-    </script>
-    <script id="fragment-shader" type="x-shader/x-fragment">
-        precision highp float;
-        varying vec2 v_texCoord;
-        uniform sampler2D u_background;
-        uniform sampler2D u_heightMap;
-        uniform vec2 u_resolution;
-        uniform float u_time;
-        uniform float u_strength;
-
-        void main() {
-            vec2 texCoord = v_texCoord;
-            vec2 texelSize = 1.0 / u_resolution;
-
-            float h = texture2D(u_heightMap, texCoord).r;
-            float hL = texture2D(u_heightMap, texCoord + vec2(-texelSize.x, 0.0)).r;
-            float hR = texture2D(u_heightMap, texCoord + vec2(texelSize.x, 0.0)).r;
-            float hB = texture2D(u_heightMap, texCoord + vec2(0.0, -texelSize.y)).r;
-            float hT = texture2D(u_heightMap, texCoord + vec2(0.0, texelSize.y)).r;
-
-            float dx = (hR - hL) * 0.5;
-            float dy = (hT - hB) * 0.5;
-
-            float distort = u_strength * 0.03;
-
-            float rOffset = distort * 0.9;
-            float gOffset = distort * 1.0;
-            float bOffset = distort * 1.1;
-
-            vec2 coordR = texCoord + vec2(dx * rOffset, dy * rOffset);
-            vec2 coordG = texCoord + vec2(dx * gOffset, dy * gOffset);
-            vec2 coordB = texCoord + vec2(dx * bOffset, dy * bOffset);
-
-            float r = texture2D(u_background, coordR).r;
-            float g = texture2D(u_background, coordG).g;
-            float b = texture2D(u_background, coordB).b;
-
-            vec2 edge = abs(v_texCoord - 0.5) * 2.0;
-            float fresnel = max(edge.x, edge.y);
-            fresnel = smoothstep(0.6, 1.0, fresnel);
-            vec3 fresnelColor = mix(vec3(0.0), vec3(0.2, 0.8, 1.0), fresnel * 0.35);
-
-            vec3 color = vec3(r, g, b) + fresnelColor;
-
-            float glow = 1.0 - length(v_texCoord - 0.5) * 1.8;
-            glow = max(0.0, glow);
-            color += vec3(0.0, 0.3, 0.5) * glow * 0.15;
-
-            gl_FragColor = vec4(color, 1.0);
-        }
-    </script>
+    <!-- Liquid Glass SVG filter map generation (based on kube.io article) -->
     <script>
         (function() {
             const glassPanel = document.getElementById('glassPanel');
-            const glassCanvas = document.getElementById('glassCanvas');
-            const gl = glassCanvas.getContext('webgl', { alpha: false, preserveDrawingBuffer: true });
-            if (!gl) {
-                console.warn('WebGL not supported, falling back to simple glass effect.');
-                glassCanvas.style.display = 'none';
-                glassPanel.style.background = 'rgba(10,10,10,0.35)';
-                glassPanel.style.backdropFilter = 'blur(14px) saturate(1.4)';
-                glassPanel.style.WebkitBackdropFilter = 'blur(14px) saturate(1.4)';
-                return;
+            const filter = document.getElementById('liquidGlassFilter');
+            const dispMapImage = document.getElementById('dispMapImage');
+            const specMapImage = document.getElementById('specMapImage');
+
+            const bezelWidthPx = 24;       // pixels of curved edge
+            const glassThickness = 10;      // max glass height (affects refraction strength)
+            const refractionIndex = 1.5;    // glass IOR
+            const specularPower = 25;       // shininess
+            const lightDir = { x: -0.5, y: -0.7, z: 1.0 }; // normalized direction
+
+            function normalize(v) {
+                const len = Math.sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
+                if (len === 0) return v;
+                return { x: v.x / len, y: v.y / len, z: v.z / len };
+            }
+            const lightVec = normalize(lightDir);
+
+            // Squircle convex height function: y = (1 - (1 - x)^4)^(1/4)
+            function heightFunc(x) {
+                if (x <= 0) return 0;
+                if (x >= 1) return 1;
+                return Math.pow(1 - Math.pow(1 - x, 4), 0.25);
             }
 
-            const vertexShaderSource = document.getElementById('vertex-shader').textContent;
-            const fragmentShaderSource = document.getElementById('fragment-shader').textContent;
+            // Precompute displacement magnitudes for normalized distance [0,1]
+            const samples = 128;
+            const displacementTable = new Float32Array(samples);
+            let maxDisplacement = 0;
 
-            function createShader(gl, type, source) {
-                const shader = gl.createShader(type);
-                gl.shaderSource(shader, source);
-                gl.compileShader(shader);
-                if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-                    console.error(gl.getShaderInfoLog(shader));
-                    gl.deleteShader(shader);
-                    return null;
-                }
-                return shader;
+            for (let i = 0; i < samples; i++) {
+                const dist = i / (samples - 1);
+                const h = heightFunc(dist) * glassThickness;
+                // derivative approximation
+                const eps = 0.001;
+                const h1 = heightFunc(Math.max(0, dist - eps)) * glassThickness;
+                const h2 = heightFunc(Math.min(1, dist + eps)) * glassThickness;
+                const derivative = (h2 - h1) / (2 * eps * bezelWidthPx); // per pixel
+                const normal = { x: -derivative, y: 1 }; // rotated by -90 deg
+                const normalLen = Math.sqrt(normal.x * normal.x + normal.y * normal.y);
+                const nx = normal.x / normalLen;
+                const ny = normal.y / normalLen;
+
+                // incident ray is orthogonal (0,1) in 2D (pointing up from background into glass)
+                const cosTheta1 = Math.abs(ny); // dot(incident, normal) = ny
+                const sinTheta1 = Math.sqrt(Math.max(0, 1 - cosTheta1 * cosTheta1));
+                const sinTheta2 = sinTheta1 / refractionIndex;
+                const cosTheta2 = Math.sqrt(Math.max(0, 1 - sinTheta2 * sinTheta2));
+                const refractX = -nx * cosTheta2 + ny * sinTheta2; // simplified 2D refraction direction
+                const refractY = -ny * cosTheta2 - nx * sinTheta2;
+
+                // displacement along surface from entry to exit (horizontal shift)
+                const displacement = (h / refractY) * refractX;
+                displacementTable[i] = displacement;
+                maxDisplacement = Math.max(maxDisplacement, Math.abs(displacement));
             }
 
-            const vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
-            const fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource);
-            const program = gl.createProgram();
-            gl.attachShader(program, vertexShader);
-            gl.attachShader(program, fragmentShader);
-            gl.linkProgram(program);
-            if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-                console.error(gl.getProgramInfoLog(program));
-                return;
+            // Normalize so max magnitude = 1
+            const normFactor = maxDisplacement > 0 ? 1 / maxDisplacement : 1;
+            for (let i = 0; i < samples; i++) {
+                displacementTable[i] *= normFactor;
             }
-            gl.useProgram(program);
 
-            const positionBuffer = gl.createBuffer();
-            gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-            const positions = new Float32Array([
-                -1, -1,
-                1, -1,
-                -1, 1,
-                1, 1
-            ]);
-            gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
-            const positionLocation = gl.getAttribLocation(program, 'a_position');
-            gl.enableVertexAttribArray(positionLocation);
-            gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
-
-            const backgroundLocation = gl.getUniformLocation(program, 'u_background');
-            const heightMapLocation = gl.getUniformLocation(program, 'u_heightMap');
-            const resolutionLocation = gl.getUniformLocation(program, 'u_resolution');
-            const timeLocation = gl.getUniformLocation(program, 'u_time');
-            const strengthLocation = gl.getUniformLocation(program, 'u_strength');
-
-            const offscreenCanvas = document.createElement('canvas');
-            const offCtx = offscreenCanvas.getContext('2d', { willReadFrequently: true });
-
-            const GRID_W = 128;
-            const GRID_H = 128;
-            const heightSize = GRID_W * GRID_H;
-            let heightField = new Float32Array(heightSize);
-            let velocityField = new Float32Array(heightSize);
-            let heightTexture = gl.createTexture();
-            gl.bindTexture(gl.TEXTURE_2D, heightTexture);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-            gl.texImage2D(gl.TEXTURE_2D, 0, gl.LUMINANCE, GRID_W, GRID_H, 0, gl.LUMINANCE, gl.FLOAT, heightField);
-
-            let bgTexture = gl.createTexture();
-            gl.bindTexture(gl.TEXTURE_2D, bgTexture);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-
-            function resizeGlassCanvas() {
+            function generateMaps() {
                 const rect = glassPanel.getBoundingClientRect();
                 const w = rect.width;
                 const h = rect.height;
                 if (w === 0 || h === 0) return;
-                glassCanvas.width = w;
-                glassCanvas.height = h;
-                gl.viewport(0, 0, w, h);
-                gl.uniform2f(resolutionLocation, w, h);
-            }
 
-            function updateHeightTexture() {
-                gl.bindTexture(gl.TEXTURE_2D, heightTexture);
-                gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, GRID_W, GRID_H, gl.LUMINANCE, gl.FLOAT, heightField);
-            }
+                const mapW = Math.ceil(w);
+                const mapH = Math.ceil(h);
+                const cornerRadius = 28; // matches border-radius
 
-            function waveStep() {
-                const damping = 0.97;
-                const propagation = 0.2;
-                for (let y = 1; y < GRID_H - 1; y++) {
-                    for (let x = 1; x < GRID_W - 1; x++) {
-                        const idx = y * GRID_W + x;
-                        const avg = (heightField[idx - 1] + heightField[idx + 1] + heightField[idx - GRID_W] + heightField[idx + GRID_W]) * 0.25;
-                        velocityField[idx] = (velocityField[idx] + (avg - heightField[idx]) * propagation) * damping;
+                const dispCanvas = document.createElement('canvas');
+                dispCanvas.width = mapW;
+                dispCanvas.height = mapH;
+                const dispCtx = dispCanvas.getContext('2d');
+                const dispImageData = dispCtx.createImageData(mapW, mapH);
+
+                const specCanvas = document.createElement('canvas');
+                specCanvas.width = mapW;
+                specCanvas.height = mapH;
+                const specCtx = specCanvas.getContext('2d');
+                const specImageData = specCtx.createImageData(mapW, mapH);
+
+                for (let py = 0; py < mapH; py++) {
+                    for (let px = 0; px < mapW; px++) {
+                        // Determine distance to nearest border (accounting for rounded corners)
+                        let minDist = Infinity;
+                        let dx = 0, dy = 0;
+                        let normalAngle = 0; // angle of outward normal (pointing away from glass)
+
+                        // Check distances to four edges
+                        const distTop = py;
+                        const distBottom = mapH - 1 - py;
+                        const distLeft = px;
+                        const distRight = mapW - 1 - px;
+
+                        // For corners, adjust distance based on the arc
+                        function cornerDist(cx, cy) {
+                            const rx = px - cx;
+                            const ry = py - cy;
+                            const distFromCornerCenter = Math.sqrt(rx * rx + ry * ry);
+                            const cornerDist = distFromCornerCenter - cornerRadius;
+                            return Math.max(cornerDist, 0);
+                        }
+
+                        const topLeftDist = cornerDist(cornerRadius, cornerRadius);
+                        const topRightDist = cornerDist(mapW - 1 - cornerRadius, cornerRadius);
+                        const bottomLeftDist = cornerDist(cornerRadius, mapH - 1 - cornerRadius);
+                        const bottomRightDist = cornerDist(mapW - 1 - cornerRadius, mapH - 1 - cornerRadius);
+
+                        minDist = Math.min(distTop, distBottom, distLeft, distRight,
+                            topLeftDist, topRightDist, bottomLeftDist, bottomRightDist);
+
+                        // Compute direction vector from nearest border point (pointing inward for refraction)
+                        if (minDist <= bezelWidthPx && minDist > 0) {
+                            // Determine which border is closest
+                            const candidates = [
+                                { dist: distTop, nx: 0, ny: -1, cx: px, cy: 0 },
+                                { dist: distBottom, nx: 0, ny: 1, cx: px, cy: mapH - 1 },
+                                { dist: distLeft, nx: -1, ny: 0, cx: 0, cy: py },
+                                { dist: distRight, nx: 1, ny: 0, cx: mapW - 1, cy: py },
+                                { dist: topLeftDist, nx: -1, ny: -1, cx: cornerRadius, cy: cornerRadius, isCorner: true },
+                                { dist: topRightDist, nx: 1, ny: -1, cx: mapW - 1 - cornerRadius, cy: cornerRadius, isCorner: true },
+                                { dist: bottomLeftDist, nx: -1, ny: 1, cx: cornerRadius, cy: mapH - 1 - cornerRadius, isCorner: true },
+                                { dist: bottomRightDist, nx: 1, ny: 1, cx: mapW - 1 - cornerRadius, cy: mapH - 1 - cornerRadius, isCorner: true }
+                            ];
+
+                            let closest = candidates[0];
+                            for (let c of candidates) {
+                                if (c.dist < closest.dist) closest = c;
+                            }
+
+                            let normalDirX, normalDirY;
+                            if (closest.isCorner) {
+                                const rx = px - closest.cx;
+                                const ry = py - closest.cy;
+                                const len = Math.sqrt(rx * rx + ry * ry);
+                                normalDirX = len > 0 ? rx / len : 0;
+                                normalDirY = len > 0 ? ry / len : 0;
+                            } else {
+                                normalDirX = closest.nx;
+                                normalDirY = closest.ny;
+                            }
+
+                            // Inward direction is opposite of outward normal
+                            const inwardX = -normalDirX;
+                            const inwardY = -normalDirY;
+
+                            // Lookup displacement magnitude from table
+                            const normDist = minDist / bezelWidthPx;
+                            const idx = Math.min(samples - 1, Math.floor(normDist * (samples - 1)));
+                            const mag = displacementTable[idx];
+
+                            // Encode as R and G channels (0-255 range, 128 = no displacement)
+                            const dispX = inwardX * mag;
+                            const dispY = inwardY * mag;
+                            const r = Math.round(128 + dispX * 127);
+                            const g = Math.round(128 + dispY * 127);
+
+                            const pi = (py * mapW + px) * 4;
+                            dispImageData.data[pi] = r;
+                            dispImageData.data[pi + 1] = g;
+                            dispImageData.data[pi + 2] = 128;
+                            dispImageData.data[pi + 3] = 255;
+
+                            // Specular highlight calculation
+                            const nx3d = normalDirX; // outward normal x
+                            const ny3d = normalDirY; // outward normal y (screen space)
+                            // Approximate surface normal in 3D: (nx, ny, nz) with nz derived from surface slope
+                            const slopeMag = Math.sqrt(nx3d * nx3d + ny3d * ny3d);
+                            const nz = 1 / Math.sqrt(1 + slopeMag * slopeMag);
+                            const nx = nx3d * nz;
+                            const ny = ny3d * nz;
+
+                            const dot = nx * lightVec.x + ny * lightVec.y + nz * lightVec.z;
+                            const specIntensity = Math.pow(Math.max(0, dot), specularPower);
+                            const specVal = Math.round(specIntensity * 255);
+
+                            specImageData.data[pi] = specVal;
+                            specImageData.data[pi + 1] = specVal;
+                            specImageData.data[pi + 2] = specVal;
+                            specImageData.data[pi + 3] = 255;
+                        } else {
+                            const pi = (py * mapW + px) * 4;
+                            dispImageData.data[pi] = 128;
+                            dispImageData.data[pi + 1] = 128;
+                            dispImageData.data[pi + 2] = 128;
+                            dispImageData.data[pi + 3] = 255;
+
+                            specImageData.data[pi] = 0;
+                            specImageData.data[pi + 1] = 0;
+                            specImageData.data[pi + 2] = 0;
+                            specImageData.data[pi + 3] = 255;
+                        }
                     }
                 }
-                for (let i = 0; i < heightSize; i++) {
-                    heightField[i] += velocityField[i];
-                }
+
+                dispCtx.putImageData(dispImageData, 0, 0);
+                specCtx.putImageData(specImageData, 0, 0);
+
+                const dispDataUrl = dispCanvas.toDataURL('image/png');
+                const specDataUrl = specCanvas.toDataURL('image/png');
+
+                dispMapImage.setAttribute('href', dispDataUrl);
+                dispMapImage.setAttribute('width', mapW);
+                dispMapImage.setAttribute('height', mapH);
+                specMapImage.setAttribute('href', specDataUrl);
+                specMapImage.setAttribute('width', mapW);
+                specMapImage.setAttribute('height', mapH);
+
+                // Update filter region to match element
+                filter.setAttribute('x', rect.left);
+                filter.setAttribute('y', rect.top);
+                filter.setAttribute('width', mapW);
+                filter.setAttribute('height', mapH);
+
+                // Set scale to the actual max displacement in pixels
+                const scaleVal = maxDisplacement * normFactor * maxDisplacement; // maxDisplacement was in pixels
+                filter.querySelector('feDisplacementMap').setAttribute('scale', maxDisplacement);
             }
 
-            function addDisturbance(cx, cy, strength) {
-                const gx = Math.floor(cx * (GRID_W - 1));
-                const gy = Math.floor(cy * (GRID_H - 1));
-                const radius = 4;
-                for (let dy = -radius; dy <= radius; dy++) {
-                    for (let dx = -radius; dx <= radius; dx++) {
-                        const nx = gx + dx;
-                        const ny = gy + dy;
-                        if (nx < 0 || nx >= GRID_W || ny < 0 || ny >= GRID_H) continue;
-                        const dist = Math.sqrt(dx * dx + dy * dy);
-                        if (dist > radius) continue;
-                        const influence = Math.exp(-dist * dist / (radius * radius * 0.5)) * strength;
-                        const idx = ny * GRID_W + nx;
-                        heightField[idx] += influence;
-                        velocityField[idx] += influence * 0.5;
-                    }
-                }
+            // Generate maps on load and resize
+            window.addEventListener('load', generateMaps);
+            window.addEventListener('resize', () => {
+                clearTimeout(window._resizeTimer);
+                window._resizeTimer = setTimeout(generateMaps, 100);
+            });
+
+            // Also observe size changes (if panel size changes due to content, etc.)
+            if (window.ResizeObserver) {
+                const observer = new ResizeObserver(() => generateMaps());
+                observer.observe(glassPanel);
             }
-
-            let mouseOverPanel = false;
-            let lastPanelMouseX = 0.5;
-            let lastPanelMouseY = 0.5;
-
-            glassPanel.addEventListener('mousemove', function(e) {
-                const rect = glassPanel.getBoundingClientRect();
-                const localX = (e.clientX - rect.left) / rect.width;
-                const localY = (e.clientY - rect.top) / rect.height;
-                lastPanelMouseX = Math.max(0, Math.min(1, localX));
-                lastPanelMouseY = Math.max(0, Math.min(1, localY));
-                addDisturbance(lastPanelMouseX, lastPanelMouseY, 0.03);
-            });
-
-            glassPanel.addEventListener('mouseenter', function() {
-                mouseOverPanel = true;
-            });
-
-            glassPanel.addEventListener('mouseleave', function() {
-                mouseOverPanel = false;
-            });
-
-            glassPanel.addEventListener('click', function(e) {
-                const rect = glassPanel.getBoundingClientRect();
-                const localX = (e.clientX - rect.left) / rect.width;
-                const localY = (e.clientY - rect.top) / rect.height;
-                addDisturbance(localX, localY, 0.15);
-            });
-
-            document.addEventListener('touchmove', function(e) {
-                if (e.touches.length === 1 && !isPinching) {
-                    const touch = e.touches[0];
-                    const rect = glassPanel.getBoundingClientRect();
-                    if (touch.clientX >= rect.left && touch.clientX <= rect.right &&
-                        touch.clientY >= rect.top && touch.clientY <= rect.bottom) {
-                        const localX = (touch.clientX - rect.left) / rect.width;
-                        const localY = (touch.clientY - rect.top) / rect.height;
-                        lastPanelMouseX = Math.max(0, Math.min(1, localX));
-                        lastPanelMouseY = Math.max(0, Math.min(1, localY));
-                        addDisturbance(lastPanelMouseX, lastPanelMouseY, 0.04);
-                    }
-                }
-            }, { passive: true });
-
-            window.addEventListener('resize', resizeGlassCanvas);
-
-            function captureBackground() {
-                if (!vantaCanvas) return null;
-                const vw = vantaCanvas.width;
-                const vh = vantaCanvas.height;
-                if (vw === 0 || vh === 0) return null;
-                offscreenCanvas.width = vw;
-                offscreenCanvas.height = vh;
-                offCtx.clearRect(0, 0, vw, vh);
-                offCtx.drawImage(vantaCanvas, 0, 0, vw, vh);
-                return offscreenCanvas;
-            }
-
-            let lastTime = performance.now();
-
-            function render(timestamp) {
-                const dt = Math.min((timestamp - lastTime) / 1000, 0.1);
-                lastTime = timestamp;
-
-                resizeGlassCanvas();
-
-                for (let i = 0; i < 3; i++) {
-                    waveStep();
-                }
-
-                if (mouseOverPanel) {
-                    addDisturbance(lastPanelMouseX, lastPanelMouseY, 0.004 * dt * 60);
-                }
-
-                updateHeightTexture();
-
-                const bgSource = captureBackground();
-                if (bgSource) {
-                    gl.bindTexture(gl.TEXTURE_2D, bgTexture);
-                    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, bgSource);
-                }
-
-                gl.clearColor(0, 0, 0, 1);
-                gl.clear(gl.COLOR_BUFFER_BIT);
-
-                gl.activeTexture(gl.TEXTURE0);
-                gl.bindTexture(gl.TEXTURE_2D, bgTexture);
-                gl.uniform1i(backgroundLocation, 0);
-
-                gl.activeTexture(gl.TEXTURE1);
-                gl.bindTexture(gl.TEXTURE_2D, heightTexture);
-                gl.uniform1i(heightMapLocation, 1);
-
-                gl.uniform1f(timeLocation, timestamp * 0.001);
-                gl.uniform1f(strengthLocation, 1.0 + (mouseOverPanel ? 0.5 : 0.0));
-
-                gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-
-                requestAnimationFrame(render);
-            }
-
-            resizeGlassCanvas();
-            requestAnimationFrame(render);
-
-            // 3D tilt for glass panel (subtle)
-            glassPanel.addEventListener('mousemove', function(e) {
-                const rect = glassPanel.getBoundingClientRect();
-                const localX = (e.clientX - rect.left) / rect.width;
-                const localY = (e.clientY - rect.top) / rect.height;
-                const rotateY = (localX - 0.5) * 4;
-                const rotateX = (localY - 0.5) * -4;
-                glassPanel.style.transform = 'perspective(800px) rotateX(' + rotateX.toFixed(2) + 'deg) rotateY(' + rotateY.toFixed(2) + 'deg)';
-            });
-            glassPanel.addEventListener('mouseleave', function() {
-                glassPanel.style.transform = 'perspective(800px) rotateX(0deg) rotateY(0deg)';
-            });
         })();
     </script>
 </body>
