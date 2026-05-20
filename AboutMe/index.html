@@ -1,713 +1,305 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <meta property="og:url" content="https://mexrl.dev" />
-    <meta property="og:site_name" content="MexrlDev" />
-    <meta property="description" content="About Me - MexrlDev" />
-    <meta name="theme-color" content="#0a0a0a" />
-    <meta property="og:image" content="https://raw.githubusercontent.com/MexrlDev/MexrlDev.github.io/refs/heads/main/AboutMe/wifu.jpeg" />
-    <title>About · MexrlDev</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-    <style>
-        :root {
-            --mouse-x: 0.5;
-            --mouse-y: 0.5;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Real Liquid Glass</title>
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: linear-gradient(45deg, #0a0a0a, #1a1a2e, #16213e, #0a0a0a);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Inter', system-ui, sans-serif;
+      overflow: hidden;
+    }
+    /* Decorative background layer */
+    .bg-content {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      padding: 40px;
+      opacity: 0.6;
+      z-index: 0;
+    }
+    .bg-circle {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, rgba(0,255,255,0.4), rgba(0,180,255,0.1));
+      animation: float 6s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-20px); }
+    }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            user-select: none;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-        }
-
-        body {
-            background: #0a0a0a;
-            font-family: 'Orbitron', sans-serif;
-            height: 100vh;
-            width: 100vw;
-            overflow: hidden;
-            color: #e0e0e0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            touch-action: manipulation;
-            position: fixed;
-            top: 0;
-            left: 0;
-            cursor: crosshair;
-        }
-
-        #background {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
-            will-change: transform;
-        }
-
-        #background canvas {
-            touch-action: none;
-            will-change: transform;
-            filter: drop-shadow(0 0 12px rgba(0, 255, 255, 0.7));
-        }
-
-        #container {
-            position: relative;
-            z-index: 10;
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 2rem 1rem;
-            text-align: center;
-            transform: translateY(-12%) scale(0.9);
-            transform-origin: center center;
-        }
-
-        #logo-container {
-            margin-bottom: 1.2rem;
-            position: relative;
-            z-index: 11;
-        }
-
-        #profile-pic {
-            width: clamp(120px, 28vw, 170px);
-            height: clamp(120px, 28vw, 170px);
-            border-radius: 50%;
-            object-fit: cover;
-            background: #0a0a0a;
-            box-shadow: 0 0 45px rgba(0, 255, 255, 0.5), 0 0 20px rgba(0, 255, 255, 0.3) inset, 0 0 0 1px rgba(255, 255, 255, 0.12);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            will-change: transform, box-shadow;
-        }
-
-        #profile-pic:hover {
-            transform: scale(1.04);
-            box-shadow: 0 0 70px cyan, 0 0 35px rgba(0, 255, 255, 0.6) inset, 0 0 0 2px rgba(255, 255, 255, 0.25);
-        }
-
-        #logo {
-            font-size: clamp(1.5rem, 6.5vw, 2.4rem);
-            font-weight: 700;
-            letter-spacing: 0.3em;
-            text-transform: uppercase;
-            color: #fff;
-            text-shadow: 0 0 18px cyan, 0 0 45px cyan, 0 0 80px rgba(0, 255, 255, 0.7), 0 0 120px rgba(0, 200, 255, 0.35);
-            animation: pulseText 2.5s infinite;
-            margin-bottom: 2rem;
-            position: relative;
-            z-index: 11;
-            will-change: text-shadow;
-        }
-
-        @keyframes pulseText {
-            0%,
-            100% {
-                text-shadow: 0 0 15px cyan, 0 0 35px cyan, 0 0 70px rgba(0, 255, 255, 0.6);
-            }
-            50% {
-                text-shadow: 0 0 28px cyan, 0 0 65px cyan, 0 0 100px cyan, 0 0 160px rgba(0, 200, 255, 0.5);
-            }
-        }
-
-        .glass-panel {
-            position: relative;
-            background: transparent;
-            border-radius: 28px;
-            padding: 1.8rem 2.2rem;
-            margin: 0.4rem 0;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 0 0 1px rgba(0, 255, 255, 0.1);
-            backdrop-filter: blur(14px) saturate(1.4);
-            backdrop-filter: url(#liquidGlassFilter);
-            transition: box-shadow 0.5s ease, backdrop-filter 0.3s ease;
-            will-change: backdrop-filter, box-shadow;
-            z-index: 10;
-        }
-
-        .glass-content {
-            position: relative;
-            z-index: 1;
-        }
-
-        .info-line {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.2rem;
-            font-size: clamp(1rem, 4vw, 1.3rem);
-            margin: 0.6rem 0;
-            padding: 0.3rem 0;
-            transition: all 0.3s;
-            touch-action: manipulation;
-            position: relative;
-            z-index: 12;
-        }
-
-        @media (min-width: 769px) {
-            .info-line {
-                gap: 0.55rem;
-            }
-        }
-
-        .info-line i {
-            color: cyan;
-            font-size: 1.2em;
-            text-shadow: 0 0 12px cyan, 0 0 24px rgba(0, 255, 255, 0.5), 0 0 40px rgba(0, 200, 255, 0.3);
-            width: 1.5rem;
-            text-align: center;
-            flex-shrink: 0;
-            touch-action: manipulation;
-            transition: text-shadow 0.3s ease;
-        }
-
-        .info-line span {
-            color: #ffffff;
-            font-weight: 500;
-            text-shadow: 0 0 12px rgba(255, 255, 255, 0.35), 0 0 4px rgba(255, 255, 255, 0.2), 0 0 30px rgba(0, 255, 255, 0.25);
-            touch-action: manipulation;
-            transition: text-shadow 0.3s ease;
-        }
-
-        #links {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 1.2rem;
-            margin-top: 2.5rem;
-            position: relative;
-            z-index: 13;
-        }
-
-        .neon-btn {
-            text-decoration: none;
-            padding: 0.7rem 1.8rem;
-            border-radius: 50px;
-            font-weight: 700;
-            font-size: clamp(0.85rem, 3.5vw, 1rem);
-            letter-spacing: 0.08em;
-            background: rgba(10, 10, 10, 0.5);
-            border: 1.5px solid rgba(0, 255, 255, 0.6);
-            color: cyan;
-            text-shadow: 0 0 6px cyan, 0 0 18px rgba(0, 255, 255, 0.5);
-            box-shadow: 0 0 20px rgba(0, 255, 255, 0.3), 0 0 50px rgba(0, 255, 255, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.06);
-            backdrop-filter: blur(4px);
-            -webkit-backdrop-filter: blur(4px);
-            transition: 0.35s cubic-bezier(0.25, 0.1, 0.25, 1);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            position: relative;
-            will-change: transform, box-shadow, background, border-color;
-            z-index: 14;
-        }
-
-        .neon-btn:hover {
-            background: rgba(0, 255, 255, 0.85);
-            color: #0a0a0a;
-            text-shadow: none;
-            box-shadow: 0 0 40px cyan, 0 0 80px cyan, 0 0 130px rgba(0, 255, 255, 0.5), inset 0 0 20px rgba(255, 255, 255, 0.3);
-            border-color: rgba(255, 255, 255, 0.9);
-            transform: translateY(-3px) scale(1.03);
-        }
-
-        .neon-btn:hover i {
-            text-shadow: none;
-            color: #0a0a0a;
-        }
-
-        #copyright {
-            position: fixed;
-            bottom: 12px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 20;
-            font-size: 0.8rem;
-            color: #555;
-            text-shadow: 0 0 10px rgba(0, 255, 255, 0.3), 0 0 25px rgba(0, 200, 255, 0.15);
-            white-space: nowrap;
-            pointer-events: none;
-        }
-
-        #copyright a {
-            color: #777;
-            text-decoration: none;
-            pointer-events: auto;
-            transition: color 0.3s ease;
-        }
-
-        #copyright a:hover {
-            color: cyan;
-            text-shadow: 0 0 12px cyan;
-        }
-
-        @media (max-width: 768px) {
-            .glass-panel {
-                padding: 1.2rem 1.4rem;
-                border-radius: 22px;
-            }
-            .neon-btn {
-                padding: 0.55rem 1.3rem;
-            }
-        }
-    </style>
+    /* The glass panel */
+    .glass-panel {
+      position: relative;
+      z-index: 10;
+      width: clamp(300px, 50vw, 500px);
+      padding: 2.5rem;
+      border-radius: 32px;
+      /* The SVG filter is applied as a backdrop-filter (Chrome-only) */
+      backdrop-filter: url(#liquidGlassFilter);
+      /* Fallback for when SVG backdrop-filter is not supported */
+      background: rgba(10, 10, 10, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+      color: white;
+      text-align: center;
+      transition: transform 0.3s ease;
+    }
+    .glass-panel:hover {
+      transform: scale(1.02);
+    }
+    h1 {
+      font-size: clamp(1.5rem, 4vw, 2.5rem);
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-shadow: 0 0 20px rgba(0, 255, 255, 0.6);
+      margin-bottom: 1rem;
+    }
+    p {
+      font-size: 1.1rem;
+      line-height: 1.6;
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+    }
+  </style>
 </head>
 <body>
-    <div id="background"></div>
+  <!-- Decorative background elements to show the refraction effect -->
+  <div class="bg-content" id="bgContent">
+    <!-- Circles will be generated here via JS -->
+  </div>
 
-    <div id="container">
-        <div id="logo-container">
-            <img id="profile-pic" src="https://raw.githubusercontent.com/MexrlDev/MexrlDev.github.io/refs/heads/main/AboutMe/wifu.jpeg" alt="MexrlDev avatar" />
-        </div>
+  <!-- The glass panel -->
+  <div class="glass-panel" id="glassPanel">
+    <h1>🌊 Liquid Glass</h1>
+    <p>This is not a simple blur. This is physics-based refraction.</p>
+    <p>Move me or resize to see the lensing effect.</p>
+  </div>
 
-        <div class="glass-panel" id="glassPanel">
-            <div class="glass-content">
-                <div id="logo">About Me</div>
-                <div class="info-line">
-                    <i class="fa-solid fa-user"></i>
-                    <span>MexrlDev</span>
-                </div>
-                <div class="info-line">
-                    <i class="fa-solid fa-cake-candles"></i>
-                    <span>March</span>
-                </div>
-                <div class="info-line">
-                    <i class="fa-solid fa-code"></i>
-                    <span>Python, Lua, JS</span>
-                </div>
-                <div class="info-line">
-                    <i class="fa-solid fa-gamepad"></i>
-                    <span>Anime, Manga, Music, Console Hacking</span>
-                </div>
-                <div id="links">
-                    <a href="https://git.etawen.dev/X" target="_blank" class="neon-btn">
-                        <i class="fa-solid fa-code-branch"></i> git.etawen
-                    </a>
-                    <a href="https://github.com/MexrlDev" target="_blank" class="neon-btn">
-                        <i class="fa-brands fa-github"></i> GitHub
-                    </a>
-                    <a href="https://x.com/mexrl" target="_blank" class="neon-btn">
-                        <i class="fa-brands fa-x-twitter"></i> X
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
+  <!-- Hidden SVG for the Liquid Glass filter -->
+  <svg style="display:none" id="liquidGlassSvg">
+    <filter id="liquidGlassFilter" colorInterpolationFilters="sRGB" filterUnits="userSpaceOnUse">
+      <feImage id="dispMapImage" x="0" y="0" result="displacement_map" />
+      <feDisplacementMap in="SourceGraphic" in2="displacement_map" scale="15" xChannelSelector="R" yChannelSelector="G" result="refracted" />
+      <feImage id="specMapImage" x="0" y="0" result="specular_map" />
+      <feBlend in="refracted" in2="specular_map" mode="screen" />
+    </filter>
+  </svg>
 
-    <div id="copyright">
-        © <span id="year"></span> MexrlDev
-    </div>
+  <script>
+    (function() {
+      // --- 1. Generate background decorations ---
+      const bgContent = document.getElementById('bgContent');
+      for (let i = 0; i < 30; i++) {
+        const circle = document.createElement('div');
+        circle.className = 'bg-circle';
+        circle.style.animationDelay = `${Math.random() * 6}s`;
+        circle.style.width = `${40 + Math.random() * 80}px`;
+        circle.style.height = circle.style.width;
+        bgContent.appendChild(circle);
+      }
 
-    <audio id="bgAudio" preload="auto">
-        <source src="https://raw.githubusercontent.com/MexrlDev/MexrlDev.github.io/refs/heads/main/AboutMe/Floods%20_outro.mp3" type="audio/mpeg">
-    </audio>
+      const glassPanel = document.getElementById('glassPanel');
+      const dispMapImage = document.getElementById('dispMapImage');
+      const specMapImage = document.getElementById('specMapImage');
+      const filter = document.getElementById('liquidGlassFilter');
 
-    <!-- Hidden SVG for the Liquid Glass filter -->
-    <svg style="display:none" id="liquidGlassSvg">
-        <filter id="liquidGlassFilter" colorInterpolationFilters="sRGB" filterUnits="userSpaceOnUse">
-            <feImage id="dispMapImage" x="0" y="0" result="displacement_map" />
-            <feDisplacementMap in="SourceGraphic" in2="displacement_map" scale="1" xChannelSelector="R" yChannelSelector="G" result="refracted" />
-            <feImage id="specMapImage" x="0" y="0" result="specular_map" />
-            <feBlend in="refracted" in2="specular_map" mode="screen" />
-        </filter>
-    </svg>
+      // --- 2. Physics Parameters (from kube.io article) ---
+      const BEZEL_WIDTH_PX = 28;        // Width of the curved edge area
+      const GLASS_THICKNESS = 12;        // Max glass height – affects refraction strength
+      const REFRACTION_INDEX = 1.5;     // Glass IOR (air = 1.0)
 
-    <script src="https://unpkg.com/three@0.134.0/build/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/vanta@0.5.24/dist/vanta.net.min.js"></script>
-    <script>
-        document.getElementById('year').textContent = new Date().getFullYear();
+      // --- 3. Convex Squircle Height Function ---
+      // y = (1 - (1 - x)^4)^(1/4)
+      function squircleHeight(x) {
+        if (x <= 0) return 0;
+        if (x >= 1) return 1;
+        return Math.pow(1 - Math.pow(1 - x, 4), 0.25);
+      }
 
-        var isMobile = ('ontouchstart' in window) || navigator.maxTouchPoints > 0 || window.innerWidth <= 768;
-        var scaleValue = 1.0;
+      // --- 4. Pre-compute Displacement Table (one-time calculation) ---
+      const SAMPLES = 128;
+      const displacementTable = new Float32Array(SAMPLES);
+      let maxDisplacement = 0;
 
-        var effect = VANTA.NET({
-            el: "#background",
-            mouseControls: true,
-            touchControls: false,
-            gyroControls: isMobile,
-            minHeight: 200.00,
-            minWidth: 200.00,
-            scale: 1.0,
-            scaleMobile: 1.0,
-            color: 0x00ffff,
-            backgroundColor: 0x0a0a0a,
-            points: 11.0,
-            maxDistance: 20.0,
-            spacing: 19.0,
-            showDots: true
-        });
+      for (let i = 0; i < SAMPLES; i++) {
+        const dist = i / (SAMPLES - 1);  // normalized distance from border [0,1]
+        const h = squircleHeight(dist) * GLASS_THICKNESS;
 
-        var vantaCanvas = document.querySelector("#background canvas");
-        if (vantaCanvas) {
-            vantaCanvas.style.filter = "drop-shadow(0 0 12px rgba(0,255,255,0.7))";
-            vantaCanvas.style.willChange = "transform";
+        // Approximate the derivative of the surface at this point
+        const eps = 0.001;
+        const h1 = squircleHeight(Math.max(0, dist - eps)) * GLASS_THICKNESS;
+        const h2 = squircleHeight(Math.min(1, dist + eps)) * GLASS_THICKNESS;
+        const derivative = (h2 - h1) / (2 * eps * BEZEL_WIDTH_PX); // derivative per pixel
+        const normal = { x: -derivative, y: 1 }; // surface normal
+        const normalLen = Math.sqrt(normal.x ** 2 + normal.y ** 2);
+        const nx = normal.x / normalLen;
+        const ny = normal.y / normalLen;
+
+        // Incident ray is orthogonal (0,1)
+        const cosTheta1 = Math.abs(ny);
+        const sinTheta1 = Math.sqrt(Math.max(0, 1 - cosTheta1 * cosTheta1));
+        const sinTheta2 = sinTheta1 / REFRACTION_INDEX;
+        const cosTheta2 = Math.sqrt(Math.max(0, 1 - sinTheta2 * sinTheta2));
+
+        // Refracted ray direction
+        const refractX = -nx * cosTheta2 + ny * sinTheta2;
+        const refractY = -ny * cosTheta2 - nx * sinTheta2;
+
+        // Displacement along the background plane
+        const displacement = (h / refractY) * refractX;
+        displacementTable[i] = displacement;
+        maxDisplacement = Math.max(maxDisplacement, Math.abs(displacement));
+      }
+
+      // --- 5. Generate Displacement and Specular Maps ---
+      function generateMaps() {
+        const rect = glassPanel.getBoundingClientRect();
+        const w = Math.ceil(rect.width);
+        const h = Math.ceil(rect.height);
+        if (w === 0 || h === 0) return;
+
+        const cornerRadius = 32; // must match CSS border-radius
+
+        // Displacement Map Canvas
+        const dispCanvas = document.createElement('canvas');
+        dispCanvas.width = w;
+        dispCanvas.height = h;
+        const dispCtx = dispCanvas.getContext('2d');
+        const dispImageData = dispCtx.createImageData(w, h);
+
+        // Specular Map Canvas
+        const specCanvas = document.createElement('canvas');
+        specCanvas.width = w;
+        specCanvas.height = h;
+        const specCtx = specCanvas.getContext('2d');
+        const specImageData = specCtx.createImageData(w, h);
+
+        for (let py = 0; py < h; py++) {
+          for (let px = 0; px < w; px++) {
+            // Calculate distance to the nearest border (with rounded corners)
+            const distTop = py;
+            const distBottom = h - 1 - py;
+            const distLeft = px;
+            const distRight = w - 1 - px;
+
+            // For corners, distance from the corner center
+            const topLeftDist = Math.sqrt((px - cornerRadius) ** 2 + (py - cornerRadius) ** 2) - cornerRadius;
+            const topRightDist = Math.sqrt((px - (w - 1 - cornerRadius)) ** 2 + (py - cornerRadius) ** 2) - cornerRadius;
+            const bottomLeftDist = Math.sqrt((px - cornerRadius) ** 2 + (py - (h - 1 - cornerRadius)) ** 2) - cornerRadius;
+            const bottomRightDist = Math.sqrt((px - (w - 1 - cornerRadius)) ** 2 + (py - (h - 1 - cornerRadius)) ** 2) - cornerRadius;
+
+            const minDist = Math.min(distTop, distBottom, distLeft, distRight, topLeftDist, topRightDist, bottomLeftDist, bottomRightDist);
+
+            const pixelIndex = (py * w + px) * 4;
+
+            if (minDist <= BEZEL_WIDTH_PX && minDist > 0) {
+              // --- Determine inward direction ---
+              const candidates = [
+                { dist: distTop, nx: 0, ny: -1 },
+                { dist: distBottom, nx: 0, ny: 1 },
+                { dist: distLeft, nx: -1, ny: 0 },
+                { dist: distRight, nx: 1, ny: 0 },
+                { dist: topLeftDist, nx: -1, ny: -1, isCorner: true, cx: cornerRadius, cy: cornerRadius },
+                { dist: topRightDist, nx: 1, ny: -1, isCorner: true, cx: w - 1 - cornerRadius, cy: cornerRadius },
+                { dist: bottomLeftDist, nx: -1, ny: 1, isCorner: true, cx: cornerRadius, cy: h - 1 - cornerRadius },
+                { dist: bottomRightDist, nx: 1, ny: 1, isCorner: true, cx: w - 1 - cornerRadius, cy: h - 1 - cornerRadius }
+              ];
+              let closest = candidates[0];
+              for (const c of candidates) {
+                if (c.dist < closest.dist) closest = c;
+              }
+
+              let dirX, dirY;
+              if (closest.isCorner) {
+                const rx = px - closest.cx;
+                const ry = py - closest.cy;
+                const len = Math.sqrt(rx ** 2 + ry ** 2);
+                dirX = len > 0 ? rx / len : 0;
+                dirY = len > 0 ? ry / len : 0;
+              } else {
+                dirX = closest.nx;
+                dirY = closest.ny;
+              }
+              // Inward direction is opposite of outward normal
+              const inwardX = -dirX;
+              const inwardY = -dirY;
+
+              // Lookup normalized displacement magnitude from table
+              const normDist = minDist / BEZEL_WIDTH_PX;
+              const idx = Math.min(SAMPLES - 1, Math.floor(normDist * (SAMPLES - 1)));
+              const mag = displacementTable[idx] / maxDisplacement; // normalize to [0,1]
+
+              // Encode to R and G channels (128 = no displacement)
+              dispImageData.data[pixelIndex] = 128 + inwardX * mag * 127;
+              dispImageData.data[pixelIndex + 1] = 128 + inwardY * mag * 127;
+              dispImageData.data[pixelIndex + 2] = 128;
+              dispImageData.data[pixelIndex + 3] = 255;
+
+              // --- Specular highlight (simplified rim light) ---
+              const specIntensity = Math.max(0, 1 - normDist * 3) * 0.8;
+              const specVal = Math.round(specIntensity * 255);
+              specImageData.data[pixelIndex] = specVal;
+              specImageData.data[pixelIndex + 1] = specVal;
+              specImageData.data[pixelIndex + 2] = specVal;
+              specImageData.data[pixelIndex + 3] = 255;
+            } else {
+              // No displacement / specular for interior or outside
+              dispImageData.data[pixelIndex] = 128;
+              dispImageData.data[pixelIndex + 1] = 128;
+              dispImageData.data[pixelIndex + 2] = 128;
+              dispImageData.data[pixelIndex + 3] = 255;
+
+              specImageData.data[pixelIndex] = 0;
+              specImageData.data[pixelIndex + 1] = 0;
+              specImageData.data[pixelIndex + 2] = 0;
+              specImageData.data[pixelIndex + 3] = 255;
+            }
+          }
         }
 
-        var initialPinchDist = null;
-        var baseScale = 1.0;
-        var isPinching = false;
-        var lastTouchX = 0;
-        var lastTouchY = 0;
+        dispCtx.putImageData(dispImageData, 0, 0);
+        specCtx.putImageData(specImageData, 0, 0);
 
-        function simulateMouseMove(x, y) {
-            window.dispatchEvent(new MouseEvent('mousemove', {
-                clientX: x,
-                clientY: y
-            }));
-        }
+        // Update SVG filter images
+        dispMapImage.setAttribute('href', dispCanvas.toDataURL('image/png'));
+        dispMapImage.setAttribute('width', w);
+        dispMapImage.setAttribute('height', h);
+        specMapImage.setAttribute('href', specCanvas.toDataURL('image/png'));
+        specMapImage.setAttribute('width', w);
+        specMapImage.setAttribute('height', h);
 
-        if (isMobile) {
-            document.addEventListener('touchstart', function(e) {
-                if (e.touches.length === 2) {
-                    e.preventDefault();
-                    initialPinchDist = Math.hypot(
-                        e.touches[0].clientX - e.touches[1].clientX,
-                        e.touches[0].clientY - e.touches[1].clientY
-                    );
-                    baseScale = scaleValue;
-                    isPinching = true;
-                } else if (e.touches.length === 1) {
-                    var touch = e.touches[0];
-                    lastTouchX = touch.clientX;
-                    lastTouchY = touch.clientY;
-                    simulateMouseMove(lastTouchX, lastTouchY);
-                }
-            }, { passive: false });
+        // Update filter dimensions and scale
+        filter.setAttribute('x', rect.left);
+        filter.setAttribute('y', rect.top);
+        filter.setAttribute('width', w);
+        filter.setAttribute('height', h);
 
-            document.addEventListener('touchmove', function(e) {
-                if (isPinching && e.touches.length === 2) {
-                    e.preventDefault();
-                    var newDist = Math.hypot(
-                        e.touches[0].clientX - e.touches[1].clientX,
-                        e.touches[0].clientY - e.touches[1].clientY
-                    );
-                    if (initialPinchDist > 0) {
-                        var scaleChange = newDist / initialPinchDist;
-                        var newScale = Math.max(0.6, Math.min(2.2, baseScale * scaleChange));
-                        if (Math.abs(newScale - scaleValue) > 0.01) {
-                            scaleValue = newScale;
-                            effect.setOptions({ scale: scaleValue });
-                        }
-                    }
-                } else if (!isPinching && e.touches.length === 1) {
-                    var touch = e.touches[0];
-                    lastTouchX = touch.clientX;
-                    lastTouchY = touch.clientY;
-                    simulateMouseMove(lastTouchX, lastTouchY);
-                }
-            }, { passive: false });
+        const dispMapFilter = filter.querySelector('feDisplacementMap');
+        dispMapFilter.setAttribute('scale', maxDisplacement);
+      }
 
-            document.addEventListener('touchend', function(e) {
-                if (e.touches.length < 2) {
-                    initialPinchDist = null;
-                    isPinching = false;
-                }
-                if (e.touches.length === 1) {
-                    var touch = e.touches[0];
-                    lastTouchX = touch.clientX;
-                    lastTouchY = touch.clientY;
-                    simulateMouseMove(lastTouchX, lastTouchY);
-                }
-            });
+      // --- 6. Initialize and handle resize ---
+      window.addEventListener('load', generateMaps);
+      window.addEventListener('resize', () => {
+        clearTimeout(window._resizeTimer);
+        window._resizeTimer = setTimeout(generateMaps, 100);
+      });
 
-            var lastTapTime = 0;
-            document.addEventListener('touchend', function(e) {
-                var now = Date.now();
-                if (now - lastTapTime < 300 && e.target) {
-                    e.preventDefault();
-                }
-                lastTapTime = now;
-            }, { passive: false });
-        }
-
-        document.addEventListener('gesturestart', function(e) { e.preventDefault(); });
-        document.addEventListener('gesturechange', function(e) { e.preventDefault(); });
-        document.addEventListener('gestureend', function(e) { e.preventDefault(); });
-
-        (function() {
-            if (localStorage.getItem('bgMusicPlayed')) return;
-            const audio = document.getElementById('bgAudio');
-            if (!audio) return;
-            audio.loop = false;
-            audio.volume = 0.85;
-            let isMutedFallback = false;
-            audio.play().then(() => {
-                localStorage.setItem('bgMusicPlayed', 'true');
-            }).catch(() => {
-                audio.muted = true;
-                return audio.play();
-            }).then(() => {
-                if (audio.muted) {
-                    isMutedFallback = true;
-                    localStorage.setItem('bgMusicPlayed', 'true');
-                    const unmuteHandler = () => {
-                        if (isMutedFallback && audio.muted) {
-                            audio.muted = false;
-                            audio.play().catch(() => {});
-                            isMutedFallback = false;
-                        }
-                        window.removeEventListener('pointerdown', unmuteHandler);
-                        window.removeEventListener('keydown', unmuteHandler);
-                    };
-                    window.addEventListener('pointerdown', unmuteHandler, { once: true });
-                    window.addEventListener('keydown', unmuteHandler, { once: true });
-                }
-            }).catch(() => {});
-        })();
-    </script>
-
-    <!-- Liquid Glass SVG filter map generation (based on kube.io article) -->
-    <script>
-        (function() {
-            const glassPanel = document.getElementById('glassPanel');
-            const filter = document.getElementById('liquidGlassFilter');
-            const dispMapImage = document.getElementById('dispMapImage');
-            const specMapImage = document.getElementById('specMapImage');
-
-            const bezelWidthPx = 24;       // pixels of curved edge
-            const glassThickness = 10;      // max glass height (affects refraction strength)
-            const refractionIndex = 1.5;    // glass IOR
-            const specularPower = 25;       // shininess
-            const lightDir = { x: -0.5, y: -0.7, z: 1.0 }; // normalized direction
-
-            function normalize(v) {
-                const len = Math.sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
-                if (len === 0) return v;
-                return { x: v.x / len, y: v.y / len, z: v.z / len };
-            }
-            const lightVec = normalize(lightDir);
-
-            // Squircle convex height function: y = (1 - (1 - x)^4)^(1/4)
-            function heightFunc(x) {
-                if (x <= 0) return 0;
-                if (x >= 1) return 1;
-                return Math.pow(1 - Math.pow(1 - x, 4), 0.25);
-            }
-
-            // Precompute displacement magnitudes for normalized distance [0,1]
-            const samples = 128;
-            const displacementTable = new Float32Array(samples);
-            let maxDisplacement = 0;
-
-            for (let i = 0; i < samples; i++) {
-                const dist = i / (samples - 1);
-                const h = heightFunc(dist) * glassThickness;
-                // derivative approximation
-                const eps = 0.001;
-                const h1 = heightFunc(Math.max(0, dist - eps)) * glassThickness;
-                const h2 = heightFunc(Math.min(1, dist + eps)) * glassThickness;
-                const derivative = (h2 - h1) / (2 * eps * bezelWidthPx); // per pixel
-                const normal = { x: -derivative, y: 1 }; // rotated by -90 deg
-                const normalLen = Math.sqrt(normal.x * normal.x + normal.y * normal.y);
-                const nx = normal.x / normalLen;
-                const ny = normal.y / normalLen;
-
-                // incident ray is orthogonal (0,1) in 2D (pointing up from background into glass)
-                const cosTheta1 = Math.abs(ny); // dot(incident, normal) = ny
-                const sinTheta1 = Math.sqrt(Math.max(0, 1 - cosTheta1 * cosTheta1));
-                const sinTheta2 = sinTheta1 / refractionIndex;
-                const cosTheta2 = Math.sqrt(Math.max(0, 1 - sinTheta2 * sinTheta2));
-                const refractX = -nx * cosTheta2 + ny * sinTheta2; // simplified 2D refraction direction
-                const refractY = -ny * cosTheta2 - nx * sinTheta2;
-
-                // displacement along surface from entry to exit (horizontal shift)
-                const displacement = (h / refractY) * refractX;
-                displacementTable[i] = displacement;
-                maxDisplacement = Math.max(maxDisplacement, Math.abs(displacement));
-            }
-
-            // Normalize so max magnitude = 1
-            const normFactor = maxDisplacement > 0 ? 1 / maxDisplacement : 1;
-            for (let i = 0; i < samples; i++) {
-                displacementTable[i] *= normFactor;
-            }
-
-            function generateMaps() {
-                const rect = glassPanel.getBoundingClientRect();
-                const w = rect.width;
-                const h = rect.height;
-                if (w === 0 || h === 0) return;
-
-                const mapW = Math.ceil(w);
-                const mapH = Math.ceil(h);
-                const cornerRadius = 28; // matches border-radius
-
-                const dispCanvas = document.createElement('canvas');
-                dispCanvas.width = mapW;
-                dispCanvas.height = mapH;
-                const dispCtx = dispCanvas.getContext('2d');
-                const dispImageData = dispCtx.createImageData(mapW, mapH);
-
-                const specCanvas = document.createElement('canvas');
-                specCanvas.width = mapW;
-                specCanvas.height = mapH;
-                const specCtx = specCanvas.getContext('2d');
-                const specImageData = specCtx.createImageData(mapW, mapH);
-
-                for (let py = 0; py < mapH; py++) {
-                    for (let px = 0; px < mapW; px++) {
-                        // Determine distance to nearest border (accounting for rounded corners)
-                        let minDist = Infinity;
-                        let dx = 0, dy = 0;
-                        let normalAngle = 0; // angle of outward normal (pointing away from glass)
-
-                        // Check distances to four edges
-                        const distTop = py;
-                        const distBottom = mapH - 1 - py;
-                        const distLeft = px;
-                        const distRight = mapW - 1 - px;
-
-                        // For corners, adjust distance based on the arc
-                        function cornerDist(cx, cy) {
-                            const rx = px - cx;
-                            const ry = py - cy;
-                            const distFromCornerCenter = Math.sqrt(rx * rx + ry * ry);
-                            const cornerDist = distFromCornerCenter - cornerRadius;
-                            return Math.max(cornerDist, 0);
-                        }
-
-                        const topLeftDist = cornerDist(cornerRadius, cornerRadius);
-                        const topRightDist = cornerDist(mapW - 1 - cornerRadius, cornerRadius);
-                        const bottomLeftDist = cornerDist(cornerRadius, mapH - 1 - cornerRadius);
-                        const bottomRightDist = cornerDist(mapW - 1 - cornerRadius, mapH - 1 - cornerRadius);
-
-                        minDist = Math.min(distTop, distBottom, distLeft, distRight,
-                            topLeftDist, topRightDist, bottomLeftDist, bottomRightDist);
-
-                        // Compute direction vector from nearest border point (pointing inward for refraction)
-                        if (minDist <= bezelWidthPx && minDist > 0) {
-                            // Determine which border is closest
-                            const candidates = [
-                                { dist: distTop, nx: 0, ny: -1, cx: px, cy: 0 },
-                                { dist: distBottom, nx: 0, ny: 1, cx: px, cy: mapH - 1 },
-                                { dist: distLeft, nx: -1, ny: 0, cx: 0, cy: py },
-                                { dist: distRight, nx: 1, ny: 0, cx: mapW - 1, cy: py },
-                                { dist: topLeftDist, nx: -1, ny: -1, cx: cornerRadius, cy: cornerRadius, isCorner: true },
-                                { dist: topRightDist, nx: 1, ny: -1, cx: mapW - 1 - cornerRadius, cy: cornerRadius, isCorner: true },
-                                { dist: bottomLeftDist, nx: -1, ny: 1, cx: cornerRadius, cy: mapH - 1 - cornerRadius, isCorner: true },
-                                { dist: bottomRightDist, nx: 1, ny: 1, cx: mapW - 1 - cornerRadius, cy: mapH - 1 - cornerRadius, isCorner: true }
-                            ];
-
-                            let closest = candidates[0];
-                            for (let c of candidates) {
-                                if (c.dist < closest.dist) closest = c;
-                            }
-
-                            let normalDirX, normalDirY;
-                            if (closest.isCorner) {
-                                const rx = px - closest.cx;
-                                const ry = py - closest.cy;
-                                const len = Math.sqrt(rx * rx + ry * ry);
-                                normalDirX = len > 0 ? rx / len : 0;
-                                normalDirY = len > 0 ? ry / len : 0;
-                            } else {
-                                normalDirX = closest.nx;
-                                normalDirY = closest.ny;
-                            }
-
-                            // Inward direction is opposite of outward normal
-                            const inwardX = -normalDirX;
-                            const inwardY = -normalDirY;
-
-                            // Lookup displacement magnitude from table
-                            const normDist = minDist / bezelWidthPx;
-                            const idx = Math.min(samples - 1, Math.floor(normDist * (samples - 1)));
-                            const mag = displacementTable[idx];
-
-                            // Encode as R and G channels (0-255 range, 128 = no displacement)
-                            const dispX = inwardX * mag;
-                            const dispY = inwardY * mag;
-                            const r = Math.round(128 + dispX * 127);
-                            const g = Math.round(128 + dispY * 127);
-
-                            const pi = (py * mapW + px) * 4;
-                            dispImageData.data[pi] = r;
-                            dispImageData.data[pi + 1] = g;
-                            dispImageData.data[pi + 2] = 128;
-                            dispImageData.data[pi + 3] = 255;
-
-                            // Specular highlight calculation
-                            const nx3d = normalDirX; // outward normal x
-                            const ny3d = normalDirY; // outward normal y (screen space)
-                            // Approximate surface normal in 3D: (nx, ny, nz) with nz derived from surface slope
-                            const slopeMag = Math.sqrt(nx3d * nx3d + ny3d * ny3d);
-                            const nz = 1 / Math.sqrt(1 + slopeMag * slopeMag);
-                            const nx = nx3d * nz;
-                            const ny = ny3d * nz;
-
-                            const dot = nx * lightVec.x + ny * lightVec.y + nz * lightVec.z;
-                            const specIntensity = Math.pow(Math.max(0, dot), specularPower);
-                            const specVal = Math.round(specIntensity * 255);
-
-                            specImageData.data[pi] = specVal;
-                            specImageData.data[pi + 1] = specVal;
-                            specImageData.data[pi + 2] = specVal;
-                            specImageData.data[pi + 3] = 255;
-                        } else {
-                            const pi = (py * mapW + px) * 4;
-                            dispImageData.data[pi] = 128;
-                            dispImageData.data[pi + 1] = 128;
-                            dispImageData.data[pi + 2] = 128;
-                            dispImageData.data[pi + 3] = 255;
-
-                            specImageData.data[pi] = 0;
-                            specImageData.data[pi + 1] = 0;
-                            specImageData.data[pi + 2] = 0;
-                            specImageData.data[pi + 3] = 255;
-                        }
-                    }
-                }
-
-                dispCtx.putImageData(dispImageData, 0, 0);
-                specCtx.putImageData(specImageData, 0, 0);
-
-                const dispDataUrl = dispCanvas.toDataURL('image/png');
-                const specDataUrl = specCanvas.toDataURL('image/png');
-
-                dispMapImage.setAttribute('href', dispDataUrl);
-                dispMapImage.setAttribute('width', mapW);
-                dispMapImage.setAttribute('height', mapH);
-                specMapImage.setAttribute('href', specDataUrl);
-                specMapImage.setAttribute('width', mapW);
-                specMapImage.setAttribute('height', mapH);
-
-                // Update filter region to match element
-                filter.setAttribute('x', rect.left);
-                filter.setAttribute('y', rect.top);
-                filter.setAttribute('width', mapW);
-                filter.setAttribute('height', mapH);
-
-                // Set scale to the actual max displacement in pixels
-                const scaleVal = maxDisplacement * normFactor * maxDisplacement; // maxDisplacement was in pixels
-                filter.querySelector('feDisplacementMap').setAttribute('scale', maxDisplacement);
-            }
-
-            // Generate maps on load and resize
-            window.addEventListener('load', generateMaps);
-            window.addEventListener('resize', () => {
-                clearTimeout(window._resizeTimer);
-                window._resizeTimer = setTimeout(generateMaps, 100);
-            });
-
-            // Also observe size changes (if panel size changes due to content, etc.)
-            if (window.ResizeObserver) {
-                const observer = new ResizeObserver(() => generateMaps());
-                observer.observe(glassPanel);
-            }
-        })();
-    </script>
+      if (window.ResizeObserver) {
+        const observer = new ResizeObserver(() => generateMaps());
+        observer.observe(glassPanel);
+      }
+    })();
+  </script>
 </body>
 </html>
