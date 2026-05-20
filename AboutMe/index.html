@@ -777,7 +777,6 @@
             resizeGlassCanvas();
             requestAnimationFrame(render);
 
-            // 3D tilt for glass panel (subtle)
             glassPanel.addEventListener('mousemove', function(e) {
                 const rect = glassPanel.getBoundingClientRect();
                 const localX = (e.clientX - rect.left) / rect.width;
