@@ -1,939 +1,795 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
-<meta property="og:url" content="https://mexrl.dev"/>
-<meta property="og:site_name" content="MexrlDev"/>
-<meta property="description" content="About Me - MexrlDev"/>
-<meta name="theme-color" content="#06060a"/>
-<meta property="og:image" content="https://raw.githubusercontent.com/MexrlDev/MexrlDev.github.io/refs/heads/main/AboutMe/wifu.jpeg"/>
-<title>About · MexrlDev</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
-<style>
-:root {
-  --cyan: #00ffff;
-  --cyan-dim: rgba(0,255,255,0.18);
-  --cyan-glow: 0 0 20px #00ffff, 0 0 60px rgba(0,255,255,0.4);
-  --bg: #06060a;
-}
-*{margin:0;padding:0;box-sizing:border-box;user-select:none;-webkit-user-select:none;}
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta property="og:url" content="https://mexrl.dev" />
+    <meta property="og:site_name" content="MexrlDev" />
+    <meta property="description" content="About Me - MexrlDev" />
+    <meta name="theme-color" content="#0a0a0a" />
+    <meta property="og:image" content="https://raw.githubusercontent.com/MexrlDev/MexrlDev.github.io/refs/heads/main/AboutMe/wifu.jpeg" />
+    <title>About · MexrlDev</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <style>
+        :root {
+            --mouse-x: 0.5;
+            --mouse-y: 0.5;
+            --glass-blur: 0px;
+            --glass-opacity: 1;
+            --edge-glow: 0.4;
+            --chromatic-shift: 0px;
+            --fresnel-intensity: 0.5;
+            --lens-distort: 0;
+            --ripple-x: 0.5;
+            --ripple-y: 0.5;
+            --ripple-strength: 0;
+        }
 
-body {
-  background: var(--bg);
-  font-family: 'Orbitron', sans-serif;
-  height: 100vh;
-  width: 100vw;
-  overflow: hidden;
-  color: #e0e0e0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  position: fixed;
-  top:0;left:0;
-  cursor: crosshair;
-}
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+        }
 
-/* ── BG canvas ── */
-#bgCanvas {
-  position: fixed;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 0;
-  pointer-events: none;
-}
+        body {
+            background: #0a0a0a;
+            font-family: 'Orbitron', sans-serif;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            color: #e0e0e0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            touch-action: manipulation;
+            position: fixed;
+            top: 0;
+            left: 0;
+            cursor: crosshair;
+        }
 
-/* ── GLASS CARD ── */
-#card {
-  position: relative;
-  z-index: 10;
-  width: min(480px, 92vw);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0;
-}
+        #background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            will-change: transform;
+        }
 
-/* The physical glass pane — WebGL renders INTO this canvas */
-#glassCanvas {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  border-radius: 32px;
-  z-index: 0;
-  pointer-events: none;
-  display: block;
-}
+        #background canvas {
+            touch-action: none;
+            will-change: transform;
+        }
 
-#glassSurface {
-  position: relative;
-  width: 100%;
-  border-radius: 32px;
-  padding: 2.4rem 2.6rem 2.2rem;
-  /* thin specular rim */
-  border: 1px solid rgba(255,255,255,0.22);
-  box-shadow:
-    0 0 0 1px rgba(0,255,255,0.12),
-    0 30px 80px rgba(0,0,0,0.7),
-    0 2px 0 rgba(255,255,255,0.08) inset,
-    0 -1px 0 rgba(0,0,0,0.6) inset;
-  overflow: hidden;
-  transition: transform 0.4s cubic-bezier(.23,1,.32,1), box-shadow 0.4s ease;
-}
+        #container {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1rem;
+            text-align: center;
+            transform: translateY(-12%) scale(0.9);
+            transform-origin: center center;
+        }
 
-/* specular edge highlights */
-#glassSurface::before {
-  content:'';
-  position:absolute;
-  inset:0;
-  border-radius:32px;
-  background:
-    linear-gradient(135deg,
-      rgba(255,255,255,0.18) 0%,
-      rgba(255,255,255,0.04) 30%,
-      transparent 60%,
-      rgba(0,255,255,0.06) 100%);
-  pointer-events:none;
-  z-index:2;
-}
+        #logo-container {
+            margin-bottom: 1.2rem;
+            position: relative;
+            z-index: 11;
+        }
 
-/* caustic shimmer overlay */
-#glassSurface::after {
-  content:'';
-  position:absolute;
-  inset:0;
-  border-radius:32px;
-  background:
-    radial-gradient(ellipse 60% 40% at 30% 20%, rgba(0,255,255,0.07) 0%, transparent 70%),
-    radial-gradient(ellipse 50% 60% at 80% 80%, rgba(120,80,255,0.05) 0%, transparent 70%);
-  pointer-events:none;
-  z-index:3;
-  animation: causticShift 6s ease-in-out infinite alternate;
-}
+        #profile-pic {
+            width: clamp(120px, 28vw, 170px);
+            height: clamp(120px, 28vw, 170px);
+            border-radius: 50%;
+            object-fit: cover;
+            background: #0a0a0a;
+            position: relative;
+            z-index: 2;
+            box-shadow: 0 0 45px rgba(0, 255, 255, 0.5), 0 0 20px rgba(0, 255, 255, 0.3) inset, 0 0 0 1px rgba(255, 255, 255, 0.12);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            will-change: transform, box-shadow;
+        }
 
-@keyframes causticShift {
-  0%   { opacity:1; transform:scale(1) translate(0,0); }
-  100% { opacity:0.6; transform:scale(1.12) translate(3%,4%); }
-}
+        #profile-pic:hover {
+            transform: scale(1.04);
+            box-shadow: 0 0 70px cyan, 0 0 35px rgba(0, 255, 255, 0.6) inset, 0 0 0 2px rgba(255, 255, 255, 0.25);
+        }
 
-.glass-content {
-  position: relative;
-  z-index: 4;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
+        #logo {
+            font-size: clamp(1.5rem, 6.5vw, 2.4rem);
+            font-weight: 700;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: #fff;
+            text-shadow: 0 0 18px cyan, 0 0 45px cyan, 0 0 80px rgba(0, 255, 255, 0.7), 0 0 120px rgba(0, 200, 255, 0.35);
+            animation: pulseText 2.5s infinite;
+            margin-bottom: 2rem;
+            position: relative;
+            z-index: 11;
+            will-change: text-shadow;
+        }
 
-/* ── AVATAR ── */
-#avatarWrap {
-  position: relative;
-  margin-bottom: 1.4rem;
-  width: clamp(110px,26vw,155px);
-  height: clamp(110px,26vw,155px);
-}
+        @keyframes pulseText {
+            0%,
+            100% {
+                text-shadow: 0 0 15px cyan, 0 0 35px cyan, 0 0 70px rgba(0, 255, 255, 0.6);
+            }
+            50% {
+                text-shadow: 0 0 28px cyan, 0 0 65px cyan, 0 0 100px cyan, 0 0 160px rgba(0, 200, 255, 0.5);
+            }
+        }
 
-#avatarRing {
-  position:absolute;
-  inset:-4px;
-  border-radius:50%;
-  background: conic-gradient(
-    from 0deg,
-    transparent 0%,
-    #00ffff 25%,
-    transparent 50%,
-    #7c3aed 75%,
-    transparent 100%
-  );
-  animation: spinRing 4s linear infinite;
-  z-index:0;
-}
+        .glass-panel {
+            position: relative;
+            background: transparent;
+            border-radius: 28px;
+            padding: 1.8rem 2.2rem;
+            margin: 0.4rem 0;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 0 0 1px rgba(0, 255, 255, 0.1);
+            transition: box-shadow 0.5s ease;
+            overflow: hidden;
+            z-index: 10;
+            will-change: box-shadow;
+        }
 
-@keyframes spinRing {
-  to { transform: rotate(360deg); }
-}
+        .glass-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 28px;
+            z-index: 0;
+            pointer-events: none;
+        }
 
-#avatarRingInner {
-  position:absolute;
-  inset:2px;
-  border-radius:50%;
-  background: var(--bg);
-  z-index:1;
-}
+        .glass-content {
+            position: relative;
+            z-index: 1;
+        }
 
-#profilePic {
-  position:absolute;
-  inset:5px;
-  border-radius:50%;
-  object-fit:cover;
-  z-index:2;
-  box-shadow: 0 0 30px rgba(0,255,255,0.35), 0 0 60px rgba(0,255,255,0.12);
-  transition: transform 0.3s ease, filter 0.3s ease;
-}
+        .info-line {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.2rem;
+            font-size: clamp(1rem, 4vw, 1.3rem);
+            margin: 0.6rem 0;
+            padding: 0.3rem 0;
+            transition: all 0.3s;
+            touch-action: manipulation;
+            position: relative;
+            z-index: 12;
+        }
 
-#profilePic:hover {
-  transform: scale(1.04);
-  filter: brightness(1.08) saturate(1.2);
-}
+        @media (min-width: 769px) {
+            .info-line {
+                gap: 0.55rem;
+            }
+        }
 
-/* ── TITLE ── */
-#title {
-  font-size: clamp(1.3rem,5.5vw,2rem);
-  font-weight: 900;
-  letter-spacing: 0.32em;
-  text-transform: uppercase;
-  color: #fff;
-  text-shadow: 0 0 14px #00ffff, 0 0 40px #00ffff, 0 0 80px rgba(0,255,255,0.5);
-  margin-bottom: 1.6rem;
-  animation: titlePulse 3s ease-in-out infinite;
-}
+        .info-line i {
+            color: cyan;
+            font-size: 1.2em;
+            text-shadow: 0 0 12px cyan, 0 0 24px rgba(0, 255, 255, 0.5), 0 0 40px rgba(0, 200, 255, 0.3);
+            width: 1.5rem;
+            text-align: center;
+            flex-shrink: 0;
+            touch-action: manipulation;
+            transition: text-shadow 0.3s ease;
+        }
 
-@keyframes titlePulse {
-  0%,100% { text-shadow: 0 0 12px #00ffff, 0 0 35px #00ffff, 0 0 60px rgba(0,255,255,0.4); }
-  50%      { text-shadow: 0 0 22px #00ffff, 0 0 60px #00ffff, 0 0 100px rgba(0,200,255,0.7); }
-}
+        .info-line span {
+            color: #ffffff;
+            font-weight: 500;
+            text-shadow: 0 0 12px rgba(255, 255, 255, 0.35), 0 0 4px rgba(255, 255, 255, 0.2), 0 0 30px rgba(0, 255, 255, 0.25);
+            touch-action: manipulation;
+            transition: text-shadow 0.3s ease;
+        }
 
-/* ── INFO ROWS ── */
-.info-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 0.55rem;
-  width: 100%;
-}
+        #links {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1.2rem;
+            margin-top: 2.5rem;
+            position: relative;
+            z-index: 13;
+        }
 
-.info-row {
-  display: flex;
-  align-items: center;
-  gap: 0.9rem;
-  padding: 0.55rem 0.9rem;
-  border-radius: 12px;
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.06);
-  transition: background 0.25s ease, border-color 0.25s ease, transform 0.25s ease;
-  position: relative;
-  overflow: hidden;
-}
+        .neon-btn {
+            text-decoration: none;
+            padding: 0.7rem 1.8rem;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: clamp(0.85rem, 3.5vw, 1rem);
+            letter-spacing: 0.08em;
+            background: rgba(10, 10, 10, 0.5);
+            border: 1.5px solid rgba(0, 255, 255, 0.6);
+            color: cyan;
+            text-shadow: 0 0 6px cyan, 0 0 18px rgba(0, 255, 255, 0.5);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.3), 0 0 50px rgba(0, 255, 255, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            transition: 0.35s cubic-bezier(0.25, 0.1, 0.25, 1);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            position: relative;
+            will-change: transform, box-shadow, background, border-color;
+            z-index: 14;
+        }
 
-.info-row::before {
-  content:'';
-  position:absolute;
-  left:0;top:0;bottom:0;
-  width:2px;
-  background: linear-gradient(to bottom, transparent, #00ffff, transparent);
-  opacity:0;
-  transition: opacity 0.3s;
-}
+        .neon-btn:hover {
+            background: rgba(0, 255, 255, 0.85);
+            color: #0a0a0a;
+            text-shadow: none;
+            box-shadow: 0 0 40px cyan, 0 0 80px cyan, 0 0 130px rgba(0, 255, 255, 0.5), inset 0 0 20px rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.9);
+            transform: translateY(-3px) scale(1.03);
+        }
 
-.info-row:hover {
-  background: rgba(0,255,255,0.05);
-  border-color: rgba(0,255,255,0.2);
-  transform: translateX(3px);
-}
-.info-row:hover::before { opacity:1; }
+        .neon-btn:hover i {
+            text-shadow: none;
+            color: #0a0a0a;
+        }
 
-.info-row i {
-  color: #00ffff;
-  font-size: 1rem;
-  width: 1.2rem;
-  text-align: center;
-  flex-shrink: 0;
-  filter: drop-shadow(0 0 6px #00ffff);
-}
+        #copyright {
+            position: fixed;
+            bottom: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 20;
+            font-size: 0.8rem;
+            color: #555;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.3), 0 0 25px rgba(0, 200, 255, 0.15);
+            white-space: nowrap;
+            pointer-events: none;
+        }
 
-.info-row span {
-  font-family: 'Space Mono', monospace;
-  font-size: clamp(0.72rem, 2.8vw, 0.88rem);
-  color: rgba(255,255,255,0.88);
-  letter-spacing: 0.04em;
-}
+        #copyright a {
+            color: #777;
+            text-decoration: none;
+            pointer-events: auto;
+            transition: color 0.3s ease;
+        }
 
-.info-label {
-  font-family: 'Space Mono', monospace;
-  font-size: 0.6rem;
-  color: rgba(0,255,255,0.5);
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  margin-left: auto;
-  flex-shrink: 0;
-}
+        #copyright a:hover {
+            color: cyan;
+            text-shadow: 0 0 12px cyan;
+        }
 
-/* ── DIVIDER ── */
-.divider {
-  width: 100%;
-  height: 1px;
-  margin: 1.2rem 0;
-  background: linear-gradient(to right, transparent, rgba(0,255,255,0.3), transparent);
-  position: relative;
-}
-.divider::after {
-  content:'';
-  position:absolute;
-  left:50%;top:50%;
-  transform:translate(-50%,-50%);
-  width:6px;height:6px;
-  border-radius:50%;
-  background:#00ffff;
-  box-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff;
-}
-
-/* ── LINKS ── */
-#links {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 0.9rem;
-  width: 100%;
-}
-
-.neon-btn {
-  text-decoration: none;
-  padding: 0.6rem 1.4rem;
-  border-radius: 50px;
-  font-family: 'Orbitron', sans-serif;
-  font-weight: 700;
-  font-size: clamp(0.7rem, 2.8vw, 0.82rem);
-  letter-spacing: 0.1em;
-  position: relative;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  gap: 0.45rem;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  z-index: 0;
-  /* glass button base */
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(0,255,255,0.35);
-  color: #00ffff;
-  text-shadow: 0 0 8px rgba(0,255,255,0.7);
-  box-shadow: 0 0 18px rgba(0,255,255,0.1), inset 0 1px 0 rgba(255,255,255,0.08);
-}
-
-/* btn glass shimmer */
-.neon-btn::before {
-  content:'';
-  position:absolute;
-  inset:0;
-  border-radius:50px;
-  background: linear-gradient(120deg, rgba(255,255,255,0.12) 0%, transparent 60%);
-  pointer-events:none;
-  z-index:1;
-  opacity:0;
-  transition: opacity 0.3s;
-}
-.neon-btn::after {
-  content:'';
-  position:absolute;
-  inset:0;
-  border-radius:50px;
-  background: rgba(0,255,255,0);
-  transition: background 0.3s ease;
-  z-index:0;
-}
-
-.neon-btn span, .neon-btn i {
-  position:relative;
-  z-index:2;
-}
-
-.neon-btn:hover {
-  transform: translateY(-3px) scale(1.05);
-  background: rgba(0,255,255,0.9);
-  color: #060612;
-  text-shadow: none;
-  border-color: #fff;
-  box-shadow: 0 0 35px #00ffff, 0 0 70px rgba(0,255,255,0.5), 0 10px 30px rgba(0,0,0,0.4);
-}
-.neon-btn:hover::before { opacity:1; }
-.neon-btn:hover i { filter: none; color: #060612; }
-
-/* ── FOOTER ── */
-#copyright {
-  position: fixed;
-  bottom: 14px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 20;
-  font-family: 'Space Mono', monospace;
-  font-size: 0.7rem;
-  color: #333;
-  letter-spacing: 0.1em;
-  white-space: nowrap;
-  pointer-events: none;
-}
-#copyright a {
-  color: #444;
-  text-decoration: none;
-  pointer-events: auto;
-  transition: color 0.3s;
-}
-#copyright a:hover { color: #00ffff; text-shadow: 0 0 10px #00ffff; }
-
-/* ── RIPPLE ── */
-.ripple {
-  position: fixed;
-  border-radius: 50%;
-  pointer-events: none;
-  transform: translate(-50%,-50%) scale(0);
-  background: radial-gradient(circle, rgba(0,255,255,0.25) 0%, transparent 70%);
-  animation: rippleOut 0.8s ease-out forwards;
-  z-index: 999;
-}
-@keyframes rippleOut {
-  to { transform: translate(-50%,-50%) scale(1); opacity: 0; }
-}
-
-@media(max-width:500px){
-  #glassSurface { padding: 1.8rem 1.6rem 1.8rem; border-radius:24px; }
-  #glassCanvas { border-radius:24px; }
-}
-</style>
+        @media (max-width: 768px) {
+            .glass-panel {
+                padding: 1.2rem 1.4rem;
+                border-radius: 22px;
+            }
+            .glass-canvas {
+                border-radius: 22px;
+            }
+            .neon-btn {
+                padding: 0.55rem 1.3rem;
+            }
+        }
+    </style>
 </head>
 <body>
+    <div id="background"></div>
 
-<!-- Physical background rendered by particles -->
-<canvas id="bgCanvas"></canvas>
-
-<div id="card">
-  <!-- WebGL liquid glass surface -->
-  <div id="glassSurface">
-    <canvas id="glassCanvas"></canvas>
-    <div class="glass-content">
-      <div id="avatarWrap">
-        <div id="avatarRing"></div>
-        <div id="avatarRingInner"></div>
-        <img id="profilePic"
-          src="https://raw.githubusercontent.com/MexrlDev/MexrlDev.github.io/refs/heads/main/AboutMe/wifu.jpeg"
-          alt="MexrlDev"/>
-      </div>
-
-      <div id="title">About Me</div>
-
-      <div class="info-grid">
-        <div class="info-row">
-          <i class="fa-solid fa-user"></i>
-          <span>MexrlDev</span>
-          <span class="info-label">handle</span>
+    <div id="container">
+        <div id="logo-container">
+            <img id="profile-pic" src="https://raw.githubusercontent.com/MexrlDev/MexrlDev.github.io/refs/heads/main/AboutMe/wifu.jpeg" alt="MexrlDev avatar" />
         </div>
-        <div class="info-row">
-          <i class="fa-solid fa-cake-candles"></i>
-          <span>March</span>
-          <span class="info-label">born</span>
-        </div>
-        <div class="info-row">
-          <i class="fa-solid fa-code"></i>
-          <span>Python · Lua · JavaScript</span>
-          <span class="info-label">stack</span>
-        </div>
-        <div class="info-row">
-          <i class="fa-solid fa-heart"></i>
-          <span>Anime · Manga · Music · Console Hacking</span>
-          <span class="info-label">into</span>
-        </div>
-      </div>
 
-      <div class="divider"></div>
-
-      <div id="links">
-        <a href="https://git.etawen.dev/X" target="_blank" class="neon-btn">
-          <i class="fa-solid fa-code-branch"></i><span>git.etawen</span>
-        </a>
-        <a href="https://github.com/MexrlDev" target="_blank" class="neon-btn">
-          <i class="fa-brands fa-github"></i><span>GitHub</span>
-        </a>
-        <a href="https://x.com/mexrl" target="_blank" class="neon-btn">
-          <i class="fa-brands fa-x-twitter"></i><span>X</span>
-        </a>
-      </div>
+        <div class="glass-panel" id="glassPanel">
+            <canvas class="glass-canvas" id="glassCanvas"></canvas>
+            <div class="glass-content">
+                <div id="logo">About Me</div>
+                <div class="info-line">
+                    <i class="fa-solid fa-user"></i>
+                    <span>MexrlDev</span>
+                </div>
+                <div class="info-line">
+                    <i class="fa-solid fa-cake-candles"></i>
+                    <span>March</span>
+                </div>
+                <div class="info-line">
+                    <i class="fa-solid fa-code"></i>
+                    <span>Python, Lua, JS</span>
+                </div>
+                <div class="info-line">
+                    <i class="fa-solid fa-gamepad"></i>
+                    <span>Anime, Manga, Music, Console Hacking</span>
+                </div>
+                <div id="links">
+                    <a href="https://git.etawen.dev/X" target="_blank" class="neon-btn">
+                        <i class="fa-solid fa-code-branch"></i> git.etawen
+                    </a>
+                    <a href="https://github.com/MexrlDev" target="_blank" class="neon-btn">
+                        <i class="fa-brands fa-github"></i> GitHub
+                    </a>
+                    <a href="https://x.com/mexrl" target="_blank" class="neon-btn">
+                        <i class="fa-brands fa-x-twitter"></i> X
+                    </a>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
-</div>
 
-<div id="copyright">© <span id="year"></span> MexrlDev</div>
+    <div id="copyright">
+        © <span id="year"></span> MexrlDev
+    </div>
 
-<audio id="bgAudio" preload="auto">
-  <source src="https://raw.githubusercontent.com/MexrlDev/MexrlDev.github.io/refs/heads/main/AboutMe/Floods%20_outro.mp3" type="audio/mpeg">
-</audio>
+    <audio id="bgAudio" preload="auto">
+        <source src="https://raw.githubusercontent.com/MexrlDev/MexrlDev.github.io/refs/heads/main/AboutMe/Floods%20_outro.mp3" type="audio/mpeg">
+    </audio>
 
-<script>
-document.getElementById('year').textContent = new Date().getFullYear();
+    <script src="https://unpkg.com/three@0.134.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vanta@0.5.24/dist/vanta.net.min.js"></script>
+    <script>
+        document.getElementById('year').textContent = new Date().getFullYear();
 
-/* ═══════════════════════════════════════════════════════
-   1.  PARTICLE BACKGROUND (cyan net — pure canvas 2D)
-   ═══════════════════════════════════════════════════════ */
-(function(){
-  const canvas = document.getElementById('bgCanvas');
-  const ctx    = canvas.getContext('2d');
-  const POINTS = 85, LINK_DIST = 140, MOUSE_REPEL = 100;
-  let W, H, mouse = {x:-999,y:-999};
-  let pts = [];
+        var isMobile = ('ontouchstart' in window) || navigator.maxTouchPoints > 0 || window.innerWidth <= 768;
+        var scaleValue = 1.0;
 
-  function resize(){
-    W = canvas.width  = window.innerWidth;
-    H = canvas.height = window.innerHeight;
-  }
+        var effect = VANTA.NET({
+            el: "#background",
+            mouseControls: true,
+            touchControls: false,
+            gyroControls: isMobile,
+            minHeight: 200.00,
+            minWidth: 200.00,
+            scale: 1.0,
+            scaleMobile: 1.0,
+            color: 0x00ffff,
+            backgroundColor: 0x0a0a0a,
+            points: 11.0,
+            maxDistance: 20.0,
+            spacing: 19.0,
+            showDots: true
+        });
 
-  function Pt(){
-    return {
-      x : Math.random()*W,
-      y : Math.random()*H,
-      vx: (Math.random()-.5)*0.55,
-      vy: (Math.random()-.5)*0.55,
-      r : 1.8 + Math.random()*1.2
-    };
-  }
-
-  function init(){
-    resize();
-    pts = [];
-    for(let i=0;i<POINTS;i++) pts.push(Pt());
-  }
-
-  function draw(){
-    ctx.clearRect(0,0,W,H);
-
-    /* links */
-    for(let i=0;i<pts.length;i++){
-      for(let j=i+1;j<pts.length;j++){
-        const dx=pts[i].x-pts[j].x, dy=pts[i].y-pts[j].y;
-        const d=Math.hypot(dx,dy);
-        if(d<LINK_DIST){
-          const a=(1-d/LINK_DIST)*0.55;
-          ctx.strokeStyle=`rgba(0,255,255,${a})`;
-          ctx.lineWidth=0.8;
-          ctx.shadowColor='#00ffff';
-          ctx.shadowBlur=6*a;
-          ctx.beginPath();
-          ctx.moveTo(pts[i].x,pts[i].y);
-          ctx.lineTo(pts[j].x,pts[j].y);
-          ctx.stroke();
+        var vantaCanvas = document.querySelector("#background canvas");
+        if (vantaCanvas) {
+            vantaCanvas.style.filter = "drop-shadow(0 0 12px rgba(0,255,255,0.7))";
+            vantaCanvas.style.willChange = "transform";
         }
-      }
-    }
 
-    /* dots */
-    ctx.shadowBlur = 14;
-    ctx.shadowColor = '#00ffff';
-    for(const p of pts){
-      ctx.fillStyle = `rgba(0,255,255,0.85)`;
-      ctx.beginPath();
-      ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
-      ctx.fill();
-    }
-    ctx.shadowBlur = 0;
-  }
+        var initialPinchDist = null;
+        var baseScale = 1.0;
+        var isPinching = false;
+        var lastTouchX = 0;
+        var lastTouchY = 0;
 
-  function update(){
-    for(const p of pts){
-      const dx=p.x-mouse.x, dy=p.y-mouse.y;
-      const d=Math.hypot(dx,dy);
-      if(d<MOUSE_REPEL && d>0){
-        const f=(1-d/MOUSE_REPEL)*0.6;
-        p.vx+=dx/d*f; p.vy+=dy/d*f;
-      }
-      /* speed cap */
-      const sp=Math.hypot(p.vx,p.vy);
-      if(sp>1.8){ p.vx=p.vx/sp*1.8; p.vy=p.vy/sp*1.8; }
+        function simulateMouseMove(x, y) {
+            window.dispatchEvent(new MouseEvent('mousemove', {
+                clientX: x,
+                clientY: y
+            }));
+        }
 
-      p.x+=p.vx; p.y+=p.vy;
-      if(p.x<0||p.x>W) p.vx*=-1;
-      if(p.y<0||p.y>H) p.vy*=-1;
-    }
-  }
+        if (isMobile) {
+            document.addEventListener('touchstart', function(e) {
+                if (e.touches.length === 2) {
+                    e.preventDefault();
+                    initialPinchDist = Math.hypot(
+                        e.touches[0].clientX - e.touches[1].clientX,
+                        e.touches[0].clientY - e.touches[1].clientY
+                    );
+                    baseScale = scaleValue;
+                    isPinching = true;
+                } else if (e.touches.length === 1) {
+                    var touch = e.touches[0];
+                    lastTouchX = touch.clientX;
+                    lastTouchY = touch.clientY;
+                    simulateMouseMove(lastTouchX, lastTouchY);
+                }
+            }, { passive: false });
 
-  function loop(){
-    update(); draw();
-    requestAnimationFrame(loop);
-  }
+            document.addEventListener('touchmove', function(e) {
+                if (isPinching && e.touches.length === 2) {
+                    e.preventDefault();
+                    var newDist = Math.hypot(
+                        e.touches[0].clientX - e.touches[1].clientX,
+                        e.touches[0].clientY - e.touches[1].clientY
+                    );
+                    if (initialPinchDist > 0) {
+                        var scaleChange = newDist / initialPinchDist;
+                        var newScale = Math.max(0.6, Math.min(2.2, baseScale * scaleChange));
+                        if (Math.abs(newScale - scaleValue) > 0.01) {
+                            scaleValue = newScale;
+                            effect.setOptions({ scale: scaleValue });
+                        }
+                    }
+                } else if (!isPinching && e.touches.length === 1) {
+                    var touch = e.touches[0];
+                    lastTouchX = touch.clientX;
+                    lastTouchY = touch.clientY;
+                    simulateMouseMove(lastTouchX, lastTouchY);
+                }
+            }, { passive: false });
 
-  window.addEventListener('mousemove',e=>{mouse.x=e.clientX;mouse.y=e.clientY;});
-  window.addEventListener('resize',init);
-  init(); loop();
-})();
+            document.addEventListener('touchend', function(e) {
+                if (e.touches.length < 2) {
+                    initialPinchDist = null;
+                    isPinching = false;
+                }
+                if (e.touches.length === 1) {
+                    var touch = e.touches[0];
+                    lastTouchX = touch.clientX;
+                    lastTouchY = touch.clientY;
+                    simulateMouseMove(lastTouchX, lastTouchY);
+                }
+            });
 
+            var lastTapTime = 0;
+            document.addEventListener('touchend', function(e) {
+                var now = Date.now();
+                if (now - lastTapTime < 300 && e.target) {
+                    e.preventDefault();
+                }
+                lastTapTime = now;
+            }, { passive: false });
+        }
 
-/* ═══════════════════════════════════════════════════════
-   2.  REAL LIQUID GLASS  –  WebGL refractive shader
-   ═══════════════════════════════════════════════════════ */
-(function(){
-  const surface  = document.getElementById('glassSurface');
-  const glCanvas = document.getElementById('glassCanvas');
-  const bgCanvas = document.getElementById('bgCanvas');
+        document.addEventListener('gesturestart', function(e) { e.preventDefault(); });
+        document.addEventListener('gesturechange', function(e) { e.preventDefault(); });
+        document.addEventListener('gestureend', function(e) { e.preventDefault(); });
 
-  const gl = glCanvas.getContext('webgl', {
-    alpha: true,
-    premultipliedAlpha: false,
-    preserveDrawingBuffer: true
-  });
-  if(!gl){ /* fallback */ surface.style.backdropFilter='blur(20px)'; return; }
+        (function() {
+            if (localStorage.getItem('bgMusicPlayed')) return;
+            const audio = document.getElementById('bgAudio');
+            if (!audio) return;
+            audio.loop = false;
+            audio.volume = 0.85;
+            let isMutedFallback = false;
+            audio.play().then(() => {
+                localStorage.setItem('bgMusicPlayed', 'true');
+            }).catch(() => {
+                audio.muted = true;
+                return audio.play();
+            }).then(() => {
+                if (audio.muted) {
+                    isMutedFallback = true;
+                    localStorage.setItem('bgMusicPlayed', 'true');
+                    const unmuteHandler = () => {
+                        if (isMutedFallback && audio.muted) {
+                            audio.muted = false;
+                            audio.play().catch(() => {});
+                            isMutedFallback = false;
+                        }
+                        window.removeEventListener('pointerdown', unmuteHandler);
+                        window.removeEventListener('keydown', unmuteHandler);
+                    };
+                    window.addEventListener('pointerdown', unmuteHandler, { once: true });
+                    window.addEventListener('keydown', unmuteHandler, { once: true });
+                }
+            }).catch(() => {});
+        })();
+    </script>
 
-  /* ── vertex ── */
-  const VS = `
-    attribute vec2 aPos;
-    varying vec2 vUV;
-    void main(){
-      gl_Position = vec4(aPos,0.,1.);
-      vUV = aPos*.5+.5;
-    }
-  `;
+    <script id="vertex-shader" type="x-shader/x-vertex">
+        attribute vec2 a_position;
+        varying vec2 v_texCoord;
+        void main() {
+            gl_Position = vec4(a_position, 0.0, 1.0);
+            v_texCoord = (a_position + 1.0) / 2.0;
+        }
+    </script>
+    <script id="fragment-shader" type="x-shader/x-fragment">
+        precision highp float;
+        varying vec2 v_texCoord;
+        uniform sampler2D u_background;
+        uniform sampler2D u_heightMap;
+        uniform vec2 u_resolution;
+        uniform float u_time;
+        uniform float u_strength;
 
-  /* ── fragment: physically-based glass ── */
-  const FS = `
-    precision highp float;
-    varying vec2 vUV;
+        void main() {
+            vec2 texCoord = v_texCoord;
+            vec2 texelSize = 1.0 / u_resolution;
 
-    uniform sampler2D uScene;   /* snapshot of bg particles   */
-    uniform sampler2D uHeight;  /* liquid wave heightmap       */
-    uniform vec2  uRes;         /* canvas size in px           */
-    uniform float uTime;
-    uniform float uMouse;       /* 0..1 hover strength         */
-    uniform vec2  uMouseUV;     /* mouse pos in panel UV space */
+            float h = texture2D(u_heightMap, texCoord).r;
+            float hL = texture2D(u_heightMap, texCoord + vec2(-texelSize.x, 0.0)).r;
+            float hR = texture2D(u_heightMap, texCoord + vec2(texelSize.x, 0.0)).r;
+            float hB = texture2D(u_heightMap, texCoord + vec2(0.0, -texelSize.y)).r;
+            float hT = texture2D(u_heightMap, texCoord + vec2(0.0, texelSize.y)).r;
 
-    /* ── IOR-based refraction ── */
-    const float IOR   = 1.46;    /* borosilicate glass          */
-    const float THICK = 0.018;   /* apparent slab thickness     */
+            float dx = (hR - hL) * 0.5;
+            float dy = (hT - hB) * 0.5;
 
-    /* ── trig noise for base micro-roughness ── */
-    float noise2(vec2 p){
-      return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);
-    }
-    float smoothNoise(vec2 p){
-      vec2 i=floor(p), f=fract(p);
-      f = f*f*(3.-2.*f);
-      return mix(
-        mix(noise2(i),           noise2(i+vec2(1,0)), f.x),
-        mix(noise2(i+vec2(0,1)), noise2(i+vec2(1,1)), f.x),
-        f.y
-      );
-    }
+            float distort = u_strength * 0.03;
 
-    /* ── Fresnel (Schlick approximation) ── */
-    float fresnel(vec2 normal, float f0){
-      float cosA = 1.0 - abs(dot(normalize(normal), vec2(0.,1.)));
-      return f0 + (1.-f0)*pow(cosA, 5.);
-    }
+            float rOffset = distort * 0.9;
+            float gOffset = distort * 1.0;
+            float bOffset = distort * 1.1;
 
-    void main(){
-      vec2 uv = vUV;
-      vec2 texel = 1./uRes;
+            vec2 coordR = texCoord + vec2(dx * rOffset, dy * rOffset);
+            vec2 coordG = texCoord + vec2(dx * gOffset, dy * gOffset);
+            vec2 coordB = texCoord + vec2(dx * bOffset, dy * bOffset);
 
-      /* --- read height field --- */
-      float h   = texture2D(uHeight, uv).r;
-      float hL  = texture2D(uHeight, uv + vec2(-texel.x,0.)).r;
-      float hR  = texture2D(uHeight, uv + vec2( texel.x,0.)).r;
-      float hB  = texture2D(uHeight, uv + vec2(0.,-texel.y)).r;
-      float hT  = texture2D(uHeight, uv + vec2(0., texel.y)).r;
+            float r = texture2D(u_background, coordR).r;
+            float g = texture2D(u_background, coordG).g;
+            float b = texture2D(u_background, coordB).b;
 
-      /* surface normal from gradient */
-      vec2 grad = vec2(hR-hL, hT-hB) * 0.5;
+            vec2 edge = abs(v_texCoord - 0.5) * 2.0;
+            float fresnel = max(edge.x, edge.y);
+            fresnel = smoothstep(0.6, 1.0, fresnel);
+            vec3 fresnelColor = mix(vec3(0.0), vec3(0.2, 0.8, 1.0), fresnel * 0.35);
 
-      /* --- add base micro-scratch noise --- */
-      float t = uTime * 0.06;
-      vec2 noiseUV = uv * 5.0;
-      float microRough = (smoothNoise(noiseUV+t) - 0.5) * 0.004;
-      grad += vec2(microRough);
+            vec3 color = vec3(r, g, b) + fresnelColor;
 
-      /* --- animated liquid surface waves --- */
-      float wave1 = sin(uv.x*9.+uTime*1.1+uv.y*4.)*0.008;
-      float wave2 = cos(uv.y*7.+uTime*0.8+uv.x*5.)*0.006;
-      float wave3 = sin((uv.x+uv.y)*11.+uTime*1.4)*0.005;
-      grad += vec2(wave1+wave3, wave2+wave3);
+            float glow = 1.0 - length(v_texCoord - 0.5) * 1.8;
+            glow = max(0.0, glow);
+            color += vec3(0.0, 0.3, 0.5) * glow * 0.15;
 
-      /* --- mouse proximity ripple --- */
-      vec2  toMouse = uv - uMouseUV;
-      float mDist   = length(toMouse);
-      float ripple  = uMouse * exp(-mDist*mDist*18.) * sin(mDist*55.-uTime*9.) * 0.022;
-      grad += normalize(toMouse+0.0001)*ripple;
+            gl_FragColor = vec4(color, 1.0);
+        }
+    </script>
+    <script>
+        (function() {
+            const glassPanel = document.getElementById('glassPanel');
+            const glassCanvas = document.getElementById('glassCanvas');
+            const gl = glassCanvas.getContext('webgl', { alpha: false, preserveDrawingBuffer: true });
+            if (!gl) {
+                console.warn('WebGL not supported, falling back to simple glass effect.');
+                glassCanvas.style.display = 'none';
+                glassPanel.style.background = 'rgba(10,10,10,0.35)';
+                glassPanel.style.backdropFilter = 'blur(14px) saturate(1.4)';
+                glassPanel.style.WebkitBackdropFilter = 'blur(14px) saturate(1.4)';
+                return;
+            }
 
-      /* --- IOR refraction (chromatic aberration) --- */
-      float refractStr = THICK * IOR;
+            const vertexShaderSource = document.getElementById('vertex-shader').textContent;
+            const fragmentShaderSource = document.getElementById('fragment-shader').textContent;
 
-      /* slight wavelength dispersion: R bends less, B bends more */
-      vec2 coordR = uv + grad * refractStr * 0.92;
-      vec2 coordG = uv + grad * refractStr * 1.00;
-      vec2 coordB = uv + grad * refractStr * 1.10;
+            function createShader(gl, type, source) {
+                const shader = gl.createShader(type);
+                gl.shaderSource(shader, source);
+                gl.compileShader(shader);
+                if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+                    console.error(gl.getShaderInfoLog(shader));
+                    gl.deleteShader(shader);
+                    return null;
+                }
+                return shader;
+            }
 
-      coordR = clamp(coordR,0.001,0.999);
-      coordG = clamp(coordG,0.001,0.999);
-      coordB = clamp(coordB,0.001,0.999);
+            const vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
+            const fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource);
+            const program = gl.createProgram();
+            gl.attachShader(program, vertexShader);
+            gl.attachShader(program, fragmentShader);
+            gl.linkProgram(program);
+            if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+                console.error(gl.getProgramInfoLog(program));
+                return;
+            }
+            gl.useProgram(program);
 
-      vec3 refracted = vec3(
-        texture2D(uScene, coordR).r,
-        texture2D(uScene, coordG).g,
-        texture2D(uScene, coordB).b
-      );
+            const positionBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+            const positions = new Float32Array([
+                -1, -1,
+                1, -1,
+                -1, 1,
+                1, 1
+            ]);
+            gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
+            const positionLocation = gl.getAttribLocation(program, 'a_position');
+            gl.enableVertexAttribArray(positionLocation);
+            gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
 
-      /* --- Fresnel reflection tint --- */
-      float fres = fresnel(grad, 0.04);
-      vec3  reflColor = mix(
-        vec3(0.0, 0.95, 1.0),   /* cyan specular */
-        vec3(0.7, 0.85, 1.0),   /* white-ish     */
-        fres
-      );
-      /* edge-Fresnel glow */
-      vec2  edgeDist = abs(uv - 0.5)*2.;
-      float edgeFres  = smoothstep(0.5, 1.0, max(edgeDist.x,edgeDist.y));
-      vec3  edgeGlow  = vec3(0.,1.,1.) * edgeFres * 0.3;
+            const backgroundLocation = gl.getUniformLocation(program, 'u_background');
+            const heightMapLocation = gl.getUniformLocation(program, 'u_heightMap');
+            const resolutionLocation = gl.getUniformLocation(program, 'u_resolution');
+            const timeLocation = gl.getUniformLocation(program, 'u_time');
+            const strengthLocation = gl.getUniformLocation(program, 'u_strength');
 
-      /* --- caustic shimmer --- */
-      float caustic  = smoothNoise(uv*12.-uTime*0.3)*smoothNoise(uv*8.+uTime*0.2);
-      caustic = pow(caustic,3.) * 1.6;
-      vec3  causticCol = vec3(0., 0.9, 1.) * caustic * 0.18;
+            const offscreenCanvas = document.createElement('canvas');
+            const offCtx = offscreenCanvas.getContext('2d', { willReadFrequently: true });
 
-      /* --- specular highlight (moving) --- */
-      float spec = smoothNoise(uv*3.+vec2(uTime*.07, uTime*.05));
-      spec = pow(spec, 4.) * 0.22;
+            const GRID_W = 128;
+            const GRID_H = 128;
+            const heightSize = GRID_W * GRID_H;
+            let heightField = new Float32Array(heightSize);
+            let velocityField = new Float32Array(heightSize);
+            let heightTexture = gl.createTexture();
+            gl.bindTexture(gl.TEXTURE_2D, heightTexture);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.LUMINANCE, GRID_W, GRID_H, 0, gl.LUMINANCE, gl.FLOAT, heightField);
 
-      /* --- compose --- */
-      /* very thin dark tint to sell the "glass mass" */
-      vec3 glassTint = vec3(0.03, 0.08, 0.12);
+            let bgTexture = gl.createTexture();
+            gl.bindTexture(gl.TEXTURE_2D, bgTexture);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
-      vec3 col  = mix(refracted, glassTint, 0.08);
-      col      += reflColor * fres * 0.15;
-      col      += edgeGlow;
-      col      += causticCol;
-      col      += spec;
+            function resizeGlassCanvas() {
+                const rect = glassPanel.getBoundingClientRect();
+                const w = rect.width;
+                const h = rect.height;
+                if (w === 0 || h === 0) return;
+                glassCanvas.width = w;
+                glassCanvas.height = h;
+                gl.viewport(0, 0, w, h);
+                gl.uniform2f(resolutionLocation, w, h);
+            }
 
-      /* depth vignette inside the glass */
-      float vig  = 1. - length((uv-.5)*1.4)*0.55;
-      col       *= max(0.6, vig);
+            function updateHeightTexture() {
+                gl.bindTexture(gl.TEXTURE_2D, heightTexture);
+                gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, GRID_W, GRID_H, gl.LUMINANCE, gl.FLOAT, heightField);
+            }
 
-      /* top specular streak */
-      float specStreak = smoothstep(0.0,0.25, uv.y) * (1.-smoothstep(0.25,0.4, uv.y));
-      specStreak *= smoothstep(0.1,0.6, uv.x) * smoothstep(0.9,0.6, uv.x);
-      col += specStreak * 0.07;
+            function waveStep() {
+                const damping = 0.97;
+                const propagation = 0.2;
+                for (let y = 1; y < GRID_H - 1; y++) {
+                    for (let x = 1; x < GRID_W - 1; x++) {
+                        const idx = y * GRID_W + x;
+                        const avg = (heightField[idx - 1] + heightField[idx + 1] + heightField[idx - GRID_W] + heightField[idx + GRID_W]) * 0.25;
+                        velocityField[idx] = (velocityField[idx] + (avg - heightField[idx]) * propagation) * damping;
+                    }
+                }
+                for (let i = 0; i < heightSize; i++) {
+                    heightField[i] += velocityField[i];
+                }
+            }
 
-      gl_FragColor = vec4(col, 0.72);
-    }
-  `;
+            function addDisturbance(cx, cy, strength) {
+                const gx = Math.floor(cx * (GRID_W - 1));
+                const gy = Math.floor(cy * (GRID_H - 1));
+                const radius = 4;
+                for (let dy = -radius; dy <= radius; dy++) {
+                    for (let dx = -radius; dx <= radius; dx++) {
+                        const nx = gx + dx;
+                        const ny = gy + dy;
+                        if (nx < 0 || nx >= GRID_W || ny < 0 || ny >= GRID_H) continue;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+                        if (dist > radius) continue;
+                        const influence = Math.exp(-dist * dist / (radius * radius * 0.5)) * strength;
+                        const idx = ny * GRID_W + nx;
+                        heightField[idx] += influence;
+                        velocityField[idx] += influence * 0.5;
+                    }
+                }
+            }
 
-  function mkShader(type, src){
-    const s=gl.createShader(type);
-    gl.shaderSource(s,src); gl.compileShader(s);
-    if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))
-      console.error(gl.getShaderInfoLog(s));
-    return s;
-  }
-  const prog=gl.createProgram();
-  gl.attachShader(prog,mkShader(gl.VERTEX_SHADER,VS));
-  gl.attachShader(prog,mkShader(gl.FRAGMENT_SHADER,FS));
-  gl.linkProgram(prog);
-  gl.useProgram(prog);
+            let mouseOverPanel = false;
+            let lastPanelMouseX = 0.5;
+            let lastPanelMouseY = 0.5;
 
-  /* full-screen quad */
-  const buf=gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER,buf);
-  gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),gl.STATIC_DRAW);
-  const aPos=gl.getAttribLocation(prog,'aPos');
-  gl.enableVertexAttribArray(aPos);
-  gl.vertexAttribPointer(aPos,2,gl.FLOAT,false,0,0);
+            glassPanel.addEventListener('mousemove', function(e) {
+                const rect = glassPanel.getBoundingClientRect();
+                const localX = (e.clientX - rect.left) / rect.width;
+                const localY = (e.clientY - rect.top) / rect.height;
+                lastPanelMouseX = Math.max(0, Math.min(1, localX));
+                lastPanelMouseY = Math.max(0, Math.min(1, localY));
+                addDisturbance(lastPanelMouseX, lastPanelMouseY, 0.03);
+            });
 
-  const uScene    = gl.getUniformLocation(prog,'uScene');
-  const uHeight   = gl.getUniformLocation(prog,'uHeight');
-  const uRes      = gl.getUniformLocation(prog,'uRes');
-  const uTime     = gl.getUniformLocation(prog,'uTime');
-  const uMouse    = gl.getUniformLocation(prog,'uMouse');
-  const uMouseUV  = gl.getUniformLocation(prog,'uMouseUV');
+            glassPanel.addEventListener('mouseenter', function() {
+                mouseOverPanel = true;
+            });
 
-  /* ── height field (liquid waves) ── */
-  const GW=160, GH=160, GN=GW*GH;
-  let hField=new Float32Array(GN), vField=new Float32Array(GN);
+            glassPanel.addEventListener('mouseleave', function() {
+                mouseOverPanel = false;
+            });
 
-  const hTex=gl.createTexture();
-  function bindHTex(){
-    gl.bindTexture(gl.TEXTURE_2D,hTex);
-    gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
-    gl.texImage2D(gl.TEXTURE_2D,0,gl.LUMINANCE,GW,GH,0,gl.LUMINANCE,gl.FLOAT,hField);
-  }
-  bindHTex();
+            glassPanel.addEventListener('click', function(e) {
+                const rect = glassPanel.getBoundingClientRect();
+                const localX = (e.clientX - rect.left) / rect.width;
+                const localY = (e.clientY - rect.top) / rect.height;
+                addDisturbance(localX, localY, 0.15);
+            });
 
-  /* ── scene snapshot texture ── */
-  const sceneTex=gl.createTexture();
-  gl.bindTexture(gl.TEXTURE_2D,sceneTex);
-  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);
-  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
-  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);
-  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
+            document.addEventListener('touchmove', function(e) {
+                if (e.touches.length === 1 && !isPinching) {
+                    const touch = e.touches[0];
+                    const rect = glassPanel.getBoundingClientRect();
+                    if (touch.clientX >= rect.left && touch.clientX <= rect.right &&
+                        touch.clientY >= rect.top && touch.clientY <= rect.bottom) {
+                        const localX = (touch.clientX - rect.left) / rect.width;
+                        const localY = (touch.clientY - rect.top) / rect.height;
+                        lastPanelMouseX = Math.max(0, Math.min(1, localX));
+                        lastPanelMouseY = Math.max(0, Math.min(1, localY));
+                        addDisturbance(lastPanelMouseX, lastPanelMouseY, 0.04);
+                    }
+                }
+            }, { passive: true });
 
-  /* ── wave physics ── */
-  function waveStep(){
-    const DAMP=0.972, PROP=0.22;
-    for(let y=1;y<GH-1;y++){
-      for(let x=1;x<GW-1;x++){
-        const i=y*GW+x;
-        const avg=(hField[i-1]+hField[i+1]+hField[i-GW]+hField[i+GW])*0.25;
-        vField[i]=(vField[i]+(avg-hField[i])*PROP)*DAMP;
-      }
-    }
-    for(let i=0;i<GN;i++) hField[i]+=vField[i];
-  }
+            window.addEventListener('resize', resizeGlassCanvas);
 
-  function disturb(cx,cy,str){
-    const gx=Math.floor(cx*(GW-1)), gy=Math.floor(cy*(GH-1));
-    const R=6;
-    for(let dy=-R;dy<=R;dy++){
-      for(let dx=-R;dx<=R;dx++){
-        const nx=gx+dx, ny=gy+dy;
-        if(nx<0||nx>=GW||ny<0||ny>=GH) continue;
-        const d=Math.hypot(dx,dy);
-        if(d>R) continue;
-        const inf=Math.exp(-d*d/(R*R*0.45))*str;
-        const i=ny*GW+nx;
-        hField[i]+=inf; vField[i]+=inf*0.4;
-      }
-    }
-  }
+            function captureBackground() {
+                if (!vantaCanvas) return null;
+                const vw = vantaCanvas.width;
+                const vh = vantaCanvas.height;
+                if (vw === 0 || vh === 0) return null;
+                offscreenCanvas.width = vw;
+                offscreenCanvas.height = vh;
+                offCtx.clearRect(0, 0, vw, vh);
+                offCtx.drawImage(vantaCanvas, 0, 0, vw, vh);
+                return offscreenCanvas;
+            }
 
-  /* auto-drip: randomly disturb surface so it's always alive */
-  setInterval(()=>{
-    disturb(Math.random(), Math.random(), 0.06+Math.random()*0.08);
-  }, 900);
+            let lastTime = performance.now();
 
-  /* ── resize ── */
-  let W=0, H=0;
-  function resize(){
-    const rect=surface.getBoundingClientRect();
-    W=Math.floor(rect.width); H=Math.floor(rect.height);
-    if(!W||!H) return;
-    glCanvas.width=W; glCanvas.height=H;
-    gl.viewport(0,0,W,H);
-    gl.uniform2f(uRes,W,H);
-  }
+            function render(timestamp) {
+                const dt = Math.min((timestamp - lastTime) / 1000, 0.1);
+                lastTime = timestamp;
 
-  /* ── mouse tracking ── */
-  let mUV=[0.5,0.5], mStr=0, mTarget=0;
-  surface.addEventListener('mousemove',e=>{
-    const r=surface.getBoundingClientRect();
-    mUV[0]=(e.clientX-r.left)/r.width;
-    mUV[1]=1-(e.clientY-r.top)/r.height;
-    mTarget=1;
-    disturb(mUV[0], 1-mUV[1], 0.04);
-  });
-  surface.addEventListener('mouseenter',()=>mTarget=1);
-  surface.addEventListener('mouseleave',()=>mTarget=0);
-  surface.addEventListener('click',e=>{
-    const r=surface.getBoundingClientRect();
-    const cx=(e.clientX-r.left)/r.width;
-    const cy=1-(e.clientY-r.top)/r.height;
-    disturb(cx,cy,0.22);
-  });
+                resizeGlassCanvas();
 
-  /* touch */
-  surface.addEventListener('touchmove',e=>{
-    if(e.touches.length!==1) return;
-    const r=surface.getBoundingClientRect();
-    const t=e.touches[0];
-    if(t.clientX<r.left||t.clientX>r.right||t.clientY<r.top||t.clientY>r.bottom) return;
-    const cx=(t.clientX-r.left)/r.width;
-    const cy=1-(t.clientY-r.top)/r.height;
-    mUV[0]=cx; mUV[1]=cy;
-    disturb(cx,cy,0.05);
-  },{passive:true});
+                for (let i = 0; i < 3; i++) {
+                    waveStep();
+                }
 
-  /* 3-D tilt */
-  surface.addEventListener('mousemove',e=>{
-    const r=surface.getBoundingClientRect();
-    const rx=((e.clientY-r.top)/r.height-0.5)*-6;
-    const ry=((e.clientX-r.left)/r.width-0.5)*6;
-    surface.style.transform=`perspective(900px) rotateX(${rx.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg)`;
-  });
-  surface.addEventListener('mouseleave',()=>{
-    surface.style.transform='perspective(900px) rotateX(0deg) rotateY(0deg)';
-  });
+                if (mouseOverPanel) {
+                    addDisturbance(lastPanelMouseX, lastPanelMouseY, 0.004 * dt * 60);
+                }
 
-  /* ── off-screen capture canvas ── */
-  const offC=document.createElement('canvas');
-  const offX=offC.getContext('2d',{willReadFrequently:true});
+                updateHeightTexture();
 
-  function captureBg(){
-    if(!bgCanvas.width||!bgCanvas.height) return false;
-    offC.width=bgCanvas.width; offC.height=bgCanvas.height;
-    offX.clearRect(0,0,offC.width,offC.height);
-    offX.drawImage(bgCanvas,0,0);
-    return true;
-  }
+                const bgSource = captureBackground();
+                if (bgSource) {
+                    gl.bindTexture(gl.TEXTURE_2D, bgTexture);
+                    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, bgSource);
+                }
 
-  window.addEventListener('resize',resize);
+                gl.clearColor(0, 0, 0, 1);
+                gl.clear(gl.COLOR_BUFFER_BIT);
 
-  let t0=performance.now();
-  function loop(ts){
-    const t=(ts-t0)/1000;
-    mStr+=(mTarget-mStr)*0.06;
+                gl.activeTexture(gl.TEXTURE0);
+                gl.bindTexture(gl.TEXTURE_2D, bgTexture);
+                gl.uniform1i(backgroundLocation, 0);
 
-    resize();
+                gl.activeTexture(gl.TEXTURE1);
+                gl.bindTexture(gl.TEXTURE_2D, heightTexture);
+                gl.uniform1i(heightMapLocation, 1);
 
-    for(let i=0;i<4;i++) waveStep();
+                gl.uniform1f(timeLocation, timestamp * 0.001);
+                gl.uniform1f(strengthLocation, 1.0 + (mouseOverPanel ? 0.5 : 0.0));
 
-    /* upload height */
-    gl.activeTexture(gl.TEXTURE1);
-    gl.bindTexture(gl.TEXTURE_2D,hTex);
-    gl.texImage2D(gl.TEXTURE_2D,0,gl.LUMINANCE,GW,GH,0,gl.LUMINANCE,gl.FLOAT,hField);
-    gl.uniform1i(uHeight,1);
+                gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
-    /* upload scene snapshot */
-    if(captureBg()){
-      gl.activeTexture(gl.TEXTURE0);
-      gl.bindTexture(gl.TEXTURE_2D,sceneTex);
-      gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,offC);
-      gl.uniform1i(uScene,0);
-    }
+                requestAnimationFrame(render);
+            }
 
-    gl.uniform1f(uTime,t);
-    gl.uniform1f(uMouse,mStr);
-    gl.uniform2fv(uMouseUV,mUV);
+            resizeGlassCanvas();
+            requestAnimationFrame(render);
 
-    gl.enable(gl.BLEND);
-    gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);
-    gl.clear(gl.COLOR_BUFFER_BIT);
-    gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
-
-    requestAnimationFrame(loop);
-  }
-
-  resize();
-  requestAnimationFrame(loop);
-})();
-
-
-/* ═══════════════════════════════════════════════════════
-   3.  CLICK RIPPLE
-   ═══════════════════════════════════════════════════════ */
-document.addEventListener('click',e=>{
-  const r=document.createElement('div');
-  r.className='ripple';
-  const sz=200;
-  r.style.cssText=`width:${sz}px;height:${sz}px;left:${e.clientX}px;top:${e.clientY}px;`;
-  document.body.appendChild(r);
-  setTimeout(()=>r.remove(),820);
-});
-
-
-/* ═══════════════════════════════════════════════════════
-   4.  AUDIO
-   ═══════════════════════════════════════════════════════ */
-(function(){
-  if(localStorage.getItem('bgMusicPlayed')) return;
-  const a=document.getElementById('bgAudio');
-  if(!a) return;
-  a.loop=false; a.volume=0.8;
-  a.play().then(()=>localStorage.setItem('bgMusicPlayed','true'))
-    .catch(()=>{
-      a.muted=true;
-      a.play().then(()=>{
-        localStorage.setItem('bgMusicPlayed','true');
-        const unmute=()=>{a.muted=false;a.play().catch(()=>{});};
-        window.addEventListener('pointerdown',unmute,{once:true});
-        window.addEventListener('keydown',unmute,{once:true});
-      }).catch(()=>{});
-    });
-})();
-</script>
+            // 3D tilt for glass panel (subtle)
+            glassPanel.addEventListener('mousemove', function(e) {
+                const rect = glassPanel.getBoundingClientRect();
+                const localX = (e.clientX - rect.left) / rect.width;
+                const localY = (e.clientY - rect.top) / rect.height;
+                const rotateY = (localX - 0.5) * 4;
+                const rotateX = (localY - 0.5) * -4;
+                glassPanel.style.transform = 'perspective(800px) rotateX(' + rotateX.toFixed(2) + 'deg) rotateY(' + rotateY.toFixed(2) + 'deg)';
+            });
+            glassPanel.addEventListener('mouseleave', function() {
+                glassPanel.style.transform = 'perspective(800px) rotateX(0deg) rotateY(0deg)';
+            });
+        })();
+    </script>
 </body>
 </html>
