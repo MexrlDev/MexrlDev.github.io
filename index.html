@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DaySet</title>
     <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/MexrlDev/MexrlDev.github.io/refs/heads/main/img/A0C458B1-B0B6-4FD0-86E1-43A2069C9E3D.png">
+    <meta property="og:title" content="DaySet – In memory of Terry A. Davis">
+    <meta property="og:description" content="A tribute to Terry A. Davis, the smartest programmer that ever lived.">
+    <meta property="og:image" content="https://i.ibb.co/BVydVvkR/image.png">
+    <meta property="og:url" content="">
     <style>
         body {
             background-color: #ffffff;
@@ -44,7 +48,7 @@
   width="220"
 >](center)
 
-And in memory of [TempleOS](https://templeos.org)
+in memory of [TempleOS](https://templeos.org)
 
 <iframe
   width="350"
@@ -124,12 +128,34 @@ The Smartest programmer that ever lived..
             if (content) {
                 content.innerHTML = content.innerHTML.replace(
                     /\[([^\]]+)\]\(([^)]+)\)/g,
-                    function(match, text, url) {
-                        const lowerUrl = url.trim().toLowerCase();
-                        if (lowerUrl === 'center' || lowerUrl === 'right' || lowerUrl === 'left') {
-                            return '<div style="text-align:' + lowerUrl + ';">' + text + '</div>';
+                    function(match, text, optionsStr) {
+                        const tokens = optionsStr.split(',').map(s => s.trim()).filter(s => s.length > 0);
+                        let alignment = null;
+                        let isHeader = false;
+                        let link = null;
+
+                        for (let token of tokens) {
+                            const lower = token.toLowerCase();
+                            if (lower === 'center' || lower === 'right' || lower === 'left') {
+                                if (!alignment) alignment = lower;
+                            } else if (lower === 'header') {
+                                isHeader = true;
+                            } else {
+                                if (!link) link = token; // keep original case for URL
+                            }
+                        }
+
+                        let inner = text;
+                        if (link) {
+                            inner = '<a href="' + link + '">' + inner + '</a>';
+                        }
+                        if (isHeader) {
+                            inner = '<span style="font-size:1.5em; font-weight:bold;">' + inner + '</span>';
+                        }
+                        if (alignment) {
+                            return '<div style="text-align:' + alignment + ';">' + inner + '</div>';
                         } else {
-                            return '<a href="' + url + '">' + text + '</a>';
+                            return inner;
                         }
                     }
                 );
