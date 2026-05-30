@@ -1,494 +1,382 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Home</title>
-<link rel="icon" type="image/png" href="./img/icon.png" />
-<style>
-  :root{
-    --gap: 20px;
-    --btn-w: 164px;
-    --btn-h: 50px;
-    --btn-radius: 1.2rem;
-    --glass-bg: rgba(255,255,255,0.05);
-    --accent: #ffffff;
-    --shadow-color: rgba(0,0,0,0.5);
-    --font-family: "Segoe UI", Roboto, system-ui, -apple-system, "Helvetica Neue", Arial;
-  }
-
-  html,body{
-    height:100%;
-    margin:0;
-    font-family:var(--font-family);
-    color:var(--accent);
-    -webkit-font-smoothing:antialiased;
-    -moz-osx-font-smoothing:grayscale;
-    background-color:#000;
-  }
-
-  body{ background: none; }
-
-  .bg-fixed {
-    position: fixed;
-    inset: 0;
-    background-image: url('./img/Baek.png');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    filter: brightness(0.4) contrast(1.08);
-    z-index: -2;
-  }
-
-  .bg-overlay{
-    position:fixed;
-    inset:0;
-    background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.55) 100%);
-    pointer-events:none;
-    z-index: -1;
-  }
-
-  .menu-wrap{
-    min-height:100vh;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    padding:40px 20px;
-    box-sizing:border-box;
-    position: relative;
-    z-index: 1;
-  }
-
-  .menu-card{
-    width: min(980px, 95%);
-    max-width:1200px;
-    background: rgba(255,255,255,0.04);
-    border-radius: 1.75rem;
-    padding: 32px 28px;
-    box-shadow: 0 25px 50px rgba(0,0,0,0.55),
-                inset 0 0 30px rgba(255,255,255,0.02);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255,255,255,0.1);
-    position:relative;
-    overflow: hidden;
-  }
-
-  .menu-card::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    background: radial-gradient(circle at 30% 20%, rgba(255,255,255,0.04), transparent 70%);
-    pointer-events: none;
-  }
-
-  header.menu-head{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:12px;
-    margin-bottom:22px;
-  }
-  header .title{
-    font-size: 22px;
-    font-weight: 700;
-    letter-spacing: 0.8px;
-    background: linear-gradient(135deg, #ffffff 0%, #b0b0b0 50%, #ffffff 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    text-shadow: 0 0 12px rgba(255,255,255,0.2);
-  }
-  header .subtitle{
-    font-size:13px;
-    opacity:0.8;
-    color: rgba(255,255,255,0.9);
-  }
-
-  .rows{
-    display:flex;
-    flex-direction:column;
-    gap:var(--gap);
-  }
-
-  .row{
-    display:flex;
-    gap:16px;
-    justify-content:center;
-    flex-wrap: wrap;
-  }
-
-  .menu-btn{
-    width: var(--btn-w);
-    height: var(--btn-h);
-    min-width:130px;
-    padding:8px 16px;
-    border-radius: var(--btn-radius);
-    border: 1px solid rgba(255,255,255,0.12);
-    background: rgba(255,255,255,0.06);
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    color:var(--accent);
-    text-decoration:none;
-    font-weight:600;
-    font-size:14px;
-    cursor:pointer;
-    user-select:none;
-    transition: transform 200ms cubic-bezier(.2,.9,.3,1), box-shadow 200ms, background 200ms;
-    box-shadow: 0 8px 22px rgba(0,0,0,0.45),
-                inset 0 0 16px rgba(255,255,255,0.03);
-    position:relative;
-    overflow:hidden;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    letter-spacing: 0.3px;
-  }
-
-  .menu-btn:hover{
-    transform: translateY(-5px) scale(1.06);
-    box-shadow: 0 14px 32px rgba(0,0,0,0.55),
-                inset 0 0 20px rgba(255,255,255,0.06);
-    background: rgba(255,255,255,0.09);
-    border-color: rgba(255,255,255,0.18);
-  }
-
-  .menu-btn:active{
-    transform: translateY(2px) scale(0.97);
-  }
-
-  .menu-btn::before{
-    content:"";
-    position:absolute;
-    inset:0;
-    background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.00));
-    pointer-events:none;
-    mix-blend-mode: overlay;
-  }
-
-  @media (max-width:560px){
-    :root{ --btn-w: 140px; --btn-h:46px; --gap:14px; }
-    .menu-card{ padding:20px 16px; border-radius:1.2rem; }
-    header .title{ font-size:18px; }
-  }
-
-  .music-control{
-    display:inline-flex;
-    gap:8px;
-    align-items:center;
-    position:relative;
-  }
-  .music-btn{
-    width:44px;
-    height:44px;
-    border-radius:14px;
-    border:1px solid rgba(255,255,255,0.12);
-    background: rgba(255,255,255,0.05);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    cursor:pointer;
-    transition: transform 140ms, box-shadow 140ms;
-    position:relative;
-    box-shadow: 0 6px 16px rgba(0,0,0,0.4),
-                inset 0 0 12px rgba(255,255,255,0.02);
-  }
-  .music-btn:active{ transform:scale(0.93); }
-  .music-btn svg{ width:20px; height:20px; fill:currentColor; color:var(--accent); opacity:0.95; }
-
-  .music-btn.muted::after{
-    content: '';
-    position: absolute;
-    right: 6px;
-    bottom: 6px;
-    width: 9px;
-    height: 9px;
-    border-radius: 50%;
-    background: #f0c419;
-    box-shadow: 0 0 8px rgba(240,196,25,0.7);
-  }
-
-  .unmute-hint{
-    font-size:12px;
-    margin-left:12px;
-    opacity:0.88;
-    color: rgba(255,255,255,0.9);
-  }
-
-  .hint{ font-size:12px; opacity:0.75; margin-top:14px; text-align:center; color: rgba(255,255,255,0.7); }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MexrlDev – repos</title>
+    <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/MexrlDev/MexrlDev.github.io/refs/heads/main/img/A0C458B1-B0B6-4FD0-86E1-43A2069C9E3D.png">
+    <meta property="og:title" content="GitHub Repo Collection">
+    <meta property="og:description" content="A Repo collection of a retired user.">
+    <meta property="og:image" content="https://i.ibb.co/BVydVvkR/image.png">
+    <meta property="og:url" content="">
+    <style>
+        body {
+            background-color: #ffffff;
+            color: #000000;
+            font-family: monospace;
+            margin: 20px;
+            line-height: 1.5;
+        }
+        #content {
+            max-width: 800px;
+            margin: 0 auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        #content a {
+            color: #0000aa;
+        }
+        .footer {
+            text-align: center;
+            font-size: 10px;
+            margin-top: 40px;
+            color: #555;
+        }
+        .footer a {
+            color: #555;
+        }
+        .repo-btn {
+            display: inline-block;
+            border: 2px solid #000000;
+            padding: 8px 18px;
+            margin: 6px 4px;
+            text-decoration: none;
+            color: #000000;
+            background-color: #f8f8f8;
+            font-family: monospace;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.15s;
+        }
+        .repo-btn:hover {
+            background-color: #e0e0e0;
+            color: #000000;
+            text-decoration: none;
+        }
+        .repo-btn:visited {
+            color: #000000;
+        }
+        hr {
+            border: none;
+            border-top: 1px solid #000000;
+            margin: 16px 0;
+        }
+    </style>
 </head>
 <body>
-  <div class="bg-fixed" aria-hidden="true"></div>
-  <div class="bg-overlay" aria-hidden="true"></div>
+    <div id="content">
 
-  <div class="menu-wrap">
-    <div class="menu-card" role="region" aria-label="Main menu">
-      <header class="menu-head">
-        <div>
-          <div class="title">Main Menu</div>
-          <div class="subtitle">Click a button to open a script or follow a link</div>
-        </div>
-        <div class="music-control" aria-hidden="false" title="Play / Pause background music">
-          <div id="musicBtn" class="music-btn" aria-pressed="false" role="button">
-            <svg id="musicIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"></path></svg>
-          </div>
-          <div id="unmuteHint" class="unmute-hint" aria-hidden="true" style="display:none;">Playing (muted) — interact to unmute</div>
-        </div>
-      </header>
+[Archived GitHub Repositories](center,header)
 
-      <main>
-        <div id="rows" class="rows" aria-live="polite"></div>
-        <div class="hint">Owned by Mexrl</div>
-      </main>
-  </div>
+[<img src="https://i.ibb.co/1tsGK3fD/IMG-1262.jpg" alt="IMG Temple SWORD" width="200">](center)
 
-  <audio id="bgAudio" loop preload="auto">
-    <source src="./music/bg.mp3" type="audio/mpeg">
-  </audio>
+[archived repo's of a dev that had enough.](center)
 
-<script>
+[---](center)
 
-const buttonsData = [
-  { label: 'Ps3 Symbols', script: 'PS3-Symbols.html', title: 'Open ./scripts/PS3-Symbols.html' },
-  { label: 'Ps4 Symbols', script: 'PS4-Symbols.html', title: 'Open ./scripts/PS4-Symbols.html' },
-  { label: 'online.json Editor', script: 'user-onlineJSON-editor.html', title: 'Open ./scripts/user-onlineJSON-editor.html' },
-  { label: 'The PS4 Save DB', script: 'ps4-save-database.html', title: 'Open ./scripts/ps4-save-database.html' },
-  { label: 'Ps3 JB Status', script: 'Ps3-Status.html', title: 'Open ./scripts/Ps3-Status' },
-  { label: 'Ps4 JB Status', script: 'Ps4-Status.html', title: 'Open ./scripts/Ps4-Status' },
-  { label: 'Ps5 JB Status', script: 'Ps5-Status.html', title: 'Open ./scripts/Ps5-Status' },
-  { label: 'Hex To Base64', script: 'hex-base64.html', title: 'Open ./scripts/hex-base64.html' },
-  { label: 'GTA V Build', script: 'GTA-V-BUILD.html', title: 'Open ./scripts/GTA-V-BUILD.html' },
-  { label: 'Webkit Loader', script: 'https://mexrldev.github.io/Webkit', title: 'Open ./Webkit' },
-  { label: 'Actual Y2J emulator', script: 'Y2JB-emu.html', title: 'Open ./scripts/Y2JB-emu.html' },
-  { label: 'About Me', script: 'AboutMe/index.html', title: 'Open ./AboutMe/index.html' }
-];
+[Vue Modding &amp; Themes](center)
 
-const rowsContainer = document.getElementById('rows');
+[PsVue-Mod — Vue PlayStation modding tools &amp; themes.](center)
 
-function buildMenu(items){
-  rowsContainer.innerHTML = '';
-  for(let i=0; i<items.length; i += 3){
-    const group = items.slice(i, i+3);
-    const row = document.createElement('div');
-    row.className = 'row';
-    group.forEach(btn => {
-      const el = document.createElement('button');
-      el.className = 'menu-btn';
-      el.type = 'button';
-      el.textContent = btn.label || 'Button';
-      if(btn.title) el.title = btn.title;
-      if(btn.link) el.dataset.link = btn.link;
-      if(btn.script) el.dataset.script = btn.script;
-      el.setAttribute('aria-label', btn.label || 'menu button');
-      el.addEventListener('click', onMenuClick);
-      el.addEventListener('keydown', (e)=>{
-        if(e.key === 'Enter' || e.key === ' ') { e.preventDefault(); el.click(); }
-      });
-      row.appendChild(el);
-    });
-    rowsContainer.appendChild(row);
-  }
-  if(items.length === 0){
-    const placeholder = document.createElement('div');
-    placeholder.style.textAlign = 'center';
-    placeholder.style.opacity = '0.75';
-    placeholder.style.padding = '22px';
-    placeholder.textContent = 'No buttons defined.';
-    rowsContainer.appendChild(placeholder);
-  }
-}
+[<a class="repo-btn" href="https://github.com/MexrlDev/PsVue-Mod">Open PsVue-Mod</a>](center)
 
-function navigateTo(url, external = false){
-  console.info('navigateTo', url, 'external=', external);
-  try {
-    if(external){
-      window.open(url, '_blank', 'noopener');
-    } else {
-      window.location.href = url;
-    }
-  } catch (err){
-    console.error('Navigation failed', err);
-  }
-}
+[---](center)
 
-function onMenuClick(e){
-  const btn = e.currentTarget;
-  const link = btn.dataset.link;
-  const script = btn.dataset.script;
+[Exp-C0re](center)
 
-  if(link){
-    if(/^https?:\/\//i.test(link)){
-      navigateTo(link, true);
-    } else {
-      navigateTo(link, false);
-    }
-    return;
-  }
+[Taken from EmuC0re &amp; fun to play with like an OS.](center)
 
-  if(script){
-    let target = script.trim();
+[<a class="repo-btn" href="https://github.com/MexrlDev/Exp-C0re">Open Exp-C0re</a>](center)
 
-    if(target.startsWith('github:')){
-      const ghPath = target.slice('github:'.length);
-      const ghUrl = 'https://github.com/' + ghPath;
-      navigateTo(ghUrl, true);
-      return;
-    }
-    
-    if(/^https?:\/\//i.test(target)){
-      navigateTo(target, true);
-      return;
-    }
-    if(!target.includes('.')){
-      target = target + '.html';
-    }
-    if(target.startsWith('./') || target.startsWith('/')){
-      navigateTo(target, false);
-    }
-    else if(target.includes('/')){
-      navigateTo('./' + target, false);
-    }
-    else {
-      navigateTo('./scripts/' + target, false);
-    }
-    return;
-  }
+[---](center)
 
-  console.warn('Button has no action defined.');
-}
+[Star Wars Racer Revenge Mods](center)
 
-buildMenu(buttonsData);
+[SWRR MODS — mods &amp; tools for Star Wars Racer Revenge.](center)
 
-const audio = document.getElementById('bgAudio');
-const musicBtn = document.getElementById('musicBtn');
-const musicIcon = document.getElementById('musicIcon');
-const unmuteHint = document.getElementById('unmuteHint');
+[<a class="repo-btn" href="https://github.com/MexrlDev/Star-Wars-Racer-Revenge-Mods">Open SWRR-MODS</a>](center)
 
-let isPlaying = false;
-let mutedFallback = false;
+[---](center)
 
-function updateMusicIcon(){
-  if(isPlaying){
-    musicIcon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"></path>';
-    musicBtn.setAttribute('aria-pressed','true');
-  } else {
-    musicIcon.innerHTML = '<path d="M8 5v14l11-7z"></path>';
-    musicBtn.setAttribute('aria-pressed','false');
-  }
+[Other Repos](center)
 
-  if(isPlaying && mutedFallback){
-    musicBtn.classList.add('muted');
-    unmuteHint.style.display = 'block';
-    unmuteHint.setAttribute('aria-hidden','false');
-  } else {
-    musicBtn.classList.remove('muted');
-    unmuteHint.style.display = 'none';
-    unmuteHint.setAttribute('aria-hidden','true');
-  }
+[More projects, netflix-n-hack mobile port &amp; and others.](center)
 
-  if(isPlaying){
-    if(mutedFallback){
-      musicBtn.title = 'Playing (muted). Click to pause or interact to unmute';
-    } else {
-      musicBtn.title = 'Playing. Click to pause';
-    }
-  } else {
-    musicBtn.title = 'Paused. Click to play';
-  }
-}
+[<a class="repo-btn" href="https://github.com/MexrlDev/repo">Open repo</a>](center)
 
-async function tryAutoplay(){
-  audio.loop = true;
-  audio.volume = 0.9;
-  audio.muted = false;
-  try {
-    await audio.play();
-    isPlaying = true;
-    mutedFallback = false;
-    updateMusicIcon();
-  } catch (e) {
-    try {
-      audio.muted = true;
-      await audio.play();
-      isPlaying = true;
-      mutedFallback = true;
-      updateMusicIcon();
-      attachUnmuteOnFirstInteraction();
-    } catch (e2) {
-      isPlaying = false;
-      mutedFallback = false;
-      updateMusicIcon();
-    }
-  }
-}
+[---](center)
 
-function attachUnmuteOnFirstInteraction(){
-  function attemptUnmuteOnce(){
-    if(mutedFallback && audio.muted){
-      audio.muted = false;
-      audio.play().catch(()=>{});
-      mutedFallback = false;
-      updateMusicIcon();
-    }
-    window.removeEventListener('pointerdown', attemptUnmuteOnce);
-    window.removeEventListener('keydown', attemptUnmuteOnce);
-  }
-  window.addEventListener('pointerdown', attemptUnmuteOnce, { once: true });
-  window.addEventListener('keydown', attemptUnmuteOnce, { once: true });
-}
+[“Every line of code carries a piece of my soul,](center)
+[a digital fingerprint on the world.”](center)
 
-tryAutoplay();
+[In memory of Terry A. Davis.](center)
+[<a href="https://templeos.org">TempleOS</a>](center)
 
-musicBtn.addEventListener('click', async () => {
-  if(isPlaying){
-    audio.pause();
-    isPlaying = false;
-    mutedFallback = false;
-    updateMusicIcon();
-  } else {
-    audio.muted = false;
-    try {
-      await audio.play();
-      isPlaying = true;
-      mutedFallback = false;
-      updateMusicIcon();
-    } catch (e) {
-      try {
-        audio.muted = true;
-        await audio.play();
-        isPlaying = true;
-        mutedFallback = true;
-        updateMusicIcon();
-        attachUnmuteOnFirstInteraction();
-      } catch (e2) {
-        isPlaying = false;
-        mutedFallback = false;
-        updateMusicIcon();
-      }
-    }
-  }
-});
+    </div>
 
-window.addEventListener('pointerdown', () => {
-  if(isPlaying && mutedFallback && audio.muted){
-    audio.muted = false;
-    mutedFallback = false;
-    updateMusicIcon();
-  }
-}, { once: false });
+    <div class="footer">
+        <a href="https://MexrlDev.GitHub.io/index.html">go back</a>
+    </div>
 
-window.addEventListener('keydown', () => {
-  if(isPlaying && mutedFallback && audio.muted){
-    audio.muted = false;
-    mutedFallback = false;
-    updateMusicIcon();
-  }
-}, { once: false });
+    <script>
+        (function() {
+            document.addEventListener('DOMContentLoaded', function() {
+                const content = document.getElementById('content');
+                if (content) {
+                    content.innerHTML = content.innerHTML.replace(
+                        /\[([^\]]+)\]\(([^)]+)\)/g,
+                        function(match, text, optionsStr) {
+                            const tokens = optionsStr.split(',').map(s => s.trim()).filter(s => s.length > 0);
+                            let alignment = null;
+                            let isHeader = false;
+                            let link = null;
 
-</script>
+                            for (let token of tokens) {
+                                const lower = token.toLowerCase();
+                                if (lower === 'center' || lower === 'right' || lower === 'left') {
+                                    if (!alignment) alignment = lower;
+                                } else if (lower === 'header') {
+                                    isHeader = true;
+                                } else {
+                                    if (!link) link = token;
+                                }
+                            }
+
+                            let inner = text;
+                            if (link) {
+                                inner = '<a href="' + link + '">' + inner + '</a>';
+                            }
+                            if (isHeader) {
+                                inner = '<span style="font-size:1.5em; font-weight:bold;">' + inner + '</span>';
+                            }
+                            if (alignment) {
+                                return '<div style="text-align:' + alignment + ';">' + inner + '</div>';
+                            } else {
+                                return inner;
+                            }
+                        }
+                    );
+                }
+            });
+
+            const melodyNotes = [
+                {"beat":1,"duration":0.5,"sd":"1","octave":1,"isRest":false},
+                {"beat":1.5,"duration":0.5,"sd":"2","octave":1,"isRest":false},
+                {"beat":2,"duration":1,"sd":"3","octave":1,"isRest":false},
+                {"beat":3,"duration":1,"sd":"3","octave":1,"isRest":false},
+                {"beat":4,"duration":0.3333333333333333,"sd":"2","octave":1,"isRest":false},
+                {"beat":4.333333333333334,"duration":0.3333333333333333,"sd":"2","octave":1,"isRest":false},
+                {"beat":4.666666666666666,"duration":0.3333333333333333,"sd":"3","octave":1,"isRest":false},
+                {"beat":5,"duration":1,"sd":"1","octave":1,"isRest":false},
+                {"beat":6,"duration":0.5,"sd":"7","octave":0,"isRest":false},
+                {"beat":6.5,"duration":0.5,"sd":"1","octave":1,"isRest":false},
+                {"beat":7,"duration":0.5,"sd":"1","octave":1,"isRest":false},
+                {"beat":7.5,"duration":0.5,"sd":"2","octave":1,"isRest":false},
+                {"beat":8,"duration":0.3333333333333333,"sd":"7","octave":0,"isRest":false},
+                {"beat":8.333333333333332,"duration":0.3333333333333333,"sd":"4","octave":1,"isRest":false},
+                {"beat":8.666666666666668,"duration":0.3333333333333333,"sd":"3","octave":1,"isRest":false},
+                {"beat":9,"duration":0.5,"sd":"1","octave":1,"isRest":false},
+                {"beat":9.5,"duration":0.5,"sd":"2","octave":1,"isRest":false},
+                {"beat":10,"duration":1,"sd":"3","octave":1,"isRest":false},
+                {"beat":11,"duration":1,"sd":"3","octave":1,"isRest":false},
+                {"beat":12,"duration":0.3333333333333333,"sd":"2","octave":1,"isRest":false},
+                {"beat":12.333333333333334,"duration":0.3333333333333333,"sd":"2","octave":1,"isRest":false},
+                {"beat":12.666666666666666,"duration":0.3333333333333333,"sd":"3","octave":1,"isRest":false},
+                {"beat":13,"duration":1,"sd":"1","octave":1,"isRest":false},
+                {"beat":14,"duration":0.5,"sd":"7","octave":0,"isRest":false},
+                {"beat":14.5,"duration":0.5,"sd":"1","octave":1,"isRest":false},
+                {"beat":15,"duration":0.5,"sd":"1","octave":1,"isRest":false},
+                {"beat":15.5,"duration":0.5,"sd":"2","octave":1,"isRest":false},
+                {"beat":16,"duration":0.3333333333333333,"sd":"7","octave":0,"isRest":false},
+                {"beat":16.333333333333336,"duration":0.3333333333333333,"sd":"4","octave":1,"isRest":false},
+                {"beat":16.666666666666664,"duration":0.3333333333333333,"sd":"3","octave":1,"isRest":false},
+                {"beat":17,"duration":0.5,"sd":"1","octave":1,"isRest":false},
+                {"beat":17.5,"duration":0.5,"sd":"7","octave":0,"isRest":false},
+                {"beat":18,"duration":1,"sd":"1","octave":1,"isRest":false},
+                {"beat":19,"duration":1,"sd":"2","octave":1,"isRest":false},
+                {"beat":20,"duration":0.5,"sd":"5","octave":0,"isRest":false},
+                {"beat":20.5,"duration":0.5,"sd":"5","octave":0,"isRest":false},
+                {"beat":21,"duration":0.3333333333333333,"sd":"2","octave":1,"isRest":false},
+                {"beat":21.333333333333332,"duration":0.3333333333333333,"sd":"2","octave":1,"isRest":false},
+                {"beat":21.666666666666668,"duration":0.3333333333333333,"sd":"3","octave":1,"isRest":false},
+                {"beat":22,"duration":0.3333333333333333,"sd":"2","octave":1,"isRest":false},
+                {"beat":22.333333333333332,"duration":0.3333333333333333,"sd":"1","octave":1,"isRest":false},
+                {"beat":22.666666666666668,"duration":0.3333333333333333,"sd":"4","octave":1,"isRest":false},
+                {"beat":23,"duration":0.3333333333333333,"sd":"6","octave":0,"isRest":false},
+                {"beat":23.333333333333332,"duration":0.3333333333333333,"sd":"1","octave":1,"isRest":false},
+                {"beat":23.666666666666668,"duration":0.3333333333333333,"sd":"7","octave":0,"isRest":false},
+                {"beat":24,"duration":1,"sd":"3","octave":1,"isRest":false},
+                {"beat":25,"duration":0.5,"sd":"1","octave":1,"isRest":false},
+                {"beat":25.5,"duration":0.5,"sd":"7","octave":0,"isRest":false},
+                {"beat":26,"duration":1,"sd":"1","octave":1,"isRest":false},
+                {"beat":27,"duration":1,"sd":"2","octave":1,"isRest":false},
+                {"beat":28,"duration":0.5,"sd":"5","octave":0,"isRest":false},
+                {"beat":28.5,"duration":0.5,"sd":"5","octave":0,"isRest":false},
+                {"beat":29,"duration":0.3333333333333333,"sd":"2","octave":1,"isRest":false},
+                {"beat":29.333333333333332,"duration":0.3333333333333333,"sd":"2","octave":1,"isRest":false},
+                {"beat":29.666666666666668,"duration":0.3333333333333333,"sd":"3","octave":1,"isRest":false},
+                {"beat":30,"duration":0.3333333333333333,"sd":"2","octave":1,"isRest":false},
+                {"beat":30.333333333333332,"duration":0.3333333333333333,"sd":"1","octave":1,"isRest":false},
+                {"beat":30.666666666666668,"duration":0.3333333333333333,"sd":"4","octave":1,"isRest":false},
+                {"beat":31,"duration":0.3333333333333333,"sd":"6","octave":0,"isRest":false},
+                {"beat":31.333333333333332,"duration":0.3333333333333333,"sd":"1","octave":1,"isRest":false},
+                {"beat":31.666666666666668,"duration":0.3333333333333333,"sd":"7","octave":0,"isRest":false},
+                {"beat":32,"duration":1,"sd":"3","octave":1,"isRest":false}
+            ];
+
+            const chords = [
+                {"beat":1,"duration":1,"root":4,"type":5,"inversion":0,"applied":0,"adds":[],"omits":[],"alterations":[],"suspensions":[],"borrowed":"","pedal":null,"substitutions":[],"isRest":false},
+                {"beat":2,"duration":4,"root":1,"type":5,"inversion":0,"applied":0,"adds":[],"omits":[],"alterations":[],"suspensions":[],"borrowed":"","pedal":null,"substitutions":[],"isRest":false},
+                {"beat":6,"duration":2,"root":3,"type":5,"inversion":0,"applied":0,"adds":[],"omits":[],"alterations":[],"suspensions":[],"borrowed":"","pedal":null,"substitutions":[],"isRest":false},
+                {"beat":8,"duration":2,"root":4,"type":5,"inversion":0,"applied":0,"adds":[],"omits":[],"alterations":[],"suspensions":[],"borrowed":"","pedal":null,"substitutions":[],"isRest":false},
+                {"beat":10,"duration":4,"root":1,"type":5,"inversion":0,"applied":0,"adds":[],"omits":[],"alterations":[],"suspensions":[],"borrowed":"","pedal":null,"substitutions":[],"isRest":false},
+                {"beat":14,"duration":2,"root":3,"type":5,"inversion":0,"applied":0,"adds":[],"omits":[],"alterations":[],"suspensions":[],"borrowed":"","pedal":null,"substitutions":[],"isRest":false},
+                {"beat":16,"duration":2,"root":4,"type":5,"inversion":0,"applied":0,"adds":[],"omits":[],"alterations":[],"suspensions":[],"borrowed":"","pedal":null,"substitutions":[],"isRest":false},
+                {"beat":18,"duration":2,"root":6,"type":5,"inversion":0,"applied":0,"adds":[],"omits":[],"alterations":[],"suspensions":[],"borrowed":"minor","pedal":null,"substitutions":[],"isRest":false},
+                {"beat":20,"duration":2,"root":5,"type":5,"inversion":0,"applied":0,"adds":[],"omits":[],"alterations":[],"suspensions":[],"borrowed":"","pedal":null,"substitutions":[],"isRest":false},
+                {"beat":22,"duration":2,"root":4,"type":5,"inversion":0,"applied":0,"adds":[],"omits":[],"alterations":[],"suspensions":[],"borrowed":"","pedal":null,"substitutions":[],"isRest":false},
+                {"beat":24,"duration":1,"root":3,"type":5,"inversion":0,"applied":0,"adds":[],"omits":[],"alterations":[],"suspensions":[],"borrowed":"","pedal":null,"substitutions":[],"isRest":false},
+                {"beat":25,"duration":1,"root":4,"type":5,"inversion":0,"applied":0,"adds":[],"omits":[],"alterations":[],"suspensions":[],"borrowed":"","pedal":null,"substitutions":[],"isRest":false},
+                {"beat":26,"duration":2,"root":6,"type":5,"inversion":0,"applied":0,"adds":[],"omits":[],"alterations":[],"suspensions":[],"borrowed":"minor","pedal":null,"substitutions":[],"isRest":false},
+                {"beat":28,"duration":2,"root":5,"type":5,"inversion":0,"applied":0,"adds":[],"omits":[],"alterations":[],"suspensions":[],"borrowed":"","pedal":null,"substitutions":[],"isRest":false},
+                {"beat":30,"duration":2,"root":4,"type":5,"inversion":0,"applied":0,"adds":[],"omits":[],"alterations":[],"suspensions":[],"borrowed":"","pedal":null,"substitutions":[],"isRest":false},
+                {"beat":32,"duration":1,"root":3,"type":5,"inversion":0,"applied":0,"adds":[],"omits":[],"alterations":[],"suspensions":[],"borrowed":"","pedal":null,"substitutions":[],"isRest":false}
+            ];
+
+            const semitoneOffsets = [0, 2, 3, 5, 7, 9, 10];
+            function getMelodyFreq(degree, octave) {
+                const base = octave === 1 ? 587.33 : 293.66;
+                const offset = semitoneOffsets[degree - 1];
+                return base * Math.pow(2, offset / 12);
+            }
+
+            function getChordFreq(degree) {
+                const base = 146.83;
+                const offset = semitoneOffsets[degree - 1];
+                return base * Math.pow(2, offset / 12);
+            }
+
+            function getChordTones(root) {
+                const idx = root - 1;
+                const fourth = (idx + 3) % 7;
+                const fifth = (idx + 4) % 7;
+                return [root, fourth + 1, fifth + 1, fourth + 1];
+            }
+
+            const tempo = 170;
+            const beatDuration = 60 / tempo;
+            const eighthDuration = beatDuration / 2;
+            const loopBeats = 32;
+            const loopTime = loopBeats * beatDuration;
+
+            let audioCtx = null;
+            let nextLoopStart = 0;
+            let loopTimer = null;
+            let audioStarted = false;
+
+            function createPianoLikeNote(frequency, startTime, duration, velocity = 0.8) {
+                if (!audioCtx) return;
+                const now = audioCtx.currentTime;
+                if (startTime < now) startTime = now;
+
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(frequency, startTime);
+
+                gain.gain.setValueAtTime(0, startTime);
+                gain.gain.linearRampToValueAtTime(velocity, startTime + 0.02);
+                gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration * 0.8);
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                osc.start(startTime);
+                osc.stop(startTime + duration + 0.05);
+            }
+
+            function scheduleLoop() {
+                if (!audioCtx) return;
+                const now = audioCtx.currentTime;
+                if (nextLoopStart < now) {
+                    nextLoopStart = now;
+                }
+                const start = nextLoopStart;
+
+                for (const note of melodyNotes) {
+                    if (note.isRest) continue;
+                    const freq = getMelodyFreq(parseInt(note.sd), note.octave);
+                    const noteStart = start + (note.beat - 1) * beatDuration;
+                    const dur = note.duration * beatDuration;
+                    createPianoLikeNote(freq, noteStart, dur, 0.85);
+                }
+
+                for (const chord of chords) {
+                    const chordStart = start + (chord.beat - 1) * beatDuration;
+                    const chordDur = chord.duration * beatDuration;
+                    const totalEighths = Math.round(chord.duration * 4);
+                    const tones = getChordTones(chord.root);
+                    for (let i = 0; i < totalEighths; i++) {
+                        const noteTime = chordStart + i * eighthDuration;
+                        const degree = tones[i % 4];
+                        const freq = getChordFreq(degree);
+                        createPianoLikeNote(freq, noteTime, eighthDuration * 0.85, 0.65);
+                    }
+                }
+
+                nextLoopStart = start + loopTime;
+                const scheduleAhead = 0.1;
+                loopTimer = setTimeout(scheduleLoop, (loopTime - scheduleAhead) * 1000);
+            }
+
+            function startAudio() {
+                if (audioStarted) return;
+                audioStarted = true;
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                nextLoopStart = audioCtx.currentTime + 0.2;
+                scheduleLoop();
+            }
+
+            function attemptAutoplay() {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume().then(function() {
+                        if (!audioStarted) {
+                            audioStarted = true;
+                            nextLoopStart = audioCtx.currentTime + 0.2;
+                            scheduleLoop();
+                        }
+                    }).catch(function() {});
+                } else {
+                    if (!audioStarted) {
+                        audioStarted = true;
+                        nextLoopStart = audioCtx.currentTime + 0.2;
+                        scheduleLoop();
+                    }
+                }
+            }
+
+            function enableFallback() {
+                document.body.addEventListener('click', function once() {
+                    if (!audioStarted) startAudio();
+                    document.body.removeEventListener('click', once);
+                }, { once: true });
+                document.body.addEventListener('touchstart', function once() {
+                    if (!audioStarted) startAudio();
+                    document.body.removeEventListener('touchstart', once);
+                }, { once: true });
+                document.body.addEventListener('keydown', function once() {
+                    if (!audioStarted) startAudio();
+                    document.body.removeEventListener('keydown', once);
+                }, { once: true });
+            }
+
+            attemptAutoplay();
+            if (!audioStarted) {
+                enableFallback();
+            }
+        })();
+    </script>
 </body>
 </html>
