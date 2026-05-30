@@ -36,8 +36,37 @@
 <body>
     <div id="content">
 
-in memory of Terry A. Davis..
+[in memory of Terry A. Davis..](center)
 
+[<img
+  src="https://web.archive.org/web/20170605071357im_/http://www.templeos.org/main.JPG"
+  alt="TempleOS"
+  width="220"
+>](center)
+
+And in memory of [TempleOS](https://templeos.org)
+
+<iframe
+  width="350"
+  height="240"
+  src="https://www.youtube.com/embed/hmjU-6tkEc8"
+  title="YouTube video player"
+  frameborder="0"
+  allowfullscreen>
+</iframe>
+
+The theme sounds awesome.
+
+Terry A. Davis live words collections
+
+<iframe
+  width="350"
+  height="240"
+  src="https://www.youtube.com/embed/liMUF306cHs"
+  title="YouTube video player"
+  frameborder="0"
+  allowfullscreen>
+</iframe>
 
 “An idiot admires complexity, a genius admires simplicity, a physicist tries to make it simple, for an idiot anything the more complicated it is the more he will admire it, if you make something so clusterfucked he can’t understand it he’s gonna think you’re a god cause you made it so complicated nobody can understand it. That’s how they write journals in Academics, they try to make it so complicated people think you’re a genius.” - Terry A. Davis
 
@@ -54,6 +83,21 @@ in memory of Terry A. Davis..
 “Every line of code carries a piece of my soul, a digital fingerprint on the world.” - Terry A Davis
 
 “Error messages are simply whispers from the machine, guiding us towards perfection.” - Terry A Davis
+
+[Terry A. Davis lives archives](https://archive.org/details/TerryADavis_TempleOS_Archive) (NSFW words warning)
+
+Terry A. Davis, is like the person that saw the sunrise and waiting for everyone else to wake up and see it too.
+
+<iframe
+  width="350"
+  height="240"
+  src="https://www.youtube.com/embed/3HFOnt5j_9Q"
+  title="YouTube video player"
+  frameborder="0"
+  allowfullscreen>
+</iframe>
+
+He was a legend. dont be sad he is gone, be happy that he was here.
 
 Rest in peace
 
@@ -80,7 +124,14 @@ The Smartest programmer that ever lived..
             if (content) {
                 content.innerHTML = content.innerHTML.replace(
                     /\[([^\]]+)\]\(([^)]+)\)/g,
-                    '<a href="$2">$1</a>'
+                    function(match, text, url) {
+                        const lowerUrl = url.trim().toLowerCase();
+                        if (lowerUrl === 'center' || lowerUrl === 'right' || lowerUrl === 'left') {
+                            return '<div style="text-align:' + lowerUrl + ';">' + text + '</div>';
+                        } else {
+                            return '<a href="' + url + '">' + text + '</a>';
+                        }
+                    }
                 );
             }
         });
