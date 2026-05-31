@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terry A. Davis bookmarks</title>
+    <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/MexrlDev/MexrlDev.github.io/refs/heads/main/img/A0C458B1-B0B6-4FD0-86E1-43A2069C9E3D.png">
+    <meta property="og:title" content="bookmarks of Terry A. Davis">
+    <meta property="og:description" content="A bookmark collection of Terry A. Davis used to use.">
+    <meta property="og:image" content="https://i.ibb.co/BVydVvkR/image.png">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #fef5e7;
+            font-family: 'Segoe UI', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Liberation Sans', sans-serif;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .app-container {
+            display: flex;
+            height: 100vh;
+            width: 100%;
+        }
+
+        .bookmark-sidebar {
+            width: 280px;
+            background: #fff7ed;
+            border-right: 1px solid #e0ac69;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            box-shadow: 2px 0 12px rgba(0,0,0,0.02);
+            font-size: 13px;
+        }
+
+        .bookmark-sidebar::-webkit-scrollbar {
+            width: 8px;
+        }
+        .bookmark-sidebar::-webkit-scrollbar-track {
+            background: #f5e5cc;
+        }
+        .bookmark-sidebar::-webkit-scrollbar-thumb {
+            background: #d9942c;
+            border-radius: 10px;
+        }
+
+        .bookmark-folder {
+            margin: 8px 0 4px 0;
+        }
+        .folder-header {
+            font-weight: 600;
+            font-size: 13px;
+            letter-spacing: 0.3px;
+            color: #b45f1b;
+            background: #faeedb;
+            padding: 8px 12px;
+            border-left: 3px solid #e67e22;
+            margin: 4px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .folder-header span {
+            color: #c46b1a;
+        }
+        .folder-items {
+            padding-left: 24px;
+            margin: 2px 0 6px 0;
+        }
+        .bookmark-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 12px 6px 28px;
+            margin: 2px 0;
+            text-decoration: none;
+            color: #2c2b28;
+            border-radius: 6px;
+            transition: all 0.1s ease;
+            font-size: 13px;
+            font-weight: 450;
+            white-space: nowrap;
+            overflow-x: hidden;
+            text-overflow: ellipsis;
+        }
+        .bookmark-item img {
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+            opacity: 0.9;
+            image-rendering: crisp-edges;
+        }
+        .bookmark-item:hover {
+            background: #ffeed9;
+            color: #c95a0f;
+            text-decoration: none;
+        }
+        .bookmark-item:active {
+            background: #ffe0b5;
+        }
+        .top-level-item {
+            padding-left: 16px;
+        }
+        hr {
+            margin: 10px 12px;
+            border: none;
+            border-top: 1px solid #f0dbb8;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #ffffff;
+            overflow: hidden;
+        }
+        .browser-toolbar {
+            background: #fcf3e4;
+            border-bottom: 1px solid #e0ac69;
+            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 12px;
+            color: #b45f1b;
+            font-family: monospace;
+        }
+        .browser-toolbar span {
+            background: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            border: 1px solid #e0ac69;
+            color: #c95a0f;
+        }
+        .templeos-iframe {
+            flex: 1;
+            width: 100%;
+            border: none;
+            background: #fff;
+        }
+        .footer {
+            text-align: center;
+            font-size: 10px;
+            padding: 8px;
+            color: #b97f3a;
+            border-top: 1px solid #f3e1c8;
+            background: #fef8ef;
+        }
+        .footer a {
+            color: #c66a1a;
+            text-decoration: none;
+        }
+        @media (max-width: 700px) {
+            .bookmark-sidebar { width: 240px; }
+            .bookmark-item { font-size: 12px; padding: 5px 8px 5px 20px; }
+        }
+    </style>
+</head>
+<body>
+<div class="app-container">
+    <div class="bookmark-sidebar">
+        <div class="bookmark-folder">
+            <div class="folder-header">
+                <span>📁</span> spiritual
+            </div>
+            <div class="folder-items">
+                <a class="bookmark-item" href="http://www.fourmilab.ch/hotbits/" target="_blank" rel="noopener noreferrer">
+                    <img src="https://www.google.com/s2/favicons?domain=fourmilab.ch&sz=16" alt="" loading="lazy"> AntiParticle i2: HotBits
+                </a>
+                <a class="bookmark-item" href="https://www.random.org/" target="_blank" rel="noopener noreferrer">
+                    <img src="https://www.google.com/s2/favicons?domain=random.org&sz=16" alt=""> R RANDOM.ORG - True...
+                </a>
+                <a class="bookmark-item" href="https://www.google.com/search?q=spinner" target="_blank" rel="noopener noreferrer">
+                    <img src="https://www.google.com/s2/favicons?domain=google.com&sz=16" alt=""> G spinner - Google Search
+                </a>
+                <a class="bookmark-item" href="https://www.usccb.org/" target="_blank" rel="noopener noreferrer">
+                    <img src="https://www.google.com/s2/favicons?domain=usccb.org&sz=16" alt=""> United States Confere...
+                </a>
+            </div>
+        </div>
+        <hr>
+        <div style="margin: 4px 0;"></div>
+        <a class="bookmark-item top-level-item" href="https://arstechnica.com/" target="_blank" rel="noopener noreferrer">
+            <img src="https://www.google.com/s2/favicons?domain=arstechnica.com&sz=16" alt=""> Ars Technica
+        </a>
+        <a class="bookmark-item top-level-item" href="https://www.gandi.net/" target="_blank" rel="noopener noreferrer">
+            <img src="https://www.google.com/s2/favicons?domain=gandi.net&sz=16" alt=""> ox Private Email |
+        </a>
+        <a class="bookmark-item top-level-item" href="https://www.youtube.com/results?search_query=funniest+college+lectures" target="_blank" rel="noopener noreferrer">
+            <img src="https://www.google.com/s2/favicons?domain=youtube.com&sz=16" alt=""> (5) Funniest College Lect...
+        </a>
+        <a class="bookmark-item top-level-item" href="https://twitter.com/thephysicsgirl" target="_blank" rel="noopener noreferrer">
+            <img src="https://www.google.com/s2/favicons?domain=twitter.com&sz=16" alt=""> Dianna Cowern (@theph...
+        </a>
+        <a class="bookmark-item top-level-item" href="https://twitter.com/thephysicsgirl" target="_blank" rel="noopener noreferrer">
+            <img src="https://www.google.com/s2/favicons?domain=twitter.com&sz=16" alt=""> Dianna Eowern (@theph…..
+        </a>
+        <a class="bookmark-item top-level-item" href="https://twitter.com/thephysicsgirl" target="_blank" rel="noopener noreferrer">
+            <img src="https://www.google.com/s2/favicons?domain=twitter.com&sz=16" alt=""> Dianna Cowern (@theph...
+        </a>
+        <a class="bookmark-item top-level-item" href="https://www.facebook.com/thephysicsgirl" target="_blank" rel="noopener noreferrer">
+            <img src="https://www.google.com/s2/favicons?domain=facebook.com&sz=16" alt=""> Dianna Facebopk
+        </a>
+        <a class="bookmark-item top-level-item" href="https://www.instagram.com/thephysicsgirl/" target="_blank" rel="noopener noreferrer">
+            <img src="https://www.google.com/s2/favicons?domain=instagram.com&sz=16" alt=""> Dianna instagram
+        </a>
+        <a class="bookmark-item top-level-item" href="https://twitter.com/thephysicsgirl" target="_blank" rel="noopener noreferrer">
+            <img src="https://www.google.com/s2/favicons?domain=twitter.com&sz=16" alt=""> Dianna Twitter
+        </a>
+        <a class="bookmark-item top-level-item" href="https://www.dictionary.com/" target="_blank" rel="noopener noreferrer">
+            <img src="https://www.google.com/s2/favicons?domain=dictionary.com&sz=16" alt=""> Dictionary
+        </a>
+        <a class="bookmark-item top-level-item" href="https://www.youtube.com/physicsgirl" target="_blank" rel="noopener noreferrer">
+            <img src="https://www.google.com/s2/favicons?domain=youtube.com&sz=16" alt=""> Dianna YduTube
+        </a>
+        <a class="bookmark-item top-level-item" href="https://www.dropbox.com/" target="_blank" rel="noopener noreferrer">
+            <img src="https://www.google.com/s2/favicons?domain=dropbox.com&sz=16" alt=""> Dropbex
+        </a>
+        <a class="bookmark-item top-level-item" href="http://www.drudgereport.com/" target="_blank" rel="noopener noreferrer">
+            <img src="https://www.google.com/s2/favicons?domain=drudgereport.com&sz=16" alt=""> DRUDGE
+        </a>
+        <a class="bookmark-item top-level-item" href="https://forum.osdev.org/" target="_blank" rel="noopener noreferrer">
+            <img src="https://www.google.com/s2/favicons?domain=osdev.org&sz=16" alt=""> OSDev.org • Index page
+        </a>
+        <a class="bookmark-item top-level-item" href="https://www.reddit.com/" target="_blank" rel="noopener noreferrer">
+            <img src="https://www.google.com/s2/favicons?domain=reddit.com&sz=16" alt=""> reddit.com
+        </a>
+        <a class="bookmark-item top-level-item" href="https://www.youtube.com/@SimoneGiertz" target="_blank" rel="noopener noreferrer">
+            <img src="https://www.google.com/s2/favicons?domain=youtube.com&sz=16" alt=""> Simone Giertz (@simone...
+        </a>
+        <a class="bookmark-item top-level-item" href="https://slashdot.org/" target="_blank" rel="noopener noreferrer">
+            <img src="https://www.google.com/s2/favicons?domain=slashdot.org&sz=16" alt=""> slashdot News for nerds...
+        </a>
+        <a class="bookmark-item top-level-item" href="http://www.templeos.info/" target="_blank" rel="noopener noreferrer">
+            <img src="https://www.google.com/s2/favicons?domain=templeos.info&sz=16" alt=""> Terry A. Davis' Alternate ...
+        </a>
+        <a class="bookmark-item top-level-item" href="http://www.templeos.org/" target="_blank" rel="noopener noreferrer">
+            <img src="https://www.google.com/s2/favicons?domain=templeos.org&sz=16" alt=""> Terry A. Davis' TempleO...
+        </a>
+        <a class="bookmark-item top-level-item" href="https://archive.org/details/@terry_a_davis" target="_blank" rel="noopener noreferrer">
+            <img src="https://www.google.com/s2/favicons?domain=archive.org&sz=16" alt=""> TerryADavis's videos - Vi...
+        </a>
+        <a class="bookmark-item top-level-item" href="https://support.microsoft.com/en-us/windows/touchpad-sensitivity" target="_blank" rel="noopener noreferrer">
+            <img src="https://www.google.com/s2/favicons?domain=microsoft.com&sz=16" alt=""> G touch pad
+        </a>
+        <a class="bookmark-item top-level-item" href="https://twitter.com/" target="_blank" rel="noopener noreferrer">
+            <img src="https://www.google.com/s2/favicons?domain=twitter.com&sz=16" alt=""> Twitter
+        </a>
+        <a class="bookmark-item top-level-item" href="http://www.templeos.org/" target="_blank" rel="noopener noreferrer">
+            <img src="https://www.google.com/s2/favicons?domain=templeos.org&sz=16" alt=""> www.templeos.org
+        </a>
+        <a class="bookmark-item top-level-item" href="https://www.youtube.com/" target="_blank" rel="noopener noreferrer">
+            <img src="https://www.google.com/s2/favicons?domain=youtube.com&sz=16" alt=""> (5) YouTube
+        </a>
+        <a class="bookmark-item top-level-item" href="http://www.jimmypage.com/" target="_blank" rel="noopener noreferrer">
+            <img src="https://www.google.com/s2/favicons?domain=jimmypage.com&sz=16" alt=""> JimmyPage.com
+        </a>
+        <a class="bookmark-item top-level-item" href="https://simonegiertz.com/contact" target="_blank" rel="noopener noreferrer">
+            <img src="https://www.google.com/s2/favicons?domain=simonegiertz.com&sz=16" alt=""> contact — Simone Giertz
+        </a>
+        <a class="bookmark-item top-level-item" href="https://glot.io/snippets/fvdgvtir1w" target="_blank" rel="noopener noreferrer">
+            <img src="https://www.google.com/s2/favicons?domain=glot.io&sz=16" alt=""> GodwordsHappy
+        </a>
+        <a class="bookmark-item top-level-item" href="https://www.google.com/" target="_blank" rel="noopener noreferrer">
+            <img src="https://www.google.com/s2/favicons?domain=google.com&sz=16" alt=""> Google
+        </a>
+        <a class="bookmark-item top-level-item" href="https://www.google.com/search?q=TempleOS" target="_blank" rel="noopener noreferrer">
+            <img src="https://www.google.com/s2/favicons?domain=google.com&sz=16" alt=""> Google TempleS
+        </a>
+        <a class="bookmark-item top-level-item" href="https://news.ycombinator.com/" target="_blank" rel="noopener noreferrer">
+            <img src="https://www.google.com/s2/favicons?domain=ycombinator.com&sz=16" alt=""> Hacker News
+        </a>
+        <a class="bookmark-item top-level-item" href="https://www.headstogether.org.uk/" target="_blank" rel="noopener noreferrer">
+            <img src="https://www.google.com/s2/favicons?domain=headstogether.org.uk&sz=16" alt=""> Heads Together - Royal ...
+        </a>
+        <a class="bookmark-item top-level-item" href="https://id.gandi.net/en/" target="_blank" rel="noopener noreferrer">
+            <img src="https://www.google.com/s2/favicons?domain=gandi.net&sz=16" alt=""> Log in - Gandi ID
+        </a>
+        <a class="bookmark-item top-level-item" href="https://www.knpr.org/" target="_blank" rel="noopener noreferrer">
+            <img src="https://www.google.com/s2/favicons?domain=knpr.org&sz=16" alt=""> Nevada Public RadIo - N...
+        </a>
+        <a class="bookmark-item top-level-item" href="https://beacon.nist.gov/home" target="_blank" rel="noopener noreferrer">
+            <img src="https://www.google.com/s2/favicons?domain=nist.gov&sz=16" alt=""> NIST Randomness Beaco...
+        </a>
+        <div style="height: 16px;"></div>
+    </div>
+
+    <div class="main-content">
+        <div class="browser-toolbar">
+            <span>templeos.org</span>
+            <span style="font-family: monospace;">TempleOS</span>
+        </div>
+        <iframe class="templeos-iframe" src="http://www.templeos.org/" title="TempleOS official website" sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-top-navigation"></iframe>
+        <div class="footer">
+            <a href="https://MexrlDev.GitHub.io/index.html">go to main website</a>   |  
+            <span style="color:#b97f3a;">in memory of Terry A. Davis</span>
+        </div>
+    </div>
+</div>
+</body>
+</html>
