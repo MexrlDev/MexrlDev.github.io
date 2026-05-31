@@ -10,16 +10,13 @@
             padding: 0;
             box-sizing: border-box;
         }
-
-        html,
-        body {
+        html, body {
             width: 100%;
             height: 100%;
             overflow: hidden;
             background: #000;
             font-family: 'Courier New', 'Fira Code', monospace;
         }
-
         iframe {
             position: fixed;
             top: 0;
@@ -40,15 +37,20 @@
             height: 100%;
             background: #000;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             z-index: 9999;
-            cursor: pointer;
+            cursor: default;
             transition: opacity 0.35s ease;
-            flex-direction: column;
-            gap: 24px;
+            gap: 16px;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            overflow-y: auto;
+            padding: 20px;
         }
-
         #boot-overlay.fade-out {
             opacity: 0;
             pointer-events: none;
@@ -68,15 +70,16 @@
             text-transform: uppercase;
             -webkit-tap-highlight-color: transparent;
             outline: none;
+            user-select: none;
+            -webkit-user-select: none;
+            flex-shrink: 0;
         }
-
         #boot-btn:hover {
             border-color: #7a7a7a;
             color: #ffffff;
             background: #141414;
-            box-shadow: 0 0 40px rgba(180, 180, 180, 0.06);
+            box-shadow: 0 0 40px rgba(180,180,180,0.06);
         }
-
         #boot-btn:active {
             transform: scale(0.97);
             border-color: #aaa;
@@ -89,17 +92,62 @@
             letter-spacing: 3px;
             text-transform: uppercase;
             pointer-events: none;
+            user-select: none;
+            -webkit-user-select: none;
             animation: pulse 2.5s ease-in-out infinite;
+            flex-shrink: 0;
+        }
+        @keyframes pulse {
+            0%,100% { opacity: 0.35; }
+            50% { opacity: 0.75; }
         }
 
-        @keyframes pulse {
-            0%,
-            100% {
-                opacity: 0.35;
-            }
-            50% {
-                opacity: 0.75;
-            }
+        .story-container {
+            max-width: 700px;
+            width: 100%;
+            margin-top: 18px;
+            max-height: 35vh;
+            overflow-y: auto;
+            border-top: 1px solid #222;
+            padding-top: 16px;
+            color: #8a8a8a;
+            font-size: 0.75rem;
+            line-height: 1.55;
+            text-align: left;
+            user-select: none;
+            -webkit-user-select: none;
+            scrollbar-width: thin;
+            scrollbar-color: #2a2a2a #000;
+        }
+        .story-container::-webkit-scrollbar {
+            width: 4px;
+        }
+        .story-container::-webkit-scrollbar-thumb {
+            background: #2a2a2a;
+        }
+        .story-heading {
+            color: #b0b0b0;
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+        .story-text {
+            margin-bottom: 12px;
+            white-space: pre-line;
+        }
+        .archive-link {
+            color: #7a9b7a;
+            text-decoration: none;
+            border-bottom: 1px dotted #3a5a3a;
+            transition: color 0.2s;
+            display: inline-block;
+            margin-top: 4px;
+        }
+        .archive-link:hover {
+            color: #b0d0b0;
+            border-bottom-color: #8fbc8f;
         }
 
         @media (max-width: 600px) {
@@ -112,8 +160,11 @@
                 font-size: 0.6rem;
                 letter-spacing: 2px;
             }
+            .story-container {
+                font-size: 0.65rem;
+                max-height: 30vh;
+            }
         }
-
         @media (min-width: 2560px) {
             #boot-btn {
                 font-size: 2.2rem;
@@ -124,6 +175,9 @@
             #boot-hint {
                 font-size: 1rem;
                 letter-spacing: 5px;
+            }
+            .story-container {
+                font-size: 0.9rem;
             }
         }
     </style>
@@ -140,6 +194,27 @@
 <div id="boot-overlay">
     <button id="boot-btn">⬡ BOOT TEMPLEOS</button>
     <span id="boot-hint">click to start</span>
+
+    <!-- Terry A. Davis story – uncopiable, no CIA mention -->
+    <div class="story-container">
+        <div class="story-heading">Terry A. Davis · 2007 – 2018</div>
+        <div class="story-text">
+            Terry Andrew Davis (1969–2018) began building what would become TempleOS around 2007, after a decade of working as a programmer at Ticketmaster. He had already experienced a profound mental shift – later diagnosed as schizophrenia – that led him to believe he was receiving direct messages from God. He quit his job, moved into his parents’ house, and dedicated every waking hour to writing an operating system from scratch.
+
+            He called it LoseThos at first, later J Operating System, and finally TempleOS. The entire 64‑bit operating system, with its own kernel, compiler, graphics library, and HolyC language, was written by Terry alone. He created it as “God’s third temple”, a sacred space for programming and communion with the divine. Everything ran at 640×480 with 16 colours, using a custom VGA driver, and the code was infused with Biblical verse and raw, unfiltered commentary.
+
+            By 2013 his online presence exploded. He posted thousands of hours of video rants on YouTube, livestreamed his coding sessions, and shared updates on his website. His speech was often disjointed, furious, or heartbreakingly lucid. He became homeless for several years, living out of his van while still developing TempleOS on a battered ThinkPad. During this time he frequently raged against mental health services, pharmaceutical companies, and his own isolation, yet he never stopped refining his OS.
+
+            The programming world slowly recognised the sheer technical achievement: a self‑hosted compiler, a full‑featured kernel, and a 2D/3D graphics engine, all written by one man with no external libraries. Many described him as a troubled genius, a savant whose condition both enabled and tormented him. Despite the chaos, TempleOS continued to compile and run beautifully.
+
+            On August 11, 2018, Terry was struck by a train in The Dalles, Oregon. He died at the age of 48. His final years were marked by open‑source releases, sporadic online posts, and a small community that tried to support him from a distance. TempleOS remains a testament to one person’s relentless, brilliant, and deeply personal vision.
+
+            The videos, OS images, and raw archives that Terry uploaded are preserved below. They contain strong language and unpredictable content – exactly as he left them.
+        </div>
+        <a href="https://archive.org/details/TerryADavis_TempleOS_Archive" target="_blank" rel="noopener noreferrer" class="archive-link">
+            ▶ ARCHIVED VIDEOS (NSFW) – archive.org
+        </a>
+    </div>
 </div>
 
 <script>
@@ -151,13 +226,9 @@
         function bootEmulator() {
             if (overlay.classList.contains('fade-out')) return;
             overlay.classList.add('fade-out');
-
             setTimeout(function() {
-                if (overlay.parentNode) {
-                    overlay.remove();
-                }
+                if (overlay.parentNode) overlay.remove();
             }, 350);
-
             try {
                 iframe.focus();
                 if (iframe.contentWindow) {
