@@ -1,268 +1,330 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>TempleOS</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        html, body {
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            background: #000;
-            font-family: 'Courier New', 'Fira Code', monospace;
-        }
-        iframe {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border: none;
-            display: block;
-            image-rendering: auto;
-            background: #000;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>TempleOS</title>
+<style>
+*{margin:0;padding:0;-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box}
 
-        #boot-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #000;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-            cursor: default;
-            transition: opacity 0.35s ease;
-            gap: 16px;
-            user-select: none;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            overflow-y: auto;
-            padding: 20px;
-        }
-        #boot-overlay.fade-out {
-            opacity: 0;
-            pointer-events: none;
-        }
+html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Courier New',Courier,monospace}
 
-        #boot-btn {
-            background: #0a0a0a;
-            border: 2px solid #3a3a3a;
-            color: #b8b8b8;
-            font-family: 'Courier New', monospace;
-            font-size: 1.4rem;
-            padding: 18px 44px;
-            cursor: pointer;
-            letter-spacing: 5px;
-            transition: all 0.2s ease;
-            border-radius: 2px;
-            text-transform: uppercase;
-            -webkit-tap-highlight-color: transparent;
-            outline: none;
-            user-select: none;
-            -webkit-user-select: none;
-            flex-shrink: 0;
-        }
-        #boot-btn:hover {
-            border-color: #7a7a7a;
-            color: #ffffff;
-            background: #141414;
-            box-shadow: 0 0 40px rgba(180,180,180,0.06);
-        }
-        #boot-btn:active {
-            transform: scale(0.97);
-            border-color: #aaa;
-            background: #1a1a1a;
-        }
+iframe{position:fixed;top:0;left:0;width:100%;height:100%;border:none;display:block;background:#000}
 
-        #boot-hint {
-            color: #3a3a3a;
-            font-size: 0.7rem;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            pointer-events: none;
-            user-select: none;
-            -webkit-user-select: none;
-            animation: pulse 2.5s ease-in-out infinite;
-            flex-shrink: 0;
-        }
-        @keyframes pulse {
-            0%,100% { opacity: 0.35; }
-            50% { opacity: 0.75; }
-        }
+#veil{
+    position:fixed;top:0;left:0;width:100%;height:100%;
+    background:#000;
+    z-index:9999;
+    overflow:hidden;
+    -webkit-transition:opacity .45s ease;
+    -moz-transition:opacity .45s ease;
+    -o-transition:opacity .45s ease;
+    transition:opacity .45s ease;
+}
 
-        .story-container {
-            max-width: 700px;
-            width: 100%;
-            margin-top: 18px;
-            max-height: 35vh;
-            overflow-y: auto;
-            border-top: 1px solid #222;
-            padding-top: 16px;
-            color: #8a8a8a;
-            font-size: 0.75rem;
-            line-height: 1.55;
-            text-align: left;
-            user-select: none;
-            -webkit-user-select: none;
-            scrollbar-width: thin;
-            scrollbar-color: #2a2a2a #000;
-        }
-        .story-container::-webkit-scrollbar {
-            width: 4px;
-        }
-        .story-container::-webkit-scrollbar-thumb {
-            background: #2a2a2a;
-        }
-        .story-heading {
-            color: #b0b0b0;
-            font-size: 0.8rem;
-            letter-spacing: 2px;
-            margin-bottom: 10px;
-            text-transform: uppercase;
-            font-weight: bold;
-        }
-        .story-text {
-            margin-bottom: 12px;
-            white-space: pre-line;
-        }
-        .archive-link {
-            color: #7a9b7a;
-            text-decoration: none;
-            border-bottom: 1px dotted #3a5a3a;
-            transition: color 0.2s;
-            display: inline-block;
-            margin-top: 4px;
-        }
-        .archive-link:hover {
-            color: #b0d0b0;
-            border-bottom-color: #8fbc8f;
-        }
+#veil.out{opacity:0;pointer-events:none}
 
-        @media (max-width: 600px) {
-            #boot-btn {
-                font-size: 1rem;
-                padding: 14px 28px;
-                letter-spacing: 3px;
-            }
-            #boot-hint {
-                font-size: 0.6rem;
-                letter-spacing: 2px;
-            }
-            .story-container {
-                font-size: 0.65rem;
-                max-height: 30vh;
-            }
-        }
-        @media (min-width: 2560px) {
-            #boot-btn {
-                font-size: 2.2rem;
-                padding: 28px 64px;
-                letter-spacing: 8px;
-                border-width: 3px;
-            }
-            #boot-hint {
-                font-size: 1rem;
-                letter-spacing: 5px;
-            }
-            .story-container {
-                font-size: 0.9rem;
-            }
-        }
-    </style>
+#scan{
+    position:absolute;top:0;left:0;width:100%;height:100%;
+    background:
+        repeating-linear-gradient(
+            to bottom,
+            transparent 0px,
+            transparent 3px,
+            rgba(0,0,0,.13) 3px,
+            rgba(0,0,0,.13) 4px
+        );
+    pointer-events:none;
+    z-index:1;
+}
+
+#vign{
+    position:absolute;top:0;left:0;width:100%;height:100%;
+    background:
+        -webkit-radial-gradient(center,ellipse cover,transparent 45%,rgba(0,0,0,.82) 100%);
+    background:
+        radial-gradient(ellipse at center,transparent 45%,rgba(0,0,0,.82) 100%);
+    pointer-events:none;
+    z-index:2;
+}
+
+#inner{
+    position:absolute;top:0;left:0;width:100%;height:100%;
+    z-index:3;
+    display:-webkit-box;
+    display:-webkit-flex;
+    display:-ms-flexbox;
+    display:flex;
+    -webkit-box-orient:vertical;
+    -webkit-box-direction:normal;
+    -webkit-flex-direction:column;
+    -ms-flex-direction:column;
+    flex-direction:column;
+    -webkit-box-pack:center;
+    -webkit-justify-content:center;
+    -ms-flex-pack:center;
+    justify-content:center;
+    -webkit-box-align:center;
+    -webkit-align-items:center;
+    -ms-flex-align:center;
+    align-items:center;
+    padding:24px 20px;
+}
+
+#wordmark{
+    font-size:.55rem;
+    letter-spacing:10px;
+    color:#383838;
+    text-transform:uppercase;
+    margin-bottom:30px;
+    -webkit-animation:wm 10s ease-in-out infinite;
+    animation:wm 10s ease-in-out infinite;
+    -webkit-user-select:none;
+    -moz-user-select:none;
+    -ms-user-select:none;
+    user-select:none;
+}
+
+@-webkit-keyframes wm{
+    0%,100%{color:#2e2e2e}
+    50%{color:#484848}
+}
+@keyframes wm{
+    0%,100%{color:#2e2e2e}
+    50%{color:#484848}
+}
+
+#cross{
+    display:block;
+    font-size:2.4rem;
+    color:#2a2a2a;
+    margin-bottom:26px;
+    text-align:center;
+    -webkit-user-select:none;
+    -moz-user-select:none;
+    -ms-user-select:none;
+    user-select:none;
+    -webkit-animation:cp 5s ease-in-out infinite;
+    animation:cp 5s ease-in-out infinite;
+}
+
+@-webkit-keyframes cp{
+    0%,100%{color:#252525;text-shadow:none}
+    50%{color:#4a4a4a;text-shadow:0 0 18px rgba(180,180,180,.09)}
+}
+@keyframes cp{
+    0%,100%{color:#252525;text-shadow:none}
+    50%{color:#4a4a4a;text-shadow:0 0 18px rgba(180,180,180,.09)}
+}
+
+#btn{
+    display:block;
+    position:relative;
+    background:transparent;
+    border:1px solid #2a2a2a;
+    color:#8a8a8a;
+    font-family:'Courier New',Courier,monospace;
+    font-size:.82rem;
+    padding:15px 48px;
+    letter-spacing:7px;
+    text-transform:uppercase;
+    cursor:pointer;
+    outline:none;
+    -webkit-tap-highlight-color:transparent;
+    -ms-touch-action:manipulation;
+    touch-action:manipulation;
+    -webkit-user-select:none;
+    -moz-user-select:none;
+    -ms-user-select:none;
+    user-select:none;
+    -webkit-transition:border-color .22s ease,color .22s ease,box-shadow .22s ease;
+    -moz-transition:border-color .22s ease,color .22s ease,box-shadow .22s ease;
+    -o-transition:border-color .22s ease,color .22s ease,box-shadow .22s ease;
+    transition:border-color .22s ease,color .22s ease,box-shadow .22s ease;
+}
+
+#btn:before,
+#btn:after{
+    content:'';
+    position:absolute;
+    width:7px;
+    height:7px;
+    border-style:solid;
+    border-color:#333;
+    -webkit-transition:border-color .22s ease;
+    -moz-transition:border-color .22s ease;
+    -o-transition:border-color .22s ease;
+    transition:border-color .22s ease;
+}
+
+#btn:before{top:3px;left:3px;border-width:1px 0 0 1px}
+#btn:after{bottom:3px;right:3px;border-width:0 1px 1px 0}
+
+#btn:hover{
+    border-color:#5a5a5a;
+    color:#ccc;
+    box-shadow:0 0 28px rgba(200,200,200,.05),inset 0 0 20px rgba(200,200,200,.015);
+}
+
+#btn:hover:before,
+#btn:hover:after{border-color:#666}
+
+#btn:active{
+    -webkit-transform:scale(.972);
+    -ms-transform:scale(.972);
+    transform:scale(.972);
+    border-color:#888;
+    color:#eee;
+}
+
+#hint{
+    font-size:.55rem;
+    letter-spacing:5px;
+    color:#1e1e1e;
+    text-transform:uppercase;
+    margin-top:16px;
+    -webkit-animation:ht 3.2s ease-in-out infinite;
+    animation:ht 3.2s ease-in-out infinite;
+    -webkit-user-select:none;
+    -moz-user-select:none;
+    -ms-user-select:none;
+    user-select:none;
+}
+
+@-webkit-keyframes ht{
+    0%,100%{opacity:.28}
+    50%{opacity:.72}
+}
+@keyframes ht{
+    0%,100%{opacity:.28}
+    50%{opacity:.72}
+}
+
+#bio{
+    width:100%;
+    max-width:620px;
+    margin-top:30px;
+    padding-top:18px;
+    border-top:1px solid #161616;
+    overflow-y:auto;
+    max-height:30vh;
+    scrollbar-width:thin;
+    scrollbar-color:#1e1e1e #000;
+}
+
+#bio::-webkit-scrollbar{width:3px}
+#bio::-webkit-scrollbar-thumb{background:#222}
+#bio::-webkit-scrollbar-track{background:#000}
+
+.bh{
+    color:#363636;
+    font-size:.55rem;
+    letter-spacing:5px;
+    text-transform:uppercase;
+    margin-bottom:10px;
+}
+
+.bt{
+    color:#333;
+    font-size:.7rem;
+    line-height:1.75;
+    white-space:pre-line;
+    margin-bottom:14px;
+}
+
+.bl{
+    color:#3d5c3d;
+    font-size:.56rem;
+    letter-spacing:3px;
+    text-transform:uppercase;
+    text-decoration:none;
+    border-bottom:1px solid #253525;
+    padding-bottom:1px;
+    display:inline-block;
+    -webkit-transition:color .2s,border-color .2s;
+    -moz-transition:color .2s,border-color .2s;
+    -o-transition:color .2s,border-color .2s;
+    transition:color .2s,border-color .2s;
+}
+
+.bl:hover{color:#6a9a6a;border-color:#4a7a4a}
+
+@media screen and (max-width:480px){
+    #cross{font-size:1.8rem}
+    #btn{font-size:.7rem;padding:12px 30px;letter-spacing:5px}
+    .bt{font-size:.62rem}
+    #bio{max-height:28vh}
+}
+
+@media screen and (min-width:1400px){
+    #btn{font-size:.95rem;padding:18px 58px}
+    .bt{font-size:.78rem}
+    #wordmark{font-size:.6rem}
+}
+
+@media screen and (min-height:900px){
+    #bio{max-height:36vh}
+}
+</style>
 </head>
 <body>
-    <iframe
-    src="https://templeos.reiko.app/"
-    title="TempleOS"
-    allow="autoplay; clipboard-write"
-    loading="eager"
-    id="templeos-frame">
-</iframe>
 
-<div id="boot-overlay">
-    <button id="boot-btn">⬡ BOOT TEMPLEOS</button>
-    <span id="boot-hint">click to start</span>
+<iframe id="fr" src="https://templeos.reiko.app/" title="TempleOS" allow="autoplay; clipboard-write"></iframe>
 
-    <!-- Terry A. Davis story – uncopiable, no CIA mention -->
-    <div class="story-container">
-        <div class="story-heading">Terry A. Davis · 2007 – 2018</div>
-        <div class="story-text">
-            Terry Andrew Davis (1969–2018) began building what would become TempleOS around 2007, after a decade of working as a programmer at Ticketmaster. He had already experienced a profound mental shift – later diagnosed as schizophrenia – that led him to believe he was receiving direct messages from God. He quit his job, moved into his parents’ house, and dedicated every waking hour to writing an operating system from scratch.
+<div id="veil">
+    <div id="scan"></div>
+    <div id="vign"></div>
+    <div id="inner">
+        <span id="wordmark">Temple Operating System</span>
+        <span id="cross">&#10013;</span>
+        <button id="btn">Boot TempleOS</button>
+        <span id="hint">enter &nbsp;/&nbsp; click</span>
+        <div id="bio">
+            <div class="bh">Terry A. Davis &nbsp;&middot;&nbsp; 1969 &ndash; 2018</div>
+            <div class="bt">Terry Andrew Davis began building TempleOS around 2007, after years working as a programmer at Ticketmaster. A period of profound mental crisis &mdash; later diagnosed as schizophrenia &mdash; led him to believe he was receiving direct messages from God. He left his job, moved into his parents&rsquo; house, and began writing an entire operating system from nothing.
 
-            He called it LoseThos at first, later J Operating System, and finally TempleOS. The entire 64‑bit operating system, with its own kernel, compiler, graphics library, and HolyC language, was written by Terry alone. He created it as “God’s third temple”, a sacred space for programming and communion with the divine. Everything ran at 640×480 with 16 colours, using a custom VGA driver, and the code was infused with Biblical verse and raw, unfiltered commentary.
+He called it LoseThos first, then J Operating System, and finally TempleOS. The 64-bit OS &mdash; kernel, compiler, graphics layer, and HolyC language &mdash; was written by one person. He designed it as &ldquo;God&rsquo;s third temple&rdquo;, a sacred space for communion through code. Everything ran at 640&times;480, sixteen colours, through a custom VGA driver. Scripture and raw commentary ran through the codebase the way veins run through stone.
 
-            By 2013 his online presence exploded. He posted thousands of hours of video rants on YouTube, livestreamed his coding sessions, and shared updates on his website. His speech was often disjointed, furious, or heartbreakingly lucid. He became homeless for several years, living out of his van while still developing TempleOS on a battered ThinkPad. During this time he frequently raged against mental health services, pharmaceutical companies, and his own isolation, yet he never stopped refining his OS.
+By 2013 his online presence had grown into thousands of hours of video: livestreamed coding sessions, furious rants, moments of devastating clarity. For several years he was homeless, working out of his van on a battered ThinkPad, still refining the OS. The programming community slowly recognised what it was looking at &mdash; a self-hosted compiler, a full kernel, a 2D/3D graphics engine, no external libraries, no team. One man.
 
-            The programming world slowly recognised the sheer technical achievement: a self‑hosted compiler, a full‑featured kernel, and a 2D/3D graphics engine, all written by one man with no external libraries. Many described him as a troubled genius, a savant whose condition both enabled and tormented him. Despite the chaos, TempleOS continued to compile and run beautifully.
-
-            On August 11, 2018, Terry was struck by a train in The Dalles, Oregon. He died at the age of 48. His final years were marked by open‑source releases, sporadic online posts, and a small community that tried to support him from a distance. TempleOS remains a testament to one person’s relentless, brilliant, and deeply personal vision.
-
-            The videos, OS images, and raw archives that Terry uploaded are preserved below. They contain strong language and unpredictable content – exactly as he left them.
+On 11 August 2018, Terry was struck by a train in The Dalles, Oregon. He was 48. TempleOS is exactly as he left it.</div>
+            <a href="https://archive.org/details/TerryADavis_TempleOS_Archive" target="_blank" rel="noopener noreferrer" class="bl">Archive &mdash; Videos &amp; OS Images (NSFW)</a>
         </div>
-        <a href="https://archive.org/details/TerryADavis_TempleOS_Archive" target="_blank" rel="noopener noreferrer" class="archive-link">
-            ▶ ARCHIVED VIDEOS (NSFW) – archive.org
-        </a>
     </div>
 </div>
 
 <script>
-    (function() {
-        const overlay = document.getElementById('boot-overlay');
-        const bootBtn = document.getElementById('boot-btn');
-        const iframe = document.getElementById('templeos-frame');
+(function(){
+    var veil=document.getElementById('veil');
+    var btn=document.getElementById('btn');
+    var fr=document.getElementById('fr');
+    var fired=false;
 
-        function bootEmulator() {
-            if (overlay.classList.contains('fade-out')) return;
-            overlay.classList.add('fade-out');
-            setTimeout(function() {
-                if (overlay.parentNode) overlay.remove();
-            }, 350);
-            try {
-                iframe.focus();
-                if (iframe.contentWindow) {
-                    iframe.contentWindow.focus();
-                }
-            } catch (e) {}
-        }
+    function go(){
+        if(fired)return;
+        fired=true;
+        veil.className=veil.className+' out';
+        setTimeout(function(){
+            if(veil.parentNode)veil.parentNode.removeChild(veil);
+            try{fr.focus()}catch(e){}
+        },460);
+    }
 
-        bootBtn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            e.preventDefault();
-            bootEmulator();
-        });
+    btn.addEventListener('click',function(e){e.preventDefault();go()},false);
 
-        overlay.addEventListener('click', function(e) {
-            if (e.target === overlay) {
-                bootEmulator();
-            }
-        });
+    document.addEventListener('keydown',function(e){
+        var k=e.keyCode||e.which;
+        if(!fired&&(k===13||k===32)){e.preventDefault();go()}
+    },false);
 
-        document.addEventListener('keydown', function(e) {
-            if (!overlay.classList.contains('fade-out') &&
-                (e.key === 'Enter' || e.key === ' ' || e.code === 'Space')) {
-                e.preventDefault();
-                bootEmulator();
-            }
-        });
+    veil.addEventListener('click',function(e){
+        if(e.target===veil||e.target===document.getElementById('inner')){go()}
+    },false);
 
-        iframe.addEventListener('load', function() {
-            try {
-                iframe.contentWindow && iframe.contentWindow.focus();
-            } catch (e) {}
-        });
-    })();
+    fr.addEventListener('load',function(){
+        try{fr.contentWindow&&fr.contentWindow.focus()}catch(e){}
+    },false);
+}());
 </script>
 </body>
 </html>
