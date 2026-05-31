@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>TempleOS Web Playground</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a0f1a 0%, #03060b 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Courier New', 'Fira Code', monospace;
+            padding: 20px;
+        }
+
+        .temple-container {
+            max-width: 1000px;
+            width: 100%;
+            background: #1a1f2e;
+            border-radius: 28px;
+            box-shadow: 0 25px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05);
+            padding: 20px;
+            border: 1px solid #2e3a48;
+        }
+
+        /* 640x480 VGA sacred resolution */
+        .emulator-frame {
+            background: #000;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 0 0 2px #0f121c, 0 12px 28px black;
+            aspect-ratio: 640 / 480;
+            width: 100%;
+        }
+
+        .emulator-frame iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+        }
+
+        .control-panel {
+            margin-top: 20px;
+            background: #0b0e16;
+            border-radius: 20px;
+            padding: 16px;
+            border: 1px solid #2c3e33;
+        }
+
+        .editor-area {
+            margin-bottom: 16px;
+        }
+
+        .editor-label {
+            color: #8fbc8f;
+            font-size: 0.85rem;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            background: #1e2a2a;
+            padding: 4px 12px;
+            border-radius: 40px;
+            font-size: 0.75rem;
+            color: #b0e0b0;
+        }
+
+        textarea {
+            width: 100%;
+            background: #010101;
+            border: 1px solid #2b4b2f;
+            color: #c7ffb1;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            padding: 12px;
+            border-radius: 16px;
+            resize: vertical;
+            outline: none;
+        }
+
+        textarea:focus {
+            border-color: #7dff9e;
+            box-shadow: 0 0 6px #5eff8e;
+        }
+
+        .button-bar {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+
+        button {
+            background: #1f2a2f;
+            border: none;
+            color: #ecf0f1;
+            font-family: monospace;
+            font-weight: bold;
+            padding: 8px 24px;
+            border-radius: 40px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.1s ease;
+            box-shadow: 0 1px 2px black;
+            border-bottom: 1px solid #3e4a5a;
+        }
+
+        button:hover {
+            background: #2e3b3e;
+            color: #c0ffb0;
+            border-bottom-color: #64ff92;
+            transform: scale(0.98);
+        }
+
+        .info {
+            margin-top: 16px;
+            font-size: 12px;
+            text-align: center;
+            color: #6f7b8c;
+            background: #0f121c80;
+            border-radius: 40px;
+            padding: 8px 12px;
+        }
+
+        .info span {
+            color: #9bd9b5;
+        }
+    </style>
+</head>
+<body>
+<div class="temple-container">
+    <!-- 640x480 live TempleOS session -->
+    <div class="emulator-frame">
+        <iframe src="https://templeos.reiko.app/" title="TempleOS WASM" allow="autoplay; clipboard-write" loading="eager"></iframe>
+    </div>
+
+    <div class="control-panel">
+        <div class="editor-area">
+            <div class="editor-label">
+                <span class="badge">✝️ HOLYC SCRIPT</span>
+                <span style="color:#b0b8c5; font-size:0.75rem;">Paste your code → then inject via keyboard</span>
+            </div>
+            <textarea id="holyCodeArea" rows="5" placeholder='; ----------------------------------------------
+;  Example: TempleLogoIntro Bird Animation
+; ----------------------------------------------
+#include "StdHC.HH"
+
+class Bird
+{
+    F64 x;
+    F64 y;
+    F64 speed;
+    I64 phase;
+};
+
+Bird birds[4];
+
+U0 FillHLine(CDC *dc, I64 x1, I64 x2, I64 y)
+{
+    I64 t;
+    if (x2 < x1) { t = x1; x1 = x2; x2 = t; }
+    GrLine(dc, x1, y, x2, y);
+}
+
+U0 FillTriangleTop(CDC *dc, I64 apexX, I64 apexY, I64 leftX, I64 rightX, I64 baseY)
+{
+    I64 y;
+    F64 t;
+    I64 x1, x2;
+    for (y = apexY; y <= baseY; y++) {
+        t = (F64)(y - apexY) / (F64)(baseY - apexY);
+        x1 = ToI64(apexX + (leftX - apexX) * t);
+        x2 = ToI64(apexX + (rightX - apexX) * t);
+        FillHLine(dc, x1, x2, y);
+    }
+}
+
+U0 FillBowl(CDC *dc, I64 cx, I64 topY, I64 radius)
+{
+    I64 dy, dx;
+    F64 root;
+    I64 y;
+    for (dy = 0; dy <= radius; dy++) {
+        root = (F64)(radius * radius - dy * dy);
+        dx = ToI64(Sqrt(root));
+        y = topY + dy;
+        FillHLine(dc, cx - dx, cx + dx, y);
+    }
+}
+
+U0 DrawBird(CDC *dc, F64 x, F64 y, I64 frame)
+{
+    I64 ix = ToI64(x), iy = ToI64(y);
+    dc->color = WHITE;
+    switch (frame) {
+        case 0:
+            GrLine(dc, ix-10,iy,   ix-4,iy-5);
+            GrLine(dc, ix-4,iy-5,  ix+2,iy);
+            GrLine(dc, ix+2,iy,    ix+11,iy-4);
+            GrLine(dc, ix-2,iy,    ix+5,iy+3);
+            break;
+        case 1:
+            GrLine(dc, ix-11,iy-1, ix-3,iy-7);
+            GrLine(dc, ix-3,iy-7,  ix+4,iy-1);
+            GrLine(dc, ix+4,iy-1,  ix+12,iy-3);
+            GrLine(dc, ix-1,iy,    ix+4,iy+2);
+            break;
+        default:
+            GrLine(dc, ix-10,iy,   ix-4,iy+4);
+            GrLine(dc, ix-4,iy+4,  ix+2,iy);
+            GrLine(dc, ix+2,iy,    ix+11,iy+3);
+            GrLine(dc, ix-2,iy,    ix+5,iy-3);
+    }
+}
+
+U0 InitBirds()
+{
+    birds[0].x = 55;    birds[0].y = 105;   birds[0].speed = 1.15; birds[0].phase = 0;
+    birds[1].x = 92;    birds[1].y = 132;   birds[1].speed = 1.35; birds[1].phase = 1;
+    birds[2].x = 135;   birds[2].y = 110;   birds[2].speed = 1.05; birds[2].phase = 2;
+    birds[3].x = 165;   birds[3].y = 128;   birds[3].speed = 1.25; birds[3].phase = 0;
+}
+
+U0 DrawSword(CDC *dc)
+{
+    I64 y;
+    F64 t, cx, width;
+    I64 x1, x2;
+    I64 topX = 520, topY = 12, botX = 205, botY = 405;
+    dc->color = LTGRAY;
+    for (y = topY; y <= botY; y++) {
+        t = (F64)(y - topY) / (F64)(botY - topY);
+        cx = topX + (botX - topX) * t;
+        width = 1.5 + 13.5 * t;
+        x1 = ToI64(cx - width);
+        x2 = ToI64(cx + width);
+        FillHLine(dc, x1, x2, y);
+    }
+    dc->color = WHITE;
+    GrLine(dc, 517,18, 530,6);
+    GrLine(dc, 530,6, 535,18);
+    dc->color = YELLOW;
+    GrRect(dc, 195,356, 58,18);
+    GrRect(dc, 238,344, 16,44);
+    GrRect(dc, 214,372, 70,10);
+    dc->color = LTGRAY;
+    GrRect(dc, 250,388, 8,26);
+}
+
+U0 DrawScale(CDC *dc, F64 t)
+{
+    I64 sway = ToI64(Sin(t*1.25)*5.0);
+    dc->color = YELLOW;
+    FillTriangleTop(dc, 390,96, 247,536,145);
+    dc->color = BLACK;
+    GrLine(dc, 250,145, 220,250+sway);
+    GrLine(dc, 250,145, 235,252+sway);
+    GrLine(dc, 250,145, 250,250+sway);
+    GrLine(dc, 535,145, 560,250-sway);
+    GrLine(dc, 535,145, 545,252-sway);
+    GrLine(dc, 535,145, 535,250-sway);
+    GrLine(dc, 250,145, 535,145);
+    dc->color = YELLOW;
+    FillBowl(dc, 220, 252+sway, 22);
+    FillBowl(dc, 560, 252-sway, 22);
+    dc->color = BLACK;
+    GrLine(dc, 220-22,252+sway, 220-8,252+sway-16);
+    GrLine(dc, 220-8,252+sway-16, 220+8,252+sway-16);
+    GrLine(dc, 220+8,252+sway-16, 220+22,252+sway);
+    GrLine(dc, 560-22,252-sway, 560-8,252-sway-16);
+    GrLine(dc, 560-8,252-sway-16, 560+8,252-sway-16);
+    GrLine(dc, 560+8,252-sway-16, 560+22,252-sway);
+}
+
+U0 DrawScene(CDC *dc, F64 t)
+{
+    I64 i, frame = ToI64(t*7.0) % 3;
+    dc->color = CYAN;
+    GrRect(dc, 0,0, 640,480);
+    DrawSword(dc);
+    DrawScale(dc, t);
+    for (i=0;i<4;i++) {
+        DrawBird(dc, birds[i].x, birds[i].y, (frame + birds[i].phase) % 3);
+        birds[i].x += birds[i].speed;
+        if (birds[i].x > 700) birds[i].x = -30;
+    }
+}
+
+U0 TempleLogoIntro()
+{
+    CDC *dc = DCAlias;
+    F64 start = tS;
+    InitBirds();
+    while (!CharScan) {
+        DrawScene(dc, tS - start);
+        Refresh;
+        Sleep(30);
+    }
+}
+
+TempleLogoIntro;'></textarea>
+        </div>
+        <div class="button-bar">
+            <button id="copyCodeBtn">📋 COPY SCRIPT</button>
+            <button id="focusEmuBtn">🎯 FOCUS EMULATOR</button>
+        </div>
+        <div class="info">
+            <span>⚡ 640x480 · 16 colors · PC Speaker · HolyC JIT</span> &nbsp;|&nbsp;
+            Click inside the black screen first, then paste your code with <span>Ctrl+V (or Cmd+V)</span> and press Enter.
+        </div>
+    </div>
+</div>
+
+<script>
+    const textarea = document.getElementById('holyCodeArea');
+    const copyBtn = document.getElementById('copyCodeBtn');
+    const focusBtn = document.getElementById('focusEmuBtn');
+    const iframe = document.querySelector('.emulator-frame iframe');
+
+    // 1) copy code to clipboard
+    copyBtn.addEventListener('click', () => {
+        textarea.select();
+        document.execCommand('copy');
+        copyBtn.innerText = '✓ COPIED!';
+        setTimeout(() => copyBtn.innerText = '📋 COPY SCRIPT', 1500);
+    });
+
+    // 2) focus the emulator (so user can paste directly)
+    focusBtn.addEventListener('click', () => {
+        if (iframe) {
+            // try to focus the iframe document body
+            iframe.focus();
+            try {
+                iframe.contentWindow.focus();
+                iframe.contentDocument.body.focus();
+            } catch(e) { /* cross-origin may block, user still can click manually */ }
+        }
+        // fallback: instruction
+        alert('👉 Click anywhere inside the black 640x480 TempleOS screen.\nThen paste your code (Ctrl+V) and press Enter.');
+    });
+
+    // additional hint: user can copy-paste full script from textarea
+    textarea.addEventListener('click', () => textarea.select());
+</script>
+</body>
+</html>
