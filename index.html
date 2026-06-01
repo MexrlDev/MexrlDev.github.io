@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>repos</title>
+    <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/MexrlDev/MexrlDev.github.io/refs/heads/main/img/A0C458B1-B0B6-4FD0-86E1-43A2069C9E3D.png">
+    <meta property="og:title" content="The Hub">
+    <meta property="og:description" content="hub for all my html pages to get things easier.">
+    <meta property="og:image" content="https://i.ibb.co/BVydVvkR/image.png">
+    <meta property="og:url" content="">
+    <style>
+        body {
+            background-color: #ffffff;
+            color: #000000;
+            font-family: monospace;
+            margin: 20px;
+            line-height: 1.5;
+        }
+        #content {
+            max-width: 800px;
+            margin: 0 auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        #content a {
+            color: #0000aa;
+        }
+        .footer {
+            text-align: center;
+            font-size: 10px;
+            margin-top: 40px;
+            color: #555;
+        }
+        .footer a {
+            color: #555;
+        }
+        .Website-btn {
+            display: inline-block;
+            border: 2px solid #000000;
+            padding: 8px 18px;
+            margin: 6px 4px;
+            text-decoration: none;
+            color: #000000;
+            background-color: #f8f8f8;
+            font-family: monospace;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.15s;
+        }
+        .Website-btn:hover {
+            background-color: #e0e0e0;
+            color: #000000;
+            text-decoration: none;
+        }
+        .Website-btn:visited {
+            color: #000000;
+        }
+        hr {
+            border: none;
+            border-top: 1px solid #000000;
+            margin: 16px 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="content">
+
+[Sunset Hub](center,header)
+
+[<img src="https://i.ibb.co/btCSqtg/IMG-1525.jpg" alt="IMG terry" width="200">](center)
+
+[This is a hub to choose where to go for my websites](center)
+
+[---](center)
+
+[Main Page](center)
+
+[All made in memory of Terry A. Davis](center)
+
+[<a class="Website-btn" href="https://mexrldev.github.io/terry">Goto Main Page</a>](center)
+
+[---](center)
+
+[Repo's Archives](center)
+
+[This has all my aborten repo's so enjoy them when you can.](center)
+
+[<a class="Website-btn" href="https://mexrldev.github.io/main">Goto Archives</a>](center)
+
+[---](center)
+
+[Daily](center)
+
+[Status page, i get to update of how i am feeling.](center)
+
+[<a class="Website-btn" href="https://mexrldev.github.io/daily">Gotto Daily</a>](center)
+
+[---](center)
+
+[In memory of Terry A. Davis.](center)
+[<a href="https://templeos.org">TempleOS</a>](center)
+
+    </div>
+
+    <script>
+        (function() {
+            document.addEventListener('DOMContentLoaded', function() {
+                const content = document.getElementById('content');
+                if (content) {
+                    content.innerHTML = content.innerHTML.replace(
+                        /\[([^\]]+)\]\(([^)]+)\)/g,
+                        function(match, text, optionsStr) {
+                            const tokens = optionsStr.split(',').map(s => s.trim()).filter(s => s.length > 0);
+                            let alignment = null;
+                            let isHeader = false;
+                            let link = null;
+
+                            for (let token of tokens) {
+                                const lower = token.toLowerCase();
+                                if (lower === 'center' || lower === 'right' || lower === 'left') {
+                                    if (!alignment) alignment = lower;
+                                } else if (lower === 'header') {
+                                    isHeader = true;
+                                } else {
+                                    if (!link) link = token;
+                                }
+                            }
+
+                            let inner = text;
+                            if (link) {
+                                inner = '<a href="' + link + '">' + inner + '</a>';
+                            }
+                            if (isHeader) {
+                                inner = '<span style="font-size:1.5em; font-weight:bold;">' + inner + '</span>';
+                            }
+                            if (alignment) {
+                                return '<div style="text-align:' + alignment + ';">' + inner + '</div>';
+                            } else {
+                                return inner;
+                            }
+                        }
+                    );
+                }
+            });
+
+            const melodyNotes = [
+                {"beat":1,"duration":0.5,"sd":"1","octave":1,"isRest":false},
+                {"beat":1.5,"duration":0.5,"sd":"2","octave":1,"isRest":false},
+                {"beat":2,"duration":1,"sd":"3","octave":1,"isRest":false},
+                {"beat":3,"duration":1,"sd":"3","octave":1,"isRest":false},
+                {"beat":4,"duration":0.3333333333333333,"sd":"2","octave":1,"isRest":false},
+                {"beat":4.333333333333334,"duration":0.3333333333333333,"sd":"2","octave":1,"isRest":false},
+                {"beat":4.666666666666666,"duration":0.3333333333333333,"sd":"3","octave":1,"isRest":false},
+                {"beat":5,"duration":1,"sd":"1","octave":1,"isRest":false},
+                {"beat":6,"duration":0.5,"sd":"7","octave":0,"isRest":false},
+                {"beat":6.5,"duration":0.5,"sd":"1","octave":1,"isRest":false},
+                {"beat":7,"duration":0.5,"sd":"1","octave":1,"isRest":false},
+                {"beat":7.5,"duration":0.5,"sd":"2","octave":1,"isRest":false},
+                {"beat":8,"duration":0.3333333333333333,"sd":"7","octave":0,"isRest":false},
+                {"beat":8.333333333333332,"duration":0.3333333333333333,"sd":"4","octave":1,"isRest":false},
+                {"beat":8.666666666666668,"duration":0.3333333333333333,"sd":"3","octave":1,"isRest":false},
+                {"beat":9,"duration":0.5,"sd":"1","octave":1,"isRest":false},
+                {"beat":9.5,"duration":0.5,"sd":"2","octave":1,"isRest":false},
+                {"beat":10,"duration":1,"sd":"3","octave":1,"isRest":false},
+                {"beat":11,"duration":1,"sd":"3","octave":1,"isRest":false},
+                {"beat":12,"duration":0.3333333333333333,"sd":"2","octave":1,"isRest":false},
+                {"beat":12.333333333333334,"duration":0.3333333333333333,"sd":"2","octave":1,"isRest":false},
+                {"beat":12.666666666666666,"duration":0.3333333333333333,"sd":"3","octave":1,"isRest":false},
+                {"beat":13,"duration":1,"sd":"1","octave":1,"isRest":false},
+                {"beat":14,"duration":0.5,"sd":"7","octave":0,"isRest":false},
+                {"beat":14.5,"duration":0.5,"sd":"1","octave":1,"isRest":false},
+                {"beat":15,"duration":0.5,"sd":"1","octave":1,"isRest":false},
+                {"beat":15.5,"duration":0.5,"sd":"2","octave":1,"isRest":false},
+                {"beat":16,"duration":0.3333333333333333,"sd":"7","octave":0,"isRest":false},
+                {"beat":16.333333333333336,"duration":0.3333333333333333,"sd":"4","octave":1,"isRest":false},
+                {"beat":16.666666666666664,"duration":0.3333333333333333,"sd":"3","octave":1,"isRest":false},
+                {"beat":17,"duration":0.5,"sd":"1","octave":1,"isRest":false},
+                {"beat":17.5,"duration":0.5,"sd":"7","octave":0,"isRest":false},
+                {"beat":18,"duration":1,"sd":"1","octave":1,"isRest":false},
+                {"beat":19,"duration":1,"sd":"2","octave":1,"isRest":false},
+                {"beat":20,"duration":0.5,"sd":"5","octave":0,"isRest":false},
+                {"beat":20.5,"duration":0.5,"sd":"5","octave":0,"isRest":false},
+                {"beat":21,"duration":0.3333333333333333,"sd":"2","octave":1,"isRest":false},
+                {"beat":21.333333333333332,"duration":0.3333333333333333,"sd":"2","octave":1,"isRest":false},
+                {"beat":21.666666666666668,"duration":0.3333333333333333,"sd":"3","octave":1,"isRest":false},
+                {"beat":22,"duration":0.3333333333333333,"sd":"2","octave":1,"isRest":false},
+                {"beat":22.333333333333332,"duration":0.3333333333333333,"sd":"1","octave":1,"isRest":false},
+                {"beat":22.666666666666668,"duration":0.3333333333333333,"sd":"4","octave":1,"isRest":false},
+                {"beat":23,"duration":0.3333333333333333,"sd":"6","octave":0,"isRest":false},
+                {"beat":23.333333333333332,"duration":0.3333333333333333,"sd":"1","octave":1,"isRest":false},
+                {"beat":23.666666666666668,"duration":0.3333333333333333,"sd":"7","octave":0,"isRest":false},
+                {"beat":24,"duration":1,"sd":"3","octave":1,"isRest":false},
+                {"beat":25,"duration":0.5,"sd":"1","octave":1,"isRest":false},
+                {"beat":25.5,"duration":0.5,"sd":"7","octave":0,"isRest":false},
+                {"beat":26,"duration":1,"sd":"1","octave":1,"isRest":false},
+                {"beat":27,"duration":1,"sd":"2","octave":1,"isRest":false},
+                {"beat":28,"duration":0.5,"sd":"5","octave":0,"isRest":false},
+                {"beat":28.5,"duration":0.5,"sd":"5","octave":0,"isRest":false},
+                {"beat":29,"duration":0.3333333333333333,"sd":"2","octave":1,"isRest":false},
+                {"beat":29.333333333333332,"duration":0.3333333333333333,"sd":"2","octave":1,"isRest":false},
+                {"beat":29.666666666666668,"duration":0.3333333333333333,"sd":"3","octave":1,"isRest":false},
+                {"beat":30,"duration":0.3333333333333333,"sd":"2","octave":1,"isRest":false},
+                {"beat":30.333333333333332,"duration":0.3333333333333333,"sd":"1","octave":1,"isRest":false},
+                {"beat":30.666666666666668,"duration":0.3333333333333333,"sd":"4","octave":1,"isRest":false},
+                {"beat":31,"duration":0.3333333333333333,"sd":"6","octave":0,"isRest":false},
+                {"beat":31.333333333333332,"duration":0.3333333333333333,"sd":"1","octave":1,"isRest":false},
+                {"beat":31.666666666666668,"duration":0.3333333333333333,"sd":"7","octave":0,"isRest":false},
+                {"beat":32,"duration":1,"sd":"3","octave":1,"isRest":false}
+            ];
+
+            const chords = [
+                {"beat":1,"duration":1,"root":4,"type":5,"inversion":0,"applied":0,"adds":[],"omits":[],"alterations":[],"suspensions":[],"borrowed":"","pedal":null,"substitutions":[],"isRest":false},
+                {"beat":2,"duration":4,"root":1,"type":5,"inversion":0,"applied":0,"adds":[],"omits":[],"alterations":[],"suspensions":[],"borrowed":"","pedal":null,"substitutions":[],"isRest":false},
+                {"beat":6,"duration":2,"root":3,"type":5,"inversion":0,"applied":0,"adds":[],"omits":[],"alterations":[],"suspensions":[],"borrowed":"","pedal":null,"substitutions":[],"isRest":false},
+                {"beat":8,"duration":2,"root":4,"type":5,"inversion":0,"applied":0,"adds":[],"omits":[],"alterations":[],"suspensions":[],"borrowed":"","pedal":null,"substitutions":[],"isRest":false},
+                {"beat":10,"duration":4,"root":1,"type":5,"inversion":0,"applied":0,"adds":[],"omits":[],"alterations":[],"suspensions":[],"borrowed":"","pedal":null,"substitutions":[],"isRest":false},
+                {"beat":14,"duration":2,"root":3,"type":5,"inversion":0,"applied":0,"adds":[],"omits":[],"alterations":[],"suspensions":[],"borrowed":"","pedal":null,"substitutions":[],"isRest":false},
+                {"beat":16,"duration":2,"root":4,"type":5,"inversion":0,"applied":0,"adds":[],"omits":[],"alterations":[],"suspensions":[],"borrowed":"","pedal":null,"substitutions":[],"isRest":false},
+                {"beat":18,"duration":2,"root":6,"type":5,"inversion":0,"applied":0,"adds":[],"omits":[],"alterations":[],"suspensions":[],"borrowed":"minor","pedal":null,"substitutions":[],"isRest":false},
+                {"beat":20,"duration":2,"root":5,"type":5,"inversion":0,"applied":0,"adds":[],"omits":[],"alterations":[],"suspensions":[],"borrowed":"","pedal":null,"substitutions":[],"isRest":false},
+                {"beat":22,"duration":2,"root":4,"type":5,"inversion":0,"applied":0,"adds":[],"omits":[],"alterations":[],"suspensions":[],"borrowed":"","pedal":null,"substitutions":[],"isRest":false},
+                {"beat":24,"duration":1,"root":3,"type":5,"inversion":0,"applied":0,"adds":[],"omits":[],"alterations":[],"suspensions":[],"borrowed":"","pedal":null,"substitutions":[],"isRest":false},
+                {"beat":25,"duration":1,"root":4,"type":5,"inversion":0,"applied":0,"adds":[],"omits":[],"alterations":[],"suspensions":[],"borrowed":"","pedal":null,"substitutions":[],"isRest":false},
+                {"beat":26,"duration":2,"root":6,"type":5,"inversion":0,"applied":0,"adds":[],"omits":[],"alterations":[],"suspensions":[],"borrowed":"minor","pedal":null,"substitutions":[],"isRest":false},
+                {"beat":28,"duration":2,"root":5,"type":5,"inversion":0,"applied":0,"adds":[],"omits":[],"alterations":[],"suspensions":[],"borrowed":"","pedal":null,"substitutions":[],"isRest":false},
+                {"beat":30,"duration":2,"root":4,"type":5,"inversion":0,"applied":0,"adds":[],"omits":[],"alterations":[],"suspensions":[],"borrowed":"","pedal":null,"substitutions":[],"isRest":false},
+                {"beat":32,"duration":1,"root":3,"type":5,"inversion":0,"applied":0,"adds":[],"omits":[],"alterations":[],"suspensions":[],"borrowed":"","pedal":null,"substitutions":[],"isRest":false}
+            ];
+
+            const semitoneOffsets = [0, 2, 3, 5, 7, 9, 10];
+            function getMelodyFreq(degree, octave) {
+                const base = octave === 1 ? 587.33 : 293.66;
+                const offset = semitoneOffsets[degree - 1];
+                return base * Math.pow(2, offset / 12);
+            }
+
+            function getChordFreq(degree) {
+                const base = 146.83;
+                const offset = semitoneOffsets[degree - 1];
+                return base * Math.pow(2, offset / 12);
+            }
+
+            function getChordTones(root) {
+                const idx = root - 1;
+                const fourth = (idx + 3) % 7;
+                const fifth = (idx + 4) % 7;
+                return [root, fourth + 1, fifth + 1, fourth + 1];
+            }
+
+            const tempo = 170;
+            const beatDuration = 60 / tempo;
+            const eighthDuration = beatDuration / 2;
+            const loopBeats = 32;
+            const loopTime = loopBeats * beatDuration;
+
+            let audioCtx = null;
+            let nextLoopStart = 0;
+            let loopTimer = null;
+            let audioStarted = false;
+
+            function createPianoLikeNote(frequency, startTime, duration, velocity = 0.8) {
+                if (!audioCtx) return;
+                const now = audioCtx.currentTime;
+                if (startTime < now) startTime = now;
+
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(frequency, startTime);
+
+                gain.gain.setValueAtTime(0, startTime);
+                gain.gain.linearRampToValueAtTime(velocity, startTime + 0.02);
+                gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration * 0.8);
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                osc.start(startTime);
+                osc.stop(startTime + duration + 0.05);
+            }
+
+            function scheduleLoop() {
+                if (!audioCtx) return;
+                const now = audioCtx.currentTime;
+                if (nextLoopStart < now) {
+                    nextLoopStart = now;
+                }
+                const start = nextLoopStart;
+
+                for (const note of melodyNotes) {
+                    if (note.isRest) continue;
+                    const freq = getMelodyFreq(parseInt(note.sd), note.octave);
+                    const noteStart = start + (note.beat - 1) * beatDuration;
+                    const dur = note.duration * beatDuration;
+                    createPianoLikeNote(freq, noteStart, dur, 0.85);
+                }
+
+                for (const chord of chords) {
+                    const chordStart = start + (chord.beat - 1) * beatDuration;
+                    const chordDur = chord.duration * beatDuration;
+                    const totalEighths = Math.round(chord.duration * 4);
+                    const tones = getChordTones(chord.root);
+                    for (let i = 0; i < totalEighths; i++) {
+                        const noteTime = chordStart + i * eighthDuration;
+                        const degree = tones[i % 4];
+                        const freq = getChordFreq(degree);
+                        createPianoLikeNote(freq, noteTime, eighthDuration * 0.85, 0.65);
+                    }
+                }
+
+                nextLoopStart = start + loopTime;
+                const scheduleAhead = 0.1;
+                loopTimer = setTimeout(scheduleLoop, (loopTime - scheduleAhead) * 1000);
+            }
+
+            function startAudio() {
+                if (audioStarted) return;
+                audioStarted = true;
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                nextLoopStart = audioCtx.currentTime + 0.2;
+                scheduleLoop();
+            }
+
+            function attemptAutoplay() {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume().then(function() {
+                        if (!audioStarted) {
+                            audioStarted = true;
+                            nextLoopStart = audioCtx.currentTime + 0.2;
+                            scheduleLoop();
+                        }
+                    }).catch(function() {});
+                } else {
+                    if (!audioStarted) {
+                        audioStarted = true;
+                        nextLoopStart = audioCtx.currentTime + 0.2;
+                        scheduleLoop();
+                    }
+                }
+            }
+
+            function enableFallback() {
+                document.body.addEventListener('click', function once() {
+                    if (!audioStarted) startAudio();
+                    document.body.removeEventListener('click', once);
+                }, { once: true });
+                document.body.addEventListener('touchstart', function once() {
+                    if (!audioStarted) startAudio();
+                    document.body.removeEventListener('touchstart', once);
+                }, { once: true });
+                document.body.addEventListener('keydown', function once() {
+                    if (!audioStarted) startAudio();
+                    document.body.removeEventListener('keydown', once);
+                }, { once: true });
+            }
+
+            attemptAutoplay();
+            if (!audioStarted) {
+                enableFallback();
+            }
+        })();
+    </script>
+</body>
+</html>
