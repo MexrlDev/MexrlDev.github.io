@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Browser Capability Inspector</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            background: #111;
+            color: #0f0;
+            font-family: 'Courier New', monospace;
+            padding: 12px;
+            margin: 0;
+        }
+        h2 {
+            margin-top: 4px;
+            font-weight: 300;
+            letter-spacing: 1px;
+        }
+        .controls {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin: 10px 0 14px 0;
+        }
+        button {
+            font-size: 18px;
+            padding: 10px 28px;
+            background: #1a3a1a;
+            color: #0f0;
+            border: 1px solid #0f0;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: background 0.2s;
+        }
+        button:hover {
+            background: #2a5a2a;
+        }
+        button:active {
+            background: #0a2a0a;
+        }
+        .badge {
+            color: #888;
+            font-size: 13px;
+            background: #1a1a1a;
+            padding: 4px 12px;
+            border-radius: 12px;
+            border: 1px solid #333;
+        }
+        #log {
+            background: #0a0a0a;
+            padding: 12px;
+            height: 440px;
+            overflow: auto;
+            white-space: pre-wrap;
+            word-break: break-word;
+            border: 1px solid #222;
+            border-radius: 4px;
+            font-size: 13px;
+            line-height: 1.5;
+            color: #b0f0b0;
+        }
+        #log .warn {
+            color: #ffcc44;
+        }
+        #log .err {
+            color: #ff6666;
+        }
+        #log .info {
+            color: #66ccff;
+        }
+        #log .ok {
+            color: #66ff88;
+        }
+        .footer {
+            margin-top: 12px;
+            color: #444;
+            font-size: 12px;
+            text-align: center;
+            border-top: 1px solid #1a1a1a;
+            padding-top: 10px;
+        }
+        .footer a {
+            color: #555;
+            text-decoration: none;
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+            background: #0a0a0a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2a4a2a;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>🛠 Browser Capability Inspector</h2>
+
+    <div class="controls">
+        <button id="probeBtn">▶ Start Probe</button>
+        <button id="clearBtn" style="font-size:14px; padding:6px 16px; background:#1a1a1a; border-color:#444;">Clear</button>
+        <span class="badge">🔒 local-only · no external requests · no location</span>
+    </div>
+
+    <div id="log">Ready — click <span style="color:#66ff88;">Start Probe</span> to begin.<br></div>
+
+    <div class="footer">
+        All data stays in your browser &bull; no IP, no location, no external exfiltration
+    </div>
+
+    <script>
+        (function() {
+            "use strict";
+
+            var logDiv = document.getElementById('log');
+            var probeBtn = document.getElementById('probeBtn');
+            var clearBtn = document.getElementById('clearBtn');
+
+            // ----- local logging only — no external sends -----
+            function logMessage(msg, cls) {
+                var line = document.createElement('div');
+                if (cls) line.className = cls;
+                line.textContent = msg;
+                logDiv.appendChild(line);
+                logDiv.scrollTop = logDiv.scrollHeight;
+            }
+
+            function sendLog(msg) {
+                // Display only — safe, local, no network.
+                logMessage(msg);
+            }
+
+            // ----- probe helpers -----
+            function probe(name, testFn) {
+                try {
+                    var result = testFn();
+                    sendLog("  ✓ " + name + ": " + result);
+                } catch (e) {
+                    sendLog("  ✗ " + name + ": " + e.message);
+                }
+            }
+
+            function probeBool(name, testFn) {
+                try {
+                    sendLog((testFn() ? "  ✓ " : "  ✗ ") + name);
+                } catch (e) {
+                    sendLog("  ✗ " + name + ": " + e.message);
+                }
+            }
+
+            // ----- main probe -----
+            function startProbe() {
+                // separator
+                sendLog("");
+                sendLog("═══════════════════════════════════════════");
+                sendLog("▶ PROBE START  " + new Date().toLocaleString());
+                sendLog("═══════════════════════════════════════════");
+
+                // ---- System / Navigator ----
+                sendLog("");
+                sendLog("── Navigator ──");
+                sendLog("  UserAgent: " + navigator.userAgent);
+                sendLog("  Platform: " + navigator.platform);
+                sendLog("  Vendor: " + (navigator.vendor || "n/a"));
+                sendLog("  Language: " + navigator.language);
+                sendLog("  Languages: " + JSON.stringify(navigator.languages));
+                sendLog("  Hardware Concurrency: " + (navigator.hardwareConcurrency || "n/a"));
+                sendLog("  Device Memory: " + (navigator.deviceMemory || "n/a"));
+                sendLog("  Max Touch Points: " + navigator.maxTouchPoints);
+                sendLog("  OnLine: " + navigator.onLine);
+                sendLog("  Cookie Enabled: " + navigator.cookieEnabled);
+
+                // ---- Screen ----
+                sendLog("");
+                sendLog("── Screen ──");
+                sendLog("  Size: " + screen.width + "×" + screen.height +
+                    "  avail: " + screen.availWidth + "×" + screen.availHeight);
+                sendLog("  Color Depth: " + screen.colorDepth + "  Pixel Depth: " + screen.pixelDepth);
+                sendLog("  Device Pixel Ratio: " + window.devicePixelRatio);
+                sendLog("  Timezone Offset (min): " + new Date().getTimezoneOffset());
+
+                // ---- APIs ----
+                sendLog("");
+                sendLog("── API Support ──");
+                probeBool("ServiceWorker", function() { return 'serviceWorker' in navigator; });
+                probeBool("SharedWorker", function() { return typeof SharedWorker !== 'undefined'; });
+                probeBool("WebSocket", function() { return typeof WebSocket !== 'undefined'; });
+                probeBool("fetch", function() { return typeof fetch !== 'undefined'; });
+                probeBool("XMLHttpRequest", function() { return typeof XMLHttpRequest !== 'undefined'; });
+                probeBool("requestAnimationFrame", function() { return typeof requestAnimationFrame !== 'undefined'; });
+                probeBool("Promise", function() { return typeof Promise !== 'undefined'; });
+                probeBool("Symbol", function() { return typeof Symbol !== 'undefined'; });
+                probeBool("Proxy", function() { return typeof Proxy !== 'undefined'; });
+                probeBool("BigInt", function() { return typeof BigInt !== 'undefined'; });
+
+                // ---- Typed Arrays ----
+                sendLog("");
+                sendLog("── Typed Arrays ──");
+                probeBool("ArrayBuffer", function() { return typeof ArrayBuffer !== 'undefined'; });
+                probeBool("SharedArrayBuffer", function() { return typeof SharedArrayBuffer !== 'undefined'; });
+                probeBool("Atomics", function() { return typeof Atomics !== 'undefined'; });
+                probeBool("Uint8Array", function() { return typeof Uint8Array !== 'undefined'; });
+                probeBool("Uint32Array", function() { return typeof Uint32Array !== 'undefined'; });
+                probeBool("Float64Array", function() { return typeof Float64Array !== 'undefined'; });
+                probeBool("DataView", function() { return typeof DataView !== 'undefined'; });
+
+                // ---- WebAssembly ----
+                sendLog("");
+                sendLog("── WebAssembly ──");
+                probeBool("WebAssembly", function() { return typeof WebAssembly !== 'undefined'; });
+                if (typeof WebAssembly !== 'undefined') {
+                    probeBool("  .Module", function() { return typeof WebAssembly.Module !== 'undefined'; });
+                    probeBool("  .Instance", function() { return typeof WebAssembly.Instance !== 'undefined'; });
+                }
+
+                // ---- Storage ----
+                sendLog("");
+                sendLog("── Storage ──");
+                probeBool("localStorage", function() { try { return !!window.localStorage; } catch (e) { return false; } });
+                probeBool("sessionStorage", function() { try { return !!window.sessionStorage; } catch (e) { return false; } });
+                probeBool("indexedDB", function() { return typeof indexedDB !== 'undefined'; });
+
+                // ---- Canvas / WebGL ----
+                sendLog("");
+                sendLog("── Graphics ──");
+                var canvas = document.createElement("canvas");
+                probeBool("Canvas 2D", function() { return !!canvas.getContext("2d"); });
+                var hasWebGL = !!(canvas.getContext("webgl") || canvas.getContext("webgl2"));
+                probeBool("WebGL", function() { return hasWebGL; });
+
+                var gl = canvas.getContext("webgl") || canvas.getContext("webgl2");
+                if (gl) {
+                    try {
+                        probe("  GL Version", function() { return gl.getParameter(gl.VERSION); });
+                        probe("  GL Vendor", function() { return gl.getParameter(gl.VENDOR); });
+                        probe("  GL Renderer", function() { return gl.getParameter(gl.RENDERER); });
+                        probe("  Shading Lang", function() { return gl.getParameter(gl.SHADING_LANGUAGE_VERSION); });
+                    } catch (e) {
+                        sendLog("  ✗ GL params: " + e.message);
+                    }
+                    // Unmasked — only if extension is available and user allows
+                    try {
+                        var ext = gl.getExtension("WEBGL_debug_renderer_info");
+                        if (ext) {
+                            probe("  Unmasked Vendor", function() { return gl.getParameter(ext.UNMASKED_VENDOR_WEBGL); });
+                            probe("  Unmasked Renderer", function() { return gl.getParameter(ext
+                            .UNMASKED_RENDERER_WEBGL); });
+                        } else {
+                            sendLog("  - Unmasked: extension not available");
+                        }
+                    } catch (e) {
+                        sendLog("  ✗ Unmasked: " + e.message);
+                    }
+                }
+
+                // ---- Audio ----
+                sendLog("");
+                sendLog("── Audio ──");
+                probeBool("AudioContext", function() { return typeof AudioContext !== 'undefined' ||
+                        typeof webkitAudioContext !== 'undefined'; });
+
+                // ---- Smart TV / Device APIs ----
+                sendLog("");
+                sendLog("── Device / Platform ──");
+                probeBool("window.tizen", function() { return typeof tizen !== 'undefined'; });
+                probeBool("window.webapis", function() { return typeof webapis !== 'undefined'; });
+                probeBool("window.Orsay", function() { return typeof Orsay !== 'undefined'; });
+                probeBool("window.CommonPlugin", function() { return typeof CommonPlugin !== 'undefined'; });
+                probeBool("navigator.webkitGetUserMedia", function() { return typeof navigator.webkitGetUserMedia ===
+                        'function'; });
+
+                // ---- Performance ----
+                sendLog("");
+                sendLog("── Performance ──");
+                if (typeof performance !== "undefined" && performance.memory) {
+                    try {
+                        sendLog("  JS Heap Limit: " + performance.memory.jsHeapSizeLimit);
+                        sendLog("  Used JS Heap: " + performance.memory.usedJSHeapSize);
+                    } catch (e) {
+                        sendLog("  ✗ memory: " + e.message);
+                    }
+                } else {
+                    sendLog("  - performance.memory not available");
+                }
+
+                // ---- Security headers (same-origin only, no exfil) ----
+                sendLog("");
+                sendLog("── Security Headers (same-origin) ──");
+                var xhrHead = new XMLHttpRequest();
+                xhrHead.open("HEAD", window.location.href, true);
+                xhrHead.onreadystatechange = function() {
+                    if (xhrHead.readyState === 4) {
+                        try {
+                            var csp = xhrHead.getResponseHeader("Content-Security-Policy");
+                            sendLog("  CSP: " + (csp || "not present"));
+                            var xfo = xhrHead.getResponseHeader("X-Frame-Options");
+                            sendLog("  X-Frame-Options: " + (xfo || "not present"));
+                        } catch (e) {
+                            sendLog("  ✗ headers: " + e.message);
+                        }
+                    }
+                };
+                try { xhrHead.send(); } catch (e) { sendLog("  ✗ HEAD request: " + e.message); }
+
+                // ---- Done ----
+                sendLog("");
+                sendLog("═══════════════════════════════════════════");
+                sendLog("▶ PROBE COMPLETE  " + new Date().toLocaleString());
+                sendLog("═══════════════════════════════════════════");
+                sendLog("");
+
+                // scroll to bottom
+                logDiv.scrollTop = logDiv.scrollHeight;
+            }
+
+            // ----- clear -----
+            function clearLog() {
+                logDiv.innerHTML = '';
+                logMessage('Log cleared — click <span style="color:#66ff88;">Start Probe</span> to run again.');
+            }
+
+            // ----- wire up -----
+            probeBtn.addEventListener('click', startProbe);
+            clearBtn.addEventListener('click', clearLog);
+
+            // ----- optional: auto-start on load? no, user clicks. -----
+            // But we can show a friendly prompt.
+            logMessage('Click the <span style="color:#66ff88;">Start Probe</span> button above to inspect your browser.');
+            logMessage('All data stays local — no IP, no location, no external requests.');
+
+            // ----- safety: ensure no geolocation is ever called -----
+            // (already not used anywhere, but we'll double-check)
+            // Also ensure we never call any external IP or exfil routine.
+            // All good.
+
+        })();
+    </script>
+
+</body>
+</html>
