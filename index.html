@@ -14,20 +14,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <style>
-        :root {
-            --mouse-x: 0.5;
-            --mouse-y: 0.5;
-            --glass-blur: 0px;
-            --glass-opacity: 1;
-            --edge-glow: 0.4;
-            --chromatic-shift: 0px;
-            --fresnel-intensity: 0.5;
-            --lens-distort: 0;
-            --ripple-x: 0.5;
-            --ripple-y: 0.5;
-            --ripple-strength: 0;
-        }
-
         * {
             margin: 0;
             padding: 0;
@@ -135,27 +121,23 @@
 
         .glass-panel {
             position: relative;
-            background: transparent;
+            background: rgba(10, 10, 10, 0.45);
             border-radius: 28px;
             padding: 1.8rem 2.2rem;
             margin: 0.4rem 0;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 0 0 1px rgba(0, 255, 255, 0.1);
-            transition: box-shadow 0.5s ease;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(0, 255, 255, 0.06);
+            backdrop-filter: blur(6px) saturate(1.1);
+            -webkit-backdrop-filter: blur(6px) saturate(1.1);
+            transition: box-shadow 0.4s ease, border-color 0.4s ease;
             overflow: hidden;
             z-index: 10;
             will-change: box-shadow;
         }
 
-        .glass-canvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border-radius: 28px;
-            z-index: 0;
-            pointer-events: none;
+        .glass-panel:hover {
+            border-color: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 6px 32px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(0, 255, 255, 0.12);
         }
 
         .glass-content {
@@ -279,9 +261,6 @@
                 padding: 1.2rem 1.4rem;
                 border-radius: 22px;
             }
-            .glass-canvas {
-                border-radius: 22px;
-            }
             .neon-btn {
                 padding: 0.55rem 1.3rem;
             }
@@ -297,7 +276,6 @@
         </div>
 
         <div class="glass-panel" id="glassPanel">
-            <canvas class="glass-canvas" id="glassCanvas"></canvas>
             <div class="glass-content">
                 <div id="logo">About Me</div>
                 <div class="info-line">
@@ -339,8 +317,10 @@
         <source src="https://raw.githubusercontent.com/MexrlDev/MexrlDev.github.io/refs/heads/main/AboutMe/Floods%20_outro.mp3" type="audio/mpeg">
     </audio>
 
-    <script src="https://unpkg.com/three@0.134.0/build/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/vanta@0.5.24/dist/vanta.net.min.js"></script>
+    <script src="https://unpkg.com/three@0.134.0/build/three.min.js">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/vanta@0.5.24/dist/vanta.net.min.js">
+    </script>
     <script>
         document.getElementById('year').textContent = new Date().getFullYear();
 
@@ -480,314 +460,6 @@
                     window.addEventListener('keydown', unmuteHandler, { once: true });
                 }
             }).catch(() => {});
-        })();
-    </script>
-
-    <script id="vertex-shader" type="x-shader/x-vertex">
-        attribute vec2 a_position;
-        varying vec2 v_texCoord;
-        void main() {
-            gl_Position = vec4(a_position, 0.0, 1.0);
-            v_texCoord = (a_position + 1.0) / 2.0;
-        }
-    </script>
-    <script id="fragment-shader" type="x-shader/x-fragment">
-        precision highp float;
-        varying vec2 v_texCoord;
-        uniform sampler2D u_background;
-        uniform sampler2D u_heightMap;
-        uniform vec2 u_resolution;
-        uniform float u_time;
-        uniform float u_strength;
-
-        void main() {
-            vec2 texCoord = v_texCoord;
-            vec2 texelSize = 1.0 / u_resolution;
-
-            float h = texture2D(u_heightMap, texCoord).r;
-            float hL = texture2D(u_heightMap, texCoord + vec2(-texelSize.x, 0.0)).r;
-            float hR = texture2D(u_heightMap, texCoord + vec2(texelSize.x, 0.0)).r;
-            float hB = texture2D(u_heightMap, texCoord + vec2(0.0, -texelSize.y)).r;
-            float hT = texture2D(u_heightMap, texCoord + vec2(0.0, texelSize.y)).r;
-
-            float dx = (hR - hL) * 0.5;
-            float dy = (hT - hB) * 0.5;
-
-            float distort = u_strength * 0.03;
-
-            float rOffset = distort * 0.9;
-            float gOffset = distort * 1.0;
-            float bOffset = distort * 1.1;
-
-            vec2 coordR = texCoord + vec2(dx * rOffset, dy * rOffset);
-            vec2 coordG = texCoord + vec2(dx * gOffset, dy * gOffset);
-            vec2 coordB = texCoord + vec2(dx * bOffset, dy * bOffset);
-
-            float r = texture2D(u_background, coordR).r;
-            float g = texture2D(u_background, coordG).g;
-            float b = texture2D(u_background, coordB).b;
-
-            vec2 edge = abs(v_texCoord - 0.5) * 2.0;
-            float fresnel = max(edge.x, edge.y);
-            fresnel = smoothstep(0.6, 1.0, fresnel);
-            vec3 fresnelColor = mix(vec3(0.0), vec3(0.2, 0.8, 1.0), fresnel * 0.35);
-
-            vec3 color = vec3(r, g, b) + fresnelColor;
-
-            float glow = 1.0 - length(v_texCoord - 0.5) * 1.8;
-            glow = max(0.0, glow);
-            color += vec3(0.0, 0.3, 0.5) * glow * 0.15;
-
-            gl_FragColor = vec4(color, 1.0);
-        }
-    </script>
-    <script>
-        (function() {
-            const glassPanel = document.getElementById('glassPanel');
-            const glassCanvas = document.getElementById('glassCanvas');
-            const gl = glassCanvas.getContext('webgl', { alpha: false, preserveDrawingBuffer: true });
-            if (!gl) {
-                console.warn('WebGL not supported, falling back to simple glass effect.');
-                glassCanvas.style.display = 'none';
-                glassPanel.style.background = 'rgba(10,10,10,0.35)';
-                glassPanel.style.backdropFilter = 'blur(14px) saturate(1.4)';
-                glassPanel.style.WebkitBackdropFilter = 'blur(14px) saturate(1.4)';
-                return;
-            }
-
-            const vertexShaderSource = document.getElementById('vertex-shader').textContent;
-            const fragmentShaderSource = document.getElementById('fragment-shader').textContent;
-
-            function createShader(gl, type, source) {
-                const shader = gl.createShader(type);
-                gl.shaderSource(shader, source);
-                gl.compileShader(shader);
-                if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-                    console.error(gl.getShaderInfoLog(shader));
-                    gl.deleteShader(shader);
-                    return null;
-                }
-                return shader;
-            }
-
-            const vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
-            const fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource);
-            const program = gl.createProgram();
-            gl.attachShader(program, vertexShader);
-            gl.attachShader(program, fragmentShader);
-            gl.linkProgram(program);
-            if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-                console.error(gl.getProgramInfoLog(program));
-                return;
-            }
-            gl.useProgram(program);
-
-            const positionBuffer = gl.createBuffer();
-            gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-            const positions = new Float32Array([
-                -1, -1,
-                1, -1,
-                -1, 1,
-                1, 1
-            ]);
-            gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
-            const positionLocation = gl.getAttribLocation(program, 'a_position');
-            gl.enableVertexAttribArray(positionLocation);
-            gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
-
-            const backgroundLocation = gl.getUniformLocation(program, 'u_background');
-            const heightMapLocation = gl.getUniformLocation(program, 'u_heightMap');
-            const resolutionLocation = gl.getUniformLocation(program, 'u_resolution');
-            const timeLocation = gl.getUniformLocation(program, 'u_time');
-            const strengthLocation = gl.getUniformLocation(program, 'u_strength');
-
-            const offscreenCanvas = document.createElement('canvas');
-            const offCtx = offscreenCanvas.getContext('2d', { willReadFrequently: true });
-
-            const GRID_W = 128;
-            const GRID_H = 128;
-            const heightSize = GRID_W * GRID_H;
-            let heightField = new Float32Array(heightSize);
-            let velocityField = new Float32Array(heightSize);
-            let heightTexture = gl.createTexture();
-            gl.bindTexture(gl.TEXTURE_2D, heightTexture);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-            gl.texImage2D(gl.TEXTURE_2D, 0, gl.LUMINANCE, GRID_W, GRID_H, 0, gl.LUMINANCE, gl.FLOAT, heightField);
-
-            let bgTexture = gl.createTexture();
-            gl.bindTexture(gl.TEXTURE_2D, bgTexture);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-
-            function resizeGlassCanvas() {
-                const rect = glassPanel.getBoundingClientRect();
-                const w = rect.width;
-                const h = rect.height;
-                if (w === 0 || h === 0) return;
-                glassCanvas.width = w;
-                glassCanvas.height = h;
-                gl.viewport(0, 0, w, h);
-                gl.uniform2f(resolutionLocation, w, h);
-            }
-
-            function updateHeightTexture() {
-                gl.bindTexture(gl.TEXTURE_2D, heightTexture);
-                gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, GRID_W, GRID_H, gl.LUMINANCE, gl.FLOAT, heightField);
-            }
-
-            function waveStep() {
-                const damping = 0.97;
-                const propagation = 0.2;
-                for (let y = 1; y < GRID_H - 1; y++) {
-                    for (let x = 1; x < GRID_W - 1; x++) {
-                        const idx = y * GRID_W + x;
-                        const avg = (heightField[idx - 1] + heightField[idx + 1] + heightField[idx - GRID_W] + heightField[idx + GRID_W]) * 0.25;
-                        velocityField[idx] = (velocityField[idx] + (avg - heightField[idx]) * propagation) * damping;
-                    }
-                }
-                for (let i = 0; i < heightSize; i++) {
-                    heightField[i] += velocityField[i];
-                }
-            }
-
-            function addDisturbance(cx, cy, strength) {
-                const gx = Math.floor(cx * (GRID_W - 1));
-                const gy = Math.floor(cy * (GRID_H - 1));
-                const radius = 4;
-                for (let dy = -radius; dy <= radius; dy++) {
-                    for (let dx = -radius; dx <= radius; dx++) {
-                        const nx = gx + dx;
-                        const ny = gy + dy;
-                        if (nx < 0 || nx >= GRID_W || ny < 0 || ny >= GRID_H) continue;
-                        const dist = Math.sqrt(dx * dx + dy * dy);
-                        if (dist > radius) continue;
-                        const influence = Math.exp(-dist * dist / (radius * radius * 0.5)) * strength;
-                        const idx = ny * GRID_W + nx;
-                        heightField[idx] += influence;
-                        velocityField[idx] += influence * 0.5;
-                    }
-                }
-            }
-
-            let mouseOverPanel = false;
-            let lastPanelMouseX = 0.5;
-            let lastPanelMouseY = 0.5;
-
-            glassPanel.addEventListener('mousemove', function(e) {
-                const rect = glassPanel.getBoundingClientRect();
-                const localX = (e.clientX - rect.left) / rect.width;
-                const localY = (e.clientY - rect.top) / rect.height;
-                lastPanelMouseX = Math.max(0, Math.min(1, localX));
-                lastPanelMouseY = Math.max(0, Math.min(1, localY));
-                addDisturbance(lastPanelMouseX, lastPanelMouseY, 0.03);
-            });
-
-            glassPanel.addEventListener('mouseenter', function() {
-                mouseOverPanel = true;
-            });
-
-            glassPanel.addEventListener('mouseleave', function() {
-                mouseOverPanel = false;
-            });
-
-            glassPanel.addEventListener('click', function(e) {
-                const rect = glassPanel.getBoundingClientRect();
-                const localX = (e.clientX - rect.left) / rect.width;
-                const localY = (e.clientY - rect.top) / rect.height;
-                addDisturbance(localX, localY, 0.15);
-            });
-
-            document.addEventListener('touchmove', function(e) {
-                if (e.touches.length === 1 && !isPinching) {
-                    const touch = e.touches[0];
-                    const rect = glassPanel.getBoundingClientRect();
-                    if (touch.clientX >= rect.left && touch.clientX <= rect.right &&
-                        touch.clientY >= rect.top && touch.clientY <= rect.bottom) {
-                        const localX = (touch.clientX - rect.left) / rect.width;
-                        const localY = (touch.clientY - rect.top) / rect.height;
-                        lastPanelMouseX = Math.max(0, Math.min(1, localX));
-                        lastPanelMouseY = Math.max(0, Math.min(1, localY));
-                        addDisturbance(lastPanelMouseX, lastPanelMouseY, 0.04);
-                    }
-                }
-            }, { passive: true });
-
-            window.addEventListener('resize', resizeGlassCanvas);
-
-            function captureBackground() {
-                if (!vantaCanvas) return null;
-                const vw = vantaCanvas.width;
-                const vh = vantaCanvas.height;
-                if (vw === 0 || vh === 0) return null;
-                offscreenCanvas.width = vw;
-                offscreenCanvas.height = vh;
-                offCtx.clearRect(0, 0, vw, vh);
-                offCtx.drawImage(vantaCanvas, 0, 0, vw, vh);
-                return offscreenCanvas;
-            }
-
-            let lastTime = performance.now();
-
-            function render(timestamp) {
-                const dt = Math.min((timestamp - lastTime) / 1000, 0.1);
-                lastTime = timestamp;
-
-                resizeGlassCanvas();
-
-                for (let i = 0; i < 3; i++) {
-                    waveStep();
-                }
-
-                if (mouseOverPanel) {
-                    addDisturbance(lastPanelMouseX, lastPanelMouseY, 0.004 * dt * 60);
-                }
-
-                updateHeightTexture();
-
-                const bgSource = captureBackground();
-                if (bgSource) {
-                    gl.bindTexture(gl.TEXTURE_2D, bgTexture);
-                    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, bgSource);
-                }
-
-                gl.clearColor(0, 0, 0, 1);
-                gl.clear(gl.COLOR_BUFFER_BIT);
-
-                gl.activeTexture(gl.TEXTURE0);
-                gl.bindTexture(gl.TEXTURE_2D, bgTexture);
-                gl.uniform1i(backgroundLocation, 0);
-
-                gl.activeTexture(gl.TEXTURE1);
-                gl.bindTexture(gl.TEXTURE_2D, heightTexture);
-                gl.uniform1i(heightMapLocation, 1);
-
-                gl.uniform1f(timeLocation, timestamp * 0.001);
-                gl.uniform1f(strengthLocation, 1.0 + (mouseOverPanel ? 0.5 : 0.0));
-
-                gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-
-                requestAnimationFrame(render);
-            }
-
-            resizeGlassCanvas();
-            requestAnimationFrame(render);
-
-            glassPanel.addEventListener('mousemove', function(e) {
-                const rect = glassPanel.getBoundingClientRect();
-                const localX = (e.clientX - rect.left) / rect.width;
-                const localY = (e.clientY - rect.top) / rect.height;
-                const rotateY = (localX - 0.5) * 4;
-                const rotateX = (localY - 0.5) * -4;
-                glassPanel.style.transform = 'perspective(800px) rotateX(' + rotateX.toFixed(2) + 'deg) rotateY(' + rotateY.toFixed(2) + 'deg)';
-            });
-            glassPanel.addEventListener('mouseleave', function() {
-                glassPanel.style.transform = 'perspective(800px) rotateX(0deg) rotateY(0deg)';
-            });
         })();
     </script>
 </body>
