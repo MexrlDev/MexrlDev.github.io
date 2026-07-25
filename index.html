@@ -1,374 +1,418 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TheHub</title>
-    <link rel="icon" type="image/png" href="https://i.ibb.co/8nnv5CMz/IMG-1712.jpg">
-    <meta property="og:title" content="The Hub">
-    <meta property="og:description" content="hub for all my html pages to get things easier.">
-    <meta property="og:image" content="https://i.ibb.co/BVydVvkR/image.png">
-    <meta property="og:url" content="">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta property="og:url" content="https://mexrl.dev" />
+    <meta property="og:site_name" content="MexrlDev" />
+    <meta property="description" content="About Me - MexrlDev" />
+    <meta name="theme-color" content="#0a0a0a" />
+    <meta property="og:image" content="https://raw.githubusercontent.com/MexrlDev/MexrlDev.github.io/refs/heads/main/AboutMe/wifu.jpeg" />
+    <title>About · MexrlDev</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+        }
+
         body {
-            background-color: #ffffff;
-            color: #000000;
-            font-family: monospace;
-            margin: 20px;
-            line-height: 1.5;
+            background: #0a0a0a;
+            font-family: 'Orbitron', sans-serif;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            color: #e0e0e0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            touch-action: manipulation;
+            position: fixed;
+            top: 0;
+            left: 0;
         }
-        #content {
-            max-width: 800px;
-            margin: 0 auto;
-            white-space: pre-wrap;
-            word-wrap: break-word;
+
+        #background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
         }
-        #content a {
-            color: #0000aa;
+
+        #background canvas {
+            touch-action: none;
         }
-        .footer {
+
+        #background::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at center, transparent 50%, rgba(0,255,255,0.04) 100%);
+            pointer-events: none;
+            animation: breath 6s ease-in-out infinite alternate;
+        }
+
+        @keyframes breath {
+            0% { opacity: 0.6; }
+            100% { opacity: 1; }
+        }
+
+        #container {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1rem;
             text-align: center;
-            font-size: 10px;
-            margin-top: 40px;
-            color: #555;
+            transform: translateY(-12%) scale(0.9);
+            transform-origin: center center;
         }
-        .footer a {
-            color: #555;
+
+        #logo-container {
+            margin-bottom: 1.2rem;
         }
-        .Website-btn {
-            display: inline-block;
-            border: 2px solid #000000;
-            padding: 8px 18px;
-            margin: 6px 4px;
+
+        #profile-pic {
+            width: clamp(120px, 28vw, 170px);
+            height: clamp(120px, 28vw, 170px);
+            border-radius: 50%;
+            object-fit: cover;
+            background: #0a0a0a;
+            box-shadow: 0 0 45px rgba(0,255,255,0.5), 0 0 20px rgba(0,255,255,0.3) inset;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        #profile-pic:hover {
+            transform: scale(1.04);
+            box-shadow: 0 0 70px cyan, 0 0 35px rgba(0,255,255,0.6) inset;
+        }
+
+        #logo {
+            font-size: clamp(1.5rem, 6.5vw, 2.4rem);
+            font-weight: 700;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: #fff;
+            text-shadow: 0 0 18px cyan, 0 0 45px cyan, 0 0 80px rgba(0,255,255,0.7);
+            animation: pulseText 2.5s infinite;
+            margin-bottom: 2rem;
+        }
+
+        @keyframes pulseText {
+            0%, 100% { text-shadow: 0 0 15px cyan, 0 0 35px cyan; }
+            50% { text-shadow: 0 0 28px cyan, 0 0 65px cyan, 0 0 100px cyan; }
+        }
+
+        .info-line {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.2rem;
+            font-size: clamp(1rem, 4vw, 1.3rem);
+            margin: 0.6rem 0;
+            padding: 0.3rem 0;
+            transition: all 0.3s;
+            touch-action: manipulation;
+        }
+
+        @media (min-width: 769px) {
+            .info-line {
+                gap: 0.55rem;
+            }
+        }
+
+        .info-line i {
+            color: cyan;
+            font-size: 1.2em;
+            text-shadow: 0 0 12px cyan;
+            width: 1.5rem;
+            text-align: center;
+            flex-shrink: 0;
+            touch-action: manipulation;
+        }
+
+        .info-line span {
+            color: #ffffff;
+            font-weight: 500;
+            text-shadow: 0 0 12px rgba(255,255,255,0.35), 0 0 4px rgba(255,255,255,0.2);
+            touch-action: manipulation;
+        }
+
+        #links {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1.2rem;
+            margin-top: 2.5rem;
+        }
+
+        .neon-btn {
             text-decoration: none;
-            color: #000000;
-            background-color: #f8f8f8;
-            font-family: monospace;
-            font-size: 14px;
-            cursor: pointer;
-            transition: background-color 0.15s;
+            padding: 0.7rem 1.8rem;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: clamp(0.85rem, 3.5vw, 1rem);
+            letter-spacing: 0.08em;
+            background: rgba(10,10,10,0.6);
+            border: 1.5px solid cyan;
+            color: cyan;
+            text-shadow: 0 0 6px cyan;
+            box-shadow: 0 0 20px rgba(0,255,255,0.3);
+            backdrop-filter: blur(8px);
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
-        .Website-btn:hover {
-            background-color: #e0e0e0;
-            color: #000000;
+
+        .neon-btn i {
+            font-size: 1.1em;
+            text-shadow: 0 0 6px cyan;
+        }
+
+        .neon-btn:hover {
+            background: cyan;
+            color: #0a0a0a;
+            text-shadow: none;
+            box-shadow: 0 0 40px cyan, 0 0 80px cyan;
+            border-color: #fff;
+            transform: translateY(-3px);
+        }
+
+        #copyright {
+            position: fixed;
+            bottom: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 20;
+            font-size: 0.8rem;
+            color: #555;
+            text-shadow: 0 0 10px rgba(0,255,255,0.3);
+            white-space: nowrap;
+            pointer-events: none;
+        }
+
+        #copyright a {
+            color: #777;
             text-decoration: none;
+            pointer-events: auto;
         }
-        .Website-btn:visited {
-            color: #000000;
-        }
-        hr {
-            border: none;
-            border-top: 1px solid #000000;
-            margin: 16px 0;
+
+        #copyright a:hover {
+            color: cyan;
         }
     </style>
 </head>
 <body>
-    <div id="content">
+    <div id="background"></div>
 
-[Sunset Hub](center,header)
+    <div id="container">
+        <div id="logo-container">
+            <img id="profile-pic" src="https://raw.githubusercontent.com/MexrlDev/MexrlDev.github.io/refs/heads/main/AboutMe/wifu.jpeg" alt="MexrlDev avatar" />
+        </div>
 
-[<img src="https://i.ibb.co/btCSqtg/IMG-1525.jpg" alt="IMG terry" width="200">](center)
+        <div id="logo">About Me</div>
 
-[This is a hub to choose where to go for my websites](center)
+        <div class="info-line">
+            <i class="fa-solid fa-user"></i>
+            <span>MexrlDev</span>
+        </div>
+        <div class="info-line">
+            <i class="fa-solid fa-cake-candles"></i>
+            <span>March</span>
+        </div>
+        <div class="info-line">
+            <i class="fa-solid fa-code"></i>
+            <span>Python, Lua, JS, C#</span>
+        </div>
+        <div class="info-line">
+            <i class="fa-solid fa-gamepad"></i>
+            <span>Anime, Manga, Music, Console Hacking</span>
+        </div>
 
-[---](center)
-
-[Main Page](center)
-
-[All made in memory of Terry A. Davis](center)
-
-[<a class="Website-btn" href="https://mexrldev.github.io/terry">Goto Main Page</a>](center)
-
-[---](center)
-
-[Repo's Archives](center)
-
-[This has all my aborten repo's so enjoy them when you can.](center)
-
-[<a class="Website-btn" href="https://mexrldev.github.io/main">Goto Archives</a>](center)
-
-[---](center)
-
-[Bookmarks](center)
-
-[Terry A. Davis bookmarks, spend some time on lives to get it and still updating it](center)
-
-[<a class="Website-btn" href="https://mexrldev.github.io/bookmarks">Gotto Terry's Bookmarks</a>](center)
-
-[---](center)
-
-[Daily](center)
-
-[Status page, i get to update of how i am feeling.](center)
-
-[<a class="Website-btn" href="https://mexrldev.github.io/daily">Gotto Daily</a>](center)
-
-[---](center)
-
-[In memory of Terry A. Davis.](center)
-[<a href="https://templeos.org">TempleOS</a>](center)
-
+        <div id="links">
+            <a href="https://git.earthonion.com/X" target="_blank" class="neon-btn">
+                <i class="fa-solid fa-code-branch"></i> earthonion git
+            </a>
+            <a href="https://github.com/MexrlDev" target="_blank" class="neon-btn">
+                <i class="fa-brands fa-github"></i> GitHub
+            </a>
+            <a href="https://x.com/mexrl" target="_blank" class="neon-btn">
+                <i class="fa-brands fa-x-twitter"></i> X
+            </a>
+        </div>
     </div>
 
+    <div id="copyright">
+        © <span id="year"></span> MexrlDev
+    </div>
+
+    <!-- Hidden audio element, no loop, preload auto -->
+    <audio id="bgAudio" preload="auto">
+        <source src="https://raw.githubusercontent.com/MexrlDev/MexrlDev.github.io/refs/heads/main/AboutMe/Floods%20_outro.mp3" type="audio/mpeg">
+    </audio>
+
+    <script src="https://unpkg.com/three@0.134.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vanta@0.5.24/dist/vanta.net.min.js"></script>
     <script>
-        (function() {
-            document.addEventListener('DOMContentLoaded', function() {
-                const content = document.getElementById('content');
-                if (content) {
-                    content.innerHTML = content.innerHTML.replace(
-                        /\[([^\]]+)\]\(([^)]+)\)/g,
-                        function(match, text, optionsStr) {
-                            const tokens = optionsStr.split(',').map(s => s.trim()).filter(s => s.length > 0);
-                            let alignment = null;
-                            let isHeader = false;
-                            let link = null;
+        document.getElementById('year').textContent = new Date().getFullYear();
 
-                            for (let token of tokens) {
-                                const lower = token.toLowerCase();
-                                if (lower === 'center' || lower === 'right' || lower === 'left') {
-                                    if (!alignment) alignment = lower;
-                                } else if (lower === 'header') {
-                                    isHeader = true;
-                                } else {
-                                    if (!link) link = token;
-                                }
-                            }
+        var isMobile = ('ontouchstart' in window) || navigator.maxTouchPoints > 0 || window.innerWidth <= 768;
+        var scaleValue = 1.0;
 
-                            let inner = text;
-                            if (link) {
-                                inner = '<a href="' + link + '">' + inner + '</a>';
-                            }
-                            if (isHeader) {
-                                inner = '<span style="font-size:1.5em; font-weight:bold;">' + inner + '</span>';
-                            }
-                            if (alignment) {
-                                return '<div style="text-align:' + alignment + ';">' + inner + '</div>';
-                            } else {
-                                return inner;
-                            }
-                        }
+        var effect = VANTA.NET({
+            el: "#background",
+            mouseControls: true,
+            touchControls: false,
+            gyroControls: isMobile,
+            minHeight: 200.00,
+            minWidth: 200.00,
+            scale: 1.0,
+            scaleMobile: 1.0,
+            color: 0x00ffff,
+            backgroundColor: 0x0a0a0a,
+            points: 11.0,
+            maxDistance: 20.0,
+            spacing: 19.0,
+            showDots: true
+        });
+
+        var canvas = document.querySelector("#background canvas");
+        if (canvas) {
+            canvas.style.filter = "drop-shadow(0 0 12px rgba(0,255,255,0.7))";
+            canvas.style.willChange = "transform";
+        }
+
+        var initialPinchDist = null;
+        var baseScale = 1.0;
+        var isPinching = false;
+        var lastTouchX = 0;
+        var lastTouchY = 0;
+
+        function simulateMouseMove(x, y) {
+            window.dispatchEvent(new MouseEvent('mousemove', {
+                clientX: x,
+                clientY: y
+            }));
+        }
+
+        if (isMobile) {
+            document.addEventListener('touchstart', function(e) {
+                if (e.touches.length === 2) {
+                    e.preventDefault();
+                    initialPinchDist = Math.hypot(
+                        e.touches[0].clientX - e.touches[1].clientX,
+                        e.touches[0].clientY - e.touches[1].clientY
                     );
+                    baseScale = scaleValue;
+                    isPinching = true;
+                } else if (e.touches.length === 1) {
+                    var touch = e.touches[0];
+                    lastTouchX = touch.clientX;
+                    lastTouchY = touch.clientY;
+                    simulateMouseMove(lastTouchX, lastTouchY);
+                }
+            }, { passive: false });
+
+            document.addEventListener('touchmove', function(e) {
+                if (isPinching && e.touches.length === 2) {
+                    e.preventDefault();
+                    var newDist = Math.hypot(
+                        e.touches[0].clientX - e.touches[1].clientX,
+                        e.touches[0].clientY - e.touches[1].clientY
+                    );
+                    if (initialPinchDist > 0) {
+                        var scaleChange = newDist / initialPinchDist;
+                        var newScale = Math.max(0.6, Math.min(2.2, baseScale * scaleChange));
+                        if (Math.abs(newScale - scaleValue) > 0.01) {
+                            scaleValue = newScale;
+                            effect.setOptions({ scale: scaleValue });
+                        }
+                    }
+                } else if (!isPinching && e.touches.length === 1) {
+                    var touch = e.touches[0];
+                    lastTouchX = touch.clientX;
+                    lastTouchY = touch.clientY;
+                    simulateMouseMove(lastTouchX, lastTouchY);
+                }
+            }, { passive: false });
+
+            document.addEventListener('touchend', function(e) {
+                if (e.touches.length < 2) {
+                    initialPinchDist = null;
+                    isPinching = false;
+                }
+                if (e.touches.length === 1) {
+                    var touch = e.touches[0];
+                    lastTouchX = touch.clientX;
+                    lastTouchY = touch.clientY;
+                    simulateMouseMove(lastTouchX, lastTouchY);
                 }
             });
 
-            const melodyNotes = [
-                {"beat":1,"duration":0.5,"sd":"1","octave":1,"isRest":false},
-                {"beat":1.5,"duration":0.5,"sd":"2","octave":1,"isRest":false},
-                {"beat":2,"duration":1,"sd":"3","octave":1,"isRest":false},
-                {"beat":3,"duration":1,"sd":"3","octave":1,"isRest":false},
-                {"beat":4,"duration":0.3333333333333333,"sd":"2","octave":1,"isRest":false},
-                {"beat":4.333333333333334,"duration":0.3333333333333333,"sd":"2","octave":1,"isRest":false},
-                {"beat":4.666666666666666,"duration":0.3333333333333333,"sd":"3","octave":1,"isRest":false},
-                {"beat":5,"duration":1,"sd":"1","octave":1,"isRest":false},
-                {"beat":6,"duration":0.5,"sd":"7","octave":0,"isRest":false},
-                {"beat":6.5,"duration":0.5,"sd":"1","octave":1,"isRest":false},
-                {"beat":7,"duration":0.5,"sd":"1","octave":1,"isRest":false},
-                {"beat":7.5,"duration":0.5,"sd":"2","octave":1,"isRest":false},
-                {"beat":8,"duration":0.3333333333333333,"sd":"7","octave":0,"isRest":false},
-                {"beat":8.333333333333332,"duration":0.3333333333333333,"sd":"4","octave":1,"isRest":false},
-                {"beat":8.666666666666668,"duration":0.3333333333333333,"sd":"3","octave":1,"isRest":false},
-                {"beat":9,"duration":0.5,"sd":"1","octave":1,"isRest":false},
-                {"beat":9.5,"duration":0.5,"sd":"2","octave":1,"isRest":false},
-                {"beat":10,"duration":1,"sd":"3","octave":1,"isRest":false},
-                {"beat":11,"duration":1,"sd":"3","octave":1,"isRest":false},
-                {"beat":12,"duration":0.3333333333333333,"sd":"2","octave":1,"isRest":false},
-                {"beat":12.333333333333334,"duration":0.3333333333333333,"sd":"2","octave":1,"isRest":false},
-                {"beat":12.666666666666666,"duration":0.3333333333333333,"sd":"3","octave":1,"isRest":false},
-                {"beat":13,"duration":1,"sd":"1","octave":1,"isRest":false},
-                {"beat":14,"duration":0.5,"sd":"7","octave":0,"isRest":false},
-                {"beat":14.5,"duration":0.5,"sd":"1","octave":1,"isRest":false},
-                {"beat":15,"duration":0.5,"sd":"1","octave":1,"isRest":false},
-                {"beat":15.5,"duration":0.5,"sd":"2","octave":1,"isRest":false},
-                {"beat":16,"duration":0.3333333333333333,"sd":"7","octave":0,"isRest":false},
-                {"beat":16.333333333333336,"duration":0.3333333333333333,"sd":"4","octave":1,"isRest":false},
-                {"beat":16.666666666666664,"duration":0.3333333333333333,"sd":"3","octave":1,"isRest":false},
-                {"beat":17,"duration":0.5,"sd":"1","octave":1,"isRest":false},
-                {"beat":17.5,"duration":0.5,"sd":"7","octave":0,"isRest":false},
-                {"beat":18,"duration":1,"sd":"1","octave":1,"isRest":false},
-                {"beat":19,"duration":1,"sd":"2","octave":1,"isRest":false},
-                {"beat":20,"duration":0.5,"sd":"5","octave":0,"isRest":false},
-                {"beat":20.5,"duration":0.5,"sd":"5","octave":0,"isRest":false},
-                {"beat":21,"duration":0.3333333333333333,"sd":"2","octave":1,"isRest":false},
-                {"beat":21.333333333333332,"duration":0.3333333333333333,"sd":"2","octave":1,"isRest":false},
-                {"beat":21.666666666666668,"duration":0.3333333333333333,"sd":"3","octave":1,"isRest":false},
-                {"beat":22,"duration":0.3333333333333333,"sd":"2","octave":1,"isRest":false},
-                {"beat":22.333333333333332,"duration":0.3333333333333333,"sd":"1","octave":1,"isRest":false},
-                {"beat":22.666666666666668,"duration":0.3333333333333333,"sd":"4","octave":1,"isRest":false},
-                {"beat":23,"duration":0.3333333333333333,"sd":"6","octave":0,"isRest":false},
-                {"beat":23.333333333333332,"duration":0.3333333333333333,"sd":"1","octave":1,"isRest":false},
-                {"beat":23.666666666666668,"duration":0.3333333333333333,"sd":"7","octave":0,"isRest":false},
-                {"beat":24,"duration":1,"sd":"3","octave":1,"isRest":false},
-                {"beat":25,"duration":0.5,"sd":"1","octave":1,"isRest":false},
-                {"beat":25.5,"duration":0.5,"sd":"7","octave":0,"isRest":false},
-                {"beat":26,"duration":1,"sd":"1","octave":1,"isRest":false},
-                {"beat":27,"duration":1,"sd":"2","octave":1,"isRest":false},
-                {"beat":28,"duration":0.5,"sd":"5","octave":0,"isRest":false},
-                {"beat":28.5,"duration":0.5,"sd":"5","octave":0,"isRest":false},
-                {"beat":29,"duration":0.3333333333333333,"sd":"2","octave":1,"isRest":false},
-                {"beat":29.333333333333332,"duration":0.3333333333333333,"sd":"2","octave":1,"isRest":false},
-                {"beat":29.666666666666668,"duration":0.3333333333333333,"sd":"3","octave":1,"isRest":false},
-                {"beat":30,"duration":0.3333333333333333,"sd":"2","octave":1,"isRest":false},
-                {"beat":30.333333333333332,"duration":0.3333333333333333,"sd":"1","octave":1,"isRest":false},
-                {"beat":30.666666666666668,"duration":0.3333333333333333,"sd":"4","octave":1,"isRest":false},
-                {"beat":31,"duration":0.3333333333333333,"sd":"6","octave":0,"isRest":false},
-                {"beat":31.333333333333332,"duration":0.3333333333333333,"sd":"1","octave":1,"isRest":false},
-                {"beat":31.666666666666668,"duration":0.3333333333333333,"sd":"7","octave":0,"isRest":false},
-                {"beat":32,"duration":1,"sd":"3","octave":1,"isRest":false}
-            ];
-
-            const chords = [
-                {"beat":1,"duration":1,"root":4,"type":5,"inversion":0,"applied":0,"adds":[],"omits":[],"alterations":[],"suspensions":[],"borrowed":"","pedal":null,"substitutions":[],"isRest":false},
-                {"beat":2,"duration":4,"root":1,"type":5,"inversion":0,"applied":0,"adds":[],"omits":[],"alterations":[],"suspensions":[],"borrowed":"","pedal":null,"substitutions":[],"isRest":false},
-                {"beat":6,"duration":2,"root":3,"type":5,"inversion":0,"applied":0,"adds":[],"omits":[],"alterations":[],"suspensions":[],"borrowed":"","pedal":null,"substitutions":[],"isRest":false},
-                {"beat":8,"duration":2,"root":4,"type":5,"inversion":0,"applied":0,"adds":[],"omits":[],"alterations":[],"suspensions":[],"borrowed":"","pedal":null,"substitutions":[],"isRest":false},
-                {"beat":10,"duration":4,"root":1,"type":5,"inversion":0,"applied":0,"adds":[],"omits":[],"alterations":[],"suspensions":[],"borrowed":"","pedal":null,"substitutions":[],"isRest":false},
-                {"beat":14,"duration":2,"root":3,"type":5,"inversion":0,"applied":0,"adds":[],"omits":[],"alterations":[],"suspensions":[],"borrowed":"","pedal":null,"substitutions":[],"isRest":false},
-                {"beat":16,"duration":2,"root":4,"type":5,"inversion":0,"applied":0,"adds":[],"omits":[],"alterations":[],"suspensions":[],"borrowed":"","pedal":null,"substitutions":[],"isRest":false},
-                {"beat":18,"duration":2,"root":6,"type":5,"inversion":0,"applied":0,"adds":[],"omits":[],"alterations":[],"suspensions":[],"borrowed":"minor","pedal":null,"substitutions":[],"isRest":false},
-                {"beat":20,"duration":2,"root":5,"type":5,"inversion":0,"applied":0,"adds":[],"omits":[],"alterations":[],"suspensions":[],"borrowed":"","pedal":null,"substitutions":[],"isRest":false},
-                {"beat":22,"duration":2,"root":4,"type":5,"inversion":0,"applied":0,"adds":[],"omits":[],"alterations":[],"suspensions":[],"borrowed":"","pedal":null,"substitutions":[],"isRest":false},
-                {"beat":24,"duration":1,"root":3,"type":5,"inversion":0,"applied":0,"adds":[],"omits":[],"alterations":[],"suspensions":[],"borrowed":"","pedal":null,"substitutions":[],"isRest":false},
-                {"beat":25,"duration":1,"root":4,"type":5,"inversion":0,"applied":0,"adds":[],"omits":[],"alterations":[],"suspensions":[],"borrowed":"","pedal":null,"substitutions":[],"isRest":false},
-                {"beat":26,"duration":2,"root":6,"type":5,"inversion":0,"applied":0,"adds":[],"omits":[],"alterations":[],"suspensions":[],"borrowed":"minor","pedal":null,"substitutions":[],"isRest":false},
-                {"beat":28,"duration":2,"root":5,"type":5,"inversion":0,"applied":0,"adds":[],"omits":[],"alterations":[],"suspensions":[],"borrowed":"","pedal":null,"substitutions":[],"isRest":false},
-                {"beat":30,"duration":2,"root":4,"type":5,"inversion":0,"applied":0,"adds":[],"omits":[],"alterations":[],"suspensions":[],"borrowed":"","pedal":null,"substitutions":[],"isRest":false},
-                {"beat":32,"duration":1,"root":3,"type":5,"inversion":0,"applied":0,"adds":[],"omits":[],"alterations":[],"suspensions":[],"borrowed":"","pedal":null,"substitutions":[],"isRest":false}
-            ];
-
-            const semitoneOffsets = [0, 2, 3, 5, 7, 9, 10];
-            function getMelodyFreq(degree, octave) {
-                const base = octave === 1 ? 587.33 : 293.66;
-                const offset = semitoneOffsets[degree - 1];
-                return base * Math.pow(2, offset / 12);
-            }
-
-            function getChordFreq(degree) {
-                const base = 146.83;
-                const offset = semitoneOffsets[degree - 1];
-                return base * Math.pow(2, offset / 12);
-            }
-
-            function getChordTones(root) {
-                const idx = root - 1;
-                const fourth = (idx + 3) % 7;
-                const fifth = (idx + 4) % 7;
-                return [root, fourth + 1, fifth + 1, fourth + 1];
-            }
-
-            const tempo = 170;
-            const beatDuration = 60 / tempo;
-            const eighthDuration = beatDuration / 2;
-            const loopBeats = 32;
-            const loopTime = loopBeats * beatDuration;
-
-            let audioCtx = null;
-            let nextLoopStart = 0;
-            let loopTimer = null;
-            let audioStarted = false;
-
-            function createPianoLikeNote(frequency, startTime, duration, velocity = 0.8) {
-                if (!audioCtx) return;
-                const now = audioCtx.currentTime;
-                if (startTime < now) startTime = now;
-
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-
-                osc.type = 'triangle';
-                osc.frequency.setValueAtTime(frequency, startTime);
-
-                gain.gain.setValueAtTime(0, startTime);
-                gain.gain.linearRampToValueAtTime(velocity, startTime + 0.02);
-                gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration * 0.8);
-
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
-
-                osc.start(startTime);
-                osc.stop(startTime + duration + 0.05);
-            }
-
-            function scheduleLoop() {
-                if (!audioCtx) return;
-                const now = audioCtx.currentTime;
-                if (nextLoopStart < now) {
-                    nextLoopStart = now;
+            var lastTapTime = 0;
+            document.addEventListener('touchend', function(e) {
+                var now = Date.now();
+                if (now - lastTapTime < 300 && e.target) {
+                    e.preventDefault();
                 }
-                const start = nextLoopStart;
+                lastTapTime = now;
+            }, { passive: false });
+        }
 
-                for (const note of melodyNotes) {
-                    if (note.isRest) continue;
-                    const freq = getMelodyFreq(parseInt(note.sd), note.octave);
-                    const noteStart = start + (note.beat - 1) * beatDuration;
-                    const dur = note.duration * beatDuration;
-                    createPianoLikeNote(freq, noteStart, dur, 0.85);
-                }
+        document.addEventListener('gesturestart', function (e) { e.preventDefault(); });
+        document.addEventListener('gesturechange', function (e) { e.preventDefault(); });
+        document.addEventListener('gestureend', function (e) { e.preventDefault(); });
+    </script>
+    <script>
+        (function() {
+            if (localStorage.getItem('bgMusicPlayed')) return;
 
-                for (const chord of chords) {
-                    const chordStart = start + (chord.beat - 1) * beatDuration;
-                    const chordDur = chord.duration * beatDuration;
-                    const totalEighths = Math.round(chord.duration * 4);
-                    const tones = getChordTones(chord.root);
-                    for (let i = 0; i < totalEighths; i++) {
-                        const noteTime = chordStart + i * eighthDuration;
-                        const degree = tones[i % 4];
-                        const freq = getChordFreq(degree);
-                        createPianoLikeNote(freq, noteTime, eighthDuration * 0.85, 0.65);
-                    }
-                }
+            const audio = document.getElementById('bgAudio');
+            if (!audio) return;
 
-                nextLoopStart = start + loopTime;
-                const scheduleAhead = 0.1;
-                loopTimer = setTimeout(scheduleLoop, (loopTime - scheduleAhead) * 1000);
-            }
+            audio.loop = false;
+            audio.volume = 0.85;
 
-            function startAudio() {
-                if (audioStarted) return;
-                audioStarted = true;
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                nextLoopStart = audioCtx.currentTime + 0.2;
-                scheduleLoop();
-            }
+            let isMutedFallback = false;
 
-            function attemptAutoplay() {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                if (audioCtx.state === 'suspended') {
-                    audioCtx.resume().then(function() {
-                        if (!audioStarted) {
-                            audioStarted = true;
-                            nextLoopStart = audioCtx.currentTime + 0.2;
-                            scheduleLoop();
+            audio.play().then(() => {
+                localStorage.setItem('bgMusicPlayed', 'true');
+            }).catch(() => {
+                audio.muted = true;
+                return audio.play();
+            }).then(() => {
+                if (audio.muted) {
+                    isMutedFallback = true;
+                    localStorage.setItem('bgMusicPlayed', 'true');
+                    const unmuteHandler = () => {
+                        if (isMutedFallback && audio.muted) {
+                            audio.muted = false;
+                            audio.play().catch(() => {});
+                            isMutedFallback = false;
                         }
-                    }).catch(function() {});
-                } else {
-                    if (!audioStarted) {
-                        audioStarted = true;
-                        nextLoopStart = audioCtx.currentTime + 0.2;
-                        scheduleLoop();
-                    }
+                        window.removeEventListener('pointerdown', unmuteHandler);
+                        window.removeEventListener('keydown', unmuteHandler);
+                    };
+                    window.addEventListener('pointerdown', unmuteHandler, { once: true });
+                    window.addEventListener('keydown', unmuteHandler, { once: true });
                 }
-            }
-
-            function enableFallback() {
-                document.body.addEventListener('click', function once() {
-                    if (!audioStarted) startAudio();
-                    document.body.removeEventListener('click', once);
-                }, { once: true });
-                document.body.addEventListener('touchstart', function once() {
-                    if (!audioStarted) startAudio();
-                    document.body.removeEventListener('touchstart', once);
-                }, { once: true });
-                document.body.addEventListener('keydown', function once() {
-                    if (!audioStarted) startAudio();
-                    document.body.removeEventListener('keydown', once);
-                }, { once: true });
-            }
-
-            attemptAutoplay();
-            if (!audioStarted) {
-                enableFallback();
-            }
+            }).catch(() => {
+            });
         })();
     </script>
 </body>
