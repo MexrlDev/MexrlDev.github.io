@@ -1,0 +1,642 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>PS3 Symbols</title>
+<link rel="icon" type="image/png" href="./img/icon.png" />
+<style>
+  /* Theme variables */
+  :root{
+    --page-pad: 20px;
+    --card-radius: 14px;
+    --glass-bg: rgba(255,255,255,0.06);
+    --glass-border: rgba(255,255,255,0.06);
+    --accent: #ffffff;
+    --shadow: rgba(0,0,0,0.35);
+    --gap: 18px;
+    --font-family: "Segoe UI", Roboto, system-ui, -apple-system, "Helvetica Neue", Arial;
+  }
+
+  html { height: 100%; }
+  body{
+    min-height: 100vh;
+    margin:0;
+    font-family:var(--font-family);
+    color:var(--accent);
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    background: none;
+    position: relative;
+  }
+
+  /* FIXED BACKGROUND */
+  .bg-fixed {
+    position: fixed;
+    inset: 0;
+    background-image: url('../img/Baek.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    z-index: -2;
+  }
+
+  /* overlay */
+  .bg-overlay{
+    position:fixed;
+    inset:0;
+    background: linear-gradient(rgba(0,0,0,0.12), rgba(0,0,0,0.28));
+    pointer-events:none;
+    z-index: -1;
+  }
+
+  .wrap{
+    min-height:100vh;
+    display:flex;
+    align-items:flex-start;
+    justify-content:center;
+    padding:36px 18px;
+    box-sizing:border-box;
+    position: relative;
+    z-index: 1;
+  }
+
+  .panel{
+    width: min(1100px, 96%);
+    max-width:1200px;
+    margin: 12px 0;
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.06));
+    border-radius:18px;
+    padding:var(--page-pad);
+    box-shadow: 0 10px 40px var(--shadow);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid var(--glass-border);
+  }
+
+  header.top{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    margin-bottom:12px;
+  }
+  .left-head{
+    display:flex;
+    flex-direction:column;
+  }
+  .title{
+    font-size:20px;
+    font-weight:600;
+  }
+  .subtitle{ font-size:13px; opacity:0.9; }
+
+  .search-row{
+    display:flex;
+    gap:12px;
+    align-items:center;
+    margin-bottom:12px;
+  }
+  .search{
+    flex:1 1 420px;
+    min-width:120px;
+    padding:10px 12px;
+    border-radius:10px;
+    border:1px solid rgba(255,255,255,0.06);
+    background: rgba(255,255,255,0.02);
+    color:var(--accent);
+    outline:none;
+    font-size:14px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.18) inset;
+  }
+  .search::placeholder{ color: rgba(255,255,255,0.6); }
+
+  /* ========== GRID – RESPONSIVE COLUMNS ========== */
+  .grid{
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr)); /* 4 columns on desktop */
+    gap: var(--gap);
+    justify-content: center;
+    align-items: start;
+  }
+
+  /* group header (spans full width) */
+  .group-header{
+    grid-column: 1 / -1;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.03);
+    font-weight:700;
+    font-size:14px;
+    color:var(--accent);
+  }
+
+  /* card style – square via aspect-ratio */
+  .card{
+    aspect-ratio: 1 / 1;
+    width: 100%; /* fill grid cell */
+    border-radius: var(--card-radius);
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    box-shadow: 0 10px 24px var(--shadow);
+    transition: transform 160ms cubic-bezier(.2,.9,.3,1), box-shadow 160ms, background 160ms;
+    cursor: pointer;
+    user-select: none;
+    overflow:hidden;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    padding:10px;
+    box-sizing: border-box;
+  }
+
+  .card:hover{
+    transform: translateY(-6px) scale(1.04);
+    box-shadow: 0 18px 48px rgba(0,0,0,0.5);
+  }
+  .card:active{
+    transform: translateY(2px) scale(0.98);
+  }
+
+  .glyph{
+    font-size: min(6vw, 46px); /* responsive glyph size */
+    line-height:1;
+    margin-bottom:8px;
+    text-align:center;
+    letter-spacing:0.08em;
+    user-select: text;
+  }
+
+  .name{
+    font-size: min(2.5vw, 13px);
+    text-align:center;
+    opacity:0.95;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow: ellipsis;
+    max-width: 86%;
+  }
+
+  /* mobile: 3 columns */
+  @media (max-width:600px){
+    .grid{
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .glyph{
+      font-size: min(7vw, 40px);
+    }
+    .name{
+      font-size: min(3vw, 12px);
+    }
+  }
+
+  /* small adjustments for very tiny screens */
+  @media (max-width:400px){
+    .grid{
+      gap: 10px;
+    }
+    .card{
+      padding:6px;
+    }
+    .glyph{
+      font-size: min(8vw, 36px);
+    }
+  }
+
+  /* controls and music button */
+  .controls{
+    display:flex;
+    gap:8px;
+    align-items:center;
+  }
+  .btn-ghost{
+    padding:8px 12px;
+    border-radius:10px;
+    border:1px solid rgba(255,255,255,0.06);
+    background: rgba(255,255,255,0.02);
+    color:var(--accent);
+    cursor:pointer;
+    font-weight:600;
+  }
+  .btn-ghost:active{ transform: translateY(1px); }
+
+  .music-control{
+    display:inline-flex;
+    gap:8px;
+    align-items:center;
+  }
+  .music-btn{
+    width:40px;
+    height:40px;
+    border-radius:10px;
+    border:1px solid rgba(255,255,255,0.06);
+    background: rgba(255,255,255,0.02);
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    transition: transform 140ms;
+    position:relative;
+  }
+  .music-btn:active{ transform:scale(0.95); }
+  .music-btn svg{ width:18px; height:18px; fill:currentColor; color:var(--accent); opacity:0.95; }
+  .music-btn.muted::after{
+    content: '';
+    position: absolute;
+    right: 6px;
+    bottom: 6px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #f0c419;
+    box-shadow: 0 0 6px rgba(240,196,25,0.6);
+  }
+
+  .no-results{
+    text-align:center;
+    padding:18px;
+    opacity:0.85;
+    font-size:14px;
+  }
+
+  .hint{ font-size:12px; opacity:0.85; margin-top:10px; text-align:center; }
+</style>
+</head>
+<body>
+  <div class="bg-fixed" aria-hidden="true"></div>
+  <div class="bg-overlay" aria-hidden="true"></div>
+
+  <div class="wrap">
+    <div class="panel" role="main" aria-label="Unicode viewer">
+      <header class="top">
+        <div class="left-head">
+          <div class="title">PS3 Symbols</div>
+          <div class="subtitle">Click to copy — search updates results live</div>
+        </div>
+
+        <div class="controls" aria-hidden="false">
+          <button class="btn-ghost" onclick="history.back()">Back</button>
+          <div class="music-control" title="Play / Pause background music">
+            <div id="musicBtn" class="music-btn" aria-pressed="false" role="button">
+              <svg id="musicIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"></path></svg>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div class="search-row">
+        <input id="search" class="search" type="search" placeholder="Search by name or character — live results" aria-label="Search unicode symbols" />
+      </div>
+
+      <main>
+        <div id="grid" class="grid" aria-live="polite"></div>
+        <div id="noResults" class="no-results" style="display:none;">No results</div>
+        <div class="hint">Credit: Satan — Source: MediaFire</div>
+      </main>
+    </div>
+  </div>
+
+  <audio id="bgAudio" loop preload="auto">
+    <source src="../music/bg.mp3" type="audio/mpeg">
+  </audio>
+
+<script>
+/*
+  PS3 Symbols dataset
+  - Regular symbols first, then a "Moving Symbols" header, then moving items
+  - Names kept close to original as requested
+*/
+
+const normalItems = [
+  { name: 'Circle', char: '' },
+  { name: 'Cross', char: '' },
+  { name: 'Square', char: '' },
+  { name: 'Triangle', char: '' },
+  { name: 'DPAD Up', char: '' },
+  { name: 'DPAD Down', char: '' },
+  { name: 'DPAD Left', char: '' },
+  { name: 'DPAD Right', char: '' },
+  { name: 'L1', char: '' },
+  { name: 'L2', char: '' },
+  { name: 'L3', char: '' },
+  { name: 'R1', char: '' },
+  { name: 'R2', char: '' },
+  { name: 'R3', char: '' },
+  { name: 'Select', char: '' },
+  { name: 'Start', char: '' },
+  { name: 'PSButton', char: '' },
+  { name: 'L2/DPAD Left', char: '' },
+  { name: 'R2/DPAD Right', char: '' },
+  { name: 'Speaker0', char: '' },
+  { name: 'Speaker1', char: '' },
+  { name: 'Speaker2', char: '' },
+  { name: 'Speaker3', char: '' },
+  { name: 'Mic Muted', char: '' },
+  { name: 'HQ', char: '' },
+  { name: 'Arrow Right', char: '' },
+  { name: '0/3 Battery', char: '' },
+  { name: '1/3 Battery', char: '' },
+  { name: '2/3 Battery', char: '' },
+  { name: '3/3 Battery', char: '' },
+  { name: 'Bronze Trophy', char: '' },
+  { name: 'Silver Trophy', char: '' },
+  { name: 'Gold Trophy', char: '' },
+  { name: 'Platin Trophy', char: '' },
+  { name: 'Caps', char: '' },
+  { name: 'Keyboard', char: '' },
+  { name: 'Finger/Mouse', char: '' },
+  { name: 'Circle in Circle', char: '' },
+  { name: 'Circle (alt)', char: '' },
+  { name: 'PSPlus', char: '' },
+  { name: 'Headset', char: '' },
+  { name: 'Headset in Circle', char: '' },
+  { name: '2 Hearts', char: '' },
+  { name: 'Broken Heart', char: '' },
+  { name: 'Heart with Arrow', char: '' },
+  { name: 'Heart', char: '' },
+  { name: 'Spades', char: '' },
+  { name: 'Clubs', char: '' },
+  { name: 'Diamond', char: '' },
+  { name: '!', char: '' },
+  { name: '!!', char: '' },
+  { name: '?', char: '' },
+  { name: '?!', char: '' },
+  { name: 'Light Bulb', char: '' },
+  { name: 'Explosion', char: '' },
+  { name: '3 Drops', char: '' },
+  { name: 'Drop', char: '' },
+  { name: 'Blast', char: '' },
+  { name: 'Flower', char: '' },
+  { name: 'Skull', char: '' },
+  { name: 'Stars', char: '' },
+  { name: 'Fire', char: '' },
+  { name: 'Note', char: '' },
+  { name: 'Note1', char: '' },
+  { name: 'Note2', char: '' },
+  { name: 'Note3', char: '' },
+  { name: '2Notes', char: '' },
+  { name: '2Notes1', char: '' },
+  { name: 'Lips', char: '' },
+  { name: 'Lips with Tongue', char: '' },
+  { name: 'Kissing Lips', char: '' },
+  { name: 'Nose', char: '' },
+  { name: 'Ear', char: '' },
+  { name: 'Feet', char: '' },
+  { name: 'Feet1', char: '' },
+  { name: 'Umbrella', char: '' },
+  { name: 'Rainbow', char: '' },
+  { name: 'Closed Umbrella', char: '' },
+  { name: 'Snowflake', char: '' },
+  { name: 'Bouquet', char: '' },
+  { name: 'Ring', char: '' },
+  { name: 'Loop', char: '' },
+  { name: 'Present', char: '' },
+  { name: 'Cake', char: '' },
+  { name: 'Money', char: '' },
+  { name: '¥', char: '' },
+  { name: '$', char: '' }
+];
+
+const movingItems = [
+  // Many items in the original list are marked as (Moving).
+  // We'll keep their names as given, but they are grouped under "Moving Symbols".
+  { name: 'Loading Battery (Moving)', char: '' },
+  { name: '2 Hearts (Moving)', char: '' },
+  { name: 'Broken Heart (Moving)', char: '' },
+  { name: 'Heart with Arrow (Moving)', char: '' },
+  { name: 'Explosion (Moving)', char: '' },
+  { name: '3 Drops (Moving)', char: '' },
+  { name: 'Drop (Moving)', char: '' },
+  { name: 'Stars (Moving)', char: '' },
+  { name: 'Fire (Moving)', char: '' },
+  { name: 'Sun (Moving)', char: '' },
+  { name: 'Flowers (Moving)', char: '' },
+  { name: 'Umbreall Raining (Moving)', char: '' },
+  { name: 'Snowman (Moving)', char: '' },
+  { name: 'Storm (Moving)', char: '' },
+  { name: '2Notes (Moving) — alt', char: '' }, // included if referenced as moving too
+  { name: 'Moving Hearts', char: '' }, // duplicate entries kept if present in source
+  { name: 'Moving Dimonds (hex reference)', char: 'EF 91 B6' } // as an informational placeholder (hex)
+];
+
+// build the full items list: normal items, then a header marker, then moving items
+const items = [
+  ...normalItems,
+  { header: 'Moving Symbols' },
+  ...movingItems
+];
+
+const grid = document.getElementById('grid');
+const noResults = document.getElementById('noResults');
+const search = document.getElementById('search');
+
+function buildGrid(list){
+  grid.innerHTML = '';
+  if(!list.length){
+    noResults.style.display = 'block';
+    return;
+  } else {
+    noResults.style.display = 'none';
+  }
+
+  const fragment = document.createDocumentFragment();
+
+  list.forEach(item => {
+    if(item.header){
+      const h = document.createElement('div');
+      h.className = 'group-header';
+      h.textContent = item.header;
+      fragment.appendChild(h);
+      return;
+    }
+
+    // Skip items that don't have a char (defensive)
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.tabIndex = 0;
+    card.setAttribute('role', 'button');
+    card.setAttribute('aria-label', item.name + ' symbol');
+
+    const glyph = document.createElement('div');
+    glyph.className = 'glyph';
+    glyph.textContent = item.char;
+
+    const name = document.createElement('div');
+    name.className = 'name';
+    name.textContent = item.name;
+
+    card.appendChild(glyph);
+    card.appendChild(name);
+
+    card.addEventListener('click', () => copyGlyph(item.char, name));
+    card.addEventListener('keydown', (e) => {
+      if(e.key === 'Enter' || e.key === ' '){
+        e.preventDefault();
+        card.click();
+      }
+    });
+
+    fragment.appendChild(card);
+  });
+
+  grid.appendChild(fragment);
+}
+
+function copyGlyph(char, nameEl){
+  if(!char) {
+    flashCopied(nameEl, '(no char)');
+    return;
+  }
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(char).then(()=>{
+      flashCopied(nameEl);
+    }).catch(()=> fallbackCopy(char, nameEl));
+  } else {
+    fallbackCopy(char, nameEl);
+  }
+}
+function fallbackCopy(char, nameEl){
+  const ta = document.createElement('textarea');
+  ta.value = char;
+  ta.style.position = 'fixed';
+  ta.style.left = '-9999px';
+  document.body.appendChild(ta);
+  ta.select();
+  try { document.execCommand('copy'); } catch(e){}
+  ta.remove();
+  flashCopied(nameEl);
+}
+function flashCopied(nameEl, altText){
+  const old = nameEl.textContent;
+  nameEl.textContent = altText || 'Copied';
+  setTimeout(()=> nameEl.textContent = old, 700);
+}
+
+function normalize(s){ return String(s || '').toLowerCase(); }
+function filterItems(query){
+  if(!query) return items.slice();
+  const q = normalize(query);
+  return items.filter(it => {
+    if(it.header) return normalize(it.header).includes(q);
+    return normalize(it.name).includes(q) || normalize(it.char).includes(q);
+  });
+}
+
+search.addEventListener('input', (e) => {
+  const q = e.target.value;
+  const filtered = filterItems(q);
+  buildGrid(filtered);
+});
+
+search.addEventListener('keydown', (e) => {
+  if(e.key === 'ArrowDown'){
+    const firstCard = document.querySelector('.card');
+    if(firstCard){ firstCard.focus(); e.preventDefault(); }
+  }
+});
+
+buildGrid(items);
+
+/* Music autoplay logic */
+const audio = document.getElementById('bgAudio');
+const musicBtn = document.getElementById('musicBtn');
+const musicIcon = document.getElementById('musicIcon');
+
+let isPlaying = false;
+let mutedFallback = false;
+
+function updateMusicIcon(){
+  if(isPlaying){
+    musicIcon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"></path>';
+    musicBtn.setAttribute('aria-pressed','true');
+  } else {
+    musicIcon.innerHTML = '<path d="M8 5v14l11-7z"></path>';
+    musicBtn.setAttribute('aria-pressed','false');
+  }
+  if(isPlaying && mutedFallback){
+    musicBtn.classList.add('muted');
+    musicBtn.title = 'Playing (muted). Interact to unmute / click to pause';
+  } else {
+    musicBtn.classList.remove('muted');
+    musicBtn.title = isPlaying ? 'Playing. Click to pause' : 'Paused. Click to play';
+  }
+}
+
+async function tryAutoplay(){
+  audio.loop = true;
+  audio.volume = 0.9;
+  audio.muted = false;
+  try {
+    await audio.play();
+    isPlaying = true;
+    mutedFallback = false;
+    updateMusicIcon();
+  } catch(e){
+    try {
+      audio.muted = true;
+      await audio.play();
+      isPlaying = true;
+      mutedFallback = true;
+      updateMusicIcon();
+      attachUnmuteOnFirstInteraction();
+    } catch(e2){
+      isPlaying = false;
+      mutedFallback = false;
+      updateMusicIcon();
+    }
+  }
+}
+
+function attachUnmuteOnFirstInteraction(){
+  function attemptUnmute(){
+    if(mutedFallback && audio.muted){
+      audio.muted = false;
+      audio.play().catch(()=>{});
+      mutedFallback = false;
+      updateMusicIcon();
+    }
+    window.removeEventListener('pointerdown', attemptUnmute);
+    window.removeEventListener('keydown', attemptUnmute);
+  }
+  window.addEventListener('pointerdown', attemptUnmute, { once:true });
+  window.addEventListener('keydown', attemptUnmute, { once:true });
+}
+
+musicBtn.addEventListener('click', async () => {
+  if(isPlaying){
+    audio.pause();
+    isPlaying = false;
+    mutedFallback = false;
+    updateMusicIcon();
+  } else {
+    audio.muted = false;
+    try {
+      await audio.play();
+      isPlaying = true;
+      mutedFallback = false;
+      updateMusicIcon();
+    } catch(e){
+      try {
+        audio.muted = true;
+        await audio.play();
+        isPlaying = true;
+        mutedFallback = true;
+        updateMusicIcon();
+        attachUnmuteOnFirstInteraction();
+      } catch(e2){
+        isPlaying = false;
+        mutedFallback = false;
+        updateMusicIcon();
+      }
+    }
+  }
+});
+
+tryAutoplay();
+</script>
+</body>
+</html>

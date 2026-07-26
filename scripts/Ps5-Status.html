@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
+  <title>PS5 JB Status</title>
+  <link rel="icon" type="image/png" href="./img/icon.png">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    :root {
+      --page-pad: 1.5rem;
+      --card-radius: 1.25rem;
+      --glass-bg: rgba(255, 255, 255, 0.04);
+      --glass-border: rgba(255, 255, 255, 0.1);
+      --accent: #ffffff;
+      --muted: rgba(255, 255, 255, 0.68);
+      --shadow: rgba(0, 0, 0, 0.5);
+      --gap: 1rem;
+      --font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      --max-width: 1200px;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: var(--font-family);
+      color: var(--accent);
+      background: #0a0a0c;
+      line-height: 1.5;
+    }
+
+    .bg-fixed {
+      position: fixed;
+      inset: 0;
+      background-image: url('../img/Baek.png');
+      background-size: cover;
+      background-position: center;
+      filter: brightness(0.4) contrast(1.08);
+      z-index: -2;
+    }
+
+    .bg-overlay {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at 20% 30%, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.7));
+      z-index: -1;
+    }
+
+    .wrap {
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 1.5rem 1rem;
+    }
+
+    .panel {
+      width: min(var(--max-width), 100%);
+      background: rgba(255, 255, 255, 0.04);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border-radius: 1.75rem;
+      padding: var(--page-pad);
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.55), inset 0 0 30px rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--glass-border);
+      transition: border-color 0.2s;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .left-head {
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+
+    .title {
+      font-size: 1.8rem;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      background: linear-gradient(135deg, #ff0044, #ff8000, #ffff00, #00ff80, #0080ff, #a200ff);
+      background-size: 300% 300%;
+      animation: gradientMove 8s ease infinite;
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    @keyframes gradientMove {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .subtitle {
+      font-size: 0.8rem;
+      opacity: 0.75;
+      max-width: 560px;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.7rem;
+      align-items: center;
+    }
+
+    .btn {
+      padding: 0.55rem 1.1rem;
+      border-radius: 2rem;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      background: rgba(20, 20, 30, 0.55);
+      backdrop-filter: blur(6px);
+      color: var(--accent);
+      cursor: pointer;
+      font-weight: 500;
+      font-size: 0.85rem;
+      transition: all 0.2s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      white-space: nowrap;
+    }
+    .btn:active {
+      transform: scale(0.97);
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+    .search {
+      padding: 0.55rem 1rem;
+      border-radius: 2rem;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(6px);
+      color: white;
+      font-size: 0.9rem;
+      min-width: 190px;
+      outline: none;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .search:focus {
+      border-color: rgba(255, 255, 255, 0.55);
+      background: rgba(0, 0, 0, 0.55);
+    }
+
+    .chart {
+      width: 100%;
+      margin-top: 0.5rem;
+    }
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1.25fr 1.15fr 0.95fr 1.2fr;
+      gap: 1rem;
+      padding: 1.1rem 1rem;
+      border-radius: 1.2rem;
+      background: rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(4px);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      align-items: start;
+      margin-bottom: 0.75rem;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .row.header {
+      position: sticky;
+      top: 0;
+      z-index: 15;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(16px);
+      font-weight: 700;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 1rem 1rem 0 0;
+      margin-bottom: 0.5rem;
+      color: #ffffffcc;
+    }
+    .cell {
+      padding: 0.2rem 0;
+      word-break: break-word;
+      overflow-wrap: break-word;
+    }
+    .list {
+      margin: 0.2rem 0 0 1.2rem;
+      padding-left: 0.2rem;
+      list-style: disc;
+    }
+    .list li {
+      margin: 0.35rem 0;
+      line-height: 1.35;
+      font-size: 0.85rem;
+    }
+    .small {
+      font-size: 0.8rem;
+      line-height: 1.45;
+    }
+    .muted {
+      color: var(--muted);
+    }
+    .firmware {
+      font-weight: 800;
+      font-size: 1rem;
+      letter-spacing: -0.2px;
+    }
+
+    .label {
+      display: none;
+      font-weight: 700;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      color: rgba(255, 255, 255, 0.75);
+    }
+
+    @media (max-width: 860px) {
+      .row {
+        display: block;
+        padding: 1rem 1rem 0.8rem;
+        margin-bottom: 1rem;
+        border-radius: 1.25rem;
+        background: rgba(255, 255, 255, 0.045);
+        backdrop-filter: blur(6px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      .row.header {
+        display: none;
+      }
+      .field {
+        display: flex;
+        align-items: baseline;
+        padding: 0.7rem 0;
+        border-bottom: 1px dashed rgba(255, 255, 255, 0.08);
+      }
+      .field:last-child {
+        border-bottom: none;
+      }
+      .label {
+        display: inline-block;
+        width: 105px;
+        flex-shrink: 0;
+        margin-right: 0.5rem;
+      }
+      .value {
+        flex: 1;
+        word-break: break-word;
+      }
+      .list {
+        margin-top: 0.15rem;
+        margin-left: 0;
+        padding-left: 0.8rem;
+        display: block;
+      }
+      .list li {
+        font-size: 0.82rem;
+      }
+      .cell {
+        padding: 0;
+      }
+      .controls {
+        width: 100%;
+        justify-content: flex-start;
+      }
+      .search {
+        flex: 1;
+        min-width: 140px;
+      }
+      .firmware {
+        font-size: 1rem;
+      }
+    }
+
+    @media (max-width: 500px) {
+      .panel {
+        padding: 1rem;
+      }
+      .label {
+        width: 90px;
+        font-size: 0.75rem;
+      }
+      .title {
+        font-size: 1.5rem;
+      }
+      .btn {
+        padding: 0.45rem 0.9rem;
+        font-size: 0.8rem;
+      }
+    }
+
+    .hint {
+      text-align: center;
+      font-size: 0.7rem;
+      margin-top: 1.2rem;
+      opacity: 0.65;
+    }
+    .credit {
+      text-align: right;
+      font-size: 0.7rem;
+      margin-top: 0.6rem;
+      opacity: 0.5;
+    }
+    button, .btn, .search {
+      font-family: inherit;
+    }
+    a.btn {
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+<div class="bg-fixed" aria-hidden="true"></div>
+<div class="bg-overlay" aria-hidden="true"></div>
+
+<div class="wrap">
+  <div class="panel" role="main" aria-label="PS5 Jailbreak Status">
+    <header>
+      <div class="left-head">
+        <div class="title">PS5 JB Status</div>
+        <div class="subtitle">Current PS5 jailbreak status.</div>
+      </div>
+      <div class="controls">
+        <input id="search" class="search" type="search" placeholder="Filter by firmware, exploit..." aria-label="Search chart">
+        <button class="btn" id="reset">Reset</button>
+        <a href="../index.html" class="btn">Main</a>
+        <div id="musicBtn" class="btn" aria-pressed="false" role="button">Play Music</div>
+      </div>
+    </header>
+
+    <div id="chartContainer" class="chart" aria-live="polite"></div>
+
+    <div class="hint small">Always Updated</div>
+    <div class="credit muted">Owned by Mexrl</div>
+  </div>
+</div>
+
+<audio id="bgAudio" loop preload="auto"><source src="../music/bg.mp3" type="audio/mpeg"></audio>
+
+<script>
+  const rowsData = [
+    {
+      firmware: '1.00 - 4.51',
+      userland: [
+        'Full hypervisor bypass (fail0verflow Prosperous)',
+        'PS5-HEN, homebrew, FPKGs',
+        'PS5-Linux on 3.xx-4.xx'
+      ],
+      kernel: [
+        'Hypervisor memory control',
+        'Custom payloads and Linux boot'
+      ],
+      action: 'Best for full control, stay offline',
+      info: 'Exploit requires launch console and low firmware; no software patch possible.'
+    },
+    {
+      firmware: '5.xx',
+      userland: [
+        'UMTX/PSFree entry',
+        'etaHEN homebrew enabler'
+      ],
+      kernel: [
+        'Kernel exploits available',
+        'Full homebrew, PS4 FPKGs, cheats'
+      ],
+      action: 'Stable and feature-rich, recommended',
+      info: 'Supported by etaHEN toolkit; good balance of compatibility.'
+    },
+    {
+      firmware: '6.00 - 7.61',
+      userland: [
+        'BD-J (Blu-ray Java) entry',
+        'kstuff for decrypted content'
+      ],
+      kernel: [
+        'Kernel exploit via BD-J chain',
+        'Homebrew up to 8.xx with kstuff'
+      ],
+      action: 'Stay',
+      info: 'Stable JB, use BD-J methods'
+    },
+    {
+      firmware: '9.00 - 9.60',
+      userland: [
+        'Y2JB',
+        'etaHEN support'
+      ],
+      kernel: [
+        'Lapse kernel exploit',
+        'Poopsploit',
+        'P2JB',
+        'Gezine Zero-Day'
+      ],
+      action: 'Active development, usable',
+      info: 'Recent exploits bringing practicality to higher firmwares.'
+    },
+    {
+      firmware: '10.01+',
+      userland: [
+        'Y2JB',
+        'Netflix-N-Hack',
+        'BD-J',
+        'Lua artemis game'
+      ],
+      kernel: [
+        'poopsploit',
+        'P2JB'
+      ],
+      action: 'stay.',
+      info: 'its not that stable but great.'
+    },
+    {
+      firmware: '12.00',
+      userland: [
+        'LuaC0re (Star Wars Racer Revenge)',
+        'Poops PS5 Java BD-J',
+        'Lua Artemis Game (p2jb)'
+      ],
+      kernel: [
+        'Poopsploit',
+        'P2JB',
+        'Gezine Zero-Day'
+      ],
+      action: 'Stay',
+      info: 'Burn a Blu-ray with Poops PS5 Java or use LuaC0re.'
+    },
+    {
+      firmware: '12.70',
+      userland: [
+        'BD-J entry',
+        'LuaC0re',
+        'lua artemis game (p2jb)'
+      ],
+      kernel: [
+        'Gezine P2JB exploit (takes 2 hours)',
+        'Gezine Zero-Day'
+      ],
+      action: 'STAY...',
+      info: 'Kernel exploit is a great but takes so long.'
+    },
+    {
+      firmware: '13.00/13.20',
+      userland: [
+        'Luac0re entry up to 13.20',
+        'BD-J'
+      ],
+      kernel: [
+        'Gezine zero-day (unreleased)'
+      ],
+      action: 'Stay/Sell',
+      info:'Do not update. stay where you are'
+    }
+  ];
+
+  const chartContainer = document.getElementById('chartContainer');
+  const searchInput = document.getElementById('search');
+  const resetBtn = document.getElementById('reset');
+
+  function escapeHtml(str) {
+    if (!str) return '';
+    return String(str).replace(/[&<>]/g, function(m) {
+      if (m === '&') return '&amp;';
+      if (m === '<') return '&lt;';
+      if (m === '>') return '&gt;';
+      return m;
+    });
+  }
+
+  function renderHeader() {
+    const headerDiv = document.createElement('div');
+    headerDiv.className = 'row header';
+    headerDiv.setAttribute('aria-hidden', 'false');
+    headerDiv.innerHTML = `
+      <div class="cell firmware">Firmware</div>
+      <div class="cell">Userland / Entry</div>
+      <div class="cell">Kernel / Install State</div>
+      <div class="cell">Recommended Status</div>
+      <div class="cell">Notes</div>
+    `;
+    chartContainer.appendChild(headerDiv);
+  }
+
+  function renderRows(items) {
+    const existingRows = chartContainer.querySelectorAll('.row.data');
+    existingRows.forEach(row => row.remove());
+
+    items.forEach(entry => {
+      const rowDiv = document.createElement('div');
+      rowDiv.className = 'row data';
+      rowDiv.tabIndex = 0;
+
+      let userlandHtml = '';
+      if (entry.userland && entry.userland.length) {
+        userlandHtml = `<span class="value"><ul class="list">${entry.userland.map(exp => `<li>${escapeHtml(exp)}</li>`).join('')}</ul></span>`;
+      } else {
+        userlandHtml = `<span class="value small muted">No public userland</span>`;
+      }
+
+      let kernelHtml = '';
+      if (entry.kernel && entry.kernel.length) {
+        kernelHtml = `<span class="value"><ul class="list">${entry.kernel.map(kexp => `<li>${escapeHtml(kexp)}</li>`).join('')}</ul></span>`;
+      } else {
+        kernelHtml = `<span class="value small muted">No known kernel</span>`;
+      }
+
+      const actionHtml = `<span class="value small">${escapeHtml(entry.action)}</span>`;
+      const infoHtml = `<span class="value small">${escapeHtml(entry.info)}</span>`;
+
+      rowDiv.innerHTML = `
+        <div class="field firmware">
+          <span class="label">Firmware</span>
+          <span class="value firmware">${escapeHtml(entry.firmware)}</span>
+        </div>
+        <div class="field userland">
+          <span class="label">Userland</span>
+          ${userlandHtml}
+        </div>
+        <div class="field kernel">
+          <span class="label">Kernel</span>
+          ${kernelHtml}
+        </div>
+        <div class="field action">
+          <span class="label">Action</span>
+          ${actionHtml}
+        </div>
+        <div class="field info">
+          <span class="label">Info</span>
+          ${infoHtml}
+        </div>
+      `;
+      chartContainer.appendChild(rowDiv);
+    });
+  }
+
+  function normaliseFirmware(fw) {
+    return fw.replace(/[.\s,\/()-]/g, '').toLowerCase();
+  }
+
+  function filterRows(query) {
+    if (!query.trim()) return rowsData.slice();
+    const lowerQuery = query.toLowerCase();
+    const normalisedQuery = lowerQuery.replace(/[.\s,\/()-]/g, '');
+    return rowsData.filter(entry => {
+      if (entry.firmware.toLowerCase().includes(lowerQuery)) return true;
+      if (entry.userland && entry.userland.join(' ').toLowerCase().includes(lowerQuery)) return true;
+      if (entry.kernel && entry.kernel.join(' ').toLowerCase().includes(lowerQuery)) return true;
+      if (entry.action.toLowerCase().includes(lowerQuery)) return true;
+      if (entry.info.toLowerCase().includes(lowerQuery)) return true;
+      const fwNorm = normaliseFirmware(entry.firmware);
+      if (fwNorm.includes(normalisedQuery)) return true;
+      return false;
+    });
+  }
+
+  function updateChart() {
+    const query = searchInput.value;
+    const filtered = filterRows(query);
+    renderRows(filtered);
+  }
+
+  searchInput.addEventListener('input', updateChart);
+  resetBtn.addEventListener('click', () => {
+    searchInput.value = '';
+    updateChart();
+  });
+
+  const audio = document.getElementById('bgAudio');
+  const musicBtnEl = document.getElementById('musicBtn');
+  let isMusicPlaying = false;
+  let isMutedFallback = false;
+
+  async function initAudio() {
+    audio.loop = true;
+    audio.volume = 0.85;
+    audio.muted = false;
+    try {
+      await audio.play();
+      isMusicPlaying = true;
+      isMutedFallback = false;
+      updateMusicButtonUI();
+    } catch (e) {
+      try {
+        audio.muted = true;
+        await audio.play();
+        isMusicPlaying = true;
+        isMutedFallback = true;
+        updateMusicButtonUI();
+        attachUnmuteOnInteraction();
+      } catch (e2) {
+        isMusicPlaying = false;
+        isMutedFallback = false;
+        updateMusicButtonUI();
+      }
+    }
+  }
+
+  function updateMusicButtonUI() {
+    if (isMusicPlaying) {
+      musicBtnEl.textContent = isMutedFallback ? 'Music (muted)' : 'Pause Music';
+      musicBtnEl.setAttribute('aria-pressed', 'true');
+    } else {
+      musicBtnEl.textContent = 'Play Music';
+      musicBtnEl.setAttribute('aria-pressed', 'false');
+    }
+  }
+
+  function attachUnmuteOnInteraction() {
+    const handler = () => {
+      if (isMutedFallback && audio.muted) {
+        audio.muted = false;
+        audio.play().catch(() => {});
+        isMutedFallback = false;
+        updateMusicButtonUI();
+      }
+      window.removeEventListener('pointerdown', handler);
+      window.removeEventListener('keydown', handler);
+    };
+    window.addEventListener('pointerdown', handler, { once: true });
+    window.addEventListener('keydown', handler, { once: true });
+  }
+
+  musicBtnEl.addEventListener('click', async () => {
+    if (isMusicPlaying) {
+      audio.pause();
+      isMusicPlaying = false;
+      isMutedFallback = false;
+      updateMusicButtonUI();
+    } else {
+      audio.muted = false;
+      try {
+        await audio.play();
+        isMusicPlaying = true;
+        isMutedFallback = false;
+        updateMusicButtonUI();
+      } catch (err) {
+        try {
+          audio.muted = true;
+          await audio.play();
+          isMusicPlaying = true;
+          isMutedFallback = true;
+          updateMusicButtonUI();
+          attachUnmuteOnInteraction();
+        } catch (err2) {
+          isMusicPlaying = false;
+          updateMusicButtonUI();
+        }
+      }
+    }
+  });
+
+  initAudio();
+  renderHeader();
+  renderRows(rowsData);
+</script>
+</body>
+</html>

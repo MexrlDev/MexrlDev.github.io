@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
+    <title>GTA V Build History</title>
+    <link rel="icon" type="image/png" href="./img/icon.png">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --page-pad: 1.5rem;
+            --card-radius: 1.25rem;
+            --glass-bg: rgba(255, 255, 255, 0.04);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --accent: #ffffff;
+            --muted: rgba(255, 255, 255, 0.68);
+            --shadow: rgba(0, 0, 0, 0.5);
+            --gap: 1rem;
+            --font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            --max-width: 1300px;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: var(--font-family);
+            color: var(--accent);
+            background: #0a0a0c;
+            line-height: 1.5;
+        }
+
+        .bg-fixed {
+            position: fixed;
+            inset: 0;
+            background-image: url('../img/Baek.png');
+            background-size: cover;
+            background-position: center;
+            filter: brightness(0.35) contrast(1.08);
+            z-index: -2;
+        }
+
+        .bg-overlay {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(circle at 20% 30%, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.75));
+            z-index: -1;
+        }
+
+        .wrap {
+            min-height: 100vh;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 1.5rem 1rem;
+        }
+
+        .panel {
+            width: min(var(--max-width), 100%);
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 1.75rem;
+            padding: var(--page-pad);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.55), inset 0 0 30px rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--glass-border);
+            transition: border-color 0.2s;
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .left-head {
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+
+        .title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+            background: linear-gradient(135deg, #ffffff 0%, #c0c0c0 80%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+
+        .subtitle {
+            font-size: 0.8rem;
+            opacity: 0.75;
+            max-width: 500px;
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.7rem;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 0.55rem 1.1rem;
+            border-radius: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: rgba(20, 20, 30, 0.55);
+            backdrop-filter: blur(6px);
+            color: var(--accent);
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            white-space: nowrap;
+        }
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+        .btn:active {
+            transform: scale(0.97);
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.25);
+        }
+
+        .search {
+            padding: 0.55rem 1rem;
+            border-radius: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(6px);
+            color: white;
+            font-size: 0.9rem;
+            min-width: 200px;
+            outline: none;
+            transition: border-color 0.2s, background 0.2s;
+        }
+        .search:focus {
+            border-color: rgba(255, 255, 255, 0.55);
+            background: rgba(0, 0, 0, 0.55);
+        }
+        .search::placeholder {
+            color: rgba(255, 255, 255, 0.45);
+        }
+
+        /* Status bar */
+        .status-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            margin-bottom: 1rem;
+            padding: 0.6rem 1rem;
+            border-radius: 1rem;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            font-size: 0.8rem;
+            color: var(--muted);
+        }
+        .status-bar .count {
+            font-weight: 700;
+            color: #ffffff;
+        }
+        .status-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 0.4rem;
+        }
+        .status-dot.loading {
+            background: #f0a040;
+            animation: pulse 1s infinite;
+        }
+        .status-dot.success {
+            background: #40c070;
+        }
+        .status-dot.error {
+            background: #e04040;
+        }
+        @keyframes pulse {
+            0%,
+            100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.3;
+            }
+        }
+
+        /* Chart / table */
+        .chart {
+            width: 100%;
+            margin-top: 0.5rem;
+        }
+        .row {
+            display: grid;
+            grid-template-columns: 0.6fr 1.2fr 1fr 0.6fr 1.8fr;
+            gap: 0.8rem;
+            padding: 0.85rem 1rem;
+            border-radius: 1rem;
+            background: rgba(255, 255, 255, 0.025);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            align-items: start;
+            margin-bottom: 0.55rem;
+            transition: border-color 0.2s, background 0.2s;
+            cursor: pointer;
+        }
+        .row:hover {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(255, 255, 255, 0.18);
+        }
+        .row.expanded {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.25);
+            grid-template-columns: 1fr;
+        }
+        .row.header {
+            position: sticky;
+            top: 0;
+            z-index: 15;
+            background: rgba(0, 0, 0, 0.55);
+            backdrop-filter: blur(16px);
+            font-weight: 700;
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 0.8rem 0.8rem 0 0;
+            margin-bottom: 0.5rem;
+            color: #ffffffcc;
+            cursor: default;
+        }
+        .row.header:hover {
+            background: rgba(0, 0, 0, 0.55);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+        .cell {
+            padding: 0.15rem 0;
+            word-break: break-word;
+            overflow-wrap: break-word;
+            font-size: 0.84rem;
+        }
+        .cell.id-cell {
+            font-weight: 700;
+            font-family: 'SF Mono', 'Cascadia Code', 'Consolas', monospace;
+            font-size: 0.8rem;
+            color: #b0b8ff;
+        }
+        .cell.version-cell {
+            font-weight: 600;
+            font-size: 0.86rem;
+        }
+        .cell.date-cell {
+            font-size: 0.78rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        .cell.platform-cell {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+        .cell.info-cell {
+            font-size: 0.78rem;
+            color: rgba(255, 255, 255, 0.75);
+            max-height: 3.2em;
+            overflow: hidden;
+            position: relative;
+            line-height: 1.4;
+        }
+        .cell.info-cell.truncated::after {
+            content: '...';
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            background: linear-gradient(to right, transparent, rgba(20, 20, 30, 0.9) 50%);
+            padding-left: 1.5rem;
+        }
+        .row.expanded .cell.info-cell {
+            max-height: none;
+            overflow: visible;
+            white-space: pre-wrap;
+            font-size: 0.82rem;
+            line-height: 1.55;
+            background: rgba(0, 0, 0, 0.25);
+            padding: 0.8rem 1rem;
+            border-radius: 0.6rem;
+            margin-top: 0.4rem;
+        }
+        .row.expanded .cell.info-cell::after {
+            display: none;
+        }
+
+        .expanded-detail {
+            display: none;
+            grid-column: 1 / -1;
+            padding-top: 0.5rem;
+        }
+        .row.expanded .expanded-detail {
+            display: block;
+        }
+        .expanded-detail .detail-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 0.6rem;
+            margin-bottom: 0.5rem;
+        }
+        .expanded-detail .detail-item {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 0.5rem 0.7rem;
+            border-radius: 0.5rem;
+            font-size: 0.78rem;
+        }
+        .expanded-detail .detail-item strong {
+            display: block;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            color: rgba(255, 255, 255, 0.55);
+            margin-bottom: 0.2rem;
+        }
+        .expanded-detail .info-full {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 0.8rem 1rem;
+            border-radius: 0.6rem;
+            font-size: 0.81rem;
+            white-space: pre-wrap;
+            line-height: 1.55;
+            max-height: 400px;
+            overflow-y: auto;
+            color: rgba(255, 255, 255, 0.85);
+        }
+
+        .label {
+            display: none;
+            font-weight: 700;
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            color: rgba(255, 255, 255, 0.75);
+        }
+
+        @media (max-width: 900px) {
+            .row {
+                display: block;
+                padding: 0.9rem 1rem;
+                margin-bottom: 0.8rem;
+                border-radius: 1.1rem;
+                background: rgba(255, 255, 255, 0.045);
+                backdrop-filter: blur(6px);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                cursor: pointer;
+            }
+            .row.header {
+                display: none;
+            }
+            .row.expanded {
+                display: block;
+            }
+            .field {
+                display: flex;
+                align-items: baseline;
+                padding: 0.55rem 0;
+                border-bottom: 1px dashed rgba(255, 255, 255, 0.07);
+            }
+            .field:last-child {
+                border-bottom: none;
+            }
+            .label {
+                display: inline-block;
+                width: 90px;
+                flex-shrink: 0;
+                margin-right: 0.5rem;
+            }
+            .value {
+                flex: 1;
+                word-break: break-word;
+            }
+            .cell {
+                padding: 0;
+                font-size: 0.82rem;
+            }
+            .cell.info-cell {
+                max-height: 3em;
+                overflow: hidden;
+            }
+            .row.expanded .cell.info-cell {
+                max-height: none;
+                overflow: visible;
+            }
+            .controls {
+                width: 100%;
+                justify-content: flex-start;
+            }
+            .search {
+                flex: 1;
+                min-width: 130px;
+            }
+            .expanded-detail .detail-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 500px) {
+            .panel {
+                padding: 0.9rem;
+            }
+            .label {
+                width: 75px;
+                font-size: 0.7rem;
+            }
+            .title {
+                font-size: 1.4rem;
+            }
+            .btn {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.78rem;
+            }
+            .expanded-detail .detail-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .hint {
+            text-align: center;
+            font-size: 0.7rem;
+            margin-top: 1.2rem;
+            opacity: 0.65;
+        }
+        .credit {
+            text-align: right;
+            font-size: 0.7rem;
+            margin-top: 0.6rem;
+            opacity: 0.5;
+        }
+        button,
+        .btn,
+        .search {
+            font-family: inherit;
+        }
+        a.btn {
+            text-decoration: none;
+        }
+
+        /* Loading shimmer */
+        .shimmer {
+            background: linear-gradient(90deg,
+                    rgba(255, 255, 255, 0.03) 25%,
+                    rgba(255, 255, 255, 0.08) 50%,
+                    rgba(255, 255, 255, 0.03) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 0.8rem;
+            height: 60px;
+            margin-bottom: 0.55rem;
+        }
+        @keyframes shimmer {
+            0% {
+                background-position: 200% 0;
+            }
+            100% {
+                background-position: -200% 0;
+            }
+        }
+
+        .error-box {
+            background: rgba(255, 80, 60, 0.12);
+            border: 1px solid rgba(255, 80, 60, 0.35);
+            border-radius: 1rem;
+            padding: 1.2rem 1.5rem;
+            margin: 1rem 0;
+            font-size: 0.85rem;
+            line-height: 1.6;
+        }
+        .error-box strong {
+            color: #ff7060;
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-fixed" aria-hidden="true"></div>
+    <div class="bg-overlay" aria-hidden="true"></div>
+
+    <div class="wrap">
+        <div class="panel" role="main" aria-label="GTA V Build History - Development Build Archive">
+            <header>
+                <div class="left-head">
+                    <div class="title">GTA V Build History</div>
+                    <div class="subtitle">Development build archive &mdash; sourced from archived build logs (2009&ndash;2013)</div>
+                </div>
+                <div class="controls">
+                    <input id="search" class="search" type="search" placeholder="Filter by version, date, info..." aria-label="Search builds">
+                    <button class="btn" id="reset">Reset</button>
+                    <button class="btn" id="sortToggle">Sort: Oldest First</button>
+                    <a href="../index.html" class="btn">Main</a>
+                    <div id="musicBtn" class="btn" aria-pressed="false" role="button">Play Music</div>
+                </div>
+            </header>
+
+            <div class="status-bar" id="statusBar">
+                <span>
+                    <span class="status-dot loading" id="statusDot"></span>
+                    <span id="statusText">Loading build data from GitHub...</span>
+                </span>
+                <span id="buildCount" class="count"></span>
+            </div>
+
+            <div id="chartContainer" class="chart" aria-live="polite"></div>
+
+            <div class="hint small">Data sourced from archived Rockstar Games build logs &mdash; GTA V development history</div>
+            <div class="credit muted">Owned by Mexrl</div>
+        </div>
+    </div>
+
+    <audio id="bgAudio" loop preload="auto"><source src="../music/bg.mp3" type="audio/mpeg"></audio>
+
+    <script>
+        (function() {
+            // ──────────────────────────────────────
+            // CONFIGURATION – GitHub raw URL
+            // ──────────────────────────────────────
+            const XML_DATA_URL =
+                'https://raw.githubusercontent.com/MexrlDev/MexrlDev.github.io/refs/heads/main/scripts/Data/builds.xml';
+
+            // ──────────────────────────────────────
+            // DOM REFERENCES
+            // ──────────────────────────────────────
+            const chartContainer = document.getElementById('chartContainer');
+            const searchInput = document.getElementById('search');
+            const resetBtn = document.getElementById('reset');
+            const sortToggleBtn = document.getElementById('sortToggle');
+            const statusDot = document.getElementById('statusDot');
+            const statusText = document.getElementById('statusText');
+            const buildCountEl = document.getElementById('buildCount');
+            const statusBar = document.getElementById('statusBar');
+
+            // ──────────────────────────────────────
+            // STATE
+            // ──────────────────────────────────────
+            let allBuilds = [];
+            let filteredBuilds = [];
+            let sortOldestFirst = true;
+            let expandedRowId = null;
+
+            // ──────────────────────────────────────
+            // UTILITY FUNCTIONS
+            // ──────────────────────────────────────
+            function escapeHtml(str) {
+                if (!str) return '';
+                return String(str)
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#39;');
+            }
+
+            function formatDate(isoString) {
+                if (!isoString) return '—';
+                try {
+                    const d = new Date(isoString);
+                    if (isNaN(d.getTime())) return isoString;
+                    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                        'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+                    ];
+                    const day = String(d.getUTCDate()).padStart(2, '0');
+                    const month = months[d.getUTCMonth()];
+                    const year = d.getUTCFullYear();
+                    const hours = String(d.getUTCHours()).padStart(2, '0');
+                    const mins = String(d.getUTCMinutes()).padStart(2, '0');
+                    return `${day} ${month} ${year}, ${hours}:${mins} UTC`;
+                } catch (e) {
+                    return isoString;
+                }
+            }
+
+            function getPlatformLabel(platformId) {
+                if (!platformId) return '—';
+                const map = {
+                    '1568': 'Dev Kit',
+                    '9346': 'PS3 (JPN)',
+                };
+                return map[platformId] || `ID: ${platformId}`;
+            }
+
+            function truncateInfo(info, maxLen = 130) {
+                if (!info) return '';
+                const cleaned = info.replace(/\s+/g, ' ').trim();
+                if (cleaned.length <= maxLen) return escapeHtml(cleaned);
+                return escapeHtml(cleaned.substring(0, maxLen)) + '…';
+            }
+
+            function needsTruncation(info, maxLen = 130) {
+                if (!info) return false;
+                return info.replace(/\s+/g, ' ').trim().length > maxLen;
+            }
+
+            // ──────────────────────────────────────
+            // XML FETCH & PARSE (from GitHub raw)
+            // ──────────────────────────────────────
+            async function fetchXml(url) {
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: { 'Accept': 'application/xml, text/xml, */*' },
+                });
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                const text = await response.text();
+                if (!text || text.trim().length < 50) {
+                    throw new Error('Response is too short – possibly not valid XML.');
+                }
+                return text;
+            }
+
+            function parseXmlToBuilds(xmlText) {
+                const parser = new DOMParser();
+                const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
+
+                const parseError = xmlDoc.querySelector('parsererror');
+                if (parseError) {
+                    throw new Error('XML Parse Error: ' + parseError.textContent);
+                }
+
+                // The root is <builds>, children are also <builds>
+                const buildNodes = xmlDoc.querySelectorAll('builds > builds');
+                if (buildNodes.length === 0) {
+                    const allNodes = xmlDoc.getElementsByTagName('builds');
+                    if (allNodes.length <= 1) {
+                        throw new Error('No build entries found in XML. Found ' + allNodes.length + ' <builds> elements.');
+                    }
+                    return Array.from(allNodes).slice(1).map(parseBuildNode);
+                }
+                return Array.from(buildNodes).map(parseBuildNode);
+            }
+
+            function parseBuildNode(node) {
+                const getText = (tagName) => {
+                    const el = node.getElementsByTagName(tagName);
+                    return el.length > 0 ? (el[0].textContent || '').trim() : '';
+                };
+                return {
+                    id: getText('id'),
+                    buildId: getText('buildId'),
+                    buildDate: getText('buildDate'),
+                    buildInfo: getText('buildInfo'),
+                    platformId: getText('platformId'),
+                };
+            }
+
+            async function loadBuilds() {
+                setStatus('loading', 'Loading build data from GitHub...');
+                chartContainer.innerHTML = '';
+                for (let i = 0; i < 5; i++) {
+                    const shimmer = document.createElement('div');
+                    shimmer.className = 'shimmer';
+                    chartContainer.appendChild(shimmer);
+                }
+                buildCountEl.textContent = '';
+
+                try {
+                    const xmlText = await fetchXml(XML_DATA_URL);
+                    const builds = parseXmlToBuilds(xmlText);
+                    if (builds.length === 0) {
+                        throw new Error('No build entries could be parsed from the XML.');
+                    }
+
+                    allBuilds = builds;
+                    filteredBuilds = [...allBuilds];
+                    applySort();
+                    setStatus('success', `Loaded ${allBuilds.length} build entries from GitHub.`);
+                    buildCountEl.textContent = `${allBuilds.length} builds`;
+                    renderAllRows();
+                } catch (error) {
+                    console.error('Failed to load builds:', error);
+                    setStatus('error', 'Failed to load build data.');
+                    buildCountEl.textContent = 'Error';
+                    chartContainer.innerHTML = `
+                        <div class="error-box">
+                            <strong>⚠ Could not load build data from GitHub</strong><br><br>
+                            ${escapeHtml(error.message)}<br><br>
+                            <strong>Data URL:</strong> <a href="${escapeHtml(XML_DATA_URL)}" target="_blank" rel="noopener" style="color:#80b0ff;word-break:break-all;">${escapeHtml(XML_DATA_URL)}</a>
+                        </div>
+                    `;
+                }
+            }
+
+            function setStatus(state, message) {
+                statusDot.className = 'status-dot ' + state;
+                statusText.textContent = message;
+                if (state === 'error') {
+                    statusBar.style.borderColor = 'rgba(255,80,60,0.4)';
+                } else if (state === 'success') {
+                    statusBar.style.borderColor = 'rgba(64,192,112,0.4)';
+                } else {
+                    statusBar.style.borderColor = 'rgba(255,255,255,0.06)';
+                }
+            }
+
+            // ──────────────────────────────────────
+            // RENDERING
+            // ──────────────────────────────────────
+            function renderAllRows() {
+                chartContainer.innerHTML = '';
+                if (filteredBuilds.length === 0) {
+                    const empty = document.createElement('div');
+                    empty.style.cssText =
+                        'text-align:center;padding:2.5rem;color:rgba(255,255,255,0.5);font-size:0.9rem;';
+                    empty.textContent = 'No builds match your filter.';
+                    chartContainer.appendChild(empty);
+                    buildCountEl.textContent = '0 builds';
+                    return;
+                }
+                buildCountEl.textContent = `${filteredBuilds.length} of ${allBuilds.length} builds`;
+                renderHeader();
+                filteredBuilds.forEach((build, index) => renderRow(build, index));
+            }
+
+            function renderHeader() {
+                const headerDiv = document.createElement('div');
+                headerDiv.className = 'row header';
+                headerDiv.setAttribute('aria-hidden', 'false');
+                headerDiv.innerHTML = `
+                    <div class="cell id-cell">ID</div>
+                    <div class="cell version-cell">Version</div>
+                    <div class="cell date-cell">Date</div>
+                    <div class="cell platform-cell">Platform</div>
+                    <div class="cell info-cell">Build Info</div>
+                `;
+                chartContainer.appendChild(headerDiv);
+            }
+
+            function renderRow(build, index) {
+                const rowDiv = document.createElement('div');
+                rowDiv.className = 'row data';
+                rowDiv.tabIndex = 0;
+                rowDiv.dataset.index = index;
+                rowDiv.dataset.buildId = build.id;
+
+                const isExpanded = expandedRowId === build.id;
+                if (isExpanded) {
+                    rowDiv.classList.add('expanded');
+                }
+
+                const platformLabel = getPlatformLabel(build.platformId);
+                const infoTruncated = truncateInfo(build.buildInfo);
+                const infoFull = build.buildInfo ? escapeHtml(build.buildInfo) : '<em>No build info</em>';
+                const shouldTruncate = needsTruncation(build.buildInfo);
+
+                if (isExpanded) {
+                    rowDiv.innerHTML = `
+                        <div class="field id-field">
+                            <span class="label">ID</span>
+                            <span class="value cell id-cell">#${escapeHtml(build.id)}</span>
+                        </div>
+                        <div class="field version-field">
+                            <span class="label">Version</span>
+                            <span class="value cell version-cell">${escapeHtml(build.buildId) || '—'}</span>
+                        </div>
+                        <div class="field date-field">
+                            <span class="label">Date</span>
+                            <span class="value cell date-cell">${formatDate(build.buildDate)}</span>
+                        </div>
+                        <div class="field platform-field">
+                            <span class="label">Platform</span>
+                            <span class="value cell platform-cell">${escapeHtml(platformLabel)}</span>
+                        </div>
+                        <div class="expanded-detail">
+                            <div class="detail-grid">
+                                <div class="detail-item"><strong>Build ID</strong>${escapeHtml(build.buildId) || '—'}</div>
+                                <div class="detail-item"><strong>Date</strong>${formatDate(build.buildDate)}</div>
+                                <div class="detail-item"><strong>Platform</strong>${escapeHtml(platformLabel)}</div>
+                            </div>
+                            <div class="info-full">${infoFull}</div>
+                            <div style="text-align:center;margin-top:0.5rem;font-size:0.7rem;color:rgba(255,255,255,0.4);">Click to collapse</div>
+                        </div>
+                    `;
+                } else {
+                    rowDiv.innerHTML = `
+                        <div class="field id-field">
+                            <span class="label">ID</span>
+                            <span class="value cell id-cell">#${escapeHtml(build.id)}</span>
+                        </div>
+                        <div class="field version-field">
+                            <span class="label">Version</span>
+                            <span class="value cell version-cell">${escapeHtml(build.buildId) || '—'}</span>
+                        </div>
+                        <div class="field date-field">
+                            <span class="label">Date</span>
+                            <span class="value cell date-cell">${formatDate(build.buildDate)}</span>
+                        </div>
+                        <div class="field platform-field">
+                            <span class="label">Platform</span>
+                            <span class="value cell platform-cell">${escapeHtml(platformLabel)}</span>
+                        </div>
+                        <div class="field info-field">
+                            <span class="label">Info</span>
+                            <span class="value cell info-cell${shouldTruncate ? ' truncated' : ''}">${infoTruncated || '<em class="muted">No info</em>'}</span>
+                        </div>
+                    `;
+                }
+
+                rowDiv.addEventListener('click', () => {
+                    toggleExpand(build, rowDiv);
+                });
+
+                rowDiv.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        toggleExpand(build, rowDiv);
+                    }
+                });
+
+                chartContainer.appendChild(rowDiv);
+            }
+
+            function toggleExpand(build, rowDiv) {
+                if (expandedRowId === build.id) {
+                    expandedRowId = null;
+                } else {
+                    expandedRowId = build.id;
+                }
+                renderAllRows();
+                if (expandedRowId === build.id) {
+                    const expandedEl = chartContainer.querySelector(`[data-build-id="${build.id}"]`);
+                    if (expandedEl) {
+                        expandedEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    }
+                }
+            }
+
+            // ──────────────────────────────────────
+            // FILTERING & SORTING
+            // ──────────────────────────────────────
+            function applySort() {
+                if (sortOldestFirst) {
+                    filteredBuilds.sort((a, b) => {
+                        const idA = parseInt(a.id) || 0;
+                        const idB = parseInt(b.id) || 0;
+                        return idA - idB;
+                    });
+                } else {
+                    filteredBuilds.sort((a, b) => {
+                        const idA = parseInt(a.id) || 0;
+                        const idB = parseInt(b.id) || 0;
+                        return idB - idA;
+                    });
+                }
+            }
+
+            function filterBuilds(query) {
+                if (!query.trim()) {
+                    filteredBuilds = [...allBuilds];
+                } else {
+                    const lowerQuery = query.toLowerCase();
+                    filteredBuilds = allBuilds.filter(build => {
+                        if ((build.id || '').toLowerCase().includes(lowerQuery)) return true;
+                        if ((build.buildId || '').toLowerCase().includes(lowerQuery)) return true;
+                        if ((build.buildDate || '').toLowerCase().includes(lowerQuery)) return true;
+                        if ((build.buildInfo || '').toLowerCase().includes(lowerQuery)) return true;
+                        if ((build.platformId || '').toLowerCase().includes(lowerQuery)) return true;
+                        if (getPlatformLabel(build.platformId).toLowerCase().includes(lowerQuery)) return true;
+                        if (formatDate(build.buildDate).toLowerCase().includes(lowerQuery)) return true;
+                        return false;
+                    });
+                }
+                applySort();
+                expandedRowId = null;
+                renderAllRows();
+            }
+
+            searchInput.addEventListener('input', () => {
+                filterBuilds(searchInput.value);
+            });
+
+            resetBtn.addEventListener('click', () => {
+                searchInput.value = '';
+                filterBuilds('');
+            });
+
+            sortToggleBtn.addEventListener('click', () => {
+                sortOldestFirst = !sortOldestFirst;
+                sortToggleBtn.textContent = sortOldestFirst ? 'Sort: Oldest First' : 'Sort: Newest First';
+                applySort();
+                expandedRowId = null;
+                renderAllRows();
+                chartContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+
+            // ──────────────────────────────────────
+            // MUSIC CONTROLS
+            // ──────────────────────────────────────
+            const audio = document.getElementById('bgAudio');
+            const musicBtnEl = document.getElementById('musicBtn');
+            let isMusicPlaying = false;
+            let isMutedFallback = false;
+
+            async function initAudio() {
+                audio.loop = true;
+                audio.volume = 0.85;
+                audio.muted = false;
+                try {
+                    await audio.play();
+                    isMusicPlaying = true;
+                    isMutedFallback = false;
+                    updateMusicButtonUI();
+                } catch (e) {
+                    try {
+                        audio.muted = true;
+                        await audio.play();
+                        isMusicPlaying = true;
+                        isMutedFallback = true;
+                        updateMusicButtonUI();
+                        attachUnmuteOnInteraction();
+                    } catch (e2) {
+                        isMusicPlaying = false;
+                        isMutedFallback = false;
+                        updateMusicButtonUI();
+                    }
+                }
+            }
+
+            function updateMusicButtonUI() {
+                if (isMusicPlaying) {
+                    musicBtnEl.textContent = isMutedFallback ? 'Music (muted)' : 'Pause Music';
+                    musicBtnEl.setAttribute('aria-pressed', 'true');
+                } else {
+                    musicBtnEl.textContent = 'Play Music';
+                    musicBtnEl.setAttribute('aria-pressed', 'false');
+                }
+            }
+
+            function attachUnmuteOnInteraction() {
+                const handler = () => {
+                    if (isMutedFallback && audio.muted) {
+                        audio.muted = false;
+                        audio.play().catch(() => {});
+                        isMutedFallback = false;
+                        updateMusicButtonUI();
+                    }
+                    window.removeEventListener('pointerdown', handler);
+                    window.removeEventListener('keydown', handler);
+                };
+                window.addEventListener('pointerdown', handler, { once: true });
+                window.addEventListener('keydown', handler, { once: true });
+            }
+
+            musicBtnEl.addEventListener('click', async () => {
+                if (isMusicPlaying) {
+                    audio.pause();
+                    isMusicPlaying = false;
+                    isMutedFallback = false;
+                    updateMusicButtonUI();
+                } else {
+                    audio.muted = false;
+                    try {
+                        await audio.play();
+                        isMusicPlaying = true;
+                        isMutedFallback = false;
+                        updateMusicButtonUI();
+                    } catch (err) {
+                        try {
+                            audio.muted = true;
+                            await audio.play();
+                            isMusicPlaying = true;
+                            isMutedFallback = true;
+                            updateMusicButtonUI();
+                            attachUnmuteOnInteraction();
+                        } catch (err2) {
+                            isMusicPlaying = false;
+                            updateMusicButtonUI();
+                        }
+                    }
+                }
+            });
+
+            // ──────────────────────────────────────
+            // STARTUP
+            // ──────────────────────────────────────
+            initAudio();
+            loadBuilds();
+        })();
+    </script>
+</body>
+</html>

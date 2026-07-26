@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>online.json · PS4 Profile Editor</title>
+  <link rel="icon" type="image/png" href="./img/icon.png" />
+  <style>
+    /* ---------- same glass theme ---------- */
+    :root {
+      --page-pad: 20px;
+      --card-radius: 14px;
+      --glass-bg: rgba(255,255,255,0.06);
+      --glass-border: rgba(255,255,255,0.06);
+      --accent: #ffffff;
+      --shadow: rgba(0,0,0,0.35);
+      --gap: 18px;
+      --font-family: "Segoe UI", Roboto, system-ui, -apple-system, "Helvetica Neue", Arial;
+    }
+
+    html { height: 100%; }
+    body {
+      min-height: 100vh;
+      margin:0;
+      font-family:var(--font-family);
+      color:var(--accent);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      background: none;
+      position: relative;
+    }
+
+    .bg-fixed {
+      position: fixed;
+      inset: 0;
+      background-image: url('../img/Baek.png');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      z-index: -2;
+    }
+    .bg-overlay {
+      position:fixed;
+      inset:0;
+      background: linear-gradient(rgba(0,0,0,0.12), rgba(0,0,0,0.28));
+      pointer-events:none;
+      z-index: -1;
+    }
+
+    .wrap {
+      min-height:100vh;
+      display:flex;
+      align-items:flex-start;
+      justify-content:center;
+      padding:36px 18px;
+      box-sizing:border-box;
+      position: relative;
+      z-index: 1;
+    }
+
+    .panel {
+      width: min(1100px, 96%);
+      max-width:1200px;
+      margin: 12px 0;
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.06));
+      border-radius:18px;
+      padding:var(--page-pad);
+      box-shadow: 0 10px 40px var(--shadow);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid var(--glass-border);
+    }
+
+    header.top {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:12px;
+    }
+    .left-head {
+      display:flex;
+      flex-direction:column;
+    }
+    .title {
+      font-size:20px;
+      font-weight:600;
+    }
+    .subtitle {
+      font-size:13px;
+      opacity:0.9;
+      display: flex;
+      flex-direction: column;
+    }
+    .warning-note {
+      color: #ffd966;
+      font-size: 11px;
+      margin-top: 4px;
+      background: rgba(255,200,50,0.1);
+      padding: 2px 8px;
+      border-radius: 12px;
+      display: inline-block;
+    }
+
+    .controls {
+      display:flex;
+      gap:8px;
+      align-items:center;
+    }
+    .btn-ghost {
+      padding:8px 12px;
+      border-radius:10px;
+      border:1px solid rgba(255,255,255,0.06);
+      background: rgba(255,255,255,0.02);
+      color:var(--accent);
+      cursor:pointer;
+      font-weight:600;
+    }
+    .btn-ghost:active { transform: translateY(1px); }
+
+    .music-control {
+      display:inline-flex;
+      gap:8px;
+      align-items:center;
+    }
+    .music-btn {
+      width:40px;
+      height:40px;
+      border-radius:10px;
+      border:1px solid rgba(255,255,255,0.06);
+      background: rgba(255,255,255,0.02);
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      cursor:pointer;
+      transition: transform 140ms;
+      position:relative;
+    }
+    .music-btn:active { transform:scale(0.95); }
+    .music-btn svg { width:18px; height:18px; fill:currentColor; color:var(--accent); opacity:0.95; }
+    .music-btn.muted::after {
+      content: '';
+      position: absolute;
+      right: 6px;
+      bottom: 6px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #f0c419;
+      box-shadow: 0 0 6px rgba(240,196,25,0.6);
+    }
+
+    /* editor panel */
+    .editor-panel {
+      background: rgba(0,0,0,0.3);
+      border-radius: 14px;
+      padding: 18px;
+      margin: 20px 0;
+      border: 1px solid var(--glass-border);
+    }
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 14px;
+      align-items: center;
+    }
+    .field {
+      flex: 1 1 250px;
+    }
+    .field label {
+      display: block;
+      font-size: 12px;
+      opacity: 0.8;
+      margin-bottom: 4px;
+    }
+    .field input, .field select, .field textarea {
+      width: 100%;
+      padding: 8px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.05);
+      color: white;
+      font-family: monospace;
+    }
+    .field select option { background: #222; }
+    .field textarea {
+      min-height: 60px;
+      resize: vertical;
+    }
+    .btn {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.15);
+      color: white;
+      padding: 8px 18px;
+      border-radius: 30px;
+      cursor: pointer;
+      font-weight: 600;
+      margin-right: 8px;
+    }
+    .btn:hover {
+      background: rgba(255,255,255,0.2);
+    }
+    .btn-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 20px 0;
+    }
+    pre {
+      background: rgba(0,0,0,0.4);
+      padding: 12px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-size: 12px;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+
+    .hint {
+      font-size:12px; opacity:0.85; margin-top:10px; text-align:center;
+    }
+    .small-note {
+      font-size: 10px;
+      opacity: 0.7;
+      margin-top: 2px;
+    }
+    .info-text {
+      font-size: 11px;
+      color: #aaccff;
+      background: rgba(100,150,255,0.1);
+      padding: 6px 12px;
+      border-radius: 20px;
+      margin-top: 6px;
+    }
+    #fileInput {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-fixed" aria-hidden="true"></div>
+  <div class="bg-overlay" aria-hidden="true"></div>
+
+  <div class="wrap">
+    <div class="panel" role="main" aria-label="online.json Editor">
+      <header class="top">
+        <div class="left-head">
+          <div class="title">online.json · PS4 Profile Editor</div>
+          <div class="subtitle">
+            Edit your profile metadata – downloads as a single line
+            <span class="warning-note">Editing trophy data and progress might make your account unable to go to the xmb tools section that will freeze your PS4, but for Trophy level then it's safe to edit.</span>
+          </div>
+        </div>
+        <div class="controls">
+          <button class="btn-ghost" onclick="history.back()">Back</button>
+          <div class="music-control" title="Play / Pause background music">
+            <div id="musicBtn" class="music-btn" aria-pressed="false" role="button">
+              <svg id="musicIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"></path></svg>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div class="editor-panel">
+        <div class="row">
+          <div class="field">
+            <label>First name</label>
+            <input type="text" id="firstName" value="" placeholder="John" />
+          </div>
+          <div class="field">
+            <label>Last name</label>
+            <input type="text" id="lastName" value="" placeholder="Doe" />
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label>Avatar URL</label>
+            <input type="url" id="avatarUrl" value="http://static-resource.np.community.playstation.net/avatar_xl/WWS_E/E0012_XL.png" />
+          </div>
+          <div class="field">
+            <label>Picture URL</label>
+            <input type="url" id="pictureUrl" value="https://image.api.np.km.playstation.net/images/?format=png&w=440&h=440&image=https%3A%2F%2Fkfscdn.api.np.km.playstation.net%2F00000000000008%2F000000000000003.png&sign=blablabla019501" />
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label>Trophy level</label>
+            <input type="number" id="trophyLevel" value="1" min="1" />
+          </div>
+          <div class="field">
+            <label>Progress (%)</label>
+            <input type="number" id="trophyProgress" value="0" min="0" max="100" />
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label>Platinum</label>
+            <input type="number" id="plat" value="0" />
+          </div>
+          <div class="field">
+            <label>Gold</label>
+            <input type="number" id="gold" value="0" />
+          </div>
+          <div class="field">
+            <label>Silver</label>
+            <input type="number" id="silver" value="0" />
+          </div>
+          <div class="field">
+            <label>Bronze</label>
+            <input type="number" id="bronze" value="0" />
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label>Officially verified</label>
+            <select id="verified">
+              <option value="true" selected>true</option>
+              <option value="false">false</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="btn-group">
+          <button class="btn" id="uploadBtn">📂 Upload your own online.json</button>
+          <button class="btn" id="downloadBtn">⬇️ Download (one line)</button>
+        </div>
+        <input type="file" id="fileInput" accept="application/json, .json" />
+
+        <div>
+          <label style="display:block; margin-bottom:6px;">Preview (pretty):</label>
+          <pre id="jsonPreview">{
+  "avatarUrl": "http://static-resource.np.community.playstation.net/avatar_xl/WWS_E/E0012_XL.png",
+  "firstName": "",
+  "lastName": "",
+  "pictureUrl": "https://image.api.np.km.playstation.net/images/?format=png&w=440&h=440&image=https%3A%2F%2Fkfscdn.api.np.km.playstation.net%2F00000000000008%2F000000000000003.png&sign=blablabla019501",
+  "trophySummary": "{\"level\":1,\"progress\":0,\"earnedTrophies\":{\"platinum\":0,\"gold\":0,\"silver\":0,\"bronze\":0}}",
+  "isOfficiallyVerified": "true"
+}</pre>
+        </div>
+
+        <div class="info-text">
+          ℹ️ to get online.json in your PS4, the PSN account should be active/fake active.<br>
+          Go to FTP then <code>system_data/priv/cache/profile/id/</code> (the folder name is your account ID).
+        </div>
+      </div>
+
+      <div class="hint">
+        Owned by Mexrl · online.JSON editor for PS4 
+        <div class="small-note">Thank you for visiting</div>
+      </div>
+    </div>
+  </div>
+
+  <audio id="bgAudio" loop preload="auto">
+    <source src="../music/bg.mp3" type="audio/mpeg">
+  </audio>
+
+  <script>
+    (function() {
+      // ---------- MUSIC (same autoplay logic) ----------
+      const audio = document.getElementById('bgAudio');
+      const musicBtn = document.getElementById('musicBtn');
+      const musicIcon = document.getElementById('musicIcon');
+      let isPlaying = false;
+      let mutedFallback = false;
+
+      function updateMusicIcon() {
+        if (isPlaying) {
+          musicIcon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"></path>';
+          musicBtn.setAttribute('aria-pressed','true');
+        } else {
+          musicIcon.innerHTML = '<path d="M8 5v14l11-7z"></path>';
+          musicBtn.setAttribute('aria-pressed','false');
+        }
+        if (isPlaying && mutedFallback) {
+          musicBtn.classList.add('muted');
+          musicBtn.title = 'Playing (muted). Interact to unmute / click to pause';
+        } else {
+          musicBtn.classList.remove('muted');
+          musicBtn.title = isPlaying ? 'Playing. Click to pause' : 'Paused. Click to play';
+        }
+      }
+
+      async function tryAutoplay() {
+        audio.loop = true;
+        audio.volume = 0.9;
+        audio.muted = false;
+        try {
+          await audio.play();
+          isPlaying = true;
+          mutedFallback = false;
+          updateMusicIcon();
+        } catch (e) {
+          try {
+            audio.muted = true;
+            await audio.play();
+            isPlaying = true;
+            mutedFallback = true;
+            updateMusicIcon();
+            attachUnmuteOnFirstInteraction();
+          } catch (e2) {
+            isPlaying = false;
+            mutedFallback = false;
+            updateMusicIcon();
+          }
+        }
+      }
+
+      function attachUnmuteOnFirstInteraction() {
+        function attemptUnmute() {
+          if (mutedFallback && audio.muted) {
+            audio.muted = false;
+            audio.play().catch(() => {});
+            mutedFallback = false;
+            updateMusicIcon();
+          }
+          window.removeEventListener('pointerdown', attemptUnmute);
+          window.removeEventListener('keydown', attemptUnmute);
+        }
+        window.addEventListener('pointerdown', attemptUnmute, { once: true });
+        window.addEventListener('keydown', attemptUnmute, { once: true });
+      }
+
+      musicBtn.addEventListener('click', async () => {
+        if (isPlaying) {
+          audio.pause();
+          isPlaying = false;
+          mutedFallback = false;
+          updateMusicIcon();
+        } else {
+          audio.muted = false;
+          try {
+            await audio.play();
+            isPlaying = true;
+            mutedFallback = false;
+            updateMusicIcon();
+          } catch (e) {
+            try {
+              audio.muted = true;
+              await audio.play();
+              isPlaying = true;
+              mutedFallback = true;
+              updateMusicIcon();
+              attachUnmuteOnFirstInteraction();
+            } catch (e2) {
+              isPlaying = false;
+              mutedFallback = false;
+              updateMusicIcon();
+            }
+          }
+        }
+      });
+
+      window.addEventListener('pointerdown', () => {
+        if (isPlaying && mutedFallback && audio.muted) {
+          audio.muted = false;
+          mutedFallback = false;
+          updateMusicIcon();
+        }
+      });
+      window.addEventListener('keydown', () => {
+        if (isPlaying && mutedFallback && audio.muted) {
+          audio.muted = false;
+          mutedFallback = false;
+          updateMusicIcon();
+        }
+      });
+
+      tryAutoplay();
+
+      // ---------- JSON EDITOR ----------
+      const firstNameInp = document.getElementById('firstName');
+      const lastNameInp = document.getElementById('lastName');
+      const avatarUrlInp = document.getElementById('avatarUrl');
+      const pictureUrlInp = document.getElementById('pictureUrl');
+      const trophyLevelInp = document.getElementById('trophyLevel');
+      const trophyProgressInp = document.getElementById('trophyProgress');
+      const platInp = document.getElementById('plat');
+      const goldInp = document.getElementById('gold');
+      const silverInp = document.getElementById('silver');
+      const bronzeInp = document.getElementById('bronze');
+      const verifiedSelect = document.getElementById('verified');
+      const jsonPreview = document.getElementById('jsonPreview');
+      const downloadBtn = document.getElementById('downloadBtn');
+      const uploadBtn = document.getElementById('uploadBtn');
+      const fileInput = document.getElementById('fileInput');
+
+      function buildJsonObject() {
+        const firstName = firstNameInp.value.trim() || '';
+        const lastName = lastNameInp.value.trim() || '';
+        const avatarUrl = avatarUrlInp.value.trim() || '';
+        const pictureUrl = pictureUrlInp.value.trim() || '';
+        const level = parseInt(trophyLevelInp.value) || 1;
+        const progress = parseInt(trophyProgressInp.value) || 0;
+        const plat = parseInt(platInp.value) || 0;
+        const gold = parseInt(goldInp.value) || 0;
+        const silver = parseInt(silverInp.value) || 0;
+        const bronze = parseInt(bronzeInp.value) || 0;
+        const verified = verifiedSelect.value === 'true' ? 'true' : 'false';
+
+        const trophySummary = JSON.stringify({
+          level: level,
+          progress: progress,
+          earnedTrophies: {
+            platinum: plat,
+            gold: gold,
+            silver: silver,
+            bronze: bronze
+          }
+        });
+
+        return {
+          avatarUrl: avatarUrl,
+          firstName: firstName,
+          lastName: lastName,
+          pictureUrl: pictureUrl,
+          trophySummary: trophySummary,
+          isOfficiallyVerified: verified
+        };
+      }
+
+      function updatePreview() {
+        const obj = buildJsonObject();
+        jsonPreview.textContent = JSON.stringify(obj, null, 2);
+      }
+
+      function setFieldsFromJson(json) {
+        firstNameInp.value = json.firstName || '';
+        lastNameInp.value = json.lastName || '';
+        avatarUrlInp.value = json.avatarUrl || '';
+        pictureUrlInp.value = json.pictureUrl || '';
+
+        if (json.trophySummary) {
+          try {
+            const trophy = typeof json.trophySummary === 'string' ? JSON.parse(json.trophySummary) : json.trophySummary;
+            trophyLevelInp.value = trophy.level || 1;
+            trophyProgressInp.value = trophy.progress || 0;
+            platInp.value = trophy.earnedTrophies?.platinum || 0;
+            goldInp.value = trophy.earnedTrophies?.gold || 0;
+            silverInp.value = trophy.earnedTrophies?.silver || 0;
+            bronzeInp.value = trophy.earnedTrophies?.bronze || 0;
+          } catch (e) {
+            console.warn('Failed to parse trophySummary', e);
+          }
+        }
+
+        verifiedSelect.value = json.isOfficiallyVerified === 'true' ? 'true' : 'false';
+        updatePreview();
+      }
+
+      // Attach input listeners
+      [
+        firstNameInp, lastNameInp, avatarUrlInp, pictureUrlInp,
+        trophyLevelInp, trophyProgressInp, platInp, goldInp, silverInp, bronzeInp,
+        verifiedSelect
+      ].forEach(el => el.addEventListener('input', updatePreview));
+
+      // Initial preview
+      updatePreview();
+
+      downloadBtn.addEventListener('click', () => {
+        const obj = buildJsonObject();
+        // Generate JSON with escaped forward slashes (to match the original)
+        let jsonStr = JSON.stringify(obj);
+        // Escape forward slashes: replace '/' with '\/'
+        jsonStr = jsonStr.replace(/\//g, '\\/');
+        const blob = new Blob([jsonStr], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'online.json';
+        a.click();
+        URL.revokeObjectURL(url);
+      });
+
+      uploadBtn.addEventListener('click', () => {
+        fileInput.click();
+      });
+
+      fileInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          try {
+            const json = JSON.parse(ev.target.result);
+            setFieldsFromJson(json);
+          } catch (err) {
+            alert('Invalid JSON file: ' + err.message);
+          }
+          fileInput.value = '';
+        };
+        reader.readAsText(file);
+      });
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,612 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>The PS4 Save database</title>
+<link rel="icon" type="image/png" href="./img/icon.png" />
+<style>
+  /* Theme variables */
+  :root{
+    --page-pad: 20px;
+    --card-radius: 14px;
+    --glass-bg: rgba(255,255,255,0.04);
+    --glass-border: rgba(255,255,255,0.06);
+    --accent: #ffffff;
+    --muted: rgba(255,255,255,0.7);
+    --shadow: rgba(0,0,0,0.35);
+    --gap: 14px;
+    --font-family: "Segoe UI", Roboto, system-ui, -apple-system, "Helvetica Neue", Arial;
+    --danger: #ff6b6b;
+  }
+
+  html,body{height:100%;margin:0;font-family:var(--font-family);-webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;color:var(--accent);background:none;position:relative;}
+
+  /* FIXED BACKGROUND (same style as your other page) */
+  .bg-fixed{
+    position: fixed;
+    inset: 0;
+    background-image: url('../img/Baek.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    z-index: -2;
+  }
+  .bg-overlay{
+    position:fixed;
+    inset:0;
+    background: linear-gradient(rgba(0,0,0,0.12), rgba(0,0,0,0.28));
+    pointer-events:none;
+    z-index: -1;
+  }
+
+  .wrap{ min-height:100vh; display:flex; align-items:flex-start; justify-content:center; padding:36px 18px; box-sizing:border-box; position:relative; z-index:1; }
+
+  .panel{
+    width: min(1100px,96%);
+    max-width:1200px;
+    margin:12px 0;
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.06));
+    border-radius:18px;
+    padding:var(--page-pad);
+    box-shadow: 0 10px 40px var(--shadow);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border:1px solid var(--glass-border);
+  }
+
+  header.top{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:12px; }
+  .left-head{ display:flex; flex-direction:column; }
+  .title{ font-size:20px; font-weight:600; }
+  .subtitle{ font-size:13px; opacity:0.9; color:var(--muted); }
+
+  .controls{ display:flex; gap:8px; align-items:center; }
+  .btn-ghost{
+    padding:8px 12px;
+    border-radius:10px;
+    border:1px solid rgba(255,255,255,0.06);
+    background: rgba(255,255,255,0.02);
+    color:var(--accent);
+    cursor:pointer;
+    font-weight:600;
+  }
+  .btn-ghost:active{ transform: translateY(1px); }
+
+  /* music button (copied from your theme) */
+  .music-control{
+    display:inline-flex;
+    gap:8px;
+    align-items:center;
+  }
+  .music-btn{
+    width:40px;
+    height:40px;
+    border-radius:10px;
+    border:1px solid rgba(255,255,255,0.06);
+    background: rgba(255,255,255,0.02);
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    transition: transform 140ms;
+    position:relative;
+  }
+  .music-btn:active{ transform:scale(0.95); }
+  .music-btn svg{ width:18px; height:18px; fill:currentColor; color:var(--accent); opacity:0.95; }
+  .music-btn.muted::after{
+    content: '';
+    position: absolute;
+    right: 6px;
+    bottom: 6px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #f0c419;
+    box-shadow: 0 0 6px rgba(240,196,25,0.6);
+  }
+
+  /* search */
+  .search-row{ display:flex; gap:12px; align-items:center; margin-bottom:12px; }
+  .search{ flex:1 1 320px; padding:10px 12px; border-radius:10px; border:1px solid rgba(255,255,255,0.06); background: rgba(255,255,255,0.02); color:var(--accent); outline:none; font-size:14px; box-shadow: 0 6px 18px rgba(0,0,0,0.18) inset; }
+  .search::placeholder{ color: rgba(255,255,255,0.6); }
+
+  /* saves list */
+  .list{ display:flex; flex-direction:column; gap:var(--gap); margin-top:6px; }
+  .save-card{
+    display:flex;
+    width:100%;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    padding:8px;
+    border-radius:12px;
+    background: linear-gradient(90deg, rgba(255,255,255,0.02), rgba(0,0,0,0.03));
+    border:1px solid var(--glass-border);
+    box-shadow: 0 8px 22px rgba(0,0,0,0.22);
+  }
+
+  /* button: wide and short */
+  .save-btn{
+    -webkit-appearance:none;
+    appearance:none;
+    border:0;
+    background: rgba(255,255,255,0.03);
+    color:var(--accent);
+    font-weight:600;
+    padding:10px 14px;
+    height:44px;
+    min-width:220px;
+    border-radius:10px;
+    cursor:pointer;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.18);
+    transition: transform 140ms cubic-bezier(.2,.9,.3,1), box-shadow 140ms;
+  }
+  .save-btn[disabled]{ opacity:0.55; cursor:progress; transform:none; }
+  .save-btn:active{ transform:translateY(1px); }
+  .save-btn:focus{ outline:2px solid rgba(255,255,255,0.06); outline-offset:2px; }
+
+  .save-meta{ flex:1 1 auto; min-width:0; padding-right:12px; }
+  .save-name{ font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .save-sub{ font-size:12px; color:var(--muted); margin-top:4px; }
+
+  .download-icon{ width:18px; height:18px; display:inline-block; opacity:0.95; }
+
+  .status{ font-size:13px; color:var(--muted); margin-left:12px; white-space:nowrap; }
+  .status.error{ color:var(--danger); }
+
+  .no-results{ text-align:center; padding:18px; opacity:0.85; font-size:14px; display:none; }
+
+  .hint{ font-size:12px; opacity:0.85; margin-top:10px; text-align:center; color:var(--muted); }
+
+  @media (max-width:600px){
+    .save-btn{ height:42px; padding:8px 12px; min-width:150px; }
+    .title{ font-size:18px; }
+  }
+</style>
+</head>
+<body>
+  <div class="bg-fixed" aria-hidden="true"></div>
+  <div class="bg-overlay" aria-hidden="true"></div>
+
+  <div class="wrap">
+    <div class="panel" role="main" aria-label="PS4 save database">
+      <header class="top">
+        <div class="left-head">
+          <div class="title">The PS4 Save database</div>
+          <div class="subtitle">Click a button to download the save (zip)</div>
+        </div>
+
+        <div class="controls" aria-hidden="false">
+          <button class="btn-ghost" onclick="history.back()">Back</button>
+
+          <div class="music-control" title="Play / Pause background music">
+            <div id="musicBtn" class="music-btn" aria-pressed="false" role="button">
+              <svg id="musicIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"></path></svg>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div class="search-row">
+        <input id="search" class="search" type="search" placeholder="Filter saves — live" aria-label="Search saves" />
+      </div>
+
+      <main>
+        <div id="list" class="list" aria-live="polite"></div>
+        <div id="noResults" class="no-results">No results</div>
+        <div class="hint">Owned by Mexrl</div>
+      </main>
+    </div>
+  </div>
+
+  <audio id="bgAudio" loop preload="auto">
+    <source src="../music/bg.mp3" type="audio/mpeg">
+  </audio>
+
+<script>
+
+ // add more... uh.. buttons if needed
+const saves = [
+  // better to provide *just* filenames (the script will try Savedat locations first)
+  { name: 'InFAMOUS Second Son (Infamous)', file: 'inFAMOUS-Second-Son-(Infamous).zip' },
+  { name: 'InFAMOUS Second Son (True Hero)', file: 'inFAMOUS-Second-Son-(True-Hero).zip' }
+];
+
+const listEl = document.getElementById('list');
+const noResults = document.getElementById('noResults');
+const search = document.getElementById('search');
+
+function buildList(items){
+  listEl.innerHTML = '';
+  if(!items.length){
+    noResults.style.display = 'block';
+    return;
+  } else {
+    noResults.style.display = 'none';
+  }
+
+  items.forEach(item => {
+    const card = document.createElement('div');
+    card.className = 'save-card';
+
+    const meta = document.createElement('div');
+    meta.className = 'save-meta';
+
+    const name = document.createElement('div');
+    name.className = 'save-name';
+    name.textContent = item.name;
+
+    const sub = document.createElement('div');
+    sub.className = 'save-sub';
+    sub.textContent = displayPath(item.file);
+
+    meta.appendChild(name);
+    meta.appendChild(sub);
+
+    // button (wide, short) — arrow down onto a horizontal line
+    const btn = document.createElement('button');
+    btn.className = 'save-btn';
+    btn.setAttribute('type','button');
+    btn.setAttribute('aria-label', `Download ${item.name}`);
+
+    const iconSpan = document.createElement('span');
+    iconSpan.style.display = 'inline-flex';
+    iconSpan.style.alignItems = 'center';
+    iconSpan.style.gap = '10px';
+    iconSpan.innerHTML = `
+      <svg class="download-icon" viewBox="0 0 24 24" aria-hidden="true">
+        <path fill="currentColor" d="M5 20h14v-2H5v2zm7-12l5 5h-3v4h-4v-4H7l5-5z"/>
+      </svg>
+      <span>Download</span>
+    `;
+
+    btn.appendChild(iconSpan);
+
+    const status = document.createElement('div');
+    status.className = 'status';
+    status.textContent = '';
+
+    // click -> download file from provided path (keeps user on page)
+    btn.addEventListener('click', () => downloadFileWithProbing(item.file, item.name, btn, status));
+
+    // keyboard support
+    btn.addEventListener('keydown', (e) => { if(e.key === 'Enter' || e.key === ' ') { e.preventDefault(); btn.click(); } });
+
+    card.appendChild(meta);
+    card.appendChild(btn);
+    card.appendChild(status);
+
+    listEl.appendChild(card);
+  });
+}
+
+function displayPath(file){
+  if(!file) return '';
+  // If an absolute URL show it; otherwise show 'Savedat/<file>' as default hint
+  if(/^https?:\/\//i.test(file)) return file;
+  const cleaned = String(file).replace(/^\/+/, '');
+  if(cleaned.toLowerCase().startsWith('savedat/')) return cleaned;
+  return 'Savedat/' + cleaned;
+}
+
+/**
+ * Return array of candidate URLs to try (ordered).
+ * The goal: locate file in the most likely places given different deployment layouts.
+ *
+ * Candidate order:
+ * 1) If file is absolute http(s) -> only that
+ * 2) If file begins with / -> try exact, then ./ + file, ../ + file, /Savedat/...
+ * 3) Otherwise (filename or relative): try ./Savedat/<file>, ../Savedat/<file>, /Savedat/<file>, ./<file>, ../<file>, /<file>
+ */
+function makeCandidates(filePath){
+  const candidates = [];
+  if(!filePath) return candidates;
+
+  // absolute http(s)
+  if(/^https?:\/\//i.test(filePath)) {
+    candidates.push(filePath);
+    return candidates;
+  }
+
+  // normalize
+  let cleaned = String(filePath).trim();
+  // remove leading ./ or / for constructing seeds
+  cleaned = cleaned.replace(/^\.\//, '').replace(/^\/+/, '');
+
+  // if the original already had a Savedat prefix, preserve some variations
+  const hasSavedat = /^savedat\//i.test(cleaned);
+
+  if(hasSavedat){
+    candidates.push('./' + cleaned);            // ./Savedat/foo.zip
+    candidates.push('../' + cleaned);           // ../Savedat/foo.zip
+    candidates.push('/' + cleaned);             // /Savedat/foo.zip
+    candidates.push(cleaned.replace(/^savedat\//i, '')); // just 'foo.zip' fallback
+  } else {
+    candidates.push('./Savedat/' + cleaned);    // ./Savedat/foo.zip
+    candidates.push('../Savedat/' + cleaned);   // ../Savedat/foo.zip
+    candidates.push('/Savedat/' + cleaned);     // /Savedat/foo.zip (root)
+    candidates.push('./' + cleaned);            // ./foo.zip (same dir as this page)
+    candidates.push('../' + cleaned);           // ../foo.zip (parent)
+    candidates.push('/' + cleaned);             // /foo.zip (root)
+  }
+
+  // dedupe while keeping order
+  return [...new Set(candidates)];
+}
+
+
+async function tryFetchCandidates(candidates){
+  let lastError = null;
+  for(const url of candidates){
+    try {
+      // try a HEAD first to be lighter (some servers disallow HEAD) — if HEAD fails fallback to GET
+      try {
+        const head = await fetch(url, { method: 'HEAD', credentials: 'same-origin' });
+        if(head.ok) {
+          // HEAD succeeded — now perform GET
+          const getResp = await fetch(url, { method:'GET', credentials: 'same-origin' });
+          if(getResp.ok) return { resp: getResp, url };
+        } else {
+          // HEAD returned not ok (404/403) — skip to next candidate
+          lastError = new Error(`HEAD ${url} returned ${head.status}`);
+          continue;
+        }
+      } catch(headErr){
+        // HEAD might be blocked — try GET directly
+        const getResp = await fetch(url, { method:'GET', credentials: 'same-origin' });
+        if(getResp.ok) return { resp: getResp, url };
+        lastError = new Error(`GET ${url} returned ${getResp.status}`);
+      }
+    } catch(err){
+      // network, CORS, etc. Save last error and continue
+      lastError = err;
+    }
+  }
+  // if none succeeded, throw last error for context
+  throw lastError || new Error('No candidates to try');
+}
+
+  
+function filenameFromContentDisposition(headerValue){
+  if(!headerValue) return null;
+  // common formats: attachment; filename="name.zip" or filename*=UTF-8''name.zip
+  const fnStar = /filename\*\s*=\s*([^;]+)/i.exec(headerValue);
+  if(fnStar){
+    // filename*=UTF-8''name.zip
+    const part = fnStar[1].trim();
+    const m = /UTF-8''(.+)$/.exec(part);
+    if(m && m[1]) return decodeURIComponent(m[1]);
+  }
+  const m = /filename\s*=\s*"?([^";]+)"?/i.exec(headerValue);
+  if(m && m[1]) return m[1];
+  return null;
+}
+
+
+async function downloadFileWithProbing(filePath, displayName, buttonEl, statusEl){
+  // Prepare UI
+  buttonEl.disabled = true;
+  const originalText = statusEl.textContent;
+  statusEl.textContent = 'Checking...';
+  statusEl.classList.remove('error');
+
+  const candidates = makeCandidates(filePath);
+
+  // If filePath itself is absolute http(s) (makeCandidates returns it), keep that only:
+  // already handled by makeCandidates.
+
+  try {
+    const { resp, url } = await tryFetchCandidates(candidates);
+    // we have a successful response (GET), get blob and filename
+    const contentDisposition = resp.headers.get('Content-Disposition') || '';
+    let filename = filenameFromContentDisposition(contentDisposition);
+    if(!filename){
+      // use last path segment of url (without query) as fallback
+      try {
+        const parsed = new URL(url, location.href);
+        filename = decodeURIComponent(parsed.pathname.split('/').pop() || '');
+      } catch(e){ filename = ''; }
+    }
+    // If filename is empty, derive from displayName
+    if(!filename){
+      filename = (displayName || 'save').replace(/[\/\\]+/g, '_');
+      if(!/\.zip$/i.test(filename)) filename += '.zip';
+    }
+
+    statusEl.textContent = 'Downloading...';
+    // blob and download
+    const blob = await resp.blob();
+    const blobUrl = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = blobUrl;
+    a.download = filename;
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+
+    // schedule revoke
+    setTimeout(() => URL.revokeObjectURL(blobUrl), 1500);
+
+    statusEl.textContent = 'Download started';
+    setTimeout(()=> { statusEl.textContent = ''; }, 2500);
+
+  } catch (err) {
+    // fetch-based attempts failed — try anchor fallback attempts (some servers allow that)
+    statusEl.textContent = 'Attempting fallback...';
+    let fallbackSucceeded = false;
+    for(const candidate of candidates){
+      try {
+        // create anchor with download attribute — some browsers may ignore it if cross-origin
+        const fallbackName = (displayName || 'save').replace(/[\/\\]+/g, '_');
+        const a = document.createElement('a');
+        a.href = candidate;
+        a.setAttribute('download', fallbackName + (candidate.toLowerCase().endsWith('.zip') ? '' : '.zip'));
+        a.style.display = 'none';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        // we can't reliably know if it succeeded, but assume browser attempted it
+        fallbackSucceeded = true;
+        break;
+      } catch(e){
+        // try next candidate
+        continue;
+      }
+    }
+
+    if(fallbackSucceeded){
+      statusEl.textContent = 'Fallback attempted (may open in new tab).';
+      setTimeout(()=> { statusEl.textContent = ''; }, 3000);
+    } else {
+      statusEl.textContent = 'Error: could not download file.';
+      statusEl.classList.add('error');
+      console.error('Download failed for', filePath, err);
+    }
+  } finally {
+    buttonEl.disabled = false;
+  }
+}
+
+/* Simple client-side search / filter */
+function normalize(s){ return String(s || '').toLowerCase(); }
+function filterItems(q){
+  if(!q) return saves.slice();
+  const qq = normalize(q);
+  return saves.filter(it => normalize(it.name).includes(qq) || normalize(it.file).includes(qq));
+}
+
+search.addEventListener('input', (e) => {
+  const q = e.target.value;
+  const filtered = filterItems(q);
+  buildList(filtered);
+});
+
+search.addEventListener('keydown', (e) => {
+  if(e.key === 'Escape'){ search.value=''; buildList(saves); }
+});
+
+// initial render
+buildList(saves);
+
+/* ------------------------------
+   Background music playback UI
+   (same logic as your other page)
+   ------------------------------ */
+const audio = document.getElementById('bgAudio');
+const musicBtn = document.getElementById('musicBtn');
+const musicIcon = document.getElementById('musicIcon');
+
+let isPlaying = false;
+let mutedFallback = false;
+
+function updateMusicIcon(){
+  if(isPlaying){
+    musicIcon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"></path>';
+    musicBtn.setAttribute('aria-pressed','true');
+  } else {
+    musicIcon.innerHTML = '<path d="M8 5v14l11-7z"></path>';
+    musicBtn.setAttribute('aria-pressed','false');
+  }
+  if(isPlaying && mutedFallback){
+    musicBtn.classList.add('muted');
+    musicBtn.title = 'Playing (muted). Interact to unmute / click to pause';
+  } else {
+    musicBtn.classList.remove('muted');
+    musicBtn.title = isPlaying ? 'Playing. Click to pause' : 'Paused. Click to play';
+  }
+}
+
+async function tryAutoplay(){
+  audio.loop = true;
+  audio.volume = 0.9;
+  audio.muted = false;
+  try {
+    await audio.play();
+    isPlaying = true;
+    mutedFallback = false;
+    updateMusicIcon();
+  } catch(e){
+    try {
+      audio.muted = true;
+      await audio.play();
+      isPlaying = true;
+      mutedFallback = true;
+      updateMusicIcon();
+      attachUnmuteOnFirstInteraction();
+    } catch(e2){
+      isPlaying = false;
+      mutedFallback = false;
+      updateMusicIcon();
+    }
+  }
+}
+
+function attachUnmuteOnFirstInteraction(){
+  function attemptUnmute(){
+    if(mutedFallback && audio.muted){
+      audio.muted = false;
+      audio.play().catch(()=>{});
+      mutedFallback = false;
+      updateMusicIcon();
+    }
+    window.removeEventListener('pointerdown', attemptUnmute);
+    window.removeEventListener('keydown', attemptUnmute);
+  }
+  window.addEventListener('pointerdown', attemptUnmute, { once:true });
+  window.addEventListener('keydown', attemptUnmute, { once:true });
+}
+
+musicBtn.addEventListener('click', async () => {
+  if(isPlaying){
+    audio.pause();
+    isPlaying = false;
+    mutedFallback = false;
+    updateMusicIcon();
+  } else {
+    audio.muted = false;
+    try {
+      await audio.play();
+      isPlaying = true;
+      mutedFallback = false;
+      updateMusicIcon();
+    } catch(e){
+      try {
+        audio.muted = true;
+        await audio.play();
+        isPlaying = true;
+        mutedFallback = true;
+        updateMusicIcon();
+        attachUnmuteOnFirstInteraction();
+      } catch(e2){
+        isPlaying = false;
+        mutedFallback = false;
+        updateMusicIcon();
+      }
+    }
+  }
+});
+
+window.addEventListener('pointerdown', () => {
+  if(isPlaying && mutedFallback && audio.muted){
+    audio.muted = false;
+    mutedFallback = false;
+    updateMusicIcon();
+  }
+});
+window.addEventListener('keydown', () => {
+  if(isPlaying && mutedFallback && audio.muted){
+    audio.muted = false;
+    mutedFallback = false;
+    updateMusicIcon();
+  }
+});
+
+tryAutoplay();
+</script>
+</body>
+</html>
