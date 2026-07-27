@@ -3,32 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#F5F2ED">
+    <meta name="theme-color" content="#1a1a1a">
     <meta name="description" content="MexrlDev - Just a developer living life, coding at my own pace.">
     <meta property="og:title" content="MexrlDev">
     <meta property="og:description" content="Former PlayStation community developer. Now just a normal dev living life and coding at my own pace.">
-    <meta property="og:image" content="https://i.ibb.co/BVydVvkR/image.png">
+    <meta property="og:image" content="https://i.ibb.co/bjL02VYg/IMG-0692.jpg">
     <meta property="og:url" content="https://mexrldev.github.io">
-    <link rel="icon" href="https://i.ibb.co/8nnv5CMz/IMG-1712.jpg" sizes="any">
+    <link rel="icon" href="https://avatars.githubusercontent.com/u/82407748?s=400&u=24681e597c48d40afb1ec3451dd230b88a4c9029&v=4" sizes="any">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
     <title>MexrlDev</title>
     <style>
         :root {
-            --bg: #F5F2ED;
-            --bg-secondary: #EDE8E0;
-            --bg-card: #FFFFFF;
-            --text: #1a1a1a;
-            --text-secondary: #555555;
-            --text-muted: #888888;
+            --bg: #111111;
+            --bg-secondary: #1e1e1e;
+            --bg-card: #242424;
+            --text: #e0e0e0;
+            --text-secondary: #aaaaaa;
+            --text-muted: #777777;
             --accent: #58A6FF;
-            --accent-hover: #4090e0;
-            --border: #e0dcd5;
-            --border-light: #eee9e2;
-            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
-            --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
-            --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.10);
+            --accent-hover: #7ab8ff;
+            --border: #333333;
+            --border-light: #2a2a2a;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.6);
+            --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.7);
+            --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.8);
             --radius-sm: 8px;
             --radius: 12px;
             --radius-lg: 16px;
@@ -59,7 +59,7 @@
             position: sticky;
             top: 0;
             z-index: 100;
-            background: rgba(245, 242, 237, 0.82);
+            background: rgba(17, 17, 17, 0.82);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
             border-bottom: 1px solid var(--border-light);
@@ -109,7 +109,7 @@
         }
         .nav-links a.nav-active {
             background: var(--text);
-            color: #fff;
+            color: #111111;
         }
 
         .container {
@@ -202,7 +202,7 @@
         }
         .card:hover {
             box-shadow: var(--shadow-md);
-            border-color: #d5d0c8;
+            border-color: #444444;
         }
         .card p {
             margin-bottom: 10px;
@@ -283,41 +283,39 @@
             color: var(--text-muted);
         }
 
-        .hub-grid {
+        .repo-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 10px;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 12px;
         }
-        .hub-btn {
-            display: block;
-            text-align: center;
-            padding: 14px 16px;
-            border: 2px solid var(--border);
+        .repo-card {
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
             border-radius: var(--radius);
+            padding: 18px 20px;
+            transition: var(--transition);
             text-decoration: none;
             color: var(--text);
-            background: var(--bg-card);
-            font-family: 'Inter', sans-serif;
-            font-size: 0.9rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: var(--transition);
             box-shadow: var(--shadow-sm);
         }
-        .hub-btn:hover {
-            background: var(--bg-secondary);
-            border-color: #c5bfb5;
+        .repo-card:hover {
+            border-color: var(--accent);
             box-shadow: var(--shadow-md);
-            transform: translateY(-1px);
+            transform: translateY(-2px);
             text-decoration: none;
-            color: var(--text);
         }
-        .hub-btn small {
-            display: block;
-            font-weight: 400;
+        .repo-card .repo-name {
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 6px;
+            color: var(--accent);
+        }
+        .repo-card .repo-desc {
+            font-size: 0.85rem;
             color: var(--text-muted);
-            font-size: 0.78rem;
-            margin-top: 3px;
+            line-height: 1.4;
         }
 
         .story-block {
@@ -430,8 +428,8 @@
                 height: 48px;
                 gap: 8px;
             }
-            .hub-grid {
-                grid-template-columns: 1fr 1fr;
+            .repo-grid {
+                grid-template-columns: 1fr;
                 gap: 8px;
             }
             .links-table td:first-child {
@@ -441,18 +439,6 @@
             .story-block {
                 padding: 18px 16px;
                 font-size: 0.88rem;
-            }
-        }
-        @media (max-width: 380px) {
-            .hub-grid {
-                grid-template-columns: 1fr;
-            }
-            .nav-links {
-                gap: 2px;
-            }
-            .nav-links a {
-                font-size: 0.7rem;
-                padding: 4px 7px;
             }
         }
     </style>
@@ -466,7 +452,7 @@
                 <a href="#about">About</a>
                 <a href="#links">Links</a>
                 <a href="#projects">Projects</a>
-                <a href="#hub">Hub</a>
+                <a href="#repos">Repos</a>
                 <a href="#story">Story</a>
             </div>
         </div>
@@ -476,7 +462,7 @@
 
         <section class="hero" id="top">
             <img
-                src="https://i.ibb.co/8nnv5CMz/IMG-1712.jpg"
+                src="https://avatars.githubusercontent.com/u/82407748?s=400&u=24681e597c48d40afb1ec3451dd230b88a4c9029&v=4"
                 alt="MexrlDev avatar"
                 class="hero-avatar"
                 width="100"
@@ -593,35 +579,28 @@
             </div>
         </section>
 
-        <section class="section" id="hub">
-            <h2 class="section-title">Sunset Hub</h2>
-            <div class="card">
-                <p style="text-align:center; margin-bottom:6px; font-weight:600;">This is a hub to choose where to go for my websites</p>
-                <p style="text-align:center; font-size:0.85rem; color:var(--text-muted); margin-bottom:16px;">
-                    All made in memory of Terry A. Davis
-                </p>
-                <div class="hub-grid">
-                    <a class="hub-btn" href="https://mexrldev.github.io/terry" target="_blank" rel="noopener">
-                        Main Page
-                        <small>Goto Main Page</small>
+        <section class="section" id="repos">
+            <h2 class="section-title">My Repositories</h2>
+            <div class="card" style="padding: 20px 20px 24px;">
+                <p style="text-align:center; margin-bottom:10px; font-weight:600;">Direct links to my active GitHub repos</p>
+                <div class="repo-grid">
+                    <a class="repo-card" href="https://github.com/MexrlDev/PsVue-Mod" target="_blank" rel="noopener">
+                        <span class="repo-name">PsVue-Mod</span>
+                        <span class="repo-desc">PlayStation Vue after free mod — themes, tools, and the whole archive.</span>
                     </a>
-                    <a class="hub-btn" href="https://mexrldev.github.io/main" target="_blank" rel="noopener">
-                        Repo's Archives
-                        <small>Abandoned repos — enjoy them while you can</small>
+                    <a class="repo-card" href="https://github.com/MexrlDev/repo" target="_blank" rel="noopener">
+                        <span class="repo-name">repo</span>
+                        <span class="repo-desc">Netflix N Hack mobile port and other useful tools.</span>
                     </a>
-                    <a class="hub-btn" href="https://mexrldev.github.io/bookmarks" target="_blank" rel="noopener">
-                        Bookmarks
-                        <small>Terry A. Davis bookmarks</small>
+                    <a class="repo-card" href="https://github.com/MexrlDev/Star-Wars-Racer-Revenge-Mods" target="_blank" rel="noopener">
+                        <span class="repo-name">Star Wars Racer Revenge Mods</span>
+                        <span class="repo-desc">SWRR mods, python tools for mobile, and a mobile sender for payloads.</span>
                     </a>
-                    <a class="hub-btn" href="https://mexrldev.github.io/daily" target="_blank" rel="noopener">
-                        Daily
-                        <small>Status page — how I'm feeling</small>
+                    <a class="repo-card" href="https://github.com/MexrlDev/Exp-C0re" target="_blank" rel="noopener">
+                        <span class="repo-name">Exp-C0re</span>
+                        <span class="repo-desc">Example on how to hijack Star Wars Racer Revenge video and audio output and control.</span>
                     </a>
                 </div>
-                <p style="text-align:center; margin-top:14px; font-size:0.85rem;">
-                    In memory of Terry A. Davis —
-                    <a href="https://templeos.org" target="_blank" rel="noopener" style="color:var(--accent);">TempleOS</a>
-                </p>
             </div>
         </section>
 
@@ -718,8 +697,6 @@
             <p>
                 MexrlDev &copy; 2026 — Built with love —
                 <a href="https://github.com/MexrlDev" target="_blank" rel="noopener">GitHub</a>
-                &nbsp;·&nbsp;
-                <a href="https://templeos.org" target="_blank" rel="noopener">In memory of Terry A. Davis</a>
             </p>
         </footer>
 
@@ -811,7 +788,6 @@
             });
 
             console.log('MexrlDev - personal site loaded. Stay cozy.');
-            console.log('In memory of Terry A. Davis');
         })();
     </script>
 </body>
