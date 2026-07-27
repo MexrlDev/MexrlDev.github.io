@@ -35,6 +35,7 @@
             --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             --frame-color: #444;
             --frame-inner-border: #222;
+            --scroll-color: #666;
         }
 
         body.light-mode {
@@ -51,6 +52,7 @@
             --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.10);
             --frame-color: #bbb;
             --frame-inner-border: #999;
+            --scroll-color: #aaa;
         }
 
         * {
@@ -112,7 +114,6 @@
             color: var(--accent);
         }
 
-        /* desktop links */
         .nav-links {
             display: flex;
             gap: 6px;
@@ -138,7 +139,6 @@
             color: var(--bg);
         }
 
-        /* hamburger button */
         .hamburger {
             display: none;
             flex-direction: column;
@@ -171,7 +171,6 @@
             transform: translateY(-7px) rotate(-45deg);
         }
 
-        /* Side Panel */
         .side-panel {
             position: fixed;
             top: 0;
@@ -216,7 +215,6 @@
             color: var(--bg);
         }
 
-        /* overlay behind panel */
         .overlay {
             position: fixed;
             top: 0;
@@ -234,7 +232,6 @@
             pointer-events: auto;
         }
 
-        /* ── Main Container ────────────────── */
         .container {
             max-width: 780px;
             margin: 0 auto;
@@ -246,7 +243,6 @@
             padding: 48px 0 32px;
         }
 
-        /* ── 3D Flip Avatar ───────────────── */
         .flip-card {
             background-color: transparent;
             width: 100px;
@@ -457,7 +453,6 @@
             line-height: 1.4;
         }
 
-        /* Collection List */
         .collection-list {
             display: flex;
             flex-direction: column;
@@ -486,7 +481,6 @@
             line-height: 1.4;
         }
 
-        /* Gallery */
         .gallery-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -506,7 +500,6 @@
             box-shadow: var(--shadow-md);
         }
 
-        /* Image Preview Modal */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -559,10 +552,11 @@
             background: rgba(0,0,0,0.9);
         }
 
-        /* Framed image */
+        /* ── Ornate Frame with C‑Scrolls ── */
         .framed-wrapper {
             display: inline-block;
-            padding: 12px;
+            position: relative;
+            padding: 18px;
             background: var(--frame-color);
             border: 2px solid var(--frame-inner-border);
             box-shadow: inset 0 0 8px rgba(0,0,0,0.4), 0 6px 18px rgba(0,0,0,0.7);
@@ -578,6 +572,119 @@
             height: auto;
             border: 1px solid var(--frame-inner-border);
             border-radius: 2px;
+            position: relative;
+            z-index: 1;
+        }
+        /* C‑scroll corners */
+        .scroll-corner {
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            z-index: 2;
+            pointer-events: none;
+        }
+        .scroll-corner::before,
+        .scroll-corner::after {
+            content: '';
+            position: absolute;
+            background: var(--scroll-color);
+            border-radius: 50%;
+        }
+        /* top‑left */
+        .corner-tl {
+            top: 8px;
+            left: 8px;
+        }
+        .corner-tl::before {
+            width: 18px;
+            height: 18px;
+            top: -6px;
+            left: -6px;
+            border: 3px solid var(--frame-inner-border);
+            background: transparent;
+            border-radius: 50%;
+            clip-path: inset(0 0 50% 50%);
+        }
+        .corner-tl::after {
+            width: 10px;
+            height: 10px;
+            top: -2px;
+            left: -2px;
+            background: var(--frame-color);
+            border: 2px solid var(--frame-inner-border);
+            border-radius: 50%;
+        }
+        /* top‑right */
+        .corner-tr {
+            top: 8px;
+            right: 8px;
+        }
+        .corner-tr::before {
+            width: 18px;
+            height: 18px;
+            top: -6px;
+            right: -6px;
+            border: 3px solid var(--frame-inner-border);
+            background: transparent;
+            border-radius: 50%;
+            clip-path: inset(0 50% 50% 0);
+        }
+        .corner-tr::after {
+            width: 10px;
+            height: 10px;
+            top: -2px;
+            right: -2px;
+            background: var(--frame-color);
+            border: 2px solid var(--frame-inner-border);
+            border-radius: 50%;
+        }
+        /* bottom‑left */
+        .corner-bl {
+            bottom: 8px;
+            left: 8px;
+        }
+        .corner-bl::before {
+            width: 18px;
+            height: 18px;
+            bottom: -6px;
+            left: -6px;
+            border: 3px solid var(--frame-inner-border);
+            background: transparent;
+            border-radius: 50%;
+            clip-path: inset(50% 0 0 50%);
+        }
+        .corner-bl::after {
+            width: 10px;
+            height: 10px;
+            bottom: -2px;
+            left: -2px;
+            background: var(--frame-color);
+            border: 2px solid var(--frame-inner-border);
+            border-radius: 50%;
+        }
+        /* bottom‑right */
+        .corner-br {
+            bottom: 8px;
+            right: 8px;
+        }
+        .corner-br::before {
+            width: 18px;
+            height: 18px;
+            bottom: -6px;
+            right: -6px;
+            border: 3px solid var(--frame-inner-border);
+            background: transparent;
+            border-radius: 50%;
+            clip-path: inset(50% 50% 0 0);
+        }
+        .corner-br::after {
+            width: 10px;
+            height: 10px;
+            bottom: -2px;
+            right: -2px;
+            background: var(--frame-color);
+            border: 2px solid var(--frame-inner-border);
+            border-radius: 50%;
         }
 
         .story-block {
@@ -666,6 +773,10 @@
             .hero h1 {
                 font-size: 1.8rem;
             }
+            .scroll-corner {
+                width: 18px;
+                height: 18px;
+            }
         }
         @media (max-width: 600px) {
             .hero h1 {
@@ -691,7 +802,7 @@
                 gap: 10px;
             }
             .framed-wrapper {
-                padding: 8px;
+                padding: 12px;
             }
         }
         @media (max-width: 380px) {
@@ -706,10 +817,8 @@
 </head>
 <body>
 
-    <!-- Overlay behind side panel -->
     <div class="overlay" id="overlay"></div>
 
-    <!-- Side Panel (mobile menu) -->
     <div class="side-panel" id="sidePanel">
         <a href="#about" class="mobile-link">About</a>
         <a href="#links" class="mobile-link">Links</a>
@@ -721,11 +830,9 @@
         <button class="theme-btn-mobile" id="themeToggleMobile">Toggle Theme</button>
     </div>
 
-    <!-- Navigation -->
     <nav class="nav" id="nav">
         <div class="nav-inner">
             <a href="#" class="nav-logo">MexrlDev</a>
-            <!-- Desktop links -->
             <div class="nav-links" id="desktopLinks">
                 <a href="#about">About</a>
                 <a href="#links">Links</a>
@@ -735,20 +842,15 @@
                 <a href="#gye">Gye Baek-Sun</a>
                 <a href="#story">Story</a>
             </div>
-            <!-- Hamburger -->
             <button class="hamburger" id="hamburger" aria-label="Menu">
-                <span></span>
-                <span></span>
-                <span></span>
+                <span></span><span></span><span></span>
             </button>
         </div>
     </nav>
 
-    <!-- Main Content -->
     <div class="container">
 
         <section class="hero" id="top">
-            <!-- 3D Flip Avatar (always rotates forward) -->
             <div class="flip-card" id="flipCard">
                 <div class="flip-card-inner" id="flipCardInner">
                     <div class="flip-card-front">
@@ -767,22 +869,10 @@
         <section class="section" id="about">
             <h2 class="section-title">About Me</h2>
             <div class="card">
-                <p>
-                    I was a developer in the PlayStation community, building mods, payloads, and fun tools for the scene.
-                    I loved helping people and tinkering with codes. But after all... <strong>I retired from that life.</strong>
-                </p>
-                <p>
-                    Now? I'm just a normal developer living my life — still coding, but at my own pace.
-                    I don't develop like I used to, and I don't target PlayStation anymore.
-                    But the hobby I had… welp… it never left me somehow. That's why I relaunched <strong>MexrlDev</strong>.
-                </p>
-                <p>
-                    Indeed I can help in some projects and other things but… I don't think I have the same energy anymore… bleh.
-                </p>
-                <p>
-                    Oh yeah — also found a partner I love, who helped me through depression.
-                    I feel really peaceful and happy now. :3
-                </p>
+                <p>I was a developer in the PlayStation community, building mods, payloads, and fun tools for the scene. I loved helping people and tinkering with codes. But after all... <strong>I retired from that life.</strong></p>
+                <p>Now? I'm just a normal developer living my life — still coding, but at my own pace. I don't develop like I used to, and I don't target PlayStation anymore. But the hobby I had… welp… it never left me somehow. That's why I relaunched <strong>MexrlDev</strong>.</p>
+                <p>Indeed I can help in some projects and other things but… I don't think I have the same energy anymore… bleh.</p>
+                <p>Oh yeah — also found a partner I love, who helped me through depression. I feel really peaceful and happy now. :3</p>
             </div>
         </section>
 
@@ -791,22 +881,10 @@
             <div class="card">
                 <table class="links-table">
                     <tbody>
-                        <tr>
-                            <td>Twitter / X</td>
-                            <td><a href="https://x.com/mexrl" target="_blank" rel="noopener">@MexrlDev</a></td>
-                        </tr>
-                        <tr>
-                            <td>EtaWen Git</td>
-                            <td><a href="https://git.etawen.dev/x" target="_blank" rel="noopener">git.etawen.dev/x</a></td>
-                        </tr>
-                        <tr>
-                            <td>BlueSky</td>
-                            <td><a href="https://bsky.app/profile/mexrl.bsky.social" target="_blank" rel="noopener">@mexrl.bsky.social</a></td>
-                        </tr>
-                        <tr>
-                            <td>GitHub</td>
-                            <td><a href="https://github.com/MexrlDev" target="_blank" rel="noopener">MexrlDev</a></td>
-                        </tr>
+                        <tr><td>Twitter / X</td><td><a href="https://x.com/mexrl" target="_blank" rel="noopener">@MexrlDev</a></td></tr>
+                        <tr><td>EtaWen Git</td><td><a href="https://git.etawen.dev/x" target="_blank" rel="noopener">git.etawen.dev/x</a></td></tr>
+                        <tr><td>BlueSky</td><td><a href="https://bsky.app/profile/mexrl.bsky.social" target="_blank" rel="noopener">@mexrl.bsky.social</a></td></tr>
+                        <tr><td>GitHub</td><td><a href="https://github.com/MexrlDev" target="_blank" rel="noopener">MexrlDev</a></td></tr>
                     </tbody>
                 </table>
             </div>
@@ -818,34 +896,10 @@
                 <details>
                     <summary>Click to expand my project archive</summary>
                     <div class="project-list" style="margin-top:8px;">
-                        <div class="project-item">
-                            <span class="project-dot"></span>
-                            <div class="project-info">
-                                <strong>Vue After Free Themes</strong>
-                                <span>UI theme library + DevTools for PsVue</span>
-                            </div>
-                        </div>
-                        <div class="project-item">
-                            <span class="project-dot"></span>
-                            <div class="project-info">
-                                <strong>Python Tools</strong>
-                                <span>Handy scripts for automation and daily tasks</span>
-                            </div>
-                        </div>
-                        <div class="project-item">
-                            <span class="project-dot"></span>
-                            <div class="project-info">
-                                <strong>Star Wars Racer Revenge</strong>
-                                <span>Custom mods and payloads</span>
-                            </div>
-                        </div>
-                        <div class="project-item">
-                            <span class="project-dot"></span>
-                            <div class="project-info">
-                                <strong>Repo (Netflix n' Hack mobile port, etc.)</strong>
-                                <span>Various ports and experimental hacks</span>
-                            </div>
-                        </div>
+                        <div class="project-item"><span class="project-dot"></span><div class="project-info"><strong>Vue After Free Themes</strong><span>UI theme library + DevTools for PsVue</span></div></div>
+                        <div class="project-item"><span class="project-dot"></span><div class="project-info"><strong>Python Tools</strong><span>Handy scripts for automation and daily tasks</span></div></div>
+                        <div class="project-item"><span class="project-dot"></span><div class="project-info"><strong>Star Wars Racer Revenge</strong><span>Custom mods and payloads</span></div></div>
+                        <div class="project-item"><span class="project-dot"></span><div class="project-info"><strong>Repo (Netflix n' Hack mobile port, etc.)</strong><span>Various ports and experimental hacks</span></div></div>
                     </div>
                 </details>
             </div>
@@ -855,14 +909,8 @@
             <h2 class="section-title">Contribution</h2>
             <div class="card" style="text-align:center; padding:20px;">
                 <picture>
-                    <source media="(prefers-color-scheme: dark)"
-                        srcset="https://raw.githubusercontent.com/MexrlDev/MexrlDev/refs/heads/output/github-contribution-grid-snake-dark.svg">
-                    <img
-                        class="snake-img"
-                        src="https://raw.githubusercontent.com/MexrlDev/MexrlDev/refs/heads/output/github-contribution-grid-snake-dark.svg"
-                        alt="GitHub contribution snake"
-                        loading="lazy"
-                    >
+                    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/MexrlDev/MexrlDev/refs/heads/output/github-contribution-grid-snake-dark.svg">
+                    <img class="snake-img" src="https://raw.githubusercontent.com/MexrlDev/MexrlDev/refs/heads/output/github-contribution-grid-snake-dark.svg" alt="GitHub contribution snake" loading="lazy">
                 </picture>
             </div>
         </section>
@@ -872,70 +920,33 @@
             <div class="card" style="padding: 20px 20px 24px;">
                 <p style="text-align:center; margin-bottom:10px; font-weight:600;">Direct links to my active GitHub repos</p>
                 <div class="repo-grid">
-                    <a class="repo-card" href="https://github.com/MexrlDev/PsVue-Mod" target="_blank" rel="noopener">
-                        <span class="repo-name">PsVue-Mod</span>
-                        <span class="repo-desc">PlayStation Vue after free mod — themes, tools, and the whole archive.</span>
-                    </a>
-                    <a class="repo-card" href="https://github.com/MexrlDev/repo" target="_blank" rel="noopener">
-                        <span class="repo-name">repo</span>
-                        <span class="repo-desc">Netflix N Hack mobile port and other useful tools.</span>
-                    </a>
-                    <a class="repo-card" href="https://github.com/MexrlDev/Star-Wars-Racer-Revenge-Mods" target="_blank" rel="noopener">
-                        <span class="repo-name">Star Wars Racer Revenge Mods</span>
-                        <span class="repo-desc">SWRR mods, python tools for mobile, and a mobile sender for payloads.</span>
-                    </a>
-                    <a class="repo-card" href="https://github.com/MexrlDev/Exp-C0re" target="_blank" rel="noopener">
-                        <span class="repo-name">Exp-C0re</span>
-                        <span class="repo-desc">Example on how to hijack Star Wars Racer Revenge video and audio output and control.</span>
-                    </a>
+                    <a class="repo-card" href="https://github.com/MexrlDev/PsVue-Mod" target="_blank" rel="noopener"><span class="repo-name">PsVue-Mod</span><span class="repo-desc">PlayStation Vue after free mod — themes, tools, and the whole archive.</span></a>
+                    <a class="repo-card" href="https://github.com/MexrlDev/repo" target="_blank" rel="noopener"><span class="repo-name">repo</span><span class="repo-desc">Netflix N Hack mobile port and other useful tools.</span></a>
+                    <a class="repo-card" href="https://github.com/MexrlDev/Star-Wars-Racer-Revenge-Mods" target="_blank" rel="noopener"><span class="repo-name">Star Wars Racer Revenge Mods</span><span class="repo-desc">SWRR mods, python tools for mobile, and a mobile sender for payloads.</span></a>
+                    <a class="repo-card" href="https://github.com/MexrlDev/Exp-C0re" target="_blank" rel="noopener"><span class="repo-name">Exp-C0re</span><span class="repo-desc">Example on how to hijack Star Wars Racer Revenge video and audio output and control.</span></a>
                 </div>
             </div>
         </section>
 
-        <!-- Collection Section -->
         <section class="section" id="collection">
             <h2 class="section-title">Collection</h2>
             <div class="card">
                 <div class="collection-list">
-                    <div class="collection-item">
-                        <div class="item-title">PS4 Fat</div>
-                        <div class="item-desc">CUH-1116B, my original and first ever, and on 12.52</div>
-                    </div>
-                    <div class="collection-item">
-                        <div class="item-title">PS4 Slim</div>
-                        <div class="item-desc">CUH-2216A, got it on 2017, first ever console to play Fortnite on, and kept on 12.50</div>
-                    </div>
-                    <div class="collection-item">
-                        <div class="item-title">PS4 Pro</div>
-                        <div class="item-desc">CUH-7216B, got it in 2026, has 13.50 on</div>
-                    </div>
-                    <div class="collection-item">
-                        <div class="item-title">PS3 Slim</div>
-                        <div class="item-desc">CUCH-3003A, my first PlayStation 3 ever and still remembered and taken care of which now has HFW</div>
-                    </div>
-                    <div class="collection-item">
-                        <div class="item-title">PS3 Slim</div>
-                        <div class="item-desc">CUCH-21xxxB</div>
-                    </div>
-                    <div class="collection-item">
-                        <div class="item-title">PS5 Slim</div>
-                        <div class="item-desc">model 2016, still new and always updated due to me playing on it online games and taken so much care</div>
-                    </div>
-                    <div class="collection-item">
-                        <div class="item-title">Xbox One</div>
-                        <div class="item-desc">early version</div>
-                    </div>
+                    <div class="collection-item"><div class="item-title">PS4 Fat</div><div class="item-desc">CUH-1116B, my original and first ever, and on 12.52</div></div>
+                    <div class="collection-item"><div class="item-title">PS4 Slim</div><div class="item-desc">CUH-2216A, got it on 2017, first ever console to play Fortnite on, and kept on 12.50</div></div>
+                    <div class="collection-item"><div class="item-title">PS4 Pro</div><div class="item-desc">CUH-7216B, got it in 2026, has 13.50 on</div></div>
+                    <div class="collection-item"><div class="item-title">PS3 Slim</div><div class="item-desc">CUCH-3003A, my first PlayStation 3 ever and still remembered and taken care of which now has HFW</div></div>
+                    <div class="collection-item"><div class="item-title">PS3 Slim</div><div class="item-desc">CUCH-21xxxB</div></div>
+                    <div class="collection-item"><div class="item-title">PS5 Slim</div><div class="item-desc">model 2016, still new and always updated due to me playing on it online games and taken so much care</div></div>
+                    <div class="collection-item"><div class="item-title">Xbox One</div><div class="item-desc">early version</div></div>
                 </div>
             </div>
         </section>
 
-        <!-- Gye Baek-Sun Gallery -->
         <section class="section" id="gye">
             <h2 class="section-title">Gye Baek-Sun</h2>
             <div class="card">
-                <p style="text-align:center; margin-bottom:12px; color:var(--text-secondary);">
-                    Gye Beak-sun… one of the characters I always liked.. she.. she's me…
-                </p>
+                <p style="text-align:center; margin-bottom:12px; color:var(--text-secondary);">Gye Beak-sun… one of the characters I always liked.. she.. she's me…</p>
                 <div class="gallery-grid" id="galleryGrid">
                     <img src="https://i.ibb.co/W4xXJwnK/IMG-0696.jpg" alt="Gye Baek-Sun 1" loading="lazy" data-full="https://i.ibb.co/W4xXJwnK/IMG-0696.jpg">
                     <img src="https://i.ibb.co/s9D2QnGC/IMG-0695.jpg" alt="Gye Baek-Sun 2" loading="lazy" data-full="https://i.ibb.co/s9D2QnGC/IMG-0695.jpg">
@@ -949,89 +960,24 @@
         <section class="section" id="story">
             <h2 class="section-title">The Story of MexrlDev</h2>
             <div class="story-block">
-                <p>
-                    <strong>The first of MexrlDev.</strong> They had always been seeing the PlayStation community online, on Twitter.
-                    After they finally got their first PS4 Fat jailbroken — after a long time of waiting and missing firmwares
-                    that were gold such as 4.xx, 5.05, 9.00, 10.00, 11.00, 12.02 — and finally at 12.50, 12.52 they stopped
-                    and were able to get it. That's when they felt like they belonged to this, like they belonged to developing
-                    things for people and for the PS, making useful homebrew and more. But they couldn't, because they didn't
-                    know where to start. As someone without experience, they waited.
-                </p>
-                <p>
-                    When Vue was first announced as a userland in the early days, MexrlDev got excited knowing this would be
-                    so cool — especially after seeing <strong>EarthOnion</strong> doing all the cool stuff. That's when MexrlDev
-                    got excited to try and crack the AES code for Vue saves but failed, of course. They modded Vue 1.01 but
-                    never were able to get to it… until it was finally released. Due to lack of coding experience, they had to
-                    use ChatGPT, Copilot, to finally start what they always wanted…
-                </p>
-                <p>
-                    MexrlDev started their journey after 1 day of the release of <strong>Vue After Free</strong>. They went
-                    through a lot, had done the first-ever mod on Vue — adding animations and a bit of polish. That's when they
-                    made their first post on X, named <em>"the first ever vue mod"</em>, mentioning <strong>Dr.YenYen</strong>
-                    who was really kind and helped them throughout a lot, and mentioning EarthOnion, bringing more attention
-                    toward MexrlDev's projects. This is when MexrlDev started to work harder, spending whole days for 3 months
-                    without much rest to make the best mods they'd always dreamed of for the people and to do something for
-                    the community.
-                </p>
-                <p>
-                    This is when they started to use <strong>DeepSeek</strong>. It helped a lot, but they had to spend many
-                    hours on projects due to AI's lack of eyes to see the final results — debugging so many things over and
-                    over again. MexrlDev spent hours fixing bugs with the AI, making sure everything went smooth and perfect
-                    until the theme was ready to be published. A lot went on, and there was a goal to make <strong>100+ themes
-                    and games for Vue</strong>. The best of them were huge projects like the PS3 theme,
-                    <strong>Artemis</strong> (Mexrl's favorite), Apollo, Vue Cheat Manager, and many more good themes.
-                </p>
-                <p>
-                    But sadly, they got stressed and had to stop. They couldn't handle it — their energy for making themes
-                    kept growing and they couldn't take breaks. That's when they started to get bored, stressed, unable to
-                    think straight, making projects that might not be useful or, of course, not working as expected. After
-                    all, MexrlDev stopped for a while and came back. As they lost their laptop, some stuff went on, and of
-                    course losing friends… which got them to finally <strong>delete their X account forever</strong>.
-                </p>
-                <p>
-                    As days go by… this project will always be proof of how a passionate developer like MexrlDev (me) can
-                    make useful things and succeed with a project that was only supposed to be used once — just for a jailbreak.
-                    And the best part of MexrlDev is that they made a lot of friends, met a lot of good people, and helped
-                    lots of users as much as they could, with kindness toward everyone.
-                </p>
-                <p>
-                    And now, as MexrlDev retired, they wish everyone good luck in everything they are passionate about. They
-                    truly love seeing people work on new things, especially using the code they built — for the community and
-                    for others to learn from for future projects. MexrlDev wasn't just a random person who appeared in the
-                    PlayStation hacking community, but someone who had a passion for helping people, making things better,
-                    working on projects that had been left behind, creating new ideas, and showing people that even an unknown
-                    person can become known through what they love.
-                </p>
-                <p>
-                    <strong>What ended MexrlDev?</strong> Being depressed, stressed out, working on things they couldn't
-                    really understand (porting exploits, making things that didn't work and made them feel so embarrassed),
-                    not taking breaks, losing some friendships, etc.
-                </p>
-                <p>
-                    <strong>What did MexrlDev leave for new developers?</strong> MexrlDev left a big folder with all the
-                    debugging they did for Vue, the things they found, and how to make things go correctly — due to the lack
-                    of info about how Vue works since it runs on JSMAF, including APIs.
-                </p>
-                <p>
-                    <strong>Will MexrlDev ever come back?</strong> Nobody knows. As time goes by… who knows if MexrlDev will
-                    give it a second chance.
-                </p>
-                <p>
-                    <strong>How is MexrlDev now?</strong> On July 25, 2026, MexrlDev has moved on, built a life, met someone
-                    they love, and finally… they feel happy. Even though MexrlDev can still become depressed suddenly, have
-                    mental breakdowns, or feel stressed, it's now under control — and they are happy. They have accepted
-                    whatever life gives them. They understood that there are some things they cannot control and chose to
-                    focus on making things better instead. They are trying to cure depression and live happy. Now, MexrlDev
-                    is living their life not just happily, but with a partner that they truly love and feel comfortable with.
-                </p>
+                <p><strong>The first of MexrlDev.</strong> They had always been seeing the PlayStation community online, on Twitter. After they finally got their first PS4 Fat jailbroken — after a long time of waiting and missing firmwares that were gold such as 4.xx, 5.05, 9.00, 10.00, 11.00, 12.02 — and finally at 12.50, 12.52 they stopped and were able to get it. That's when they felt like they belonged to this, like they belonged to developing things for people and for the PS, making useful homebrew and more. But they couldn't, because they didn't know where to start. As someone without experience, they waited.</p>
+                <p>When Vue was first announced as a userland in the early days, MexrlDev got excited knowing this would be so cool — especially after seeing <strong>EarthOnion</strong> doing all the cool stuff. That's when MexrlDev got excited to try and crack the AES code for Vue saves but failed, of course. They modded Vue 1.01 but never were able to get to it… until it was finally released. Due to lack of coding experience, they had to use ChatGPT, Copilot, to finally start what they always wanted…</p>
+                <p>MexrlDev started their journey after 1 day of the release of <strong>Vue After Free</strong>. They went through a lot, had done the first-ever mod on Vue — adding animations and a bit of polish. That's when they made their first post on X, named <em>"the first ever vue mod"</em>, mentioning <strong>Dr.YenYen</strong> who was really kind and helped them throughout a lot, and mentioning EarthOnion, bringing more attention toward MexrlDev's projects. This is when MexrlDev started to work harder, spending whole days for 3 months without much rest to make the best mods they'd always dreamed of for the people and to do something for the community.</p>
+                <p>This is when they started to use <strong>DeepSeek</strong>. It helped a lot, but they had to spend many hours on projects due to AI's lack of eyes to see the final results — debugging so many things over and over again. MexrlDev spent hours fixing bugs with the AI, making sure everything went smooth and perfect until the theme was ready to be published. A lot went on, and there was a goal to make <strong>100+ themes and games for Vue</strong>. The best of them were huge projects like the PS3 theme, <strong>Artemis</strong> (Mexrl's favorite), Apollo, Vue Cheat Manager, and many more good themes.</p>
+                <p>But sadly, they got stressed and had to stop. They couldn't handle it — their energy for making themes kept growing and they couldn't take breaks. That's when they started to get bored, stressed, unable to think straight, making projects that might not be useful or, of course, not working as expected. After all, MexrlDev stopped for a while and came back. As they lost their laptop, some stuff went on, and of course losing friends… which got them to finally <strong>delete their X account forever</strong>.</p>
+                <p>As days go by… this project will always be proof of how a passionate developer like MexrlDev (me) can make useful things and succeed with a project that was only supposed to be used once — just for a jailbreak. And the best part of MexrlDev is that they made a lot of friends, met a lot of good people, and helped lots of users as much as they could, with kindness toward everyone.</p>
+                <p>And now, as MexrlDev retired, they wish everyone good luck in everything they are passionate about. They truly love seeing people work on new things, especially using the code they built — for the community and for others to learn from for future projects. MexrlDev wasn't just a random person who appeared in the PlayStation hacking community, but someone who had a passion for helping people, making things better, working on projects that had been left behind, creating new ideas, and showing people that even an unknown person can become known through what they love.</p>
+                <p><strong>What ended MexrlDev?</strong> Being depressed, stressed out, working on things they couldn't really understand (porting exploits, making things that didn't work and made them feel so embarrassed), not taking breaks, losing some friendships, etc.</p>
+                <p><strong>What did MexrlDev leave for new developers?</strong> MexrlDev left a big folder with all the debugging they did for Vue, the things they found, and how to make things go correctly — due to the lack of info about how Vue works since it runs on JSMAF, including APIs.</p>
+                <p><strong>Will MexrlDev ever come back?</strong> Nobody knows. As time goes by… who knows if MexrlDev will give it a second chance.</p>
+                <p><strong>How is MexrlDev now?</strong> On July 25, 2026, MexrlDev has moved on, built a life, met someone they love, and finally… they feel happy. Even though MexrlDev can still become depressed suddenly, have mental breakdowns, or feel stressed, it's now under control — and they are happy. They have accepted whatever life gives them. They understood that there are some things they cannot control and chose to focus on making things better instead. They are trying to cure depression and live happy. Now, MexrlDev is living their life not just happily, but with a partner that they truly love and feel comfortable with.</p>
+                <!-- Ornate frame with C‑scrolls -->
                 <div class="framed-wrapper">
-                    <img
-                        src="https://i.ibb.co/KpwXG3gH/Untitled25-20260726192436.png"
-                        alt="MexrlDev - July 2026"
-                        width="1697"
-                        height="927"
-                        loading="lazy"
-                    >
+                    <span class="scroll-corner corner-tl"></span>
+                    <span class="scroll-corner corner-tr"></span>
+                    <span class="scroll-corner corner-bl"></span>
+                    <span class="scroll-corner corner-br"></span>
+                    <img src="https://i.ibb.co/KpwXG3gH/Untitled25-20260726192436.png" alt="MexrlDev - July 2026" width="1697" height="927" loading="lazy">
                 </div>
             </div>
         </section>
@@ -1042,7 +988,6 @@
 
     </div>
 
-    <!-- Image Preview Modal -->
     <div class="modal-overlay" id="imageModal">
         <div class="modal-content">
             <button class="modal-close" id="modalClose">&times;</button>
@@ -1052,7 +997,6 @@
 
     <script>
         (function() {
-            // ── Theme Toggle (Dark/Light) ──
             const body = document.body;
             const themeToggleMobile = document.getElementById('themeToggleMobile');
 
@@ -1067,22 +1011,14 @@
             }
 
             const savedTheme = localStorage.getItem('theme');
-            if (savedTheme === 'light') {
-                setTheme(true);
-            } else {
-                setTheme(false); // default dark
-            }
+            setTheme(savedTheme === 'light');
 
             function toggleTheme() {
-                const isLight = body.classList.contains('light-mode');
-                setTheme(!isLight);
+                setTheme(!body.classList.contains('light-mode'));
             }
+            if (themeToggleMobile) themeToggleMobile.addEventListener('click', toggleTheme);
 
-            if (themeToggleMobile) {
-                themeToggleMobile.addEventListener('click', toggleTheme);
-            }
-
-            // ── 3D Flip Avatar (always forward) ──
+            // 3D flip avatar (always forward)
             const flipCardInner = document.getElementById('flipCardInner');
             let currentRotation = 0;
             if (flipCardInner) {
@@ -1093,7 +1029,7 @@
                 });
             }
 
-            // ── Image Preview Modal ──
+            // Image preview modal
             const modal = document.getElementById('imageModal');
             const modalImg = document.getElementById('modalImage');
             const modalClose = document.getElementById('modalClose');
@@ -1101,8 +1037,7 @@
 
             galleryImages.forEach(img => {
                 img.addEventListener('click', () => {
-                    const fullSrc = img.getAttribute('data-full') || img.src;
-                    modalImg.src = fullSrc;
+                    modalImg.src = img.getAttribute('data-full') || img.src;
                     modal.classList.add('active');
                 });
             });
@@ -1112,16 +1047,10 @@
                 modalImg.src = '';
             }
             modalClose.addEventListener('click', closeModal);
-            modal.addEventListener('click', (e) => {
-                if (e.target === modal) closeModal();
-            });
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape' && modal.classList.contains('active')) {
-                    closeModal();
-                }
-            });
+            modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+            document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && modal.classList.contains('active')) closeModal(); });
 
-            // ── Mobile Menu Toggle ────────────
+            // Mobile menu
             const hamburger = document.getElementById('hamburger');
             const sidePanel = document.getElementById('sidePanel');
             const overlay = document.getElementById('overlay');
@@ -1137,39 +1066,24 @@
                 overlay.classList.remove('active');
                 hamburger.classList.remove('active');
             }
-
             hamburger.addEventListener('click', () => {
-                if (sidePanel.classList.contains('open')) {
-                    closeMenu();
-                } else {
-                    openMenu();
-                }
+                sidePanel.classList.contains('open') ? closeMenu() : openMenu();
             });
-
             overlay.addEventListener('click', closeMenu);
+            mobileLinks.forEach(link => link.addEventListener('click', closeMenu));
 
-            mobileLinks.forEach(link => {
-                link.addEventListener('click', () => {
-                    closeMenu();
-                });
-            });
-
-            // ── Active nav link update (desktop & mobile) ──
+            // Active nav & hash handling
             const sections = document.querySelectorAll('section[id]');
             const desktopLinks = document.querySelectorAll('#desktopLinks a');
 
             function setActiveLink(currentId) {
                 desktopLinks.forEach(link => {
                     link.classList.remove('nav-active');
-                    if (link.getAttribute('href') === '#' + currentId) {
-                        link.classList.add('nav-active');
-                    }
+                    if (link.getAttribute('href') === '#' + currentId) link.classList.add('nav-active');
                 });
                 mobileLinks.forEach(link => {
                     link.classList.remove('mobile-active');
-                    if (link.getAttribute('href') === '#' + currentId) {
-                        link.classList.add('mobile-active');
-                    }
+                    if (link.getAttribute('href') === '#' + currentId) link.classList.add('mobile-active');
                 });
             }
 
@@ -1185,11 +1099,26 @@
                 });
                 if (currentId) setActiveLink(currentId);
             }
-
             window.addEventListener('scroll', updateActiveNav, { passive: true });
-            updateActiveNav();
 
-            // ── Smooth scroll for desktop and mobile links ──
+            function scrollToHash() {
+                const hash = window.location.hash;
+                if (hash) {
+                    const target = document.querySelector(hash);
+                    if (target) {
+                        const navHeight = document.getElementById('nav')?.offsetHeight || 56;
+                        const top = target.offsetTop - navHeight - 12;
+                        window.scrollTo({ top, behavior: 'smooth' });
+                        setActiveLink(hash.substring(1));
+                    }
+                }
+            }
+            window.addEventListener('load', () => {
+                updateActiveNav();
+                scrollToHash();
+            });
+            window.addEventListener('hashchange', scrollToHash);
+
             function addSmoothScroll(links) {
                 links.forEach(link => {
                     link.addEventListener('click', function(e) {
@@ -1201,6 +1130,9 @@
                                 const navHeight = document.getElementById('nav')?.offsetHeight || 56;
                                 const top = target.offsetTop - navHeight - 12;
                                 window.scrollTo({ top, behavior: 'smooth' });
+                                // Update URL hash without jump
+                                history.pushState(null, null, targetId);
+                                setActiveLink(targetId.substring(1));
                             }
                         }
                     });
