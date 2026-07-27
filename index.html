@@ -35,6 +35,20 @@
             --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
+        body.light-mode {
+            --bg: #F5F2ED;
+            --bg-secondary: #EDE8E0;
+            --bg-card: #FFFFFF;
+            --text: #1a1a1a;
+            --text-secondary: #555555;
+            --text-muted: #888888;
+            --border: #e0dcd5;
+            --border-light: #eee9e2;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.10);
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -53,8 +67,10 @@
             min-height: 100vh;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
+            transition: background-color 0.3s, color 0.3s;
         }
 
+        /* ── Navigation ────────────────────── */
         .nav {
             position: sticky;
             top: 0;
@@ -64,7 +80,10 @@
             -webkit-backdrop-filter: blur(16px);
             border-bottom: 1px solid var(--border-light);
             padding: 0 24px;
-            transition: var(--transition);
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+        body.light-mode .nav {
+            background: rgba(245, 242, 237, 0.82);
         }
         .nav-inner {
             max-width: 900px;
@@ -73,7 +92,12 @@
             align-items: center;
             justify-content: space-between;
             height: 56px;
-            gap: 20px;
+            gap: 16px;
+        }
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
         .nav-logo {
             font-weight: 700;
@@ -83,10 +107,31 @@
             text-decoration: none;
             white-space: nowrap;
             transition: var(--transition);
+            z-index: 102;
         }
         .nav-logo:hover {
             color: var(--accent);
         }
+        .theme-toggle {
+            background: none;
+            border: 1px solid var(--border);
+            color: var(--text);
+            font-size: 1.1rem;
+            cursor: pointer;
+            padding: 6px 10px;
+            border-radius: 6px;
+            transition: var(--transition);
+            background: var(--bg-card);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+        }
+        .theme-toggle:hover {
+            background: var(--bg-secondary);
+        }
+
+        /* desktop links */
         .nav-links {
             display: flex;
             gap: 6px;
@@ -109,9 +154,106 @@
         }
         .nav-links a.nav-active {
             background: var(--text);
-            color: #111111;
+            color: var(--bg);
         }
 
+        /* hamburger button */
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 40px;
+            height: 40px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            gap: 5px;
+            z-index: 102;
+            padding: 0;
+        }
+        .hamburger span {
+            display: block;
+            width: 24px;
+            height: 2px;
+            background: var(--text);
+            border-radius: 2px;
+            transition: var(--transition);
+        }
+        .hamburger.active span:nth-child(1) {
+            transform: translateY(7px) rotate(45deg);
+        }
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+        .hamburger.active span:nth-child(3) {
+            transform: translateY(-7px) rotate(-45deg);
+        }
+
+        /* Side Panel */
+        .side-panel {
+            position: fixed;
+            top: 0;
+            right: -320px;
+            width: 280px;
+            max-width: 80vw;
+            height: 100vh;
+            background: var(--bg-card);
+            border-left: 1px solid var(--border);
+            box-shadow: -4px 0 24px rgba(0,0,0,0.8);
+            z-index: 101;
+            padding: 80px 24px 40px;
+            transition: right 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .side-panel.open {
+            right: 0;
+        }
+        .side-panel a, .side-panel .theme-btn-mobile {
+            text-decoration: none;
+            color: var(--text-secondary);
+            font-size: 1rem;
+            font-weight: 500;
+            padding: 12px 16px;
+            border-radius: 8px;
+            transition: var(--transition);
+            display: block;
+            background: none;
+            border: none;
+            cursor: pointer;
+            text-align: left;
+            width: 100%;
+        }
+        .side-panel a:hover, .side-panel .theme-btn-mobile:hover {
+            background: var(--bg-secondary);
+            color: var(--text);
+        }
+        .side-panel a.mobile-active {
+            background: var(--text);
+            color: var(--bg);
+        }
+
+        /* overlay behind panel */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* ── Main Container ────────────────── */
         .container {
             max-width: 780px;
             margin: 0 auto;
@@ -122,47 +264,63 @@
             text-align: center;
             padding: 48px 0 32px;
         }
-        .hero-avatar {
+
+        /* ── 3D Flip Avatar ───────────────── */
+        .flip-card {
+            background-color: transparent;
             width: 100px;
             height: 100px;
+            perspective: 600px;
+            margin: 0 auto 20px;
+            cursor: pointer;
+        }
+        .flip-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.5s;
+            transform-style: preserve-3d;
+        }
+        .flip-card.flipped .flip-card-inner {
+            transform: rotateY(180deg);
+        }
+        .flip-card-front, .flip-card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
             border-radius: 50%;
-            object-fit: cover;
+            overflow: hidden;
             border: 3px solid var(--border);
             box-shadow: var(--shadow-md);
-            margin-bottom: 20px;
-            transition: var(--transition);
+            transition: box-shadow var(--transition);
         }
-        .hero-avatar:hover {
-            transform: scale(1.04);
+        .flip-card-front img, .flip-card-back img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        .flip-card-back {
+            transform: rotateY(180deg);
+        }
+        .flip-card:hover .flip-card-front,
+        .flip-card:hover .flip-card-back {
             box-shadow: var(--shadow-lg);
         }
+
         .hero h1 {
             font-size: 2.2rem;
             font-weight: 700;
             letter-spacing: -0.5px;
-            margin-bottom: 4px;
+            margin-bottom: 2px;
             color: var(--text);
         }
-        .hero .typing-wrapper {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 32px;
-            margin-bottom: 8px;
-        }
-        .hero .typing-text {
-            font-family: 'Fira Code', 'SF Mono', 'Consolas', monospace;
-            font-weight: 600;
-            font-size: 1.1rem;
-            color: var(--accent);
-            border-right: 2px solid var(--accent);
-            padding-right: 4px;
-            animation: blink 0.7s step-end infinite;
-            white-space: nowrap;
-            overflow: hidden;
-        }
-        @keyframes blink {
-            50% { border-color: transparent; }
+        .pronouns {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+            font-weight: 400;
         }
         .hero .subtitle {
             color: var(--text-secondary);
@@ -203,6 +361,9 @@
         .card:hover {
             box-shadow: var(--shadow-md);
             border-color: #444444;
+        }
+        body.light-mode .card:hover {
+            border-color: #d5d0c8;
         }
         .card p {
             margin-bottom: 10px;
@@ -318,6 +479,25 @@
             line-height: 1.4;
         }
 
+        /* Gallery */
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 16px;
+        }
+        .gallery-grid img {
+            width: 100%;
+            height: auto;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            transition: var(--transition);
+            box-shadow: var(--shadow-sm);
+        }
+        .gallery-grid img:hover {
+            transform: scale(1.02);
+            box-shadow: var(--shadow-md);
+        }
+
         .story-block {
             background: var(--bg-card);
             border: 1px solid var(--border);
@@ -364,14 +544,6 @@
             color: var(--text-muted);
             font-size: 0.82rem;
         }
-        .footer a {
-            color: var(--text-muted);
-            text-decoration: none;
-            transition: var(--transition);
-        }
-        .footer a:hover {
-            color: var(--accent);
-        }
 
         details {
             margin-top: 4px;
@@ -407,26 +579,27 @@
             color: var(--accent);
         }
 
-        @media (max-width: 600px) {
-            .container {
-                padding: 20px 14px 40px;
+        /* ── Responsive ────────────────────── */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
             }
+            .hamburger {
+                display: flex;
+            }
+            .container {
+                padding: 16px 16px 40px;
+            }
+            .hero h1 {
+                font-size: 1.8rem;
+            }
+        }
+        @media (max-width: 600px) {
             .hero h1 {
                 font-size: 1.6rem;
             }
-            .hero .typing-text {
-                font-size: 0.9rem;
-            }
             .card {
                 padding: 18px 16px;
-            }
-            .nav-links a {
-                font-size: 0.78rem;
-                padding: 5px 10px;
-            }
-            .nav-inner {
-                height: 48px;
-                gap: 8px;
             }
             .repo-grid {
                 grid-template-columns: 1fr;
@@ -440,40 +613,80 @@
                 padding: 18px 16px;
                 font-size: 0.88rem;
             }
+            .gallery-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+        }
+        @media (max-width: 380px) {
+            .gallery-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            .side-panel {
+                width: 250px;
+            }
         }
     </style>
 </head>
 <body>
 
+    <!-- Overlay behind side panel -->
+    <div class="overlay" id="overlay"></div>
+
+    <!-- Side Panel (mobile menu) -->
+    <div class="side-panel" id="sidePanel">
+        <a href="#about" class="mobile-link">About</a>
+        <a href="#links" class="mobile-link">Links</a>
+        <a href="#projects" class="mobile-link">Projects</a>
+        <a href="#repos" class="mobile-link">Repos</a>
+        <a href="#gye" class="mobile-link">Gye Baek-Sun</a>
+        <a href="#story" class="mobile-link">Story</a>
+        <button class="theme-btn-mobile" id="themeToggleMobile">Toggle Theme</button>
+    </div>
+
+    <!-- Navigation -->
     <nav class="nav" id="nav">
         <div class="nav-inner">
-            <a href="#" class="nav-logo">MexrlDev</a>
-            <div class="nav-links">
+            <div class="nav-left">
+                <a href="#" class="nav-logo">MexrlDev</a>
+                <button class="theme-toggle" id="themeToggleDesktop" aria-label="Switch theme">☀</button>
+            </div>
+            <!-- Desktop links -->
+            <div class="nav-links" id="desktopLinks">
                 <a href="#about">About</a>
                 <a href="#links">Links</a>
                 <a href="#projects">Projects</a>
                 <a href="#repos">Repos</a>
+                <a href="#gye">Gye Baek-Sun</a>
                 <a href="#story">Story</a>
             </div>
+            <!-- Hamburger -->
+            <button class="hamburger" id="hamburger" aria-label="Menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
         </div>
     </nav>
 
+    <!-- Main Content -->
     <div class="container">
 
         <section class="hero" id="top">
-            <img
-                src="https://avatars.githubusercontent.com/u/82407748?s=400&u=24681e597c48d40afb1ec3451dd230b88a4c9029&v=4"
-                alt="MexrlDev avatar"
-                class="hero-avatar"
-                width="100"
-                height="100"
-                loading="eager"
-            >
-            <h1>MexrlDev</h1>
-            <div class="typing-wrapper">
-                <span class="typing-text" id="typingText"></span>
+            <!-- 3D Flip Avatar -->
+            <div class="flip-card" id="flipCard">
+                <div class="flip-card-inner">
+                    <div class="flip-card-front">
+                        <img src="https://avatars.githubusercontent.com/u/82407748?s=400&u=24681e597c48d40afb1ec3451dd230b88a4c9029&v=4" alt="MexrlDev front" width="100" height="100" loading="eager">
+                    </div>
+                    <div class="flip-card-back">
+                        <img src="https://i.ibb.co/n2Zmp36/IMG-0362.jpg" alt="MexrlDev back" width="100" height="100" loading="lazy">
+                    </div>
+                </div>
             </div>
-            <p class="subtitle">Just a normal developer living life, coding at my own pace.</p>
+            <h1>MexrlDev</h1>
+            <p class="pronouns">They/Them</p>
+            <p class="subtitle">This website is so… Skeebeedee….</p>
         </section>
 
         <section class="section" id="about">
@@ -604,9 +817,25 @@
             </div>
         </section>
 
+        <!-- Gye Baek-Sun Gallery -->
+        <section class="section" id="gye">
+            <h2 class="section-title">Gye Baek-Sun</h2>
+            <div class="card">
+                <p style="text-align:center; margin-bottom:12px; color:var(--text-secondary);">My favorite character — literally me, same story, same look.</p>
+                <div class="gallery-grid">
+                    <img src="https://i.ibb.co/W4xXJwnK/IMG-0696.jpg" alt="Gye Baek-Sun 1" loading="lazy">
+                    <img src="https://i.ibb.co/s9D2QnGC/IMG-0695.jpg" alt="Gye Baek-Sun 2" loading="lazy">
+                    <img src="https://i.ibb.co/vvJ9SPmj/IMG-0694.jpg" alt="Gye Baek-Sun 3" loading="lazy">
+                    <img src="https://i.ibb.co/bjL02VYg/IMG-0692.jpg" alt="Gye Baek-Sun 4" loading="lazy">
+                    <img src="https://i.ibb.co/9HFSPFdR/IMG-0693.jpg" alt="Gye Baek-Sun 5" loading="lazy">
+                </div>
+            </div>
+        </section>
+
         <section class="section" id="story">
             <h2 class="section-title">The Story of MexrlDev</h2>
             <div class="story-block">
+                <!-- story paragraphs remain exactly the same as before -->
                 <p>
                     <strong>The first of MexrlDev.</strong> They had always been seeing the PlayStation community online, on Twitter.
                     After they finally got their first PS4 Fat jailbroken — after a long time of waiting and missing firmwares
@@ -694,62 +923,108 @@
         </section>
 
         <footer class="footer">
-            <p>
-                MexrlDev &copy; 2026 — Built with love —
-                <a href="https://github.com/MexrlDev" target="_blank" rel="noopener">GitHub</a>
-            </p>
+            <p>MexrlDev &copy; 2026</p>
         </footer>
 
     </div>
 
     <script>
         (function() {
-            const phrases = [
-                "MexrlDev Short Bio",
-                "Just A Short Story",
-                "Former PS Community Dev",
-                "Now coding at my own pace",
-                "Happy & at peace :3",
-            ];
-            let phraseIndex = 0;
-            let charIndex = 0;
-            let isDeleting = false;
-            let typingSpeed = 90;
-            const typingEl = document.getElementById('typingText');
+            // ── Theme Toggle (Dark/Light) ──
+            const body = document.body;
+            const themeToggleDesktop = document.getElementById('themeToggleDesktop');
+            const themeToggleMobile = document.getElementById('themeToggleMobile');
 
-            function typeLoop() {
-                if (!typingEl) return;
-                const currentPhrase = phrases[phraseIndex];
-
-                if (isDeleting) {
-                    typingEl.textContent = currentPhrase.substring(0, charIndex - 1);
-                    charIndex--;
-                    typingSpeed = 35;
+            function setTheme(isLight) {
+                if (isLight) {
+                    body.classList.add('light-mode');
+                    localStorage.setItem('theme', 'light');
+                    if (themeToggleDesktop) themeToggleDesktop.textContent = '☾';
                 } else {
-                    typingEl.textContent = currentPhrase.substring(0, charIndex + 1);
-                    charIndex++;
-                    typingSpeed = 80;
+                    body.classList.remove('light-mode');
+                    localStorage.setItem('theme', 'dark');
+                    if (themeToggleDesktop) themeToggleDesktop.textContent = '☀';
                 }
-
-                if (!isDeleting && charIndex === currentPhrase.length) {
-                    typingSpeed = 2000;
-                    isDeleting = true;
-                } else if (isDeleting && charIndex === 0) {
-                    isDeleting = false;
-                    phraseIndex = (phraseIndex + 1) % phrases.length;
-                    typingSpeed = 400;
-                }
-
-                setTimeout(typeLoop, typingSpeed);
             }
 
-            if (typingEl) {
-                typingEl.textContent = '';
-                setTimeout(typeLoop, 500);
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'light') {
+                setTheme(true);
+            } else {
+                setTheme(false); // default dark
             }
 
+            function toggleTheme() {
+                const isLight = body.classList.contains('light-mode');
+                setTheme(!isLight);
+            }
+
+            if (themeToggleDesktop) {
+                themeToggleDesktop.addEventListener('click', toggleTheme);
+            }
+            if (themeToggleMobile) {
+                themeToggleMobile.addEventListener('click', toggleTheme);
+            }
+
+            // ── 3D Flip Avatar ──
+            const flipCard = document.getElementById('flipCard');
+            if (flipCard) {
+                flipCard.addEventListener('click', () => {
+                    flipCard.classList.toggle('flipped');
+                });
+            }
+
+            // ── Mobile Menu Toggle ────────────
+            const hamburger = document.getElementById('hamburger');
+            const sidePanel = document.getElementById('sidePanel');
+            const overlay = document.getElementById('overlay');
+            const mobileLinks = document.querySelectorAll('.mobile-link');
+
+            function openMenu() {
+                sidePanel.classList.add('open');
+                overlay.classList.add('active');
+                hamburger.classList.add('active');
+            }
+            function closeMenu() {
+                sidePanel.classList.remove('open');
+                overlay.classList.remove('active');
+                hamburger.classList.remove('active');
+            }
+
+            hamburger.addEventListener('click', () => {
+                if (sidePanel.classList.contains('open')) {
+                    closeMenu();
+                } else {
+                    openMenu();
+                }
+            });
+
+            overlay.addEventListener('click', closeMenu);
+
+            mobileLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    closeMenu();
+                });
+            });
+
+            // ── Active nav link update (desktop & mobile) ──
             const sections = document.querySelectorAll('section[id]');
-            const navLinks = document.querySelectorAll('.nav-links a');
+            const desktopLinks = document.querySelectorAll('#desktopLinks a');
+
+            function setActiveLink(currentId) {
+                desktopLinks.forEach(link => {
+                    link.classList.remove('nav-active');
+                    if (link.getAttribute('href') === '#' + currentId) {
+                        link.classList.add('nav-active');
+                    }
+                });
+                mobileLinks.forEach(link => {
+                    link.classList.remove('mobile-active');
+                    if (link.getAttribute('href') === '#' + currentId) {
+                        link.classList.add('mobile-active');
+                    }
+                });
+            }
 
             function updateActiveNav() {
                 let currentId = '';
@@ -761,33 +1036,33 @@
                         currentId = section.getAttribute('id');
                     }
                 });
-                navLinks.forEach(link => {
-                    link.classList.remove('nav-active');
-                    if (link.getAttribute('href') === '#' + currentId) {
-                        link.classList.add('nav-active');
-                    }
-                });
+                if (currentId) setActiveLink(currentId);
             }
 
             window.addEventListener('scroll', updateActiveNav, { passive: true });
             updateActiveNav();
 
-            navLinks.forEach(link => {
-                link.addEventListener('click', function(e) {
-                    const targetId = this.getAttribute('href');
-                    if (targetId && targetId.startsWith('#')) {
-                        e.preventDefault();
-                        const target = document.querySelector(targetId);
-                        if (target) {
-                            const navHeight = document.getElementById('nav')?.offsetHeight || 56;
-                            const top = target.offsetTop - navHeight - 12;
-                            window.scrollTo({ top, behavior: 'smooth' });
+            // ── Smooth scroll for desktop and mobile links ──
+            function addSmoothScroll(links) {
+                links.forEach(link => {
+                    link.addEventListener('click', function(e) {
+                        const targetId = this.getAttribute('href');
+                        if (targetId && targetId.startsWith('#')) {
+                            e.preventDefault();
+                            const target = document.querySelector(targetId);
+                            if (target) {
+                                const navHeight = document.getElementById('nav')?.offsetHeight || 56;
+                                const top = target.offsetTop - navHeight - 12;
+                                window.scrollTo({ top, behavior: 'smooth' });
+                            }
                         }
-                    }
+                    });
                 });
-            });
+            }
+            addSmoothScroll(desktopLinks);
+            addSmoothScroll(mobileLinks);
 
-            console.log('MexrlDev - personal site loaded. Stay cozy.');
+            console.log('MexrlDev - personal site ready. Skeebeedee.');
         })();
     </script>
 </body>
