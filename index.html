@@ -33,6 +33,8 @@
             --radius: 12px;
             --radius-lg: 16px;
             --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            --frame-color: #444;
+            --frame-inner-border: #222;
         }
 
         body.light-mode {
@@ -47,6 +49,8 @@
             --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
             --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
             --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.10);
+            --frame-color: #bbb;
+            --frame-inner-border: #999;
         }
 
         * {
@@ -94,11 +98,6 @@
             height: 56px;
             gap: 16px;
         }
-        .nav-left {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
         .nav-logo {
             font-weight: 700;
             font-size: 1.2rem;
@@ -111,24 +110,6 @@
         }
         .nav-logo:hover {
             color: var(--accent);
-        }
-        .theme-toggle {
-            background: none;
-            border: 1px solid var(--border);
-            color: var(--text);
-            font-size: 1.1rem;
-            cursor: pointer;
-            padding: 6px 10px;
-            border-radius: 6px;
-            transition: var(--transition);
-            background: var(--bg-card);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            line-height: 1;
-        }
-        .theme-toggle:hover {
-            background: var(--bg-secondary);
         }
 
         /* desktop links */
@@ -280,9 +261,6 @@
             height: 100%;
             transition: transform 0.5s;
             transform-style: preserve-3d;
-        }
-        .flip-card.flipped .flip-card-inner {
-            transform: rotateY(180deg);
         }
         .flip-card-front, .flip-card-back {
             position: absolute;
@@ -479,6 +457,35 @@
             line-height: 1.4;
         }
 
+        /* Collection List */
+        .collection-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .collection-item {
+            padding: 14px 18px;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-sm);
+            transition: var(--transition);
+            border: 1px solid transparent;
+        }
+        .collection-item:hover {
+            border-color: var(--border);
+            background: var(--bg-card);
+            box-shadow: var(--shadow-sm);
+        }
+        .collection-item .item-title {
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 4px;
+        }
+        .collection-item .item-desc {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
         /* Gallery */
         .gallery-grid {
             display: grid;
@@ -492,10 +499,85 @@
             border: 1px solid var(--border);
             transition: var(--transition);
             box-shadow: var(--shadow-sm);
+            cursor: pointer;
         }
         .gallery-grid img:hover {
             transform: scale(1.02);
             box-shadow: var(--shadow-md);
+        }
+
+        /* Image Preview Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.85);
+            z-index: 200;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-overlay.active {
+            display: flex;
+        }
+        .modal-content {
+            position: relative;
+            max-width: 90vw;
+            max-height: 90vh;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 0 40px rgba(0,0,0,0.9);
+        }
+        .modal-content img {
+            display: block;
+            max-width: 100%;
+            max-height: 90vh;
+            object-fit: contain;
+            border-radius: 16px;
+        }
+        .modal-close {
+            position: absolute;
+            top: 12px;
+            right: 16px;
+            background: rgba(0,0,0,0.6);
+            color: #fff;
+            border: none;
+            font-size: 1.4rem;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+            transition: background 0.2s;
+        }
+        .modal-close:hover {
+            background: rgba(0,0,0,0.9);
+        }
+
+        /* Framed image */
+        .framed-wrapper {
+            display: inline-block;
+            padding: 12px;
+            background: var(--frame-color);
+            border: 2px solid var(--frame-inner-border);
+            box-shadow: inset 0 0 8px rgba(0,0,0,0.4), 0 6px 18px rgba(0,0,0,0.7);
+            border-radius: 6px;
+            margin-top: 24px;
+        }
+        body.light-mode .framed-wrapper {
+            box-shadow: inset 0 0 8px rgba(0,0,0,0.1), 0 6px 18px rgba(0,0,0,0.15);
+        }
+        .framed-wrapper img {
+            display: block;
+            max-width: 100%;
+            height: auto;
+            border: 1px solid var(--frame-inner-border);
+            border-radius: 2px;
         }
 
         .story-block {
@@ -517,15 +599,6 @@
         }
         .story-block strong {
             color: var(--text);
-        }
-        .story-image {
-            display: block;
-            max-width: 100%;
-            height: auto;
-            border-radius: var(--radius);
-            margin: 24px auto 0;
-            box-shadow: var(--shadow-md);
-            border: 1px solid var(--border);
         }
 
         .snake-img {
@@ -617,6 +690,9 @@
                 grid-template-columns: repeat(2, 1fr);
                 gap: 10px;
             }
+            .framed-wrapper {
+                padding: 8px;
+            }
         }
         @media (max-width: 380px) {
             .gallery-grid {
@@ -639,6 +715,7 @@
         <a href="#links" class="mobile-link">Links</a>
         <a href="#projects" class="mobile-link">Projects</a>
         <a href="#repos" class="mobile-link">Repos</a>
+        <a href="#collection" class="mobile-link">Collection</a>
         <a href="#gye" class="mobile-link">Gye Baek-Sun</a>
         <a href="#story" class="mobile-link">Story</a>
         <button class="theme-btn-mobile" id="themeToggleMobile">Toggle Theme</button>
@@ -647,16 +724,14 @@
     <!-- Navigation -->
     <nav class="nav" id="nav">
         <div class="nav-inner">
-            <div class="nav-left">
-                <a href="#" class="nav-logo">MexrlDev</a>
-                <button class="theme-toggle" id="themeToggleDesktop" aria-label="Switch theme">☀</button>
-            </div>
+            <a href="#" class="nav-logo">MexrlDev</a>
             <!-- Desktop links -->
             <div class="nav-links" id="desktopLinks">
                 <a href="#about">About</a>
                 <a href="#links">Links</a>
                 <a href="#projects">Projects</a>
                 <a href="#repos">Repos</a>
+                <a href="#collection">Collection</a>
                 <a href="#gye">Gye Baek-Sun</a>
                 <a href="#story">Story</a>
             </div>
@@ -673,9 +748,9 @@
     <div class="container">
 
         <section class="hero" id="top">
-            <!-- 3D Flip Avatar -->
+            <!-- 3D Flip Avatar (always rotates forward) -->
             <div class="flip-card" id="flipCard">
-                <div class="flip-card-inner">
+                <div class="flip-card-inner" id="flipCardInner">
                     <div class="flip-card-front">
                         <img src="https://avatars.githubusercontent.com/u/82407748?s=400&u=24681e597c48d40afb1ec3451dd230b88a4c9029&v=4" alt="MexrlDev front" width="100" height="100" loading="eager">
                     </div>
@@ -729,8 +804,8 @@
                             <td><a href="https://bsky.app/profile/mexrl.bsky.social" target="_blank" rel="noopener">@mexrl.bsky.social</a></td>
                         </tr>
                         <tr>
-                            <td>Mexrl Story</td>
-                            <td><a href="https://github.com/MexrlDev/PsVue-Mod#the-story-of-mexrldev" target="_blank" rel="noopener">The Story of MexrlDev</a></td>
+                            <td>GitHub</td>
+                            <td><a href="https://github.com/MexrlDev" target="_blank" rel="noopener">MexrlDev</a></td>
                         </tr>
                     </tbody>
                 </table>
@@ -817,17 +892,56 @@
             </div>
         </section>
 
+        <!-- Collection Section -->
+        <section class="section" id="collection">
+            <h2 class="section-title">Collection</h2>
+            <div class="card">
+                <div class="collection-list">
+                    <div class="collection-item">
+                        <div class="item-title">PS4 Fat</div>
+                        <div class="item-desc">CUH-1116B, my original and first ever, and on 12.52</div>
+                    </div>
+                    <div class="collection-item">
+                        <div class="item-title">PS4 Slim</div>
+                        <div class="item-desc">CUH-2216A, got it on 2017, first ever console to play Fortnite on, and kept on 12.50</div>
+                    </div>
+                    <div class="collection-item">
+                        <div class="item-title">PS4 Pro</div>
+                        <div class="item-desc">CUH-7216B, got it in 2026, has 13.50 on</div>
+                    </div>
+                    <div class="collection-item">
+                        <div class="item-title">PS3 Slim</div>
+                        <div class="item-desc">CUCH-3003A, my first PlayStation 3 ever and still remembered and taken care of which now has HFW</div>
+                    </div>
+                    <div class="collection-item">
+                        <div class="item-title">PS3 Slim</div>
+                        <div class="item-desc">CUCH-21xxxB</div>
+                    </div>
+                    <div class="collection-item">
+                        <div class="item-title">PS5 Slim</div>
+                        <div class="item-desc">model 2016, still new and always updated due to me playing on it online games and taken so much care</div>
+                    </div>
+                    <div class="collection-item">
+                        <div class="item-title">Xbox One</div>
+                        <div class="item-desc">early version</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- Gye Baek-Sun Gallery -->
         <section class="section" id="gye">
             <h2 class="section-title">Gye Baek-Sun</h2>
             <div class="card">
-                <p style="text-align:center; margin-bottom:12px; color:var(--text-secondary);">My favorite character — literally me, same story, same look.</p>
-                <div class="gallery-grid">
-                    <img src="https://i.ibb.co/W4xXJwnK/IMG-0696.jpg" alt="Gye Baek-Sun 1" loading="lazy">
-                    <img src="https://i.ibb.co/s9D2QnGC/IMG-0695.jpg" alt="Gye Baek-Sun 2" loading="lazy">
-                    <img src="https://i.ibb.co/vvJ9SPmj/IMG-0694.jpg" alt="Gye Baek-Sun 3" loading="lazy">
-                    <img src="https://i.ibb.co/bjL02VYg/IMG-0692.jpg" alt="Gye Baek-Sun 4" loading="lazy">
-                    <img src="https://i.ibb.co/9HFSPFdR/IMG-0693.jpg" alt="Gye Baek-Sun 5" loading="lazy">
+                <p style="text-align:center; margin-bottom:12px; color:var(--text-secondary);">
+                    Gye Beak-sun… one of the characters I always liked.. she.. she's me…
+                </p>
+                <div class="gallery-grid" id="galleryGrid">
+                    <img src="https://i.ibb.co/W4xXJwnK/IMG-0696.jpg" alt="Gye Baek-Sun 1" loading="lazy" data-full="https://i.ibb.co/W4xXJwnK/IMG-0696.jpg">
+                    <img src="https://i.ibb.co/s9D2QnGC/IMG-0695.jpg" alt="Gye Baek-Sun 2" loading="lazy" data-full="https://i.ibb.co/s9D2QnGC/IMG-0695.jpg">
+                    <img src="https://i.ibb.co/vvJ9SPmj/IMG-0694.jpg" alt="Gye Baek-Sun 3" loading="lazy" data-full="https://i.ibb.co/vvJ9SPmj/IMG-0694.jpg">
+                    <img src="https://i.ibb.co/bjL02VYg/IMG-0692.jpg" alt="Gye Baek-Sun 4" loading="lazy" data-full="https://i.ibb.co/bjL02VYg/IMG-0692.jpg">
+                    <img src="https://i.ibb.co/9HFSPFdR/IMG-0693.jpg" alt="Gye Baek-Sun 5" loading="lazy" data-full="https://i.ibb.co/9HFSPFdR/IMG-0693.jpg">
                 </div>
             </div>
         </section>
@@ -835,7 +949,6 @@
         <section class="section" id="story">
             <h2 class="section-title">The Story of MexrlDev</h2>
             <div class="story-block">
-                <!-- story paragraphs remain exactly the same as before -->
                 <p>
                     <strong>The first of MexrlDev.</strong> They had always been seeing the PlayStation community online, on Twitter.
                     After they finally got their first PS4 Fat jailbroken — after a long time of waiting and missing firmwares
@@ -911,14 +1024,15 @@
                     focus on making things better instead. They are trying to cure depression and live happy. Now, MexrlDev
                     is living their life not just happily, but with a partner that they truly love and feel comfortable with.
                 </p>
-                <img
-                    src="https://i.ibb.co/KpwXG3gH/Untitled25-20260726192436.png"
-                    alt="MexrlDev - July 2026"
-                    class="story-image"
-                    width="1697"
-                    height="927"
-                    loading="lazy"
-                >
+                <div class="framed-wrapper">
+                    <img
+                        src="https://i.ibb.co/KpwXG3gH/Untitled25-20260726192436.png"
+                        alt="MexrlDev - July 2026"
+                        width="1697"
+                        height="927"
+                        loading="lazy"
+                    >
+                </div>
             </div>
         </section>
 
@@ -928,22 +1042,27 @@
 
     </div>
 
+    <!-- Image Preview Modal -->
+    <div class="modal-overlay" id="imageModal">
+        <div class="modal-content">
+            <button class="modal-close" id="modalClose">&times;</button>
+            <img id="modalImage" src="" alt="Preview">
+        </div>
+    </div>
+
     <script>
         (function() {
             // ── Theme Toggle (Dark/Light) ──
             const body = document.body;
-            const themeToggleDesktop = document.getElementById('themeToggleDesktop');
             const themeToggleMobile = document.getElementById('themeToggleMobile');
 
             function setTheme(isLight) {
                 if (isLight) {
                     body.classList.add('light-mode');
                     localStorage.setItem('theme', 'light');
-                    if (themeToggleDesktop) themeToggleDesktop.textContent = '☾';
                 } else {
                     body.classList.remove('light-mode');
                     localStorage.setItem('theme', 'dark');
-                    if (themeToggleDesktop) themeToggleDesktop.textContent = '☀';
                 }
             }
 
@@ -959,20 +1078,48 @@
                 setTheme(!isLight);
             }
 
-            if (themeToggleDesktop) {
-                themeToggleDesktop.addEventListener('click', toggleTheme);
-            }
             if (themeToggleMobile) {
                 themeToggleMobile.addEventListener('click', toggleTheme);
             }
 
-            // ── 3D Flip Avatar ──
-            const flipCard = document.getElementById('flipCard');
-            if (flipCard) {
-                flipCard.addEventListener('click', () => {
-                    flipCard.classList.toggle('flipped');
+            // ── 3D Flip Avatar (always forward) ──
+            const flipCardInner = document.getElementById('flipCardInner');
+            let currentRotation = 0;
+            if (flipCardInner) {
+                flipCardInner.style.transform = 'rotateY(0deg)';
+                document.getElementById('flipCard').addEventListener('click', () => {
+                    currentRotation += 180;
+                    flipCardInner.style.transform = `rotateY(${currentRotation}deg)`;
                 });
             }
+
+            // ── Image Preview Modal ──
+            const modal = document.getElementById('imageModal');
+            const modalImg = document.getElementById('modalImage');
+            const modalClose = document.getElementById('modalClose');
+            const galleryImages = document.querySelectorAll('#galleryGrid img');
+
+            galleryImages.forEach(img => {
+                img.addEventListener('click', () => {
+                    const fullSrc = img.getAttribute('data-full') || img.src;
+                    modalImg.src = fullSrc;
+                    modal.classList.add('active');
+                });
+            });
+
+            function closeModal() {
+                modal.classList.remove('active');
+                modalImg.src = '';
+            }
+            modalClose.addEventListener('click', closeModal);
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) closeModal();
+            });
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && modal.classList.contains('active')) {
+                    closeModal();
+                }
+            });
 
             // ── Mobile Menu Toggle ────────────
             const hamburger = document.getElementById('hamburger');
