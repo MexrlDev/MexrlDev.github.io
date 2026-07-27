@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#F5F2ED">
+    <meta name="description" content="MexrlDev - Just a developer living life, coding at my own pace.">
+    <meta property="og:title" content="MexrlDev">
+    <meta property="og:description" content="Former PlayStation community developer. Now just a normal dev living life and coding at my own pace.">
+    <meta property="og:image" content="https://i.ibb.co/BVydVvkR/image.png">
+    <meta property="og:url" content="https://mexrldev.github.io">
+    <link rel="icon" href="https://i.ibb.co/8nnv5CMz/IMG-1712.jpg" sizes="any">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+    <title>MexrlDev</title>
+    <style>
+        :root {
+            --bg: #F5F2ED;
+            --bg-secondary: #EDE8E0;
+            --bg-card: #FFFFFF;
+            --text: #1a1a1a;
+            --text-secondary: #555555;
+            --text-muted: #888888;
+            --accent: #58A6FF;
+            --accent-hover: #4090e0;
+            --border: #e0dcd5;
+            --border-light: #eee9e2;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.10);
+            --radius-sm: 8px;
+            --radius: 12px;
+            --radius-lg: 16px;
+            --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            line-height: 1.7;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(245, 242, 237, 0.82);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border-light);
+            padding: 0 24px;
+            transition: var(--transition);
+        }
+        .nav-inner {
+            max-width: 900px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 56px;
+            gap: 20px;
+        }
+        .nav-logo {
+            font-weight: 700;
+            font-size: 1.2rem;
+            letter-spacing: -0.3px;
+            color: var(--text);
+            text-decoration: none;
+            white-space: nowrap;
+            transition: var(--transition);
+        }
+        .nav-logo:hover {
+            color: var(--accent);
+        }
+        .nav-links {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 500;
+            padding: 7px 14px;
+            border-radius: 20px;
+            transition: var(--transition);
+            white-space: nowrap;
+        }
+        .nav-links a:hover {
+            background: var(--bg-secondary);
+            color: var(--text);
+        }
+        .nav-links a.nav-active {
+            background: var(--text);
+            color: #fff;
+        }
+
+        .container {
+            max-width: 780px;
+            margin: 0 auto;
+            padding: 32px 24px 60px;
+        }
+
+        .hero {
+            text-align: center;
+            padding: 48px 0 32px;
+        }
+        .hero-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--border);
+            box-shadow: var(--shadow-md);
+            margin-bottom: 20px;
+            transition: var(--transition);
+        }
+        .hero-avatar:hover {
+            transform: scale(1.04);
+            box-shadow: var(--shadow-lg);
+        }
+        .hero h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            margin-bottom: 4px;
+            color: var(--text);
+        }
+        .hero .typing-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 32px;
+            margin-bottom: 8px;
+        }
+        .hero .typing-text {
+            font-family: 'Fira Code', 'SF Mono', 'Consolas', monospace;
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: var(--accent);
+            border-right: 2px solid var(--accent);
+            padding-right: 4px;
+            animation: blink 0.7s step-end infinite;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+        @keyframes blink {
+            50% { border-color: transparent; }
+        }
+        .hero .subtitle {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            font-weight: 400;
+            margin-top: 6px;
+        }
+
+        .section {
+            margin-top: 36px;
+        }
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .section-title::before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 22px;
+            background: var(--accent);
+            border-radius: 2px;
+        }
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 24px 28px;
+            margin-bottom: 16px;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+        }
+        .card:hover {
+            box-shadow: var(--shadow-md);
+            border-color: #d5d0c8;
+        }
+        .card p {
+            margin-bottom: 10px;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+        .card p:last-child {
+            margin-bottom: 0;
+        }
+
+        .links-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+        }
+        .links-table td {
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--border-light);
+            vertical-align: middle;
+        }
+        .links-table tr:last-child td {
+            border-bottom: none;
+        }
+        .links-table td:first-child {
+            font-weight: 600;
+            white-space: nowrap;
+            color: var(--text);
+            width: 140px;
+        }
+        .links-table a {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+            word-break: break-all;
+        }
+        .links-table a:hover {
+            color: var(--accent-hover);
+            text-decoration: underline;
+        }
+
+        .project-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .project-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 14px 18px;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-sm);
+            transition: var(--transition);
+            border: 1px solid transparent;
+        }
+        .project-item:hover {
+            border-color: var(--border);
+            background: var(--bg-card);
+            box-shadow: var(--shadow-sm);
+        }
+        .project-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent);
+            margin-top: 7px;
+            flex-shrink: 0;
+        }
+        .project-info strong {
+            display: block;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 2px;
+        }
+        .project-info span {
+            font-size: 0.88rem;
+            color: var(--text-muted);
+        }
+
+        .hub-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+        }
+        .hub-btn {
+            display: block;
+            text-align: center;
+            padding: 14px 16px;
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            text-decoration: none;
+            color: var(--text);
+            background: var(--bg-card);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: var(--shadow-sm);
+        }
+        .hub-btn:hover {
+            background: var(--bg-secondary);
+            border-color: #c5bfb5;
+            box-shadow: var(--shadow-md);
+            transform: translateY(-1px);
+            text-decoration: none;
+            color: var(--text);
+        }
+        .hub-btn small {
+            display: block;
+            font-weight: 400;
+            color: var(--text-muted);
+            font-size: 0.78rem;
+            margin-top: 3px;
+        }
+
+        .story-block {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 28px 30px;
+            margin-top: 20px;
+            box-shadow: var(--shadow-sm);
+            font-size: 0.93rem;
+            line-height: 1.8;
+            color: var(--text-secondary);
+        }
+        .story-block p {
+            margin-bottom: 14px;
+        }
+        .story-block p:last-child {
+            margin-bottom: 0;
+        }
+        .story-block strong {
+            color: var(--text);
+        }
+        .story-image {
+            display: block;
+            max-width: 100%;
+            height: auto;
+            border-radius: var(--radius);
+            margin: 24px auto 0;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border);
+        }
+
+        .snake-img {
+            display: block;
+            max-width: 100%;
+            height: auto;
+            border-radius: var(--radius-sm);
+            margin: 0 auto;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 48px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border-light);
+            color: var(--text-muted);
+            font-size: 0.82rem;
+        }
+        .footer a {
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+        .footer a:hover {
+            color: var(--accent);
+        }
+
+        details {
+            margin-top: 4px;
+        }
+        details summary {
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.95rem;
+            padding: 10px 0;
+            color: var(--text);
+            transition: var(--transition);
+            list-style: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        details summary::-webkit-details-marker {
+            display: none;
+        }
+        details summary::before {
+            content: '\25B8';
+            display: inline-block;
+            font-size: 0.8rem;
+            transition: transform 0.25s;
+            color: var(--accent);
+            width: 16px;
+            text-align: center;
+        }
+        details[open] summary::before {
+            transform: rotate(90deg);
+        }
+        details summary:hover {
+            color: var(--accent);
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px 14px 40px;
+            }
+            .hero h1 {
+                font-size: 1.6rem;
+            }
+            .hero .typing-text {
+                font-size: 0.9rem;
+            }
+            .card {
+                padding: 18px 16px;
+            }
+            .nav-links a {
+                font-size: 0.78rem;
+                padding: 5px 10px;
+            }
+            .nav-inner {
+                height: 48px;
+                gap: 8px;
+            }
+            .hub-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+            }
+            .links-table td:first-child {
+                width: 100px;
+                font-size: 0.85rem;
+            }
+            .story-block {
+                padding: 18px 16px;
+                font-size: 0.88rem;
+            }
+        }
+        @media (max-width: 380px) {
+            .hub-grid {
+                grid-template-columns: 1fr;
+            }
+            .nav-links {
+                gap: 2px;
+            }
+            .nav-links a {
+                font-size: 0.7rem;
+                padding: 4px 7px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="nav" id="nav">
+        <div class="nav-inner">
+            <a href="#" class="nav-logo">MexrlDev</a>
+            <div class="nav-links">
+                <a href="#about">About</a>
+                <a href="#links">Links</a>
+                <a href="#projects">Projects</a>
+                <a href="#hub">Hub</a>
+                <a href="#story">Story</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+
+        <section class="hero" id="top">
+            <img
+                src="https://i.ibb.co/8nnv5CMz/IMG-1712.jpg"
+                alt="MexrlDev avatar"
+                class="hero-avatar"
+                width="100"
+                height="100"
+                loading="eager"
+            >
+            <h1>MexrlDev</h1>
+            <div class="typing-wrapper">
+                <span class="typing-text" id="typingText"></span>
+            </div>
+            <p class="subtitle">Just a normal developer living life, coding at my own pace.</p>
+        </section>
+
+        <section class="section" id="about">
+            <h2 class="section-title">About Me</h2>
+            <div class="card">
+                <p>
+                    I was a developer in the PlayStation community, building mods, payloads, and fun tools for the scene.
+                    I loved helping people and tinkering with codes. But after all... <strong>I retired from that life.</strong>
+                </p>
+                <p>
+                    Now? I'm just a normal developer living my life — still coding, but at my own pace.
+                    I don't develop like I used to, and I don't target PlayStation anymore.
+                    But the hobby I had… welp… it never left me somehow. That's why I relaunched <strong>MexrlDev</strong>.
+                </p>
+                <p>
+                    Indeed I can help in some projects and other things but… I don't think I have the same energy anymore… bleh.
+                </p>
+                <p>
+                    Oh yeah — also found a partner I love, who helped me through depression.
+                    I feel really peaceful and happy now. :3
+                </p>
+            </div>
+        </section>
+
+        <section class="section" id="links">
+            <h2 class="section-title">Related to Me</h2>
+            <div class="card">
+                <table class="links-table">
+                    <tbody>
+                        <tr>
+                            <td>Twitter / X</td>
+                            <td><a href="https://x.com/mexrl" target="_blank" rel="noopener">@MexrlDev</a></td>
+                        </tr>
+                        <tr>
+                            <td>EtaWen Git</td>
+                            <td><a href="https://git.etawen.dev/x" target="_blank" rel="noopener">git.etawen.dev/x</a></td>
+                        </tr>
+                        <tr>
+                            <td>BlueSky</td>
+                            <td><a href="https://bsky.app/profile/mexrl.bsky.social" target="_blank" rel="noopener">@mexrl.bsky.social</a></td>
+                        </tr>
+                        <tr>
+                            <td>Mexrl Story</td>
+                            <td><a href="https://github.com/MexrlDev/PsVue-Mod#the-story-of-mexrldev" target="_blank" rel="noopener">The Story of MexrlDev</a></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="section" id="projects">
+            <h2 class="section-title">Past Projects</h2>
+            <div class="card">
+                <details>
+                    <summary>Click to expand my project archive</summary>
+                    <div class="project-list" style="margin-top:8px;">
+                        <div class="project-item">
+                            <span class="project-dot"></span>
+                            <div class="project-info">
+                                <strong>Vue After Free Themes</strong>
+                                <span>UI theme library + DevTools for PsVue</span>
+                            </div>
+                        </div>
+                        <div class="project-item">
+                            <span class="project-dot"></span>
+                            <div class="project-info">
+                                <strong>Python Tools</strong>
+                                <span>Handy scripts for automation and daily tasks</span>
+                            </div>
+                        </div>
+                        <div class="project-item">
+                            <span class="project-dot"></span>
+                            <div class="project-info">
+                                <strong>Star Wars Racer Revenge</strong>
+                                <span>Custom mods and payloads</span>
+                            </div>
+                        </div>
+                        <div class="project-item">
+                            <span class="project-dot"></span>
+                            <div class="project-info">
+                                <strong>Repo (Netflix n' Hack mobile port, etc.)</strong>
+                                <span>Various ports and experimental hacks</span>
+                            </div>
+                        </div>
+                    </div>
+                </details>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2 class="section-title">Contribution</h2>
+            <div class="card" style="text-align:center; padding:20px;">
+                <picture>
+                    <source media="(prefers-color-scheme: dark)"
+                        srcset="https://raw.githubusercontent.com/MexrlDev/MexrlDev/refs/heads/output/github-contribution-grid-snake-dark.svg">
+                    <img
+                        class="snake-img"
+                        src="https://raw.githubusercontent.com/MexrlDev/MexrlDev/refs/heads/output/github-contribution-grid-snake-dark.svg"
+                        alt="GitHub contribution snake"
+                        loading="lazy"
+                    >
+                </picture>
+            </div>
+        </section>
+
+        <section class="section" id="hub">
+            <h2 class="section-title">Sunset Hub</h2>
+            <div class="card">
+                <p style="text-align:center; margin-bottom:6px; font-weight:600;">This is a hub to choose where to go for my websites</p>
+                <p style="text-align:center; font-size:0.85rem; color:var(--text-muted); margin-bottom:16px;">
+                    All made in memory of Terry A. Davis
+                </p>
+                <div class="hub-grid">
+                    <a class="hub-btn" href="https://mexrldev.github.io/terry" target="_blank" rel="noopener">
+                        Main Page
+                        <small>Goto Main Page</small>
+                    </a>
+                    <a class="hub-btn" href="https://mexrldev.github.io/main" target="_blank" rel="noopener">
+                        Repo's Archives
+                        <small>Abandoned repos — enjoy them while you can</small>
+                    </a>
+                    <a class="hub-btn" href="https://mexrldev.github.io/bookmarks" target="_blank" rel="noopener">
+                        Bookmarks
+                        <small>Terry A. Davis bookmarks</small>
+                    </a>
+                    <a class="hub-btn" href="https://mexrldev.github.io/daily" target="_blank" rel="noopener">
+                        Daily
+                        <small>Status page — how I'm feeling</small>
+                    </a>
+                </div>
+                <p style="text-align:center; margin-top:14px; font-size:0.85rem;">
+                    In memory of Terry A. Davis —
+                    <a href="https://templeos.org" target="_blank" rel="noopener" style="color:var(--accent);">TempleOS</a>
+                </p>
+            </div>
+        </section>
+
+        <section class="section" id="story">
+            <h2 class="section-title">The Story of MexrlDev</h2>
+            <div class="story-block">
+                <p>
+                    <strong>The first of MexrlDev.</strong> They had always been seeing the PlayStation community online, on Twitter.
+                    After they finally got their first PS4 Fat jailbroken — after a long time of waiting and missing firmwares
+                    that were gold such as 4.xx, 5.05, 9.00, 10.00, 11.00, 12.02 — and finally at 12.50, 12.52 they stopped
+                    and were able to get it. That's when they felt like they belonged to this, like they belonged to developing
+                    things for people and for the PS, making useful homebrew and more. But they couldn't, because they didn't
+                    know where to start. As someone without experience, they waited.
+                </p>
+                <p>
+                    When Vue was first announced as a userland in the early days, MexrlDev got excited knowing this would be
+                    so cool — especially after seeing <strong>EarthOnion</strong> doing all the cool stuff. That's when MexrlDev
+                    got excited to try and crack the AES code for Vue saves but failed, of course. They modded Vue 1.01 but
+                    never were able to get to it… until it was finally released. Due to lack of coding experience, they had to
+                    use ChatGPT, Copilot, to finally start what they always wanted…
+                </p>
+                <p>
+                    MexrlDev started their journey after 1 day of the release of <strong>Vue After Free</strong>. They went
+                    through a lot, had done the first-ever mod on Vue — adding animations and a bit of polish. That's when they
+                    made their first post on X, named <em>"the first ever vue mod"</em>, mentioning <strong>Dr.YenYen</strong>
+                    who was really kind and helped them throughout a lot, and mentioning EarthOnion, bringing more attention
+                    toward MexrlDev's projects. This is when MexrlDev started to work harder, spending whole days for 3 months
+                    without much rest to make the best mods they'd always dreamed of for the people and to do something for
+                    the community.
+                </p>
+                <p>
+                    This is when they started to use <strong>DeepSeek</strong>. It helped a lot, but they had to spend many
+                    hours on projects due to AI's lack of eyes to see the final results — debugging so many things over and
+                    over again. MexrlDev spent hours fixing bugs with the AI, making sure everything went smooth and perfect
+                    until the theme was ready to be published. A lot went on, and there was a goal to make <strong>100+ themes
+                    and games for Vue</strong>. The best of them were huge projects like the PS3 theme,
+                    <strong>Artemis</strong> (Mexrl's favorite), Apollo, Vue Cheat Manager, and many more good themes.
+                </p>
+                <p>
+                    But sadly, they got stressed and had to stop. They couldn't handle it — their energy for making themes
+                    kept growing and they couldn't take breaks. That's when they started to get bored, stressed, unable to
+                    think straight, making projects that might not be useful or, of course, not working as expected. After
+                    all, MexrlDev stopped for a while and came back. As they lost their laptop, some stuff went on, and of
+                    course losing friends… which got them to finally <strong>delete their X account forever</strong>.
+                </p>
+                <p>
+                    As days go by… this project will always be proof of how a passionate developer like MexrlDev (me) can
+                    make useful things and succeed with a project that was only supposed to be used once — just for a jailbreak.
+                    And the best part of MexrlDev is that they made a lot of friends, met a lot of good people, and helped
+                    lots of users as much as they could, with kindness toward everyone.
+                </p>
+                <p>
+                    And now, as MexrlDev retired, they wish everyone good luck in everything they are passionate about. They
+                    truly love seeing people work on new things, especially using the code they built — for the community and
+                    for others to learn from for future projects. MexrlDev wasn't just a random person who appeared in the
+                    PlayStation hacking community, but someone who had a passion for helping people, making things better,
+                    working on projects that had been left behind, creating new ideas, and showing people that even an unknown
+                    person can become known through what they love.
+                </p>
+                <p>
+                    <strong>What ended MexrlDev?</strong> Being depressed, stressed out, working on things they couldn't
+                    really understand (porting exploits, making things that didn't work and made them feel so embarrassed),
+                    not taking breaks, losing some friendships, etc.
+                </p>
+                <p>
+                    <strong>What did MexrlDev leave for new developers?</strong> MexrlDev left a big folder with all the
+                    debugging they did for Vue, the things they found, and how to make things go correctly — due to the lack
+                    of info about how Vue works since it runs on JSMAF, including APIs.
+                </p>
+                <p>
+                    <strong>Will MexrlDev ever come back?</strong> Nobody knows. As time goes by… who knows if MexrlDev will
+                    give it a second chance.
+                </p>
+                <p>
+                    <strong>How is MexrlDev now?</strong> On July 25, 2026, MexrlDev has moved on, built a life, met someone
+                    they love, and finally… they feel happy. Even though MexrlDev can still become depressed suddenly, have
+                    mental breakdowns, or feel stressed, it's now under control — and they are happy. They have accepted
+                    whatever life gives them. They understood that there are some things they cannot control and chose to
+                    focus on making things better instead. They are trying to cure depression and live happy. Now, MexrlDev
+                    is living their life not just happily, but with a partner that they truly love and feel comfortable with.
+                </p>
+                <img
+                    src="https://i.ibb.co/KpwXG3gH/Untitled25-20260726192436.png"
+                    alt="MexrlDev - July 2026"
+                    class="story-image"
+                    width="1697"
+                    height="927"
+                    loading="lazy"
+                >
+            </div>
+        </section>
+
+        <footer class="footer">
+            <p>
+                MexrlDev &copy; 2026 — Built with love —
+                <a href="https://github.com/MexrlDev" target="_blank" rel="noopener">GitHub</a>
+                &nbsp;·&nbsp;
+                <a href="https://templeos.org" target="_blank" rel="noopener">In memory of Terry A. Davis</a>
+            </p>
+        </footer>
+
+    </div>
+
+    <script>
+        (function() {
+            const phrases = [
+                "MexrlDev Short Bio",
+                "Just A Short Story",
+                "Former PS Community Dev",
+                "Now coding at my own pace",
+                "Happy & at peace :3",
+            ];
+            let phraseIndex = 0;
+            let charIndex = 0;
+            let isDeleting = false;
+            let typingSpeed = 90;
+            const typingEl = document.getElementById('typingText');
+
+            function typeLoop() {
+                if (!typingEl) return;
+                const currentPhrase = phrases[phraseIndex];
+
+                if (isDeleting) {
+                    typingEl.textContent = currentPhrase.substring(0, charIndex - 1);
+                    charIndex--;
+                    typingSpeed = 35;
+                } else {
+                    typingEl.textContent = currentPhrase.substring(0, charIndex + 1);
+                    charIndex++;
+                    typingSpeed = 80;
+                }
+
+                if (!isDeleting && charIndex === currentPhrase.length) {
+                    typingSpeed = 2000;
+                    isDeleting = true;
+                } else if (isDeleting && charIndex === 0) {
+                    isDeleting = false;
+                    phraseIndex = (phraseIndex + 1) % phrases.length;
+                    typingSpeed = 400;
+                }
+
+                setTimeout(typeLoop, typingSpeed);
+            }
+
+            if (typingEl) {
+                typingEl.textContent = '';
+                setTimeout(typeLoop, 500);
+            }
+
+            const sections = document.querySelectorAll('section[id]');
+            const navLinks = document.querySelectorAll('.nav-links a');
+
+            function updateActiveNav() {
+                let currentId = '';
+                const scrollPos = window.scrollY + 100;
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    const sectionHeight = section.offsetHeight;
+                    if (scrollPos >= sectionTop && scrollPos < sectionTop + sectionHeight) {
+                        currentId = section.getAttribute('id');
+                    }
+                });
+                navLinks.forEach(link => {
+                    link.classList.remove('nav-active');
+                    if (link.getAttribute('href') === '#' + currentId) {
+                        link.classList.add('nav-active');
+                    }
+                });
+            }
+
+            window.addEventListener('scroll', updateActiveNav, { passive: true });
+            updateActiveNav();
+
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    const targetId = this.getAttribute('href');
+                    if (targetId && targetId.startsWith('#')) {
+                        e.preventDefault();
+                        const target = document.querySelector(targetId);
+                        if (target) {
+                            const navHeight = document.getElementById('nav')?.offsetHeight || 56;
+                            const top = target.offsetTop - navHeight - 12;
+                            window.scrollTo({ top, behavior: 'smooth' });
+                        }
+                    }
+                });
+            });
+
+            console.log('MexrlDev - personal site loaded. Stay cozy.');
+            console.log('In memory of Terry A. Davis');
+        })();
+    </script>
+</body>
+</html>
