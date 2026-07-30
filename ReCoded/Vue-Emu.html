@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>PS4 JSMAF Emulator</title>
   <style>
     * {
@@ -11,26 +11,27 @@
       box-sizing: border-box;
       user-select: none;
     }
-    body {
+    html, body {
+      height: 100%;
+      overflow: hidden;
       background: #0d0d1a;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
       color: #eee;
-      overflow: hidden;
     }
+
+    /* ---- Toolbar ---- */
     #toolbar {
       display: flex;
       flex-wrap: wrap;
-      gap: 6px;
-      padding: 6px 8px;
+      gap: 4px;
+      padding: 4px 6px;
       background: #1a1a2e;
       border-bottom: 1px solid #333;
-      align-items: center;
       flex-shrink: 0;
+      align-items: center;
     }
-    #toolbar button, #toolbar select {
+    #toolbar button,
+    #toolbar select {
       background: #2a2a4a;
       color: #eee;
       border: 1px solid #555;
@@ -40,27 +41,36 @@
       cursor: pointer;
       white-space: nowrap;
     }
-    #toolbar button:hover { background: #3a3a6a; }
-    #toolbar .spacer { flex: 1; }
+    #toolbar button:hover {
+      background: #3a3a6a;
+    }
+    #toolbar .spacer {
+      flex: 1;
+    }
     #toolbar .badge {
       font-size: 11px;
       color: #888;
       padding: 0 6px;
     }
 
+    /* ---- Main area ---- */
     #main-area {
       flex: 1;
       position: relative;
       min-height: 0;
-      overflow: hidden;
     }
-    #editor-container, #screen-container {
+    #editor-container,
+    #screen-container {
       position: absolute;
-      top: 0; left: 0; right: 0; bottom: 0;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
       display: flex;
       flex-direction: column;
     }
-    #editor-container.hidden, #screen-container.hidden {
+    #editor-container.hidden,
+    #screen-container.hidden {
       display: none;
     }
     #code-editor {
@@ -70,7 +80,7 @@
       color: #f8f8f2;
       border: none;
       outline: none;
-      padding: 12px;
+      padding: 10px;
       font-family: 'Consolas', 'Courier New', monospace;
       font-size: 14px;
       resize: none;
@@ -79,6 +89,8 @@
     #code-editor::placeholder {
       color: #555;
     }
+
+    /* ---- Screen ---- */
     #screen {
       width: 100%;
       height: 100%;
@@ -103,13 +115,14 @@
       background-position: center;
     }
 
+    /* ---- Console ---- */
     #console {
       background: #0d0d1a;
       border-top: 1px solid #333;
       display: flex;
       flex-direction: column;
       flex-shrink: 0;
-      height: 140px;
+      height: 130px;
       min-height: 60px;
       overflow: hidden;
     }
@@ -147,13 +160,23 @@
       padding: 2px 0;
       border-bottom: 1px solid #1a1a2e;
     }
-    .log-debug { color: #8be9fd; }
-    .log-info { color: #f1fa8c; }
-    .log-error { color: #ff5555; }
-    .log-success { color: #50fa7b; }
-    .log-warn { color: #ffb86c; }
+    .log-debug {
+      color: #8be9fd;
+    }
+    .log-info {
+      color: #f1fa8c;
+    }
+    .log-error {
+      color: #ff5555;
+    }
+    .log-success {
+      color: #50fa7b;
+    }
+    .log-warn {
+      color: #ffb86c;
+    }
 
-    /* Controller */
+    /* ---- Controller ---- */
     #controller {
       position: fixed;
       bottom: 10px;
@@ -164,13 +187,16 @@
       border-radius: 14px;
       padding: 10px 8px 12px;
       backdrop-filter: blur(6px);
-      box-shadow: 0 8px 32px rgba(0,0,0,0.8);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
       z-index: 1000;
       cursor: grab;
       touch-action: none;
       font-size: 11px;
+      display: block;
     }
-    #controller:active { cursor: grabbing; }
+    #controller:active {
+      cursor: grabbing;
+    }
     #controller .close-btn {
       position: absolute;
       top: 4px;
@@ -179,15 +205,18 @@
       color: #fff;
       border: none;
       border-radius: 50%;
-      width: 20px;
-      height: 20px;
-      font-size: 12px;
-      line-height: 20px;
+      width: 22px;
+      height: 22px;
+      font-size: 14px;
+      line-height: 22px;
       text-align: center;
       cursor: pointer;
-      opacity: 0.7;
+      opacity: 0.8;
+      z-index: 10;
     }
-    #controller .close-btn:hover { opacity: 1; }
+    #controller .close-btn:hover {
+      opacity: 1;
+    }
     #controller .title {
       text-align: center;
       font-size: 10px;
@@ -213,41 +242,66 @@
       text-align: center;
       cursor: pointer;
       transition: background 0.1s, transform 0.05s;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
       line-height: 1.2;
+      touch-action: manipulation;
     }
     .ctrl-btn:active {
       background: #4a4a7a;
       transform: scale(0.92);
     }
-    .ctrl-btn.face { background: #3a3a6a; }
-    .ctrl-btn.face.cross { background: #2a6a2a; }
-    .ctrl-btn.face.circle { background: #6a2a2a; }
-    .ctrl-btn.face.square { background: #4a4a8a; }
-    .ctrl-btn.face.triangle { background: #6a5a2a; }
-    .ctrl-btn.dpad { background: #3a3a4a; }
-    .ctrl-btn.trigger { background: #3a3a5a; }
-    .ctrl-btn.stick { background: #2a3a4a; }
-    .ctrl-btn.special { background: #4a3a3a; }
-    .ctrl-btn .label { font-size: 7px; opacity: 0.7; display: block; }
+    .ctrl-btn.face {
+      background: #3a3a6a;
+    }
+    .ctrl-btn.face.cross {
+      background: #2a6a2a;
+    }
+    .ctrl-btn.face.circle {
+      background: #6a2a2a;
+    }
+    .ctrl-btn.face.square {
+      background: #4a4a8a;
+    }
+    .ctrl-btn.face.triangle {
+      background: #6a5a2a;
+    }
+    .ctrl-btn.dpad {
+      background: #3a3a4a;
+    }
+    .ctrl-btn.trigger {
+      background: #3a3a5a;
+    }
+    .ctrl-btn.stick {
+      background: #2a3a4a;
+    }
+    .ctrl-btn.special {
+      background: #4a3a3a;
+    }
+    .ctrl-btn .label {
+      font-size: 7px;
+      opacity: 0.7;
+      display: block;
+    }
 
-    /* File Browser */
+    /* ---- File Browser ---- */
     #file-browser {
       position: fixed;
-      top: 10%;
+      top: 8%;
       left: 5%;
       width: 90%;
-      height: 80%;
+      height: 84%;
       background: #1a1a2e;
       border: 2px solid #555;
       border-radius: 12px;
       z-index: 2000;
       display: none;
       flex-direction: column;
-      box-shadow: 0 12px 48px rgba(0,0,0,0.9);
+      box-shadow: 0 12px 48px rgba(0, 0, 0, 0.9);
       overflow: hidden;
     }
-    #file-browser.active { display: flex; }
+    #file-browser.active {
+      display: flex;
+    }
     #file-browser .header {
       background: #2a2a4a;
       padding: 8px 12px;
@@ -255,13 +309,16 @@
       justify-content: space-between;
       align-items: center;
       border-bottom: 1px solid #444;
+      flex-shrink: 0;
     }
-    #file-browser .header h3 { font-size: 14px; }
+    #file-browser .header h3 {
+      font-size: 14px;
+    }
     #file-browser .header button {
       background: #6a2a2a;
       border: none;
       color: #fff;
-      padding: 2px 12px;
+      padding: 2px 14px;
       border-radius: 4px;
       cursor: pointer;
     }
@@ -285,9 +342,15 @@
       align-items: center;
       gap: 6px;
     }
-    #file-browser .file-item:hover { background: #3a3a6a; }
-    #file-browser .file-item .icon { font-size: 14px; }
-    #file-browser .file-item .name { word-break: break-all; }
+    #file-browser .file-item:hover {
+      background: #3a3a6a;
+    }
+    #file-browser .file-item .icon {
+      font-size: 14px;
+    }
+    #file-browser .file-item .name {
+      word-break: break-all;
+    }
     #file-browser .preview {
       background: #0a0a14;
       padding: 8px;
@@ -297,9 +360,10 @@
       white-space: pre-wrap;
       font-family: monospace;
       font-size: 11px;
+      flex-shrink: 0;
     }
 
-    /* Responsive */
+    /* ---- Responsive ---- */
     @media (max-width: 600px) {
       #controller {
         width: 200px;
@@ -313,759 +377,993 @@
         padding: 2px 1px;
         border-radius: 4px;
       }
-      .ctrl-btn .label { font-size: 6px; }
-      .ctrl-grid { gap: 3px; max-width: 190px; }
-      #toolbar button, #toolbar select { font-size: 10px; padding: 2px 6px; }
-      #code-editor { font-size: 12px; padding: 8px; }
-      #console { height: 100px; }
-      #file-browser { top: 5%; left: 2%; width: 96%; height: 90%; }
+      .ctrl-btn .label {
+        font-size: 6px;
+      }
+      .ctrl-grid {
+        gap: 3px;
+        max-width: 190px;
+      }
+      #toolbar button,
+      #toolbar select {
+        font-size: 10px;
+        padding: 2px 6px;
+      }
+      #code-editor {
+        font-size: 12px;
+        padding: 8px;
+      }
+      #console {
+        height: 100px;
+      }
+      #file-browser {
+        top: 5%;
+        left: 2%;
+        width: 96%;
+        height: 90%;
+      }
     }
     @media (max-width: 400px) {
-      #controller { width: 160px; }
-      .ctrl-grid { max-width: 150px; gap: 2px; }
-      .ctrl-btn { font-size: 7px; padding: 1px 1px; }
+      #controller {
+        width: 160px;
+      }
+      .ctrl-grid {
+        max-width: 150px;
+        gap: 2px;
+      }
+      .ctrl-btn {
+        font-size: 7px;
+        padding: 1px 1px;
+      }
     }
   </style>
 </head>
 <body>
 
-<!-- Toolbar -->
-<div id="toolbar">
-  <button id="run-btn">▶ Run</button>
-  <select id="script-select">
-    <option value="demo">🎮 Demo UI</option>
-    <option value="dump">📄 Dump JSMAF</option>
-    <option value="custom">🧪 Custom</option>
-  </select>
-  <button id="open-files">📂 Files</button>
-  <button id="toggle-controller">🎮 Ctrl</button>
-  <span class="spacer"></span>
-  <button id="clear-log">🗑️ Clear</button>
-  <span class="badge" id="status-badge">● Ready</span>
-</div>
-
-<!-- Main Area -->
-<div id="main-area">
-  <!-- Editor -->
-  <div id="editor-container">
-    <textarea id="code-editor" spellcheck="false" placeholder="Paste or type your JSMAF script here…"></textarea>
+  <!-- Toolbar -->
+  <div id="toolbar">
+    <button id="run-btn">▶ Run</button>
+    <select id="script-select">
+      <option value="demo">🎮 Demo UI</option>
+      <option value="dump">📄 Dump JSMAF</option>
+      <option value="custom">🧪 Custom</option>
+    </select>
+    <button id="open-files">📂 Files</button>
+    <button id="toggle-controller">🎮 Ctrl</button>
+    <span class="spacer"></span>
+    <button id="clear-log">🗑️ Clear</button>
+    <span class="badge" id="status-badge">● Ready</span>
   </div>
-  <!-- Screen -->
-  <div id="screen-container" class="hidden">
-    <div id="screen"></div>
+
+  <!-- Main -->
+  <div id="main-area">
+    <div id="editor-container">
+      <textarea id="code-editor" spellcheck="false" placeholder="Paste or type your JSMAF script here…"></textarea>
+    </div>
+    <div id="screen-container" class="hidden">
+      <div id="screen"></div>
+    </div>
   </div>
-</div>
 
-<!-- Console -->
-<div id="console">
-  <div id="console-header">
-    <span>📟 Log</span>
-    <span style="font-size:10px;color:#666;" id="log-count">0 entries</span>
+  <!-- Console -->
+  <div id="console">
+    <div id="console-header">
+      <span>📟 Log</span>
+      <span style="font-size:10px;color:#666;" id="log-count">0 entries</span>
+    </div>
+    <div id="console-log"></div>
   </div>
-  <div id="console-log"></div>
-</div>
 
-<!-- Controller -->
-<div id="controller">
-  <button class="close-btn" id="close-controller">✕</button>
-  <div class="title">🎮 PS4 Controller</div>
-  <div class="ctrl-grid">
-    <!-- Row 1 -->
-    <div></div><div class="ctrl-btn dpad" data-key="4">▲<span class="label">Up</span></div><div></div>
-    <div class="ctrl-btn special" data-key="3">⏺<span class="label">Opt</span></div>
-    <div class="ctrl-btn special" data-key="16">⎚<span class="label">Touch</span></div>
-    <!-- Row 2 -->
-    <div class="ctrl-btn dpad" data-key="7">◀<span class="label">L</span></div><div></div>
-    <div class="ctrl-btn dpad" data-key="5">▶<span class="label">R</span></div>
-    <div class="ctrl-btn face triangle" data-key="12">▲<span class="label">Tri</span></div>
-    <div class="ctrl-btn trigger" data-key="10">L1</div>
-    <!-- Row 3 -->
-    <div class="ctrl-btn dpad" data-key="6">▼<span class="label">Dn</span></div><div></div><div></div>
-    <div class="ctrl-btn face square" data-key="15">■<span class="label">Sq</span></div>
-    <div class="ctrl-btn trigger" data-key="11">R1</div>
-    <!-- Row 4 -->
-    <div class="ctrl-btn stick" data-key="1">L3</div><div></div>
-    <div class="ctrl-btn stick" data-key="2">R3</div>
-    <div class="ctrl-btn face cross" data-key="14">✕<span class="label">X</span></div>
-    <div class="ctrl-btn trigger" data-key="8">L2</div>
-    <!-- Row 5 -->
-    <div></div><div></div><div></div>
-    <div class="ctrl-btn face circle" data-key="13">◯<span class="label">O</span></div>
-    <div class="ctrl-btn trigger" data-key="9">R2</div>
+  <!-- Controller -->
+  <div id="controller">
+    <button class="close-btn" id="close-controller">✕</button>
+    <div class="title">🎮 PS4 Controller</div>
+    <div class="ctrl-grid">
+      <!-- Row 1 -->
+      <div></div>
+      <div class="ctrl-btn dpad" data-key="4">▲<span class="label">Up</span></div>
+      <div></div>
+      <div class="ctrl-btn special" data-key="3">⏺<span class="label">Opt</span></div>
+      <div class="ctrl-btn special" data-key="16">⎚<span class="label">Touch</span></div>
+      <!-- Row 2 -->
+      <div class="ctrl-btn dpad" data-key="7">◀<span class="label">L</span></div>
+      <div></div>
+      <div class="ctrl-btn dpad" data-key="5">▶<span class="label">R</span></div>
+      <div class="ctrl-btn face triangle" data-key="12">▲<span class="label">Tri</span></div>
+      <div class="ctrl-btn trigger" data-key="10">L1</div>
+      <!-- Row 3 -->
+      <div class="ctrl-btn dpad" data-key="6">▼<span class="label">Dn</span></div>
+      <div></div>
+      <div></div>
+      <div class="ctrl-btn face square" data-key="15">■<span class="label">Sq</span></div>
+      <div class="ctrl-btn trigger" data-key="11">R1</div>
+      <!-- Row 4 -->
+      <div class="ctrl-btn stick" data-key="1">L3</div>
+      <div></div>
+      <div class="ctrl-btn stick" data-key="2">R3</div>
+      <div class="ctrl-btn face cross" data-key="14">✕<span class="label">X</span></div>
+      <div class="ctrl-btn trigger" data-key="8">L2</div>
+      <!-- Row 5 -->
+      <div></div>
+      <div></div>
+      <div></div>
+      <div class="ctrl-btn face circle" data-key="13">◯<span class="label">O</span></div>
+      <div class="ctrl-btn trigger" data-key="9">R2</div>
+    </div>
+    <div style="display:flex; justify-content:center; gap:6px; margin-top:4px; font-size:8px; color:#666;">
+      <span>Stick L:55-58 R:59-62</span>
+    </div>
   </div>
-  <div style="display:flex; justify-content:center; gap:6px; margin-top:4px; font-size:8px; color:#666;">
-    <span>Stick L:55-58 R:59-62</span>
+
+  <!-- File Browser -->
+  <div id="file-browser">
+    <div class="header">
+      <h3>📁 Virtual Filesystem</h3>
+      <button id="close-files">Close</button>
+    </div>
+    <div class="body" id="file-list"></div>
+    <div class="preview" id="file-preview">Select a file to preview</div>
   </div>
-</div>
 
-<!-- File Browser -->
-<div id="file-browser">
-  <div class="header">
-    <h3>📁 Virtual Filesystem</h3>
-    <button id="close-files">Close</button>
-  </div>
-  <div class="body" id="file-list"></div>
-  <div class="preview" id="file-preview">Select a file to preview</div>
-</div>
+  <script>
+    // =============================================================
+    //  VIRTUAL FILESYSTEM
+    // =============================================================
+    const VFS = {};
 
-<script>
-// ============================================================
-// VIRTUAL FILESYSTEM
-// ============================================================
-const VFS = {};
-function addFile(path, content) { VFS[path] = content; }
-
-// ============================================================
-// JSMAF ENVIRONMENT (simplified, extended)
-// ============================================================
-const jsmaf = (function() {
-  const root = {
-    children: [],
-    x: 0, y: 0, width: 1920, height: 1080,
-    alpha: 1, visible: true,
-    scaleX: 1, scaleY: 1, scaleZ: 1,
-    rotateX: 0, rotateY: 0, rotateZ: 0,
-    clip: false, clipX: 0, clipY: 0, clipWidth: 0, clipHeight: 0,
-  };
-
-  class DisplayObject {
-    constructor(props = {}) {
-      Object.assign(this, {
-        x: 0, y: 0, width: 0, height: 0, alpha: 1, visible: true,
-        scaleX: 1, scaleY: 1, scaleZ: 1,
-        rotateX: 0, rotateY: 0, rotateZ: 0,
-        clip: false, clipX: 0, clipY: 0, clipWidth: 0, clipHeight: 0,
-        children: [], _dom: null, _type: 'display'
-      }, props);
+    function addFile(path, content) {
+      VFS[path] = content;
     }
-  }
 
-  class Image extends DisplayObject {
-    constructor(props = {}) {
-      super(props);
-      this.url = props.url || '';
-      this.naturalWidth = 0; this.naturalHeight = 0;
-      this.onload = this.onLoad = null;
-      this.tint = props.tint || 'rgb(255,255,255)';
-      this.borderImage = props.borderImage || '';
-      this.borderWidth = props.borderWidth || 0;
-      this.borderColor = props.borderColor || 'rgb(0,0,0)';
-      this._type = 'image';
-      setTimeout(() => { if (this.onload) this.onload(); if (this.onLoad) this.onLoad(); }, 10);
-    }
-  }
+    // =============================================================
+    //  JSMAF ENVIRONMENT
+    // =============================================================
+    const jsmaf = (function() {
+      const root = {
+        children: [],
+        x: 0,
+        y: 0,
+        width: 1920,
+        height: 1080,
+        alpha: 1,
+        visible: true,
+        scaleX: 1,
+        scaleY: 1,
+        scaleZ: 1,
+        rotateX: 0,
+        rotateY: 0,
+        rotateZ: 0,
+        clip: false,
+        clipX: 0,
+        clipY: 0,
+        clipWidth: 0,
+        clipHeight: 0,
+      };
 
-  class Text extends DisplayObject {
-    constructor(props = {}) {
-      super(props);
-      this.text = props.text || '';
-      this.style = props.style || '';
-      this.align = props.align || 'left';
-      this.baseline = props.baseline || 0;
-      this.background = props.background || 'rgba(255,255,255,0)';
-      this.paddingTop = this.paddingBottom = this.paddingLeft = this.paddingRight = 0;
-      this.lineCount = 0; this.lineClamp = props.lineClamp || 0;
-      this.naturalWidth = this.naturalHeight = 0;
-      this._type = 'text';
-    }
-  }
-
-  class Container extends DisplayObject {
-    constructor(props = {}) { super(props); this._type = 'container'; }
-  }
-
-  class Style {
-    constructor(props = {}) {
-      this.name = props.name || '';
-      this.color = props.color || 'white';
-      this.size = props.size || 16;
-      if (this.name) jsmaf._styles[this.name] = this;
-    }
-  }
-
-  class XMLHttpRequest {
-    constructor() {
-      this.readyState = 0; this.status = 0; this.responseText = '';
-      this.onreadystatechange = null;
-      this._method = ''; this._url = ''; this._async = true; this._data = null;
-    }
-    open(method, url, async) {
-      this._method = method; this._url = url; this._async = async !== false;
-      this.readyState = 1;
-      if (this.onreadystatechange) this.onreadystatechange();
-    }
-    send(data) {
-      this._data = data;
-      let path = this._url.replace('file://', '');
-      if (path.startsWith('/')) path = path.substring(1);
-      const match = path.match(/\.\.\/download0\/(.*)/);
-      if (match) path = '/download0/' + match[1];
-      else if (path.startsWith('download0/')) path = '/' + path;
-      else if (!path.startsWith('/')) path = '/' + path;
-
-      const self = this;
-      setTimeout(() => {
-        try {
-          if (self._method === 'GET') {
-            const content = VFS[path];
-            self.status = content !== undefined ? 200 : 404;
-            self.responseText = content !== undefined ? content : '';
-          } else if (self._method === 'POST' || self._method === 'PUT') {
-            VFS[path] = self._data;
-            self.status = 200;
-            self.responseText = 'OK';
-          } else if (self._method === 'DELETE') {
-            delete VFS[path];
-            self.status = 200;
-            self.responseText = 'OK';
-          } else {
-            self.status = 405;
-            self.responseText = 'Method not allowed';
-          }
-        } catch(e) {
-          self.status = 500;
-          self.responseText = e.message;
+      class DisplayObject {
+        constructor(props = {}) {
+          Object.assign(this, {
+            x: 0,
+            y: 0,
+            width: 0,
+            height: 0,
+            alpha: 1,
+            visible: true,
+            scaleX: 1,
+            scaleY: 1,
+            scaleZ: 1,
+            rotateX: 0,
+            rotateY: 0,
+            rotateZ: 0,
+            clip: false,
+            clipX: 0,
+            clipY: 0,
+            clipWidth: 0,
+            clipHeight: 0,
+            children: [],
+            _dom: null,
+            _type: 'display'
+          }, props);
         }
-        self.readyState = 4;
-        if (self.onreadystatechange) self.onreadystatechange();
-      }, 10);
-    }
-    abort() { this.readyState = 0; }
-  }
+      }
 
-  class AudioClip {
-    constructor() { this.volume = 1; }
-    open(url) {} play() {} stop() {} close() {}
-  }
-  class WebSocket {
-    constructor(url) { this.url = url; this.onmessage = this.onopen = this.onclose = this.onerror = null; }
-    send(data) {} close() {}
-  }
-  class WebSocketServer {
-    constructor(port) { this.port = port; this.onmessage = this.onconnect = null; }
-    broadcast(msg) {}
-  }
-  const User = {};
+      class Image extends DisplayObject {
+        constructor(props = {}) {
+          super(props);
+          this.url = props.url || '';
+          this.naturalWidth = 0;
+          this.naturalHeight = 0;
+          this.onload = null;
+          this.onLoad = null;
+          this.tint = props.tint || 'rgb(255,255,255)';
+          this.borderImage = props.borderImage || '';
+          this.borderWidth = props.borderWidth || 0;
+          this.borderColor = props.borderColor || 'rgb(0,0,0)';
+          this._type = 'image';
+          setTimeout(() => {
+            if (this.onload) this.onload();
+            if (this.onLoad) this.onLoad();
+          }, 10);
+        }
+      }
 
-  const location = {
-    requiresPsn: true, debugScripts: false, psnFailover: false,
-    mIsSetUp: true, mOnErrorFunc: null, mOnNetworkStatusChangeFunc: null,
-    mOnUserStatusChangeFunc: null, mOnEnterFrameHandle: null,
-    mReadyToTeardown: true, mHandlerChain: null, mLocation: '',
-    manifest: null,
-    initJSMAFLocation() {}, setUp() {}, update() {}, tearDown() {},
-    tearDownImmediate() {}, onEnterFrame() {}, onNetworkStatusChange() {},
-    onError() {}, onUserStatusChange() {}, initChain() {},
-    isSetUp() { return true; }, restart() {}, sendRequest() {},
-  };
+      class Text extends DisplayObject {
+        constructor(props = {}) {
+          super(props);
+          this.text = props.text || '';
+          this.style = props.style || '';
+          this.align = props.align || 'left';
+          this.baseline = props.baseline || 0;
+          this.background = props.background || 'rgba(255,255,255,0)';
+          this.paddingTop = props.paddingTop || 0;
+          this.paddingBottom = props.paddingBottom || 0;
+          this.paddingLeft = props.paddingLeft || 0;
+          this.paddingRight = props.paddingRight || 0;
+          this.lineCount = 0;
+          this.lineClamp = props.lineClamp || 0;
+          this.naturalWidth = 0;
+          this.naturalHeight = 0;
+          this._type = 'text';
+        }
+      }
 
-  const styles = {};
-  let timeoutId = 0, intervalId = 0;
-  const timeouts = {}, intervals = {};
+      class Container extends DisplayObject {
+        constructor(props = {}) {
+          super(props);
+          this._type = 'container';
+        }
+      }
 
-  const jsmaf = {
-    root, Image, Text, Container, Style, XMLHttpRequest,
-    AudioClip, WebSocket, WebSocketServer, User, location,
-    _styles: styles,
-    screenWidth: 1920, screenHeight: 1080, screenAspect: 1920/1080,
-    frameRate: 60, platform: 'ps4', version: '2.13.2',
-    locale: 'en', networkStatus: 'connected', remotePlay: true,
-    circleIsAdvanceButton: false, hardwareId: 'noooooo\'noooooo',
-    cookie: '', fwDebugString: 'release/2.13-e98b7be',
-    isTTSenabled: false, depthTest: false, gamma: 1, connectionType: 'wireless',
-    onKeyDown: null, onKeyUp: null, onKeyRepeat: null,
-    onError: null, onShutdown: null, onEnterFrame: null,
-    onEnterForeground: null, onEnterBackground: null,
-    onNetworkStatusChange: null, onTextSpeech: null, onExternalParamChange: null,
-    print(msg) { console.log('[jsmaf.print]', msg); },
-    alert(msg) { alert('[JSMAF Alert] ' + msg); },
-    include(path) {
-      let content = VFS[path];
-      if (content === undefined) content = VFS['/download0/' + path];
-      if (content === undefined) { console.error('include: file not found:', path); return; }
-      new Function('jsmaf', 'VFS', content)(jsmaf, VFS);
-    },
-    eval(code) { new Function('jsmaf', 'VFS', code)(jsmaf, VFS); },
-    exit() { console.log('[jsmaf.exit]'); },
-    gc() { console.log('[jsmaf.gc]'); },
-    setTimeout(cb, d) { const id = ++timeoutId; const t = setTimeout(() => { try { cb(); } catch(e) { console.error(e); } delete timeouts[id]; }, d); timeouts[id] = t; return id; },
-    clearTimeout(id) { if (timeouts[id]) { clearTimeout(timeouts[id]); delete timeouts[id]; } },
-    setInterval(cb, d) { const id = ++intervalId; const t = setInterval(() => { try { cb(); } catch(e) { console.error(e); } }, d); intervals[id] = t; return id; },
-    clearInterval(id) { if (intervals[id]) { clearInterval(intervals[id]); delete intervals[id]; } },
-    showOSK() {}, openWebBrowser() {}, speak() {}, showCCSettings() {},
-    hideSplashScreen() {}, forceShutdown() {}, forceConnect() {},
-    argv() { return []; }, processTime() { return Date.now(); },
-  };
-
-  Object.defineProperty(jsmaf, 'location', {
-    get: function() { return jsmaf.location.mLocation; },
-    set: function(value) {
-      jsmaf.location.mLocation = value;
-      let path = value.replace('file://', '');
-      if (path.startsWith('/')) path = path.substring(1);
-      const match = path.match(/\.\.\/download0\/(.*)/);
-      if (match) path = '/download0/' + match[1];
-      else if (path.startsWith('download0/')) path = '/' + path;
-      else if (!path.startsWith('/')) path = '/' + path;
-      const content = VFS[path];
-      if (!content) { console.error('Manifest not found:', path); return; }
-      try {
-        const manifest = JSON.parse(content);
-        jsmaf.location.manifest = manifest;
-        if (manifest.scripts) {
-          for (const script of manifest.scripts) {
-            let src = script.src.replace('file://', '');
-            if (src.startsWith('/')) src = src.substring(1);
-            const m2 = src.match(/\.\.\/download0\/(.*)/);
-            if (m2) src = '/download0/' + m2[1];
-            else if (src.startsWith('download0/')) src = '/' + src;
-            else if (!src.startsWith('/')) src = '/' + src;
-            const sc = VFS[src];
-            if (sc) new Function('jsmaf', 'VFS', sc)(jsmaf, VFS);
-            else console.error('Script not found:', src);
+      class Style {
+        constructor(props = {}) {
+          this.name = props.name || '';
+          this.color = props.color || 'white';
+          this.size = props.size || 16;
+          if (this.name) {
+            jsmaf._styles[this.name] = this;
           }
         }
-      } catch(e) { console.error('Manifest error:', e); }
-    }
-  });
-
-  return jsmaf;
-})();
-window.jsmaf = jsmaf;
-window.VFS = VFS;
-
-// ============================================================
-// GLOBAL LOGGING
-// ============================================================
-const logConsole = document.getElementById('console-log');
-const logCount = document.getElementById('log-count');
-let logEntries = 0;
-
-function addLog(msg, cls = 'log-info') {
-  const entry = document.createElement('div');
-  entry.className = 'log-entry ' + cls;
-  entry.textContent = msg;
-  logConsole.appendChild(entry);
-  logConsole.scrollTop = logConsole.scrollHeight;
-  logEntries++;
-  logCount.textContent = logEntries + ' entries';
-}
-window.log = function(msg) { addLog(msg, 'log-info'); console.log('[LOG]', msg); };
-window.debug = function(msg) { addLog(msg, 'log-debug'); console.log('[DEBUG]', msg); };
-window.error = function(msg) { addLog(msg, 'log-error'); console.error('[ERROR]', msg); };
-
-// ============================================================
-// RENDERER
-// ============================================================
-const screenEl = document.getElementById('screen');
-
-function render() {
-  screenEl.innerHTML = '';
-  const children = jsmaf.root.children;
-  for (let i = 0; i < children.length; i++) {
-    const obj = children[i];
-    if (!obj.visible) continue;
-    let el = obj._dom;
-    if (!el) {
-      el = document.createElement('div');
-      el.className = 'display-object';
-      if (obj._type === 'text') el.classList.add('text-object');
-      else if (obj._type === 'image') el.classList.add('image-object');
-      obj._dom = el;
-    }
-    el.style.left = obj.x + 'px';
-    el.style.top = obj.y + 'px';
-    el.style.width = (obj.width || 'auto') + 'px';
-    el.style.height = (obj.height || 'auto') + 'px';
-    el.style.opacity = obj.alpha;
-    el.style.transform = `translate(${obj.x}px, ${obj.y}px) scale(${obj.scaleX}, ${obj.scaleY}) rotate(${obj.rotateZ}deg)`;
-    el.style.transformOrigin = '0 0';
-    if (obj.clip) {
-      el.style.clipPath = `inset(${obj.clipY}px ${obj.clipX+obj.clipWidth}px ${obj.clipY+obj.clipHeight}px ${obj.clipX}px)`;
-    } else {
-      el.style.clipPath = 'none';
-    }
-    if (obj._type === 'text') {
-      el.textContent = obj.text || '';
-      const style = jsmaf._styles[obj.style];
-      if (style) {
-        el.style.color = style.color || 'white';
-        el.style.fontSize = (style.size || 16) + 'px';
-      } else {
-        el.style.color = 'white';
-        el.style.fontSize = '16px';
       }
-      el.style.textAlign = obj.align || 'left';
-      el.style.background = obj.background || 'transparent';
-      el.style.padding = `${obj.paddingTop}px ${obj.paddingRight}px ${obj.paddingBottom}px ${obj.paddingLeft}px`;
-      el.style.whiteSpace = 'pre-wrap';
-      el.style.wordWrap = 'break-word';
-    }
-    if (obj._type === 'image') {
-      el.style.backgroundImage = `url(${obj.url})`;
-      el.style.backgroundSize = 'contain';
-      el.style.backgroundRepeat = 'no-repeat';
-      el.style.backgroundPosition = 'center';
-    }
-    screenEl.appendChild(el);
-  }
-}
 
-// Watch root.children changes
-['push', 'splice', 'unshift', 'pop', 'shift'].forEach(method => {
-  const orig = jsmaf.root.children[method];
-  jsmaf.root.children[method] = function(...args) {
-    const result = orig.call(this, ...args);
-    render();
-    return result;
-  };
-});
-// Also catch direct assignment to length
-Object.defineProperty(jsmaf.root.children, 'length', {
-  set: function(val) {
-    this.splice(val);
-  }
-});
-
-// ============================================================
-// SCRIPT EXECUTION
-// ============================================================
-const editor = document.getElementById('code-editor');
-const editorContainer = document.getElementById('editor-container');
-const screenContainer = document.getElementById('screen-container');
-const runBtn = document.getElementById('run-btn');
-const scriptSelect = document.getElementById('script-select');
-
-function runScript(code) {
-  // Clear logs and screen
-  logConsole.innerHTML = '';
-  logEntries = 0;
-  logCount.textContent = '0 entries';
-  jsmaf.root.children.length = 0;
-  render();
-
-  // Switch to screen view
-  editorContainer.classList.add('hidden');
-  screenContainer.classList.remove('hidden');
-
-  // Execute
-  try {
-    const func = new Function('jsmaf', 'VFS', code);
-    func(jsmaf, VFS);
-    document.getElementById('status-badge').textContent = '● Running';
-  } catch(e) {
-    error('Script error: ' + e.message);
-    console.error(e);
-    document.getElementById('status-badge').textContent = '✖ Error';
-  }
-}
-
-runBtn.addEventListener('click', () => {
-  const selected = scriptSelect.value;
-  let code = editor.value;
-  if (selected === 'demo') code = demoScript;
-  else if (selected === 'dump') code = dumpScript;
-  else if (selected === 'custom' && !code.trim()) {
-    alert('Please paste your custom code in the editor.');
-    return;
-  }
-  if (!code.trim()) {
-    alert('Editor is empty. Select a preset or paste code.');
-    return;
-  }
-  runScript(code);
-});
-
-// Allow quick run with Ctrl+Enter
-editor.addEventListener('keydown', (e) => {
-  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-    e.preventDefault();
-    runBtn.click();
-  }
-});
-
-// ============================================================
-// PRESET SCRIPTS
-// ============================================================
-const demoScript = `
-// Simple UI Demo
-(function() {
-  new jsmaf.Style({ name: 'title', color: '#ffd700', size: 48 });
-  new jsmaf.Style({ name: 'sub', color: 'white', size: 24 });
-
-  var bg = new jsmaf.Image({
-    url: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080"%3E%3Crect width="1920" height="1080" fill="%231a1a2e"/%3E%3C/svg%3E',
-    width: 1920, height: 1080
-  });
-  jsmaf.root.children.push(bg);
-
-  var title = new jsmaf.Text();
-  title.text = '🎮 JSMAF Emulator Demo';
-  title.style = 'title';
-  title.x = 960 - 200; title.y = 300;
-  jsmaf.root.children.push(title);
-
-  var sub = new jsmaf.Text();
-  sub.text = 'Press Cross (X) to log, Circle (O) to exit';
-  sub.style = 'sub';
-  sub.x = 960 - 250; sub.y = 450;
-  jsmaf.root.children.push(sub);
-
-  var info = new jsmaf.Text();
-  info.text = 'Controller works! Use D-Pad, face buttons.';
-  info.style = 'sub';
-  info.x = 960 - 200; info.y = 550;
-  jsmaf.root.children.push(info);
-
-  jsmaf.onKeyDown = function(keyCode) {
-    log('Key pressed: ' + keyCode);
-    if (keyCode === 14) {
-      log('✅ Cross pressed!');
-    } else if (keyCode === 13) {
-      log('⭕ Circle pressed - exiting demo');
-      jsmaf.root.children.length = 0;
-      var msg = new jsmaf.Text();
-      msg.text = 'Demo exited. Reload page to restart.';
-      msg.style = 'sub';
-      msg.x = 960 - 200; msg.y = 540;
-      jsmaf.root.children.push(msg);
-    }
-  };
-})();
-`;
-
-const dumpScript = `
-// JSMAF Dumper - by mexrldev
-(function() {
-  var DUMP_PATH = '/download0/jsmaf_dump.json';
-  var SCREEN_W = 1920, SCREEN_H = 1080;
-  var MAX_DEPTH = 24, MAX_PREVIEW = 180;
-  var mode = 'menu', dumpStarted = false;
-
-  function addText(style, x, y, text) {
-    var t = new jsmaf.Text();
-    t.style = style;
-    t.x = x; t.y = y;
-    t.text = text;
-    jsmaf.root.children.push(t);
-    return t;
-  }
-
-  function showStatus(msg, style, y) {
-    if (ui.status) ui.status.visible = false;
-    ui.status = addText(style || 'yellow', 20, y || (SCREEN_H - 60), msg);
-  }
-
-  function showMenu() {
-    mode = 'menu';
-    jsmaf.root.children.length = 0;
-    var cx = SCREEN_W / 2;
-    var y = SCREEN_H / 2 - 30;
-    addText('white', cx - 180, y, 'Press X (⨉) to dump jsmaf');
-    addText('white', cx - 180, y + 60, 'Press O (O) to reload debugging');
-    addText('white', 20, SCREEN_H - 40, 'Dump path: ' + DUMP_PATH);
-  }
-
-  function dumpObject(rootObj, rootPath, visited, results, depth) {
-    if (depth > MAX_DEPTH) { results.push({ path: rootPath, type: 'depth_limit' }); return; }
-    if (rootObj === null) { results.push({ path: rootPath, type: 'null', value: null }); return; }
-    var vt = typeof rootObj;
-    if (vt !== 'object' && vt !== 'function') { results.push({ path: rootPath, type: vt, value: rootObj }); return; }
-    if (visited.indexOf(rootObj) !== -1) { results.push({ path: rootPath, type: 'circular' }); return; }
-    visited.push(rootObj);
-    var props;
-    try { props = Object.getOwnPropertyNames(rootObj); } catch(e) { results.push({ path: rootPath, type: 'error', error: e.message }); return; }
-    for (var i = 0; i < props.length; i++) {
-      var key = props[i];
-      if (key === '__proto__') continue;
-      var fullPath = rootPath + '.' + key;
-      try {
-        var val = rootObj[key];
-        var vt2 = typeof val;
-        if (vt2 === 'object') {
-          results.push({ path: fullPath, type: 'object' });
-          if (val !== null) dumpObject(val, fullPath, visited, results, depth + 1);
-          else results.push({ path: fullPath, type: 'null', value: null });
-        } else if (vt2 === 'function') {
-          results.push({ path: fullPath, type: 'function', name: val.name || '', arity: typeof val.length === 'number' ? val.length : null });
-        } else {
-          var entry = { path: fullPath, type: vt2 };
-          if (val === null || typeof val !== 'object') entry.value = val;
-          results.push(entry);
+      class XMLHttpRequest {
+        constructor() {
+          this.readyState = 0;
+          this.status = 0;
+          this.responseText = '';
+          this.onreadystatechange = null;
+          this._method = '';
+          this._url = '';
+          this._async = true;
+          this._data = null;
         }
-      } catch(e) { results.push({ path: fullPath, type: 'inaccessible', error: e.message }); }
-    }
-    try {
-      var proto = Object.getPrototypeOf(rootObj);
-      if (proto && proto !== Object.prototype) dumpObject(proto, rootPath + '.__proto__', visited, results, depth + 1);
-    } catch(e) {}
-  }
-
-  function performDump() {
-    mode = 'dump';
-    jsmaf.root.children.length = 0;
-    showStatus('Dumping...', 'yellow', SCREEN_H / 2);
-    var results = [], visited = [];
-    try {
-      if (!jsmaf) throw new Error('jsmaf not available');
-      dumpObject(jsmaf, 'jsmaf', visited, results, 0);
-    } catch(e) { showStatus('Error: ' + e.message, 'red', SCREEN_H / 2); return; }
-    var xhr = new jsmaf.XMLHttpRequest();
-    xhr.onreadystatechange = function() {
-      if (xhr.readyState === 4) {
-        jsmaf.root.children.length = 0;
-        if (xhr.status === 200) {
-          showStatus('Dump complete: ' + results.length + ' entries', 'green', SCREEN_H / 2);
-        } else {
-          showStatus('Write failed: ' + xhr.status, 'red', SCREEN_H / 2);
+        open(method, url, async) {
+          this._method = method;
+          this._url = url;
+          this._async = async !== false;
+          this.readyState = 1;
+          if (this.onreadystatechange) this.onreadystatechange();
         }
-        jsmaf.setTimeout(function() { showMenu(); }, 2000);
+        send(data) {
+          this._data = data;
+          let path = this._url.replace('file://', '');
+          if (path.startsWith('/')) path = path.substring(1);
+          const match = path.match(/\.\.\/download0\/(.*)/);
+          if (match) path = '/download0/' + match[1];
+          else if (path.startsWith('download0/')) path = '/' + path;
+          else if (!path.startsWith('/')) path = '/' + path;
+
+          const self = this;
+          setTimeout(() => {
+            try {
+              if (self._method === 'GET') {
+                const content = VFS[path];
+                self.status = content !== undefined ? 200 : 404;
+                self.responseText = content !== undefined ? content : '';
+              } else if (self._method === 'POST' || self._method === 'PUT') {
+                VFS[path] = self._data;
+                self.status = 200;
+                self.responseText = 'OK';
+              } else if (self._method === 'DELETE') {
+                delete VFS[path];
+                self.status = 200;
+                self.responseText = 'OK';
+              } else {
+                self.status = 405;
+                self.responseText = 'Method not allowed';
+              }
+            } catch (e) {
+              self.status = 500;
+              self.responseText = e.message;
+            }
+            self.readyState = 4;
+            if (self.onreadystatechange) self.onreadystatechange();
+          }, 10);
+        }
+        abort() {
+          this.readyState = 0;
+        }
       }
+
+      class AudioClip {
+        constructor() { this.volume = 1; }
+        open(url) {}
+        play() {}
+        stop() {}
+        close() {}
+      }
+
+      class WebSocket {
+        constructor(url) {
+          this.url = url;
+          this.onmessage = null;
+          this.onopen = null;
+          this.onclose = null;
+          this.onerror = null;
+        }
+        send(data) {}
+        close() {}
+      }
+
+      class WebSocketServer {
+        constructor(port) {
+          this.port = port;
+          this.onmessage = null;
+          this.onconnect = null;
+        }
+        broadcast(msg) {}
+      }
+
+      const User = {};
+
+      const location = {
+        requiresPsn: true,
+        debugScripts: false,
+        psnFailover: false,
+        mIsSetUp: true,
+        mOnErrorFunc: null,
+        mOnNetworkStatusChangeFunc: null,
+        mOnUserStatusChangeFunc: null,
+        mOnEnterFrameHandle: null,
+        mReadyToTeardown: true,
+        mHandlerChain: null,
+        mLocation: '',
+        manifest: null,
+        initJSMAFLocation() {},
+        setUp() {},
+        update() {},
+        tearDown() {},
+        tearDownImmediate() {},
+        onEnterFrame() {},
+        onNetworkStatusChange() {},
+        onError() {},
+        onUserStatusChange() {},
+        initChain() {},
+        isSetUp() { return true; },
+        restart() {},
+        sendRequest() {},
+      };
+
+      const styles = {};
+      let timeoutId = 0,
+        intervalId = 0;
+      const timeouts = {},
+        intervals = {};
+
+      const jsmaf = {
+        root,
+        Image,
+        Text,
+        Container,
+        Style,
+        XMLHttpRequest,
+        AudioClip,
+        WebSocket,
+        WebSocketServer,
+        User,
+        location,
+        _styles: styles,
+
+        screenWidth: 1920,
+        screenHeight: 1080,
+        screenAspect: 1920 / 1080,
+        frameRate: 60,
+        platform: 'ps4',
+        version: '2.13.2',
+        locale: 'en',
+        networkStatus: 'connected',
+        remotePlay: true,
+        circleIsAdvanceButton: false,
+        hardwareId: 'noooooo\'noooooo',
+        cookie: '',
+        fwDebugString: 'release/2.13-e98b7be',
+        isTTSenabled: false,
+        depthTest: false,
+        gamma: 1,
+        connectionType: 'wireless',
+
+        onKeyDown: null,
+        onKeyUp: null,
+        onKeyRepeat: null,
+        onError: null,
+        onShutdown: null,
+        onEnterFrame: null,
+        onEnterForeground: null,
+        onEnterBackground: null,
+        onNetworkStatusChange: null,
+        onTextSpeech: null,
+        onExternalParamChange: null,
+
+        print: function(msg) { console.log('[jsmaf.print]', msg); },
+        alert: function(msg) { alert('[JSMAF Alert] ' + msg); },
+
+        include: function(path) {
+          let content = VFS[path];
+          if (content === undefined) content = VFS['/download0/' + path];
+          if (content === undefined) {
+            console.error('include: file not found:', path);
+            return;
+          }
+          new Function('jsmaf', 'VFS', content)(jsmaf, VFS);
+        },
+
+        eval: function(code) {
+          new Function('jsmaf', 'VFS', code)(jsmaf, VFS);
+        },
+
+        exit: function() { console.log('[jsmaf.exit]'); },
+        gc: function() { console.log('[jsmaf.gc]'); },
+
+        setTimeout: function(cb, d) {
+          const id = ++timeoutId;
+          const t = setTimeout(() => {
+            try { cb(); } catch (e) { console.error(e); }
+            delete timeouts[id];
+          }, d);
+          timeouts[id] = t;
+          return id;
+        },
+
+        clearTimeout: function(id) {
+          if (timeouts[id]) {
+            clearTimeout(timeouts[id]);
+            delete timeouts[id];
+          }
+        },
+
+        setInterval: function(cb, d) {
+          const id = ++intervalId;
+          const t = setInterval(() => {
+            try { cb(); } catch (e) { console.error(e); }
+          }, d);
+          intervals[id] = t;
+          return id;
+        },
+
+        clearInterval: function(id) {
+          if (intervals[id]) {
+            clearInterval(intervals[id]);
+            delete intervals[id];
+          }
+        },
+
+        showOSK: function() {},
+        openWebBrowser: function() {},
+        speak: function() {},
+        showCCSettings: function() {},
+        hideSplashScreen: function() {},
+        forceShutdown: function() {},
+        forceConnect: function() {},
+        argv: function() { return []; },
+        processTime: function() { return Date.now(); },
+      };
+
+      // location setter
+      Object.defineProperty(jsmaf, 'location', {
+        get: function() { return jsmaf.location.mLocation; },
+        set: function(value) {
+          jsmaf.location.mLocation = value;
+          let path = value.replace('file://', '');
+          if (path.startsWith('/')) path = path.substring(1);
+          const match = path.match(/\.\.\/download0\/(.*)/);
+          if (match) path = '/download0/' + match[1];
+          else if (path.startsWith('download0/')) path = '/' + path;
+          else if (!path.startsWith('/')) path = '/' + path;
+          const content = VFS[path];
+          if (!content) {
+            console.error('Manifest not found:', path);
+            return;
+          }
+          try {
+            const manifest = JSON.parse(content);
+            jsmaf.location.manifest = manifest;
+            if (manifest.scripts) {
+              for (const script of manifest.scripts) {
+                let src = script.src.replace('file://', '');
+                if (src.startsWith('/')) src = src.substring(1);
+                const m2 = src.match(/\.\.\/download0\/(.*)/);
+                if (m2) src = '/download0/' + m2[1];
+                else if (src.startsWith('download0/')) src = '/' + src;
+                else if (!src.startsWith('/')) src = '/' + src;
+                const sc = VFS[src];
+                if (sc) new Function('jsmaf', 'VFS', sc)(jsmaf, VFS);
+                else console.error('Script not found:', src);
+              }
+            }
+          } catch (e) {
+            console.error('Manifest error:', e);
+          }
+        }
+      });
+
+      return jsmaf;
+    })();
+
+    window.jsmaf = jsmaf;
+    window.VFS = VFS;
+
+    // =============================================================
+    //  GLOBAL LOGGING
+    // =============================================================
+    const logConsole = document.getElementById('console-log');
+    const logCount = document.getElementById('log-count');
+    let logEntries = 0;
+
+    function addLog(msg, cls = 'log-info') {
+      const entry = document.createElement('div');
+      entry.className = 'log-entry ' + cls;
+      entry.textContent = msg;
+      logConsole.appendChild(entry);
+      logConsole.scrollTop = logConsole.scrollHeight;
+      logEntries++;
+      logCount.textContent = logEntries + ' entries';
+    }
+
+    window.log = function(msg) {
+      addLog(msg, 'log-info');
+      console.log('[LOG]', msg);
     };
-    xhr.open('POST', 'file://' + DUMP_PATH, true);
-    xhr.send(JSON.stringify(results, null, 2));
-  }
+    window.debug = function(msg) {
+      addLog(msg, 'log-debug');
+      console.log('[DEBUG]', msg);
+    };
+    window.error = function(msg) {
+      addLog(msg, 'log-error');
+      console.error('[ERROR]', msg);
+    };
 
-  var ui = { status: null };
-  showMenu();
+    // =============================================================
+    //  RENDERER
+    // =============================================================
+    const screenEl = document.getElementById('screen');
 
-  jsmaf.onKeyDown = function(keyCode) {
-    if (keyCode === 13) {
-      showMenu();
-    } else if (keyCode === 14 && !dumpStarted) {
-      dumpStarted = true;
-      performDump();
-    }
-  };
-})();
-`;
-
-// ============================================================
-// UI CONTROLS
-// ============================================================
-// Clear log
-document.getElementById('clear-log').addEventListener('click', () => {
-  logConsole.innerHTML = '';
-  logEntries = 0;
-  logCount.textContent = '0 entries';
-});
-
-// Controller toggle
-const controller = document.getElementById('controller');
-let ctrlVisible = true;
-document.getElementById('toggle-controller').addEventListener('click', () => {
-  ctrlVisible = !ctrlVisible;
-  controller.style.display = ctrlVisible ? '' : 'none';
-});
-document.getElementById('close-controller').addEventListener('click', () => {
-  ctrlVisible = false;
-  controller.style.display = 'none';
-});
-
-// Draggable controller
-let dragOffX = 0, dragOffY = 0, dragging = false;
-controller.addEventListener('mousedown', (e) => {
-  if (e.target.closest('.ctrl-btn') || e.target.closest('.close-btn')) return;
-  dragging = true;
-  const rect = controller.getBoundingClientRect();
-  dragOffX = e.clientX - rect.left;
-  dragOffY = e.clientY - rect.top;
-  controller.style.cursor = 'grabbing';
-});
-document.addEventListener('mousemove', (e) => {
-  if (!dragging) return;
-  let x = e.clientX - dragOffX, y = e.clientY - dragOffY;
-  x = Math.max(0, Math.min(window.innerWidth - controller.offsetWidth, x));
-  y = Math.max(0, Math.min(window.innerHeight - controller.offsetHeight, y));
-  controller.style.left = x + 'px';
-  controller.style.top = y + 'px';
-  controller.style.bottom = 'auto';
-  controller.style.right = 'auto';
-});
-document.addEventListener('mouseup', () => { if (dragging) { dragging = false; controller.style.cursor = 'grab'; } });
-
-// Controller buttons
-document.querySelectorAll('.ctrl-btn[data-key]').forEach(btn => {
-  const handler = (e) => {
-    e.preventDefault();
-    const key = parseInt(btn.dataset.key, 10);
-    if (jsmaf.onKeyDown) jsmaf.onKeyDown(key);
-    setTimeout(() => { if (jsmaf.onKeyUp) jsmaf.onKeyUp(key); }, 100);
-  };
-  btn.addEventListener('click', handler);
-  btn.addEventListener('touchstart', handler);
-});
-
-// File browser
-const fileBrowser = document.getElementById('file-browser');
-const fileList = document.getElementById('file-list');
-const filePreview = document.getElementById('file-preview');
-
-function refreshFileList() {
-  fileList.innerHTML = '';
-  const paths = Object.keys(VFS).sort();
-  if (paths.length === 0) {
-    fileList.innerHTML = '<div style="color:#888;padding:20px;">No files in virtual filesystem yet.</div>';
-    return;
-  }
-  for (const path of paths) {
-    const item = document.createElement('div');
-    item.className = 'file-item';
-    const icon = document.createElement('span');
-    icon.className = 'icon';
-    icon.textContent = '📄';
-    const name = document.createElement('span');
-    name.className = 'name';
-    name.textContent = path;
-    item.appendChild(icon);
-    item.appendChild(name);
-    item.addEventListener('click', () => {
-      const content = VFS[path];
-      let preview = content;
-      if (typeof content === 'string') {
-        if (content.length > 5000) preview = content.substring(0, 5000) + '\n... (truncated)';
-      } else {
-        preview = JSON.stringify(content, null, 2);
+    function render() {
+      screenEl.innerHTML = '';
+      const children = jsmaf.root.children;
+      for (let i = 0; i < children.length; i++) {
+        const obj = children[i];
+        if (!obj.visible) continue;
+        let el = obj._dom;
+        if (!el) {
+          el = document.createElement('div');
+          el.className = 'display-object';
+          if (obj._type === 'text') el.classList.add('text-object');
+          else if (obj._type === 'image') el.classList.add('image-object');
+          obj._dom = el;
+        }
+        el.style.left = obj.x + 'px';
+        el.style.top = obj.y + 'px';
+        el.style.width = (obj.width || 'auto') + 'px';
+        el.style.height = (obj.height || 'auto') + 'px';
+        el.style.opacity = obj.alpha;
+        el.style.transform = 'translate(' + obj.x + 'px, ' + obj.y + 'px) scale(' + obj.scaleX + ', ' + obj
+        .scaleY + ') rotate(' + obj.rotateZ + 'deg)';
+        el.style.transformOrigin = '0 0';
+        if (obj.clip) {
+          el.style.clipPath = 'inset(' + obj.clipY + 'px ' + (obj.clipX + obj.clipWidth) + 'px ' + (obj.clipY +
+            obj.clipHeight) + 'px ' + obj.clipX + 'px)';
+        } else {
+          el.style.clipPath = 'none';
+        }
+        if (obj._type === 'text') {
+          el.textContent = obj.text || '';
+          const style = jsmaf._styles[obj.style];
+          if (style) {
+            el.style.color = style.color || 'white';
+            el.style.fontSize = (style.size || 16) + 'px';
+          } else {
+            el.style.color = 'white';
+            el.style.fontSize = '16px';
+          }
+          el.style.textAlign = obj.align || 'left';
+          el.style.background = obj.background || 'transparent';
+          el.style.padding = obj.paddingTop + 'px ' + obj.paddingRight + 'px ' + obj.paddingBottom + 'px ' + obj
+            .paddingLeft + 'px';
+          el.style.whiteSpace = 'pre-wrap';
+          el.style.wordWrap = 'break-word';
+        }
+        if (obj._type === 'image') {
+          el.style.backgroundImage = 'url(' + obj.url + ')';
+          el.style.backgroundSize = 'contain';
+          el.style.backgroundRepeat = 'no-repeat';
+          el.style.backgroundPosition = 'center';
+        }
+        screenEl.appendChild(el);
       }
-      filePreview.textContent = preview;
+    }
+
+    // Watch root.children changes
+    ['push', 'splice', 'unshift', 'pop', 'shift'].forEach(function(method) {
+      const orig = jsmaf.root.children[method];
+      jsmaf.root.children[method] = function() {
+        const result = orig.apply(this, arguments);
+        render();
+        return result;
+      };
     });
-    fileList.appendChild(item);
-  }
-}
 
-document.getElementById('open-files').addEventListener('click', () => {
-  fileBrowser.classList.toggle('active');
-  if (fileBrowser.classList.contains('active')) refreshFileList();
-});
-document.getElementById('close-files').addEventListener('click', () => {
-  fileBrowser.classList.remove('active');
-});
+    // Also catch direct assignment to length
+    Object.defineProperty(jsmaf.root.children, 'length', {
+      set: function(val) {
+        this.splice(val);
+      }
+    });
 
-// ============================================================
-// INIT
-// ============================================================
-// Add default styles
-new jsmaf.Style({ name: 'white', color: 'white', size: 20 });
-new jsmaf.Style({ name: 'green', color: '#50fa7b', size: 20 });
-new jsmaf.Style({ name: 'red', color: '#ff5555', size: 20 });
-new jsmaf.Style({ name: 'yellow', color: '#f1fa8c', size: 20 });
-new jsmaf.Style({ name: 'cyan', color: '#8be9fd', size: 20 });
-new jsmaf.Style({ name: 'small', color: 'white', size: 14 });
+    // =============================================================
+    //  SCRIPT EXECUTION
+    // =============================================================
+    const editor = document.getElementById('code-editor');
+    const editorContainer = document.getElementById('editor-container');
+    const screenContainer = document.getElementById('screen-container');
+    const runBtn = document.getElementById('run-btn');
+    const scriptSelect = document.getElementById('script-select');
+    const statusBadge = document.getElementById('status-badge');
 
-// Preload editor with demo code
-editor.value = demoScript;
+    // Preset scripts
+    const demoScript = `
+      (function() {
+        new jsmaf.Style({ name: 'title', color: '#ffd700', size: 48 });
+        new jsmaf.Style({ name: 'sub', color: 'white', size: 24 });
 
-// Show editor initially
-editorContainer.classList.remove('hidden');
-screenContainer.classList.add('hidden');
+        var bg = new jsmaf.Image({
+          url: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080"%3E%3Crect width="1920" height="1080" fill="%231a1a2e"/%3E%3C/svg%3E',
+          width: 1920, height: 1080
+        });
+        jsmaf.root.children.push(bg);
 
-// Initial render
-render();
+        var title = new jsmaf.Text();
+        title.text = '🎮 JSMAF Emulator Demo';
+        title.style = 'title';
+        title.x = 960 - 200; title.y = 300;
+        jsmaf.root.children.push(title);
 
-// Status
-document.getElementById('status-badge').textContent = '● Ready';
+        var sub = new jsmaf.Text();
+        sub.text = 'Press Cross (X) to log, Circle (O) to exit';
+        sub.style = 'sub';
+        sub.x = 960 - 250; sub.y = 450;
+        jsmaf.root.children.push(sub);
 
-console.log('JSMAF Emulator ready. Write code and press Run.');
-</script>
+        var info = new jsmaf.Text();
+        info.text = 'Controller works! Use D-Pad, face buttons.';
+        info.style = 'sub';
+        info.x = 960 - 200; info.y = 550;
+        jsmaf.root.children.push(info);
+
+        jsmaf.onKeyDown = function(keyCode) {
+          log('Key pressed: ' + keyCode);
+          if (keyCode === 14) {
+            log('✅ Cross pressed!');
+          } else if (keyCode === 13) {
+            log('⭕ Circle pressed - exiting demo');
+            jsmaf.root.children.length = 0;
+            var msg = new jsmaf.Text();
+            msg.text = 'Demo exited. Reload page to restart.';
+            msg.style = 'sub';
+            msg.x = 960 - 200; msg.y = 540;
+            jsmaf.root.children.push(msg);
+          }
+        };
+      })();
+    `;
+
+    const dumpScript = `
+      (function() {
+        var DUMP_PATH = '/download0/jsmaf_dump.json';
+        var SCREEN_W = 1920, SCREEN_H = 1080;
+        var MAX_DEPTH = 24, MAX_PREVIEW = 180;
+        var mode = 'menu', dumpStarted = false;
+
+        function addText(style, x, y, text) {
+          var t = new jsmaf.Text();
+          t.style = style;
+          t.x = x; t.y = y;
+          t.text = text;
+          jsmaf.root.children.push(t);
+          return t;
+        }
+
+        function showStatus(msg, style, y) {
+          if (ui.status) ui.status.visible = false;
+          ui.status = addText(style || 'yellow', 20, y || (SCREEN_H - 60), msg);
+        }
+
+        function showMenu() {
+          mode = 'menu';
+          jsmaf.root.children.length = 0;
+          var cx = SCREEN_W / 2;
+          var y = SCREEN_H / 2 - 30;
+          addText('white', cx - 180, y, 'Press X (⨉) to dump jsmaf');
+          addText('white', cx - 180, y + 60, 'Press O (O) to reload debugging');
+          addText('white', 20, SCREEN_H - 40, 'Dump path: ' + DUMP_PATH);
+        }
+
+        function dumpObject(rootObj, rootPath, visited, results, depth) {
+          if (depth > MAX_DEPTH) { results.push({ path: rootPath, type: 'depth_limit' }); return; }
+          if (rootObj === null) { results.push({ path: rootPath, type: 'null', value: null }); return; }
+          var vt = typeof rootObj;
+          if (vt !== 'object' && vt !== 'function') { results.push({ path: rootPath, type: vt, value: rootObj }); return; }
+          if (visited.indexOf(rootObj) !== -1) { results.push({ path: rootPath, type: 'circular' }); return; }
+          visited.push(rootObj);
+          var props;
+          try { props = Object.getOwnPropertyNames(rootObj); } catch(e) { results.push({ path: rootPath, type: 'error', error: e.message }); return; }
+          for (var i = 0; i < props.length; i++) {
+            var key = props[i];
+            if (key === '__proto__') continue;
+            var fullPath = rootPath + '.' + key;
+            try {
+              var val = rootObj[key];
+              var vt2 = typeof val;
+              if (vt2 === 'object') {
+                results.push({ path: fullPath, type: 'object' });
+                if (val !== null) dumpObject(val, fullPath, visited, results, depth + 1);
+                else results.push({ path: fullPath, type: 'null', value: null });
+              } else if (vt2 === 'function') {
+                results.push({ path: fullPath, type: 'function', name: val.name || '', arity: typeof val.length === 'number' ? val.length : null });
+              } else {
+                var entry = { path: fullPath, type: vt2 };
+                if (val === null || typeof val !== 'object') entry.value = val;
+                results.push(entry);
+              }
+            } catch(e) { results.push({ path: fullPath, type: 'inaccessible', error: e.message }); }
+          }
+          try {
+            var proto = Object.getPrototypeOf(rootObj);
+            if (proto && proto !== Object.prototype) dumpObject(proto, rootPath + '.__proto__', visited, results, depth + 1);
+          } catch(e) {}
+        }
+
+        function performDump() {
+          mode = 'dump';
+          jsmaf.root.children.length = 0;
+          showStatus('Dumping...', 'yellow', SCREEN_H / 2);
+          var results = [], visited = [];
+          try {
+            if (!jsmaf) throw new Error('jsmaf not available');
+            dumpObject(jsmaf, 'jsmaf', visited, results, 0);
+          } catch(e) { showStatus('Error: ' + e.message, 'red', SCREEN_H / 2); return; }
+          var xhr = new jsmaf.XMLHttpRequest();
+          xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4) {
+              jsmaf.root.children.length = 0;
+              if (xhr.status === 200) {
+                showStatus('Dump complete: ' + results.length + ' entries', 'green', SCREEN_H / 2);
+              } else {
+                showStatus('Write failed: ' + xhr.status, 'red', SCREEN_H / 2);
+              }
+              jsmaf.setTimeout(function() { showMenu(); }, 2000);
+            }
+          };
+          xhr.open('POST', 'file://' + DUMP_PATH, true);
+          xhr.send(JSON.stringify(results, null, 2));
+        }
+
+        var ui = { status: null };
+        showMenu();
+
+        jsmaf.onKeyDown = function(keyCode) {
+          if (keyCode === 13) {
+            showMenu();
+          } else if (keyCode === 14 && !dumpStarted) {
+            dumpStarted = true;
+            performDump();
+          }
+        };
+      })();
+    `;
+
+    // Pre-fill editor with demo
+    editor.value = demoScript;
+
+    function runScript(code) {
+      // Clear logs and screen
+      logConsole.innerHTML = '';
+      logEntries = 0;
+      logCount.textContent = '0 entries';
+      jsmaf.root.children.length = 0;
+      render();
+
+      // Switch to screen view
+      editorContainer.classList.add('hidden');
+      screenContainer.classList.remove('hidden');
+
+      // Execute
+      try {
+        const func = new Function('jsmaf', 'VFS', code);
+        func(jsmaf, VFS);
+        statusBadge.textContent = '● Running';
+      } catch (e) {
+        error('Script error: ' + e.message);
+        console.error(e);
+        statusBadge.textContent = '✖ Error';
+      }
+    }
+
+    // Run button
+    runBtn.addEventListener('click', function() {
+      const selected = scriptSelect.value;
+      let code = editor.value;
+      if (selected === 'demo') code = demoScript;
+      else if (selected === 'dump') code = dumpScript;
+      else if (selected === 'custom' && !code.trim()) {
+        alert('Please paste your custom code in the editor.');
+        return;
+      }
+      if (!code.trim()) {
+        alert('Editor is empty. Select a preset or paste code.');
+        return;
+      }
+      runScript(code);
+    });
+
+    // Ctrl+Enter to run
+    editor.addEventListener('keydown', function(e) {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        e.preventDefault();
+        runBtn.click();
+      }
+    });
+
+    // =============================================================
+    //  UI CONTROLS
+    // =============================================================
+
+    // Clear log
+    document.getElementById('clear-log').addEventListener('click', function() {
+      logConsole.innerHTML = '';
+      logEntries = 0;
+      logCount.textContent = '0 entries';
+    });
+
+    // Controller toggle / close
+    const controller = document.getElementById('controller');
+    const toggleCtrlBtn = document.getElementById('toggle-controller');
+    const closeCtrlBtn = document.getElementById('close-controller');
+    let ctrlVisible = true;
+
+    toggleCtrlBtn.addEventListener('click', function() {
+      ctrlVisible = !ctrlVisible;
+      controller.style.display = ctrlVisible ? '' : 'none';
+    });
+
+    closeCtrlBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      ctrlVisible = false;
+      controller.style.display = 'none';
+    });
+
+    // Draggable controller
+    let dragOffX = 0,
+      dragOffY = 0,
+      dragging = false;
+
+    controller.addEventListener('mousedown', function(e) {
+      if (e.target.closest('.ctrl-btn') || e.target.closest('.close-btn')) return;
+      dragging = true;
+      const rect = controller.getBoundingClientRect();
+      dragOffX = e.clientX - rect.left;
+      dragOffY = e.clientY - rect.top;
+      controller.style.cursor = 'grabbing';
+    });
+
+    document.addEventListener('mousemove', function(e) {
+      if (!dragging) return;
+      let x = e.clientX - dragOffX;
+      let y = e.clientY - dragOffY;
+      x = Math.max(0, Math.min(window.innerWidth - controller.offsetWidth, x));
+      y = Math.max(0, Math.min(window.innerHeight - controller.offsetHeight, y));
+      controller.style.left = x + 'px';
+      controller.style.top = y + 'px';
+      controller.style.bottom = 'auto';
+      controller.style.right = 'auto';
+    });
+
+    document.addEventListener('mouseup', function() {
+      if (dragging) {
+        dragging = false;
+        controller.style.cursor = 'grab';
+      }
+    });
+
+    // Controller buttons
+    document.querySelectorAll('.ctrl-btn[data-key]').forEach(function(btn) {
+      function handler(e) {
+        e.preventDefault();
+        const key = parseInt(btn.getAttribute('data-key'), 10);
+        if (jsmaf.onKeyDown) jsmaf.onKeyDown(key);
+        setTimeout(function() {
+          if (jsmaf.onKeyUp) jsmaf.onKeyUp(key);
+        }, 100);
+      }
+      btn.addEventListener('click', handler);
+      btn.addEventListener('touchstart', handler, { passive: false });
+    });
+
+    // File browser
+    const fileBrowser = document.getElementById('file-browser');
+    const fileList = document.getElementById('file-list');
+    const filePreview = document.getElementById('file-preview');
+
+    function refreshFileList() {
+      fileList.innerHTML = '';
+      const paths = Object.keys(VFS).sort();
+      if (paths.length === 0) {
+        fileList.innerHTML = '<div style="color:#888;padding:20px;">No files in virtual filesystem yet.</div>';
+        return;
+      }
+      for (const path of paths) {
+        const item = document.createElement('div');
+        item.className = 'file-item';
+        const icon = document.createElement('span');
+        icon.className = 'icon';
+        icon.textContent = '📄';
+        const name = document.createElement('span');
+        name.className = 'name';
+        name.textContent = path;
+        item.appendChild(icon);
+        item.appendChild(name);
+        item.addEventListener('click', function() {
+          const content = VFS[path];
+          let preview = content;
+          if (typeof content === 'string') {
+            if (content.length > 5000) preview = content.substring(0, 5000) + '\n... (truncated)';
+          } else {
+            preview = JSON.stringify(content, null, 2);
+          }
+          filePreview.textContent = preview;
+        });
+        fileList.appendChild(item);
+      }
+    }
+
+    document.getElementById('open-files').addEventListener('click', function() {
+      fileBrowser.classList.toggle('active');
+      if (fileBrowser.classList.contains('active')) refreshFileList();
+    });
+
+    document.getElementById('close-files').addEventListener('click', function() {
+      fileBrowser.classList.remove('active');
+    });
+
+    // =============================================================
+    //  INIT
+    // =============================================================
+
+    // Add default styles
+    new jsmaf.Style({ name: 'white', color: 'white', size: 20 });
+    new jsmaf.Style({ name: 'green', color: '#50fa7b', size: 20 });
+    new jsmaf.Style({ name: 'red', color: '#ff5555', size: 20 });
+    new jsmaf.Style({ name: 'yellow', color: '#f1fa8c', size: 20 });
+    new jsmaf.Style({ name: 'cyan', color: '#8be9fd', size: 20 });
+    new jsmaf.Style({ name: 'small', color: 'white', size: 14 });
+
+    // Show editor initially
+    editorContainer.classList.remove('hidden');
+    screenContainer.classList.add('hidden');
+
+    // Initial render
+    render();
+
+    statusBadge.textContent = '● Ready';
+    console.log('JSMAF Emulator ready. Write code and press Run.');
+  </script>
 </body>
 </html>
