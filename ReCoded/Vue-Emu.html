@@ -1,1369 +1,1079 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>PS4 JSMAF Emulator</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>JSMAF — PS4 Vue Emulator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      user-select: none;
+    /* ══ TOKENS ═══════════════════════════════════════════ */
+    :root {
+      --bg:     #060810;
+      --surf:   #0c1220;
+      --surf2:  #131e33;
+      --surf3:  #1c2a44;
+      --border: #1e2e4a;
+      --acc:    #0560e0;
+      --acc2:   #1a7bff;
+      --glow:   rgba(5,96,224,.22);
+      --text:   #d8e2f8;
+      --dim:    #496080;
+      --green:  #00d26a;
+      --red:    #ff3f40;
+      --yellow: #ffc300;
+      --cyan:   #00d4d4;
+      --ui:     'Barlow Condensed', sans-serif;
+      --mono:   'Share Tech Mono', monospace;
+    }
+
+    /* ══ RESET ════════════════════════════════════════════ */
+    *, *::before, *::after {
+      box-sizing: border-box; margin: 0; padding: 0;
+      -webkit-tap-highlight-color: transparent;
     }
     html, body {
-      height: 100%;
-      overflow: hidden;
-      background: #0d0d1a;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      color: #eee;
+      height: 100%; overflow: hidden;
+      background: var(--bg); color: var(--text);
+      font-family: var(--ui);
     }
 
-    /* ---- Toolbar ---- */
-    #toolbar {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 4px;
-      padding: 4px 6px;
-      background: #1a1a2e;
-      border-bottom: 1px solid #333;
-      flex-shrink: 0;
-      align-items: center;
-    }
-    #toolbar button,
-    #toolbar select {
-      background: #2a2a4a;
-      color: #eee;
-      border: 1px solid #555;
-      border-radius: 4px;
-      padding: 4px 10px;
-      font-size: 12px;
-      cursor: pointer;
-      white-space: nowrap;
-    }
-    #toolbar button:hover {
-      background: #3a3a6a;
-    }
-    #toolbar .spacer {
-      flex: 1;
-    }
-    #toolbar .badge {
-      font-size: 11px;
-      color: #888;
-      padding: 0 6px;
-    }
+    /* ══ VIEWS ════════════════════════════════════════════ */
+    .view { position: absolute; inset: 0; display: flex; flex-direction: column; }
+    .view.off { display: none; }
 
-    /* ---- Main area ---- */
-    #main-area {
-      flex: 1;
-      position: relative;
-      min-height: 0;
+    /* ══ TOP BAR ══════════════════════════════════════════ */
+    .bar {
+      height: 46px; flex-shrink: 0;
+      display: flex; align-items: center; gap: 6px;
+      padding: 0 14px;
+      background: var(--surf);
+      border-bottom: 1px solid var(--border);
+      user-select: none;
     }
-    #editor-container,
-    #screen-container {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      display: flex;
-      flex-direction: column;
+    .bar-logo {
+      font-family: var(--ui); font-weight: 700;
+      font-size: 19px; letter-spacing: 3px;
+      color: #fff; text-transform: uppercase; white-space: nowrap;
     }
-    #editor-container.hidden,
-    #screen-container.hidden {
-      display: none;
+    .bar-logo em {
+      font-style: normal; color: var(--acc2);
+      font-size: 11px; letter-spacing: 2px; margin-left: 7px;
+    }
+    .fx { flex: 1; }
+    .bar-status { font-family: var(--mono); font-size: 12px; letter-spacing: 1px; white-space: nowrap; }
+    .bar-status.ok  { color: var(--green); }
+    .bar-status.err { color: var(--red); }
+
+    /* ══ BUTTONS ══════════════════════════════════════════ */
+    .btn {
+      font-family: var(--ui); font-size: 13px; font-weight: 600;
+      letter-spacing: .5px; padding: 5px 13px;
+      background: var(--surf2); color: var(--text);
+      border: 1px solid var(--border); border-radius: 4px;
+      cursor: pointer; white-space: nowrap;
+      transition: background .12s, border-color .12s;
+      -webkit-appearance: none; user-select: none;
+    }
+    .btn:hover  { background: var(--surf3); border-color: var(--acc); }
+    .btn:active { transform: scale(.96); }
+    .btn.prim {
+      background: var(--acc); border-color: var(--acc); color: #fff;
+      box-shadow: 0 0 20px var(--glow);
+    }
+    .btn.prim:hover { background: var(--acc2); box-shadow: 0 0 30px rgba(26,123,255,.38); }
+    .btn.ghost { border-color: transparent; background: transparent; }
+    .btn.ghost:hover { background: var(--surf2); border-color: var(--border); }
+
+    /* ══ EDITOR VIEW ══════════════════════════════════════ */
+    #ed-body {
+      flex: 1; min-height: 0;
+      display: flex; flex-direction: column;
+      padding: 18px 20px 16px; gap: 10px;
+    }
+    #ed-label {
+      font-family: var(--mono); font-size: 11px;
+      font-weight: 400; letter-spacing: 1.5px; color: var(--dim);
     }
     #code-editor {
-      flex: 1;
-      width: 100%;
-      background: #0a0a14;
-      color: #f8f8f2;
-      border: none;
-      outline: none;
-      padding: 10px;
-      font-family: 'Consolas', 'Courier New', monospace;
-      font-size: 14px;
-      resize: none;
-      tab-size: 2;
+      flex: 1; min-height: 0;
+      background: var(--surf); color: #9ecfff;
+      border: 1px solid var(--border); border-radius: 4px;
+      padding: 14px 16px; font-family: var(--mono);
+      font-size: 13px; line-height: 1.65;
+      resize: none; outline: none;
+      caret-color: var(--acc2); tab-size: 2;
+      transition: border-color .2s;
     }
-    #code-editor::placeholder {
-      color: #555;
+    #code-editor:focus { border-color: var(--acc); }
+    #code-editor::placeholder { color: var(--dim); opacity: .7; }
+    #ed-foot {
+      display: flex; align-items: center;
+      justify-content: space-between; gap: 12px; flex-shrink: 0;
     }
+    #ed-hint { font-family: var(--mono); font-size: 11px; color: var(--dim); }
+    #run-btn { font-size: 15px; font-weight: 700; letter-spacing: 2px; padding: 11px 32px; }
 
-    /* ---- Screen ---- */
+    /* ══ EMULATOR SCREEN ══════════════════════════════════ */
+    #screen-section {
+      flex: 1; min-height: 0;
+      background: #000; position: relative; overflow: hidden;
+    }
+    #screen-wrap {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
+    }
+    /* Scanline overlay */
+    #screen-wrap::after {
+      content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 5;
+      background: repeating-linear-gradient(
+        0deg, rgba(0,0,0,.045) 0, rgba(0,0,0,.045) 1px,
+        transparent 1px, transparent 3px
+      );
+    }
+    /* Blue edge vignette — the design's signature element */
+    #screen-wrap::before {
+      content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 4;
+      background: radial-gradient(ellipse at center, transparent 70%, rgba(5,96,224,.18) 100%);
+    }
     #screen {
-      width: 100%;
-      height: 100%;
-      background: #111;
-      position: relative;
-      overflow: hidden;
+      width: 1920px; height: 1080px;
+      background: #080810; position: absolute;
+      transform-origin: 0 0; overflow: hidden;
     }
-    #screen .display-object {
-      position: absolute;
-      pointer-events: none;
-      white-space: pre-wrap;
-      word-wrap: break-word;
-      transform-origin: 0 0;
+    #screen .dobj  { position: absolute; transform-origin: 0 0; overflow: hidden; }
+    #screen .dtext {
+      font-family: Arial, Helvetica, sans-serif; line-height: 1.3;
+      white-space: pre-wrap; word-wrap: break-word; pointer-events: none;
     }
-    #screen .display-object.text-object {
-      font-family: Arial, Helvetica, sans-serif;
-      line-height: 1.2;
+    #screen .dimage {
+      background-size: contain; background-repeat: no-repeat;
+      background-position: center; pointer-events: none;
     }
-    #screen .display-object.image-object {
-      background-size: contain;
-      background-repeat: no-repeat;
-      background-position: center;
+    #res-label {
+      position: absolute; bottom: 6px; right: 10px; z-index: 6;
+      font-family: var(--mono); font-size: 9px;
+      color: rgba(255,255,255,.18); pointer-events: none; letter-spacing: 1px;
     }
 
-    /* ---- Console ---- */
-    #console {
-      background: #0d0d1a;
-      border-top: 1px solid #333;
-      display: flex;
-      flex-direction: column;
-      flex-shrink: 0;
-      height: 130px;
-      min-height: 60px;
-      overflow: hidden;
+    /* ══ CONTROLLER ═══════════════════════════════════════ */
+    #ctrl-section {
+      background: var(--surf); border-top: 1px solid var(--border);
+      padding: 10px 16px; flex-shrink: 0;
+      display: flex; justify-content: center; align-items: center;
     }
-    #console-header {
-      display: flex;
-      justify-content: space-between;
-      padding: 2px 8px;
-      background: #1a1a2e;
-      border-bottom: 1px solid #333;
-      font-weight: bold;
-      color: #aaa;
-      font-size: 12px;
-      flex-shrink: 0;
+    .ctrl-wrap {
+      display: flex; align-items: center;
+      gap: 18px; max-width: 580px; width: 100%;
     }
-    #console-header button {
-      background: #2a2a4a;
-      border: none;
-      color: #ccc;
-      padding: 0 10px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 11px;
+    .ctrl-side {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; gap: 5px;
     }
-    #console-log {
-      flex: 1;
-      overflow-y: auto;
-      font-family: 'Consolas', 'Courier New', monospace;
-      font-size: 12px;
-      line-height: 1.4;
-      padding: 4px;
-      white-space: pre-wrap;
-      word-break: break-all;
+    .ctrl-mid {
+      flex-shrink: 0; display: flex; flex-direction: column;
+      align-items: center; gap: 6px;
     }
-    #console-log .log-entry {
-      padding: 2px 0;
-      border-bottom: 1px solid #1a1a2e;
-    }
-    .log-debug {
-      color: #8be9fd;
-    }
-    .log-info {
-      color: #f1fa8c;
-    }
-    .log-error {
-      color: #ff5555;
-    }
-    .log-success {
-      color: #50fa7b;
-    }
-    .log-warn {
-      color: #ffb86c;
-    }
+    .ctrl-row { display: flex; gap: 4px; align-items: center; }
 
-    /* ---- Controller ---- */
-    #controller {
-      position: fixed;
-      bottom: 10px;
-      right: 10px;
-      width: 280px;
-      background: rgba(20, 20, 40, 0.92);
-      border: 2px solid #555;
-      border-radius: 14px;
-      padding: 10px 8px 12px;
-      backdrop-filter: blur(6px);
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
-      z-index: 1000;
-      cursor: grab;
-      touch-action: none;
-      font-size: 11px;
-      display: block;
-    }
-    #controller:active {
-      cursor: grabbing;
-    }
-    #controller .close-btn {
-      position: absolute;
-      top: 4px;
-      right: 8px;
-      background: #a00;
-      color: #fff;
-      border: none;
-      border-radius: 50%;
-      width: 22px;
-      height: 22px;
-      font-size: 14px;
-      line-height: 22px;
-      text-align: center;
-      cursor: pointer;
-      opacity: 0.8;
-      z-index: 10;
-    }
-    #controller .close-btn:hover {
-      opacity: 1;
-    }
-    #controller .title {
-      text-align: center;
-      font-size: 10px;
-      color: #aaa;
-      margin-bottom: 6px;
-      letter-spacing: 1px;
-    }
-    .ctrl-grid {
+    /* Cross/face button grids — CSS grid with explicit placement */
+    .xgrid {
       display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 4px;
-      max-width: 260px;
-      margin: 0 auto;
+      grid-template-columns: repeat(3, 34px);
+      grid-template-rows:    repeat(3, 34px);
+      gap: 2px;
     }
-    .ctrl-btn {
-      background: #2a2a4a;
-      border: 1px solid #555;
-      border-radius: 6px;
-      color: #eee;
-      font-size: 10px;
-      font-weight: bold;
-      padding: 4px 2px;
-      text-align: center;
-      cursor: pointer;
-      transition: background 0.1s, transform 0.05s;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-      line-height: 1.2;
-      touch-action: manipulation;
+    .xgrid .cbtn:nth-child(1) { grid-column: 2; grid-row: 1; }
+    .xgrid .cbtn:nth-child(2) { grid-column: 1; grid-row: 2; }
+    .xgrid .cbtn:nth-child(3) { grid-column: 3; grid-row: 2; }
+    .xgrid .cbtn:nth-child(4) { grid-column: 2; grid-row: 3; }
+
+    .cbtn {
+      display: flex; align-items: center; justify-content: center;
+      width: 34px; height: 34px;
+      background: var(--surf2); border: 1px solid var(--border);
+      border-radius: 5px; color: var(--text);
+      font-family: var(--ui); font-size: 11px; font-weight: 700;
+      cursor: pointer; user-select: none; flex-shrink: 0;
+      transition: background .08s, transform .06s, border-color .08s;
     }
-    .ctrl-btn:active {
-      background: #4a4a7a;
-      transform: scale(0.92);
+    .cbtn:active, .cbtn.on {
+      background: var(--acc); border-color: var(--acc2); transform: scale(.88);
     }
-    .ctrl-btn.face {
-      background: #3a3a6a;
-    }
-    .ctrl-btn.face.cross {
-      background: #2a6a2a;
-    }
-    .ctrl-btn.face.circle {
-      background: #6a2a2a;
-    }
-    .ctrl-btn.face.square {
-      background: #4a4a8a;
-    }
-    .ctrl-btn.face.triangle {
-      background: #6a5a2a;
-    }
-    .ctrl-btn.dpad {
-      background: #3a3a4a;
-    }
-    .ctrl-btn.trigger {
-      background: #3a3a5a;
-    }
-    .ctrl-btn.stick {
-      background: #2a3a4a;
-    }
-    .ctrl-btn.special {
-      background: #4a3a3a;
-    }
-    .ctrl-btn .label {
-      font-size: 7px;
-      opacity: 0.7;
-      display: block;
+    .cbtn.trg  { width: 40px; background: var(--surf3); font-size: 10px; }
+    .cbtn.spc  { width: 48px; background: var(--surf3); font-size: 10px; letter-spacing: .3px; }
+    .cbtn.stk  { border-radius: 50%; width: 30px; height: 30px; font-size: 9px; background: var(--surf3); }
+    .cbtn.dpad { background: var(--surf3); font-size: 14px; }
+
+    /* Face button colours */
+    .fc-x  { border-color: #2d6aaa; color: #5aadff; }
+    .fc-o  { border-color: #aa2d2d; color: #ff6060; }
+    .fc-sq { border-color: #6a3aaa; color: #b08bff; }
+    .fc-tr { border-color: #2d8a55; color: #60d090; }
+    .fc-x.on,  .fc-x:active  { background: #0e2848; }
+    .fc-o.on,  .fc-o:active  { background: #480e0e; }
+    .fc-sq.on, .fc-sq:active { background: #280e48; }
+    .fc-tr.on, .fc-tr:active { background: #0e3820; }
+
+    .ctrl-hint {
+      font-family: var(--mono); font-size: 9px;
+      color: var(--dim); text-align: center; line-height: 1.6;
     }
 
-    /* ---- File Browser ---- */
-    #file-browser {
-      position: fixed;
-      top: 8%;
-      left: 5%;
-      width: 90%;
-      height: 84%;
-      background: #1a1a2e;
-      border: 2px solid #555;
-      border-radius: 12px;
-      z-index: 2000;
-      display: none;
-      flex-direction: column;
-      box-shadow: 0 12px 48px rgba(0, 0, 0, 0.9);
-      overflow: hidden;
+    /* ══ CONSOLE LOG ══════════════════════════════════════ */
+    #log-section {
+      background: var(--surf); border-top: 1px solid var(--border);
+      flex-shrink: 0; overflow: hidden;
+      transition: height .18s ease; height: 112px;
     }
-    #file-browser.active {
-      display: flex;
+    #log-section.shut { height: 0; }
+    #log-out {
+      height: 100%; overflow-y: auto;
+      padding: 5px 10px;
+      font-family: var(--mono); font-size: 11.5px; line-height: 1.6;
     }
-    #file-browser .header {
-      background: #2a2a4a;
-      padding: 8px 12px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid #444;
-      flex-shrink: 0;
+    .ll { word-break: break-all; }
+    .ll::before { content: '▸ '; opacity: .35; }
+    .ll-info    { color: #7ab2f8; }
+    .ll-debug   { color: var(--dim); }
+    .ll-error   { color: var(--red); }
+    .ll-success { color: var(--green); }
+    .ll-warn    { color: var(--yellow); }
+
+    /* ══ FILE MODAL ═══════════════════════════════════════ */
+    #modal-bg {
+      position: fixed; inset: 0; z-index: 900;
+      background: rgba(0,0,0,.75); backdrop-filter: blur(4px);
+      display: flex; align-items: center; justify-content: center; padding: 16px;
     }
-    #file-browser .header h3 {
-      font-size: 14px;
+    #modal-bg.off { display: none; }
+    #file-modal {
+      background: var(--surf); border: 1px solid var(--border); border-radius: 8px;
+      width: 100%; max-width: 700px; max-height: 78vh;
+      display: flex; flex-direction: column; overflow: hidden;
+      box-shadow: 0 24px 64px rgba(0,0,0,.88);
     }
-    #file-browser .header button {
-      background: #6a2a2a;
-      border: none;
-      color: #fff;
-      padding: 2px 14px;
-      border-radius: 4px;
-      cursor: pointer;
+    .mhd {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 11px 14px; border-bottom: 1px solid var(--border);
+      font-weight: 700; font-size: 13px; letter-spacing: 1px; flex-shrink: 0;
     }
-    #file-browser .body {
-      flex: 1;
-      overflow-y: auto;
-      padding: 6px;
-      display: flex;
-      flex-wrap: wrap;
-      align-content: flex-start;
-      gap: 4px;
+    .mbd { flex: 1; display: flex; min-height: 0; }
+    #f-list {
+      width: 46%; border-right: 1px solid var(--border);
+      overflow-y: auto; padding: 6px;
     }
-    #file-browser .file-item {
-      background: #2a2a4a;
-      padding: 4px 10px;
-      border-radius: 4px;
-      cursor: pointer;
-      border: 1px solid #444;
-      font-size: 12px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
+    .fi {
+      padding: 6px 10px; border-radius: 3px; cursor: pointer;
+      font-family: var(--mono); font-size: 11.5px; color: var(--text);
+      transition: background .1s; word-break: break-all;
     }
-    #file-browser .file-item:hover {
-      background: #3a3a6a;
+    .fi:hover { background: var(--surf2); }
+    .fi.sel   { background: var(--surf3); border-left: 2px solid var(--acc); }
+    #f-prev {
+      flex: 1; padding: 10px 12px; overflow-y: auto;
+      font-family: var(--mono); font-size: 11px;
+      color: var(--dim); line-height: 1.55;
+      white-space: pre-wrap; word-break: break-all;
     }
-    #file-browser .file-item .icon {
-      font-size: 14px;
-    }
-    #file-browser .file-item .name {
-      word-break: break-all;
-    }
-    #file-browser .preview {
-      background: #0a0a14;
-      padding: 8px;
-      border-top: 1px solid #444;
-      max-height: 30%;
-      overflow-y: auto;
-      white-space: pre-wrap;
-      font-family: monospace;
-      font-size: 11px;
-      flex-shrink: 0;
+    .empty {
+      text-align: center; padding: 30px 16px;
+      color: var(--dim); font-size: 12px; font-family: var(--mono);
     }
 
-    /* ---- Responsive ---- */
+    /* ══ TOAST ════════════════════════════════════════════ */
+    #toast {
+      position: fixed; top: 54px; left: 50%;
+      transform: translateX(-50%) translateY(0);
+      background: var(--surf3); border: 1px solid var(--acc);
+      border-radius: 5px; color: var(--text);
+      padding: 9px 18px; font-family: var(--mono); font-size: 12px;
+      z-index: 1000; pointer-events: none; white-space: nowrap;
+      max-width: 92vw; overflow: hidden; text-overflow: ellipsis;
+      transition: opacity .22s, transform .22s;
+    }
+    #toast.off { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+
+    /* ══ SCROLLBARS ═══════════════════════════════════════ */
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    /* ══ RESPONSIVE ═══════════════════════════════════════ */
     @media (max-width: 600px) {
-      #controller {
-        width: 200px;
-        padding: 6px 4px 8px;
-        bottom: 4px;
-        right: 4px;
-        border-radius: 10px;
-      }
-      .ctrl-btn {
-        font-size: 8px;
-        padding: 2px 1px;
-        border-radius: 4px;
-      }
-      .ctrl-btn .label {
-        font-size: 6px;
-      }
-      .ctrl-grid {
-        gap: 3px;
-        max-width: 190px;
-      }
-      #toolbar button,
-      #toolbar select {
-        font-size: 10px;
-        padding: 2px 6px;
-      }
-      #code-editor {
-        font-size: 12px;
-        padding: 8px;
-      }
-      #console {
-        height: 100px;
-      }
-      #file-browser {
-        top: 5%;
-        left: 2%;
-        width: 96%;
-        height: 90%;
-      }
+      #ed-body { padding: 12px; gap: 8px; }
+      #run-btn { padding: 10px 22px; font-size: 14px; }
+      .bar { height: 40px; padding: 0 10px; }
+      .bar-logo { font-size: 15px; }
+      .btn { font-size: 12px; padding: 4px 10px; }
+      .cbtn { width: 28px; height: 28px; font-size: 9px; }
+      .cbtn.trg { width: 34px; }
+      .cbtn.spc { width: 40px; font-size: 9px; }
+      .cbtn.stk { width: 25px; height: 25px; }
+      .cbtn.dpad { font-size: 11px; }
+      .xgrid { grid-template-columns: repeat(3,28px); grid-template-rows: repeat(3,28px); }
+      .ctrl-wrap { gap: 10px; }
+      #log-section { height: 80px; }
+      #log-out { font-size: 10.5px; }
     }
-    @media (max-width: 400px) {
-      #controller {
-        width: 160px;
-      }
-      .ctrl-grid {
-        max-width: 150px;
-        gap: 2px;
-      }
-      .ctrl-btn {
-        font-size: 7px;
-        padding: 1px 1px;
-      }
+    @media (max-width: 380px) {
+      .cbtn { width: 24px; height: 24px; font-size: 8px; }
+      .cbtn.trg { width: 30px; }
+      .cbtn.spc { width: 34px; }
+      .xgrid { grid-template-columns: repeat(3,24px); grid-template-rows: repeat(3,24px); }
+      .ctrl-wrap { gap: 6px; }
+    }
+    @media (max-height: 500px) and (orientation: landscape) {
+      #log-section { height: 60px; }
+      #ctrl-section { padding: 6px 10px; }
+      .cbtn { width: 26px; height: 26px; font-size: 9px; }
+      .xgrid { grid-template-columns: repeat(3,26px); grid-template-rows: repeat(3,26px); }
     }
   </style>
 </head>
 <body>
 
-  <!-- Toolbar -->
-  <div id="toolbar">
-    <button id="run-btn">▶ Run</button>
-    <select id="script-select">
-      <option value="demo">🎮 Demo UI</option>
-      <option value="dump">📄 Dump JSMAF</option>
-      <option value="custom">🧪 Custom</option>
-    </select>
-    <button id="open-files">📂 Files</button>
-    <button id="toggle-controller">🎮 Ctrl</button>
-    <span class="spacer"></span>
-    <button id="clear-log">🗑️ Clear</button>
-    <span class="badge" id="status-badge">● Ready</span>
+<!-- ════════════════════════════════════════════════════
+  EDITOR VIEW
+════════════════════════════════════════════════════ -->
+<div id="editor-view" class="view">
+  <div class="bar">
+    <span class="bar-logo">JSMAF <em>PS4 EMU</em></span>
+    <span class="fx"></span>
+    <button class="btn ghost" id="btn-keymap">ℹ KEY MAP</button>
+    <button class="btn" id="btn-files-ed">📁 FILES</button>
   </div>
 
-  <!-- Main -->
-  <div id="main-area">
-    <div id="editor-container">
-      <textarea id="code-editor" spellcheck="false" placeholder="Paste or type your JSMAF script here…"></textarea>
+  <div id="ed-body">
+    <div id="ed-label">// paste your jsmaf script below — then press run</div>
+    <textarea id="code-editor" spellcheck="false" placeholder="// PlayStation Vue JSMAF Environment
+//
+// new jsmaf.Style({ name: 'title', color: '#ffd700', size: 64 });
+//
+// var bg = new jsmaf.Image({ url: 'data:...', x: 0, y: 0, width: 1920, height: 1080 });
+// jsmaf.root.children.push(bg);
+//
+// var t = new jsmaf.Text();
+// t.text = 'Hello PS4!';
+// t.style = 'title';
+// t.x = 300; t.y = 460;
+// jsmaf.root.children.push(t);
+//
+// jsmaf.onKeyDown = function(keyCode) {
+//   if (keyCode === 14) log('Cross pressed!');   // ✕
+//   if (keyCode === 13) log('Circle pressed!');  // ○
+// };"></textarea>
+    <div id="ed-foot">
+      <span id="ed-hint">Ctrl+Enter to run &nbsp;·&nbsp; Tab inserts 2 spaces</span>
+      <button class="btn prim" id="run-btn">▶ &nbsp;RUN SCRIPT</button>
     </div>
-    <div id="screen-container" class="hidden">
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════
+  EMULATOR VIEW
+════════════════════════════════════════════════════ -->
+<div id="emu-view" class="view off">
+  <div class="bar">
+    <button class="btn ghost" id="btn-back">← EDIT</button>
+    <span class="fx"></span>
+    <span class="bar-status ok" id="emu-status">● RUNNING</span>
+    <span class="fx"></span>
+    <button class="btn" id="btn-files-emu">📁 FILES</button>
+    <button class="btn" id="btn-tog-log">LOG ▾</button>
+    <button class="btn" id="btn-clr-log">CLEAR</button>
+  </div>
+
+  <!-- 1920×1080 display -->
+  <div id="screen-section">
+    <div id="screen-wrap">
       <div id="screen"></div>
+      <div id="res-label">1920 × 1080</div>
     </div>
   </div>
 
-  <!-- Console -->
-  <div id="console">
-    <div id="console-header">
-      <span>📟 Log</span>
-      <span style="font-size:10px;color:#666;" id="log-count">0 entries</span>
+  <!-- PS4 Controller — embedded, not floating -->
+  <div id="ctrl-section">
+    <div class="ctrl-wrap">
+
+      <!-- Left side: L2 L1 · D-pad · L3 -->
+      <div class="ctrl-side">
+        <div class="ctrl-row">
+          <button class="cbtn trg" data-key="8">L2</button>
+          <button class="cbtn trg" data-key="10">L1</button>
+        </div>
+        <div class="xgrid">
+          <!-- nth-child 1→top 2→left 3→right 4→bottom -->
+          <button class="cbtn dpad" data-key="4">▲</button>
+          <button class="cbtn dpad" data-key="7">◀</button>
+          <button class="cbtn dpad" data-key="5">▶</button>
+          <button class="cbtn dpad" data-key="6">▼</button>
+        </div>
+        <div class="ctrl-row">
+          <button class="cbtn stk" data-key="1">L3</button>
+        </div>
+      </div>
+
+      <!-- Center: Options · Touchpad · keyboard hint -->
+      <div class="ctrl-mid">
+        <div class="ctrl-row">
+          <button class="cbtn spc" data-key="3">OPT</button>
+          <button class="cbtn spc" data-key="16">⊙ TP</button>
+        </div>
+        <div class="ctrl-hint">
+          ↑↓←→ = D-pad<br>
+          Z=✕ &nbsp;X=○ &nbsp;A=□ &nbsp;S=△<br>
+          Q=L1 &nbsp;E=R1 &nbsp;1=L2 &nbsp;3=R2
+        </div>
+      </div>
+
+      <!-- Right side: R1 R2 · Face buttons · R3 -->
+      <div class="ctrl-side">
+        <div class="ctrl-row">
+          <button class="cbtn trg" data-key="11">R1</button>
+          <button class="cbtn trg" data-key="9">R2</button>
+        </div>
+        <div class="xgrid">
+          <!-- △ top · □ left · ○ right · ✕ bottom -->
+          <button class="cbtn fc-tr" data-key="12">△</button>
+          <button class="cbtn fc-sq" data-key="15">□</button>
+          <button class="cbtn fc-o"  data-key="13">○</button>
+          <button class="cbtn fc-x"  data-key="14">✕</button>
+        </div>
+        <div class="ctrl-row">
+          <button class="cbtn stk" data-key="2">R3</button>
+        </div>
+      </div>
+
     </div>
-    <div id="console-log"></div>
   </div>
 
-  <!-- Controller -->
-  <div id="controller">
-    <button class="close-btn" id="close-controller">✕</button>
-    <div class="title">🎮 PS4 Controller</div>
-    <div class="ctrl-grid">
-      <!-- Row 1 -->
-      <div></div>
-      <div class="ctrl-btn dpad" data-key="4">▲<span class="label">Up</span></div>
-      <div></div>
-      <div class="ctrl-btn special" data-key="3">⏺<span class="label">Opt</span></div>
-      <div class="ctrl-btn special" data-key="16">⎚<span class="label">Touch</span></div>
-      <!-- Row 2 -->
-      <div class="ctrl-btn dpad" data-key="7">◀<span class="label">L</span></div>
-      <div></div>
-      <div class="ctrl-btn dpad" data-key="5">▶<span class="label">R</span></div>
-      <div class="ctrl-btn face triangle" data-key="12">▲<span class="label">Tri</span></div>
-      <div class="ctrl-btn trigger" data-key="10">L1</div>
-      <!-- Row 3 -->
-      <div class="ctrl-btn dpad" data-key="6">▼<span class="label">Dn</span></div>
-      <div></div>
-      <div></div>
-      <div class="ctrl-btn face square" data-key="15">■<span class="label">Sq</span></div>
-      <div class="ctrl-btn trigger" data-key="11">R1</div>
-      <!-- Row 4 -->
-      <div class="ctrl-btn stick" data-key="1">L3</div>
-      <div></div>
-      <div class="ctrl-btn stick" data-key="2">R3</div>
-      <div class="ctrl-btn face cross" data-key="14">✕<span class="label">X</span></div>
-      <div class="ctrl-btn trigger" data-key="8">L2</div>
-      <!-- Row 5 -->
-      <div></div>
-      <div></div>
-      <div></div>
-      <div class="ctrl-btn face circle" data-key="13">◯<span class="label">O</span></div>
-      <div class="ctrl-btn trigger" data-key="9">R2</div>
+  <!-- Console log (collapsible) -->
+  <div id="log-section">
+    <div id="log-out"></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════
+  FILE BROWSER MODAL
+════════════════════════════════════════════════════ -->
+<div id="modal-bg" class="off">
+  <div id="file-modal">
+    <div class="mhd">
+      <span>📁 VIRTUAL FILESYSTEM</span>
+      <button class="btn" id="close-modal">✕ CLOSE</button>
     </div>
-    <div style="display:flex; justify-content:center; gap:6px; margin-top:4px; font-size:8px; color:#666;">
-      <span>Stick L:55-58 R:59-62</span>
+    <div class="mbd">
+      <div id="f-list"></div>
+      <div id="f-prev"><div class="empty">Select a file to preview</div></div>
     </div>
   </div>
+</div>
 
-  <!-- File Browser -->
-  <div id="file-browser">
-    <div class="header">
-      <h3>📁 Virtual Filesystem</h3>
-      <button id="close-files">Close</button>
-    </div>
-    <div class="body" id="file-list"></div>
-    <div class="preview" id="file-preview">Select a file to preview</div>
-  </div>
+<!-- Toast notification -->
+<div id="toast" class="off"></div>
 
-  <script>
-    // =============================================================
-    //  VIRTUAL FILESYSTEM
-    // =============================================================
-    const VFS = {};
+<script>
+/* ════════════════════════════════════════════════════════
+   VIRTUAL FILESYSTEM
+════════════════════════════════════════════════════════ */
+var VFS = Object.create(null);
 
-    function addFile(path, content) {
-      VFS[path] = content;
-    }
+function vfsPath(raw) {
+  var s = String(raw).replace('file://', '');
+  // handle ../download0/... paths
+  var m = s.match(/\.\.\/download0\/(.*)/);
+  if (m) return '/download0/' + m[1];
+  if (s.indexOf('download0/') === 0) return '/' + s;
+  if (s.charAt(0) !== '/') return '/' + s;
+  return s;
+}
 
-    // =============================================================
-    //  JSMAF ENVIRONMENT
-    // =============================================================
-    const jsmaf = (function() {
-      const root = {
-        children: [],
-        x: 0,
-        y: 0,
-        width: 1920,
-        height: 1080,
-        alpha: 1,
-        visible: true,
-        scaleX: 1,
-        scaleY: 1,
-        scaleZ: 1,
-        rotateX: 0,
-        rotateY: 0,
-        rotateZ: 0,
-        clip: false,
-        clipX: 0,
-        clipY: 0,
-        clipWidth: 0,
-        clipHeight: 0,
-      };
+/* ════════════════════════════════════════════════════════
+   LOGGING
+════════════════════════════════════════════════════════ */
+var logOut = document.getElementById('log-out');
 
-      class DisplayObject {
-        constructor(props = {}) {
-          Object.assign(this, {
-            x: 0,
-            y: 0,
-            width: 0,
-            height: 0,
-            alpha: 1,
-            visible: true,
-            scaleX: 1,
-            scaleY: 1,
-            scaleZ: 1,
-            rotateX: 0,
-            rotateY: 0,
-            rotateZ: 0,
-            clip: false,
-            clipX: 0,
-            clipY: 0,
-            clipWidth: 0,
-            clipHeight: 0,
-            children: [],
-            _dom: null,
-            _type: 'display'
-          }, props);
-        }
-      }
+function addLog(type, msg) {
+  var d = document.createElement('div');
+  d.className = 'll ll-' + type;
+  d.textContent = String(msg);
+  logOut.appendChild(d);
+  logOut.scrollTop = logOut.scrollHeight;
+}
 
-      class Image extends DisplayObject {
-        constructor(props = {}) {
-          super(props);
-          this.url = props.url || '';
-          this.naturalWidth = 0;
-          this.naturalHeight = 0;
-          this.onload = null;
-          this.onLoad = null;
-          this.tint = props.tint || 'rgb(255,255,255)';
-          this.borderImage = props.borderImage || '';
-          this.borderWidth = props.borderWidth || 0;
-          this.borderColor = props.borderColor || 'rgb(0,0,0)';
-          this._type = 'image';
-          setTimeout(() => {
-            if (this.onload) this.onload();
-            if (this.onLoad) this.onLoad();
-          }, 10);
-        }
-      }
+window.log   = function(m) { addLog('info',  m); };
+window.debug = function(m) { addLog('debug', m); };
+window.error = function(m) { addLog('error', m); };
+window._log  = window.log;   // some JSMAF scripts reference _log
 
-      class Text extends DisplayObject {
-        constructor(props = {}) {
-          super(props);
-          this.text = props.text || '';
-          this.style = props.style || '';
-          this.align = props.align || 'left';
-          this.baseline = props.baseline || 0;
-          this.background = props.background || 'rgba(255,255,255,0)';
-          this.paddingTop = props.paddingTop || 0;
-          this.paddingBottom = props.paddingBottom || 0;
-          this.paddingLeft = props.paddingLeft || 0;
-          this.paddingRight = props.paddingRight || 0;
-          this.lineCount = 0;
-          this.lineClamp = props.lineClamp || 0;
-          this.naturalWidth = 0;
-          this.naturalHeight = 0;
-          this._type = 'text';
-        }
-      }
+/* ════════════════════════════════════════════════════════
+   SCRIPT EXECUTION
+   Uses indirect eval so `var` declarations made by user
+   scripts land on window — enabling shared globals across
+   jsmaf.include() calls, exactly as the PS4 runtime does.
+════════════════════════════════════════════════════════ */
+function execScript(code) {
+  (0, eval)(code);
+}
 
-      class Container extends DisplayObject {
-        constructor(props = {}) {
-          super(props);
-          this._type = 'container';
-        }
-      }
+/* ════════════════════════════════════════════════════════
+   JSMAF ENVIRONMENT  (fixed, complete)
+════════════════════════════════════════════════════════ */
+var JSMAF = (function () {
 
-      class Style {
-        constructor(props = {}) {
-          this.name = props.name || '';
-          this.color = props.color || 'white';
-          this.size = props.size || 16;
-          if (this.name) {
-            jsmaf._styles[this.name] = this;
-          }
-        }
-      }
+  /* ── DisplayObject base ───────────────────────────── */
+  function DO(p) {
+    p = p || {};
+    this.x = p.x || 0;       this.y = p.y || 0;
+    this.width  = p.width  || 0; this.height = p.height || 0;
+    this.alpha   = (p.alpha   !== undefined) ? p.alpha   : 1;
+    this.visible = (p.visible !== undefined) ? p.visible : true;
+    this.scaleX  = p.scaleX  || 1; this.scaleY = p.scaleY || 1; this.scaleZ = p.scaleZ || 1;
+    this.rotateX = p.rotateX || 0; this.rotateY = p.rotateY || 0; this.rotateZ = p.rotateZ || 0;
+    this.clip      = !!p.clip;
+    this.clipX     = p.clipX     || 0; this.clipY      = p.clipY      || 0;
+    this.clipWidth = p.clipWidth || 0; this.clipHeight  = p.clipHeight  || 0;
+    this.children  = p.children  || [];
+    this._type = 'display';
+  }
 
-      class XMLHttpRequest {
-        constructor() {
-          this.readyState = 0;
-          this.status = 0;
-          this.responseText = '';
-          this.onreadystatechange = null;
-          this._method = '';
-          this._url = '';
-          this._async = true;
-          this._data = null;
-        }
-        open(method, url, async) {
-          this._method = method;
-          this._url = url;
-          this._async = async !== false;
-          this.readyState = 1;
-          if (this.onreadystatechange) this.onreadystatechange();
-        }
-        send(data) {
-          this._data = data;
-          let path = this._url.replace('file://', '');
-          if (path.startsWith('/')) path = path.substring(1);
-          const match = path.match(/\.\.\/download0\/(.*)/);
-          if (match) path = '/download0/' + match[1];
-          else if (path.startsWith('download0/')) path = '/' + path;
-          else if (!path.startsWith('/')) path = '/' + path;
+  /* ── Image ────────────────────────────────────────── */
+  function JImage(p) {
+    DO.call(this, p); p = p || {};
+    this._type = 'image';
+    this.url    = p.url    || '';
+    this.tint   = p.tint   || 'rgb(255,255,255)';
+    this.borderImage = p.borderImage || '';
+    this.borderWidth = p.borderWidth || 0;
+    this.borderColor = p.borderColor || 'rgb(0,0,0)';
+    this.naturalWidth = 0; this.naturalHeight = 0;
+    this.onload = null; this.onLoad = null;
+    var self = this;
+    setTimeout(function () {
+      if (self.onload) self.onload();
+      if (self.onLoad) self.onLoad();
+    }, 20);
+  }
+  JImage.prototype = Object.create(DO.prototype);
 
-          const self = this;
-          setTimeout(() => {
-            try {
-              if (self._method === 'GET') {
-                const content = VFS[path];
-                self.status = content !== undefined ? 200 : 404;
-                self.responseText = content !== undefined ? content : '';
-              } else if (self._method === 'POST' || self._method === 'PUT') {
-                VFS[path] = self._data;
-                self.status = 200;
-                self.responseText = 'OK';
-              } else if (self._method === 'DELETE') {
-                delete VFS[path];
-                self.status = 200;
-                self.responseText = 'OK';
-              } else {
-                self.status = 405;
-                self.responseText = 'Method not allowed';
-              }
-            } catch (e) {
-              self.status = 500;
-              self.responseText = e.message;
-            }
-            self.readyState = 4;
-            if (self.onreadystatechange) self.onreadystatechange();
-          }, 10);
-        }
-        abort() {
-          this.readyState = 0;
-        }
-      }
+  /* ── Text ─────────────────────────────────────────── */
+  function JText(p) {
+    DO.call(this, p); p = p || {};
+    this._type  = 'text';
+    this.text   = p.text   || '';
+    this.style  = p.style  || '';
+    this.align  = p.align  || 'left';
+    this.baseline   = 0;
+    this.background = p.background || 'rgba(0,0,0,0)';
+    this.paddingTop    = p.paddingTop    || 0;
+    this.paddingBottom = p.paddingBottom || 0;
+    this.paddingLeft   = p.paddingLeft   || 0;
+    this.paddingRight  = p.paddingRight  || 0;
+    this.lineCount = 0; this.lineClamp = p.lineClamp || 0;
+    this.naturalWidth = 0; this.naturalHeight = 0;
+  }
+  JText.prototype = Object.create(DO.prototype);
 
-      class AudioClip {
-        constructor() { this.volume = 1; }
-        open(url) {}
-        play() {}
-        stop() {}
-        close() {}
-      }
+  /* ── Container ────────────────────────────────────── */
+  function JContainer(p) { DO.call(this, p); this._type = 'container'; }
+  JContainer.prototype = Object.create(DO.prototype);
 
-      class WebSocket {
-        constructor(url) {
-          this.url = url;
-          this.onmessage = null;
-          this.onopen = null;
-          this.onclose = null;
-          this.onerror = null;
-        }
-        send(data) {}
-        close() {}
-      }
+  /* ── Style ────────────────────────────────────────── */
+  function JStyle(p) {
+    p = p || {};
+    this.name   = p.name   || '';
+    this.color  = p.color  || 'white';
+    this.size   = p.size   || 16;
+    this.bold   = !!p.bold;
+    this.italic = !!p.italic;
+    this.align  = p.align  || 'left';
+    if (this.name) jsmaf._styles[this.name] = this;
+  }
 
-      class WebSocketServer {
-        constructor(port) {
-          this.port = port;
-          this.onmessage = null;
-          this.onconnect = null;
-        }
-        broadcast(msg) {}
-      }
-
-      const User = {};
-
-      const location = {
-        requiresPsn: true,
-        debugScripts: false,
-        psnFailover: false,
-        mIsSetUp: true,
-        mOnErrorFunc: null,
-        mOnNetworkStatusChangeFunc: null,
-        mOnUserStatusChangeFunc: null,
-        mOnEnterFrameHandle: null,
-        mReadyToTeardown: true,
-        mHandlerChain: null,
-        mLocation: '',
-        manifest: null,
-        initJSMAFLocation() {},
-        setUp() {},
-        update() {},
-        tearDown() {},
-        tearDownImmediate() {},
-        onEnterFrame() {},
-        onNetworkStatusChange() {},
-        onError() {},
-        onUserStatusChange() {},
-        initChain() {},
-        isSetUp() { return true; },
-        restart() {},
-        sendRequest() {},
-      };
-
-      const styles = {};
-      let timeoutId = 0,
-        intervalId = 0;
-      const timeouts = {},
-        intervals = {};
-
-      const jsmaf = {
-        root,
-        Image,
-        Text,
-        Container,
-        Style,
-        XMLHttpRequest,
-        AudioClip,
-        WebSocket,
-        WebSocketServer,
-        User,
-        location,
-        _styles: styles,
-
-        screenWidth: 1920,
-        screenHeight: 1080,
-        screenAspect: 1920 / 1080,
-        frameRate: 60,
-        platform: 'ps4',
-        version: '2.13.2',
-        locale: 'en',
-        networkStatus: 'connected',
-        remotePlay: true,
-        circleIsAdvanceButton: false,
-        hardwareId: 'noooooo\'noooooo',
-        cookie: '',
-        fwDebugString: 'release/2.13-e98b7be',
-        isTTSenabled: false,
-        depthTest: false,
-        gamma: 1,
-        connectionType: 'wireless',
-
-        onKeyDown: null,
-        onKeyUp: null,
-        onKeyRepeat: null,
-        onError: null,
-        onShutdown: null,
-        onEnterFrame: null,
-        onEnterForeground: null,
-        onEnterBackground: null,
-        onNetworkStatusChange: null,
-        onTextSpeech: null,
-        onExternalParamChange: null,
-
-        print: function(msg) { console.log('[jsmaf.print]', msg); },
-        alert: function(msg) { alert('[JSMAF Alert] ' + msg); },
-
-        include: function(path) {
-          let content = VFS[path];
-          if (content === undefined) content = VFS['/download0/' + path];
-          if (content === undefined) {
-            console.error('include: file not found:', path);
-            return;
-          }
-          new Function('jsmaf', 'VFS', content)(jsmaf, VFS);
-        },
-
-        eval: function(code) {
-          new Function('jsmaf', 'VFS', code)(jsmaf, VFS);
-        },
-
-        exit: function() { console.log('[jsmaf.exit]'); },
-        gc: function() { console.log('[jsmaf.gc]'); },
-
-        setTimeout: function(cb, d) {
-          const id = ++timeoutId;
-          const t = setTimeout(() => {
-            try { cb(); } catch (e) { console.error(e); }
-            delete timeouts[id];
-          }, d);
-          timeouts[id] = t;
-          return id;
-        },
-
-        clearTimeout: function(id) {
-          if (timeouts[id]) {
-            clearTimeout(timeouts[id]);
-            delete timeouts[id];
-          }
-        },
-
-        setInterval: function(cb, d) {
-          const id = ++intervalId;
-          const t = setInterval(() => {
-            try { cb(); } catch (e) { console.error(e); }
-          }, d);
-          intervals[id] = t;
-          return id;
-        },
-
-        clearInterval: function(id) {
-          if (intervals[id]) {
-            clearInterval(intervals[id]);
-            delete intervals[id];
-          }
-        },
-
-        showOSK: function() {},
-        openWebBrowser: function() {},
-        speak: function() {},
-        showCCSettings: function() {},
-        hideSplashScreen: function() {},
-        forceShutdown: function() {},
-        forceConnect: function() {},
-        argv: function() { return []; },
-        processTime: function() { return Date.now(); },
-      };
-
-      // location setter
-      Object.defineProperty(jsmaf, 'location', {
-        get: function() { return jsmaf.location.mLocation; },
-        set: function(value) {
-          jsmaf.location.mLocation = value;
-          let path = value.replace('file://', '');
-          if (path.startsWith('/')) path = path.substring(1);
-          const match = path.match(/\.\.\/download0\/(.*)/);
-          if (match) path = '/download0/' + match[1];
-          else if (path.startsWith('download0/')) path = '/' + path;
-          else if (!path.startsWith('/')) path = '/' + path;
-          const content = VFS[path];
-          if (!content) {
-            console.error('Manifest not found:', path);
-            return;
-          }
-          try {
-            const manifest = JSON.parse(content);
-            jsmaf.location.manifest = manifest;
-            if (manifest.scripts) {
-              for (const script of manifest.scripts) {
-                let src = script.src.replace('file://', '');
-                if (src.startsWith('/')) src = src.substring(1);
-                const m2 = src.match(/\.\.\/download0\/(.*)/);
-                if (m2) src = '/download0/' + m2[1];
-                else if (src.startsWith('download0/')) src = '/' + src;
-                else if (!src.startsWith('/')) src = '/' + src;
-                const sc = VFS[src];
-                if (sc) new Function('jsmaf', 'VFS', sc)(jsmaf, VFS);
-                else console.error('Script not found:', src);
-              }
-            }
-          } catch (e) {
-            console.error('Manifest error:', e);
-          }
-        }
-      });
-
-      return jsmaf;
-    })();
-
-    window.jsmaf = jsmaf;
-    window.VFS = VFS;
-
-    // =============================================================
-    //  GLOBAL LOGGING
-    // =============================================================
-    const logConsole = document.getElementById('console-log');
-    const logCount = document.getElementById('log-count');
-    let logEntries = 0;
-
-    function addLog(msg, cls = 'log-info') {
-      const entry = document.createElement('div');
-      entry.className = 'log-entry ' + cls;
-      entry.textContent = msg;
-      logConsole.appendChild(entry);
-      logConsole.scrollTop = logConsole.scrollHeight;
-      logEntries++;
-      logCount.textContent = logEntries + ' entries';
-    }
-
-    window.log = function(msg) {
-      addLog(msg, 'log-info');
-      console.log('[LOG]', msg);
-    };
-    window.debug = function(msg) {
-      addLog(msg, 'log-debug');
-      console.log('[DEBUG]', msg);
-    };
-    window.error = function(msg) {
-      addLog(msg, 'log-error');
-      console.error('[ERROR]', msg);
-    };
-
-    // =============================================================
-    //  RENDERER
-    // =============================================================
-    const screenEl = document.getElementById('screen');
-
-    function render() {
-      screenEl.innerHTML = '';
-      const children = jsmaf.root.children;
-      for (let i = 0; i < children.length; i++) {
-        const obj = children[i];
-        if (!obj.visible) continue;
-        let el = obj._dom;
-        if (!el) {
-          el = document.createElement('div');
-          el.className = 'display-object';
-          if (obj._type === 'text') el.classList.add('text-object');
-          else if (obj._type === 'image') el.classList.add('image-object');
-          obj._dom = el;
-        }
-        el.style.left = obj.x + 'px';
-        el.style.top = obj.y + 'px';
-        el.style.width = (obj.width || 'auto') + 'px';
-        el.style.height = (obj.height || 'auto') + 'px';
-        el.style.opacity = obj.alpha;
-        el.style.transform = 'translate(' + obj.x + 'px, ' + obj.y + 'px) scale(' + obj.scaleX + ', ' + obj
-        .scaleY + ') rotate(' + obj.rotateZ + 'deg)';
-        el.style.transformOrigin = '0 0';
-        if (obj.clip) {
-          el.style.clipPath = 'inset(' + obj.clipY + 'px ' + (obj.clipX + obj.clipWidth) + 'px ' + (obj.clipY +
-            obj.clipHeight) + 'px ' + obj.clipX + 'px)';
-        } else {
-          el.style.clipPath = 'none';
-        }
-        if (obj._type === 'text') {
-          el.textContent = obj.text || '';
-          const style = jsmaf._styles[obj.style];
-          if (style) {
-            el.style.color = style.color || 'white';
-            el.style.fontSize = (style.size || 16) + 'px';
-          } else {
-            el.style.color = 'white';
-            el.style.fontSize = '16px';
-          }
-          el.style.textAlign = obj.align || 'left';
-          el.style.background = obj.background || 'transparent';
-          el.style.padding = obj.paddingTop + 'px ' + obj.paddingRight + 'px ' + obj.paddingBottom + 'px ' + obj
-            .paddingLeft + 'px';
-          el.style.whiteSpace = 'pre-wrap';
-          el.style.wordWrap = 'break-word';
-        }
-        if (obj._type === 'image') {
-          el.style.backgroundImage = 'url(' + obj.url + ')';
-          el.style.backgroundSize = 'contain';
-          el.style.backgroundRepeat = 'no-repeat';
-          el.style.backgroundPosition = 'center';
-        }
-        screenEl.appendChild(el);
-      }
-    }
-
-    // Watch root.children changes
-    ['push', 'splice', 'unshift', 'pop', 'shift'].forEach(function(method) {
-      const orig = jsmaf.root.children[method];
-      jsmaf.root.children[method] = function() {
-        const result = orig.apply(this, arguments);
-        render();
-        return result;
-      };
-    });
-
-    // Also catch direct assignment to length
-    Object.defineProperty(jsmaf.root.children, 'length', {
-      set: function(val) {
-        this.splice(val);
-      }
-    });
-
-    // =============================================================
-    //  SCRIPT EXECUTION
-    // =============================================================
-    const editor = document.getElementById('code-editor');
-    const editorContainer = document.getElementById('editor-container');
-    const screenContainer = document.getElementById('screen-container');
-    const runBtn = document.getElementById('run-btn');
-    const scriptSelect = document.getElementById('script-select');
-    const statusBadge = document.getElementById('status-badge');
-
-    // Preset scripts
-    const demoScript = `
-      (function() {
-        new jsmaf.Style({ name: 'title', color: '#ffd700', size: 48 });
-        new jsmaf.Style({ name: 'sub', color: 'white', size: 24 });
-
-        var bg = new jsmaf.Image({
-          url: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080"%3E%3Crect width="1920" height="1080" fill="%231a1a2e"/%3E%3C/svg%3E',
-          width: 1920, height: 1080
-        });
-        jsmaf.root.children.push(bg);
-
-        var title = new jsmaf.Text();
-        title.text = '🎮 JSMAF Emulator Demo';
-        title.style = 'title';
-        title.x = 960 - 200; title.y = 300;
-        jsmaf.root.children.push(title);
-
-        var sub = new jsmaf.Text();
-        sub.text = 'Press Cross (X) to log, Circle (O) to exit';
-        sub.style = 'sub';
-        sub.x = 960 - 250; sub.y = 450;
-        jsmaf.root.children.push(sub);
-
-        var info = new jsmaf.Text();
-        info.text = 'Controller works! Use D-Pad, face buttons.';
-        info.style = 'sub';
-        info.x = 960 - 200; info.y = 550;
-        jsmaf.root.children.push(info);
-
-        jsmaf.onKeyDown = function(keyCode) {
-          log('Key pressed: ' + keyCode);
-          if (keyCode === 14) {
-            log('✅ Cross pressed!');
-          } else if (keyCode === 13) {
-            log('⭕ Circle pressed - exiting demo');
-            jsmaf.root.children.length = 0;
-            var msg = new jsmaf.Text();
-            msg.text = 'Demo exited. Reload page to restart.';
-            msg.style = 'sub';
-            msg.x = 960 - 200; msg.y = 540;
-            jsmaf.root.children.push(msg);
-          }
-        };
-      })();
-    `;
-
-    const dumpScript = `
-      (function() {
-        var DUMP_PATH = '/download0/jsmaf_dump.json';
-        var SCREEN_W = 1920, SCREEN_H = 1080;
-        var MAX_DEPTH = 24, MAX_PREVIEW = 180;
-        var mode = 'menu', dumpStarted = false;
-
-        function addText(style, x, y, text) {
-          var t = new jsmaf.Text();
-          t.style = style;
-          t.x = x; t.y = y;
-          t.text = text;
-          jsmaf.root.children.push(t);
-          return t;
-        }
-
-        function showStatus(msg, style, y) {
-          if (ui.status) ui.status.visible = false;
-          ui.status = addText(style || 'yellow', 20, y || (SCREEN_H - 60), msg);
-        }
-
-        function showMenu() {
-          mode = 'menu';
-          jsmaf.root.children.length = 0;
-          var cx = SCREEN_W / 2;
-          var y = SCREEN_H / 2 - 30;
-          addText('white', cx - 180, y, 'Press X (⨉) to dump jsmaf');
-          addText('white', cx - 180, y + 60, 'Press O (O) to reload debugging');
-          addText('white', 20, SCREEN_H - 40, 'Dump path: ' + DUMP_PATH);
-        }
-
-        function dumpObject(rootObj, rootPath, visited, results, depth) {
-          if (depth > MAX_DEPTH) { results.push({ path: rootPath, type: 'depth_limit' }); return; }
-          if (rootObj === null) { results.push({ path: rootPath, type: 'null', value: null }); return; }
-          var vt = typeof rootObj;
-          if (vt !== 'object' && vt !== 'function') { results.push({ path: rootPath, type: vt, value: rootObj }); return; }
-          if (visited.indexOf(rootObj) !== -1) { results.push({ path: rootPath, type: 'circular' }); return; }
-          visited.push(rootObj);
-          var props;
-          try { props = Object.getOwnPropertyNames(rootObj); } catch(e) { results.push({ path: rootPath, type: 'error', error: e.message }); return; }
-          for (var i = 0; i < props.length; i++) {
-            var key = props[i];
-            if (key === '__proto__') continue;
-            var fullPath = rootPath + '.' + key;
-            try {
-              var val = rootObj[key];
-              var vt2 = typeof val;
-              if (vt2 === 'object') {
-                results.push({ path: fullPath, type: 'object' });
-                if (val !== null) dumpObject(val, fullPath, visited, results, depth + 1);
-                else results.push({ path: fullPath, type: 'null', value: null });
-              } else if (vt2 === 'function') {
-                results.push({ path: fullPath, type: 'function', name: val.name || '', arity: typeof val.length === 'number' ? val.length : null });
-              } else {
-                var entry = { path: fullPath, type: vt2 };
-                if (val === null || typeof val !== 'object') entry.value = val;
-                results.push(entry);
-              }
-            } catch(e) { results.push({ path: fullPath, type: 'inaccessible', error: e.message }); }
-          }
-          try {
-            var proto = Object.getPrototypeOf(rootObj);
-            if (proto && proto !== Object.prototype) dumpObject(proto, rootPath + '.__proto__', visited, results, depth + 1);
-          } catch(e) {}
-        }
-
-        function performDump() {
-          mode = 'dump';
-          jsmaf.root.children.length = 0;
-          showStatus('Dumping...', 'yellow', SCREEN_H / 2);
-          var results = [], visited = [];
-          try {
-            if (!jsmaf) throw new Error('jsmaf not available');
-            dumpObject(jsmaf, 'jsmaf', visited, results, 0);
-          } catch(e) { showStatus('Error: ' + e.message, 'red', SCREEN_H / 2); return; }
-          var xhr = new jsmaf.XMLHttpRequest();
-          xhr.onreadystatechange = function() {
-            if (xhr.readyState === 4) {
-              jsmaf.root.children.length = 0;
-              if (xhr.status === 200) {
-                showStatus('Dump complete: ' + results.length + ' entries', 'green', SCREEN_H / 2);
-              } else {
-                showStatus('Write failed: ' + xhr.status, 'red', SCREEN_H / 2);
-              }
-              jsmaf.setTimeout(function() { showMenu(); }, 2000);
-            }
-          };
-          xhr.open('POST', 'file://' + DUMP_PATH, true);
-          xhr.send(JSON.stringify(results, null, 2));
-        }
-
-        var ui = { status: null };
-        showMenu();
-
-        jsmaf.onKeyDown = function(keyCode) {
-          if (keyCode === 13) {
-            showMenu();
-          } else if (keyCode === 14 && !dumpStarted) {
-            dumpStarted = true;
-            performDump();
-          }
-        };
-      })();
-    `;
-
-    // Pre-fill editor with demo
-    editor.value = demoScript;
-
-    function runScript(code) {
-      // Clear logs and screen
-      logConsole.innerHTML = '';
-      logEntries = 0;
-      logCount.textContent = '0 entries';
-      jsmaf.root.children.length = 0;
-      render();
-
-      // Switch to screen view
-      editorContainer.classList.add('hidden');
-      screenContainer.classList.remove('hidden');
-
-      // Execute
+  /* ── XMLHttpRequest polyfill ──────────────────────── */
+  function JXHR() {
+    this.readyState = 0; this.status = 0; this.responseText = '';
+    this.onreadystatechange = null;
+    this._method = ''; this._url = ''; this._async = true;
+  }
+  JXHR.prototype.open = function (method, url, async) {
+    this._method = method; this._url = url;
+    this._async  = (async !== false);
+    this.readyState = 1;
+    if (this.onreadystatechange) this.onreadystatechange();
+  };
+  JXHR.prototype.send = function (data) {
+    var path = vfsPath(this._url), self = this;
+    function finish() {
       try {
-        const func = new Function('jsmaf', 'VFS', code);
-        func(jsmaf, VFS);
-        statusBadge.textContent = '● Running';
-      } catch (e) {
-        error('Script error: ' + e.message);
-        console.error(e);
-        statusBadge.textContent = '✖ Error';
+        if (self._method === 'GET') {
+          var c = VFS[path];
+          self.status = (c !== undefined) ? 200 : 404;
+          self.responseText = (c !== undefined) ? c : '';
+        } else if (self._method === 'POST' || self._method === 'PUT') {
+          VFS[path] = data; self.status = 200; self.responseText = 'OK';
+        } else if (self._method === 'DELETE') {
+          delete VFS[path]; self.status = 200; self.responseText = 'OK';
+        } else {
+          self.status = 405; self.responseText = 'Method Not Allowed';
+        }
+      } catch (e) { self.status = 500; self.responseText = e.message; }
+      self.readyState = 4;
+      if (self.onreadystatechange) self.onreadystatechange();
+    }
+    if (this._async) setTimeout(finish, 10); else finish();
+  };
+  JXHR.prototype.abort = function () { this.readyState = 0; };
+
+  /* ── AudioClip stub ───────────────────────────────── */
+  function JAudio() { this.volume = 1; this.loop = false; }
+  JAudio.prototype.open  = JAudio.prototype.load = function (u) { debug('AudioClip.open: ' + u); };
+  JAudio.prototype.play  = function () { debug('AudioClip.play'); };
+  JAudio.prototype.stop  = function () { debug('AudioClip.stop'); };
+  JAudio.prototype.close = function () { debug('AudioClip.close'); };
+
+  /* ── WebSocket stub ───────────────────────────────── */
+  function JWS(url) {
+    this.url = url;
+    this.onmessage = this.onopen = this.onclose = this.onerror = null;
+    debug('WebSocket created: ' + url);
+  }
+  JWS.prototype.send  = function (d) { debug('WS.send: ' + d); };
+  JWS.prototype.close = function ()  { debug('WS.close'); };
+
+  /* ── WebSocketServer stub ─────────────────────────── */
+  function JWSS(port) {
+    this.port = port || 0;
+    this.onmessage = null; this.onconnect = null;
+    debug('WebSocketServer port: ' + (port || 'unset'));
+  }
+  JWSS.prototype.broadcast = function (msg) { debug('WSS.broadcast: ' + msg); };
+
+  /* ── Root scene ───────────────────────────────────── */
+  var root = new DO();
+  root.width = 1920; root.height = 1080;
+
+  /* ── Timer bookkeeping ────────────────────────────── */
+  var _tid = 0, _iid = 0, _tm = {}, _iv = {};
+
+  /* ── jsmaf object ─────────────────────────────────── */
+  var jsmaf = {
+    Image: JImage, Text: JText, Container: JContainer,
+    Style: JStyle, XMLHttpRequest: JXHR,
+    AudioClip: JAudio, WebSocket: JWS, WebSocketServer: JWSS,
+    User: {}, root: root, _styles: {},
+
+    screenWidth: 1920, screenHeight: 1080, screenAspect: 16/9,
+    frameRate: 60, platform: 'ps4', version: '2.13.2',
+    locale: 'en', networkStatus: 'connected', remotePlay: true,
+    circleIsAdvanceButton: false, hardwareId: "noooooo'noooooo",
+    cookie: '', fwDebugString: 'release/2.13-e98b7be',
+    isTTSenabled: false, depthTest: false, gamma: 1,
+    connectionType: 'wireless', loader_has_run: false,
+
+    onKeyDown: null, onKeyUp: null, onKeyRepeat: null,
+    onEnterFrame: null, onEnterForeground: null, onEnterBackground: null,
+    onError: null, onShutdown: null, onNetworkStatusChange: null,
+    onTextSpeech: null, onExternalParamChange: null,
+
+    print: function (m) { log('[print] ' + m); },
+    alert: function (m) { log('[alert] ' + m); toast(String(m)); },
+    exit:  function ()  { log('[exit] application exited'); },
+    gc:    function ()  { debug('[gc]'); },
+    showOSK:         function ()  { debug('showOSK'); },
+    openWebBrowser:  function (u) { debug('openWebBrowser: ' + u); },
+    speak:           function (t) { debug('speak: ' + t); },
+    hideSplashScreen:function ()  { debug('hideSplashScreen'); },
+    showCCSettings:  function ()  { debug('showCCSettings'); },
+    forceShutdown:   function ()  { log('forceShutdown called'); },
+    forceConnect:    function ()  { debug('forceConnect'); },
+    argv:            function ()  { return []; },
+    processTime:     function ()  { return Date.now(); },
+
+    include: function (path) {
+      var np = vfsPath(path);
+      var c  = (VFS[np] !== undefined) ? VFS[np] : VFS['/' + path];
+      if (c === undefined) { window.error('include: not found — ' + path); return; }
+      try { execScript(c); }
+      catch (e) { window.error('include error (' + path + '): ' + e.message); }
+    },
+    eval: function (code) {
+      try { execScript(code); }
+      catch (e) { window.error('eval error: ' + e.message); }
+    },
+
+    setTimeout: function (cb, d) {
+      var id = ++_tid;
+      _tm[id] = setTimeout(function () {
+        try { cb(); } catch (e) { window.error('setTimeout cb: ' + e.message); }
+        delete _tm[id];
+      }, d || 0);
+      return id;
+    },
+    clearTimeout: function (id) {
+      if (_tm[id]) { clearTimeout(_tm[id]); delete _tm[id]; }
+    },
+    setInterval: function (cb, d) {
+      var id = ++_iid;
+      _iv[id] = setInterval(function () {
+        try { cb(); } catch (e) { window.error('setInterval cb: ' + e.message); }
+      }, d || 16);
+      return id;
+    },
+    clearInterval: function (id) {
+      if (_iv[id]) { clearInterval(_iv[id]); delete _iv[id]; }
+    },
+  };
+
+  /* ── location property — THE FIX ─────────────────────
+     Object.defineProperty must target a property that
+     does NOT already exist as a data property.
+     We keep internal state in _loc, never in jsmaf itself. */
+  var _loc = { mLocation: '', manifest: null };
+  Object.defineProperty(jsmaf, 'location', {
+    get: function () { return _loc.mLocation; },
+    set: function (value) {
+      _loc.mLocation = value;
+      var path    = vfsPath(value);
+      var content = VFS[path];
+      if (!content) { window.error('Manifest not found: ' + path); return; }
+      try {
+        var manifest = JSON.parse(content);
+        _loc.manifest = manifest;
+        if (manifest.scripts) {
+          manifest.scripts.forEach(function (s) {
+            var src = vfsPath(s.src);
+            var sc  = VFS[src];
+            if (sc) { try { execScript(sc); } catch (e) { window.error('manifest script error: ' + e.message); } }
+            else    window.error('Manifest script not found: ' + src);
+          });
+        }
+      } catch (e) { window.error('Manifest parse error: ' + e.message); }
+    },
+    configurable: true, enumerable: true
+  });
+
+  return jsmaf;
+}());
+
+/* ── Expose globals so scripts using bare constructors work ── */
+window.jsmaf     = JSMAF;
+window.VFS       = VFS;
+window.Image     = JSMAF.Image;      // bare  new Image({...})
+window.Text      = JSMAF.Text;       // bare  new Text()
+window.Style     = JSMAF.Style;      // bare  new Style({...})
+window.Container = JSMAF.Container;  // bare  new Container({...})
+window.include   = function (p) { JSMAF.include(p); };
+
+/* ── Default styles ──────────────────────────────────── */
+[
+  { name:'white',  color:'#ffffff',  size:20 },
+  { name:'red',    color:'#ff3f40',  size:20 },
+  { name:'green',  color:'#00d26a',  size:20 },
+  { name:'yellow', color:'#ffc300',  size:20 },
+  { name:'cyan',   color:'#00d4d4',  size:20 },
+  { name:'blue',   color:'#4a9eff',  size:20 },
+  { name:'small',  color:'#ffffff',  size:14 },
+  { name:'large',  color:'#ffffff',  size:32 },
+  { name:'title',  color:'#ffffff',  size:48 },
+].forEach(function (s) { new JSMAF.Style(s); });
+
+/* ════════════════════════════════════════════════════════
+   RENDERER — clear-and-rebuild each rAF tick.
+   Browser image cache prevents flickering.
+════════════════════════════════════════════════════════ */
+var screenEl   = document.getElementById('screen');
+var rafId      = null;
+var emuActive  = false;
+
+function renderList(objects, parent) {
+  var i, obj, el, s, parts;
+  for (i = 0; i < objects.length; i++) {
+    obj = objects[i];
+    if (!obj || obj.visible === false) continue;
+
+    el = document.createElement('div');
+    el.className = 'dobj';
+
+    el.style.left   = (obj.x || 0) + 'px';
+    el.style.top    = (obj.y || 0) + 'px';
+    if (obj.width)  el.style.width  = obj.width  + 'px';
+    if (obj.height) el.style.height = obj.height + 'px';
+    el.style.opacity = (obj.alpha !== undefined ? obj.alpha : 1);
+
+    parts = [];
+    if (obj.scaleX !== 1 || obj.scaleY !== 1)
+      parts.push('scale(' + (obj.scaleX||1) + ',' + (obj.scaleY||1) + ')');
+    if (obj.rotateZ)
+      parts.push('rotate(' + obj.rotateZ + 'deg)');
+    if (parts.length) {
+      el.style.transform       = parts.join(' ');
+      el.style.transformOrigin = '0 0';
+    }
+    if (obj.clip) el.style.overflow = 'hidden';
+
+    /* Text */
+    if (obj._type === 'text') {
+      el.classList.add('dtext');
+      s = JSMAF._styles[obj.style] || {};
+      el.style.color       = s.color  || 'white';
+      el.style.fontSize    = (s.size  || 16) + 'px';
+      el.style.fontWeight  = s.bold   ? '700' : '400';
+      el.style.fontStyle   = s.italic ? 'italic' : 'normal';
+      el.style.textAlign   = obj.align || s.align || 'left';
+      el.style.background  = obj.background || 'transparent';
+      if (obj.paddingTop)    el.style.paddingTop    = obj.paddingTop    + 'px';
+      if (obj.paddingBottom) el.style.paddingBottom = obj.paddingBottom + 'px';
+      if (obj.paddingLeft)   el.style.paddingLeft   = obj.paddingLeft   + 'px';
+      if (obj.paddingRight)  el.style.paddingRight  = obj.paddingRight  + 'px';
+      el.textContent = obj.text || '';
+
+    /* Image */
+    } else if (obj._type === 'image') {
+      el.classList.add('dimage');
+      if (obj.url) {
+        el.style.backgroundImage    = 'url("' + obj.url.replace(/"/g, '%22') + '")';
+        el.style.backgroundSize     = 'contain';
+        el.style.backgroundRepeat   = 'no-repeat';
+        el.style.backgroundPosition = 'center';
+      }
+      if (obj.borderWidth) {
+        el.style.border      = obj.borderWidth + 'px solid ' + (obj.borderColor || '#000');
+        el.style.borderImage = obj.borderImage || '';
       }
     }
 
-    // Run button
-    runBtn.addEventListener('click', function() {
-      const selected = scriptSelect.value;
-      let code = editor.value;
-      if (selected === 'demo') code = demoScript;
-      else if (selected === 'dump') code = dumpScript;
-      else if (selected === 'custom' && !code.trim()) {
-        alert('Please paste your custom code in the editor.');
-        return;
-      }
-      if (!code.trim()) {
-        alert('Editor is empty. Select a preset or paste code.');
-        return;
-      }
-      runScript(code);
-    });
+    parent.appendChild(el);
 
-    // Ctrl+Enter to run
-    editor.addEventListener('keydown', function(e) {
-      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-        e.preventDefault();
-        runBtn.click();
-      }
-    });
+    /* Recurse into children */
+    if (obj.children && obj.children.length) renderList(obj.children, el);
+  }
+}
 
-    // =============================================================
-    //  UI CONTROLS
-    // =============================================================
+function doRender() {
+  if (!emuActive) return;
+  screenEl.innerHTML = '';
+  renderList(JSMAF.root.children, screenEl);
+  if (JSMAF.onEnterFrame) {
+    try { JSMAF.onEnterFrame(); }
+    catch (e) { window.error('onEnterFrame: ' + e.message); }
+  }
+  rafId = requestAnimationFrame(doRender);
+}
 
-    // Clear log
-    document.getElementById('clear-log').addEventListener('click', function() {
-      logConsole.innerHTML = '';
-      logEntries = 0;
-      logCount.textContent = '0 entries';
-    });
+function startRender() {
+  emuActive = true;
+  if (rafId) cancelAnimationFrame(rafId);
+  rafId = requestAnimationFrame(doRender);
+}
+function stopRender() {
+  emuActive = false;
+  if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+}
 
-    // Controller toggle / close
-    const controller = document.getElementById('controller');
-    const toggleCtrlBtn = document.getElementById('toggle-controller');
-    const closeCtrlBtn = document.getElementById('close-controller');
-    let ctrlVisible = true;
+/* ════════════════════════════════════════════════════════
+   SCREEN SCALING — fits 1920×1080 into any container
+════════════════════════════════════════════════════════ */
+var screenWrap = document.getElementById('screen-wrap');
 
-    toggleCtrlBtn.addEventListener('click', function() {
-      ctrlVisible = !ctrlVisible;
-      controller.style.display = ctrlVisible ? '' : 'none';
-    });
+function updateScale() {
+  var ww = screenWrap.clientWidth, wh = screenWrap.clientHeight;
+  if (!ww || !wh) return;
+  var sc = Math.min(ww / 1920, wh / 1080);
+  var ox = Math.round((ww - 1920 * sc) / 2);
+  var oy = Math.round((wh - 1080 * sc) / 2);
+  screenEl.style.transform       = 'translate(' + ox + 'px,' + oy + 'px) scale(' + sc + ')';
+  screenEl.style.transformOrigin = '0 0';
+}
 
-    closeCtrlBtn.addEventListener('click', function(e) {
-      e.stopPropagation();
-      ctrlVisible = false;
-      controller.style.display = 'none';
-    });
+var ro = new ResizeObserver(updateScale);
+ro.observe(screenWrap);
+window.addEventListener('resize', updateScale);
 
-    // Draggable controller
-    let dragOffX = 0,
-      dragOffY = 0,
-      dragging = false;
+/* ════════════════════════════════════════════════════════
+   VIEW MANAGEMENT
+════════════════════════════════════════════════════════ */
+var editorView = document.getElementById('editor-view');
+var emuView    = document.getElementById('emu-view');
+var emuStatus  = document.getElementById('emu-status');
+var codeEditor = document.getElementById('code-editor');
 
-    controller.addEventListener('mousedown', function(e) {
-      if (e.target.closest('.ctrl-btn') || e.target.closest('.close-btn')) return;
-      dragging = true;
-      const rect = controller.getBoundingClientRect();
-      dragOffX = e.clientX - rect.left;
-      dragOffY = e.clientY - rect.top;
-      controller.style.cursor = 'grabbing';
-    });
+function showEditor() {
+  stopRender();
+  emuView.classList.add('off');
+  editorView.classList.remove('off');
+}
 
-    document.addEventListener('mousemove', function(e) {
-      if (!dragging) return;
-      let x = e.clientX - dragOffX;
-      let y = e.clientY - dragOffY;
-      x = Math.max(0, Math.min(window.innerWidth - controller.offsetWidth, x));
-      y = Math.max(0, Math.min(window.innerHeight - controller.offsetHeight, y));
-      controller.style.left = x + 'px';
-      controller.style.top = y + 'px';
-      controller.style.bottom = 'auto';
-      controller.style.right = 'auto';
-    });
+function showEmulator() {
+  editorView.classList.add('off');
+  emuView.classList.remove('off');
+  updateScale();
+  startRender();
+}
 
-    document.addEventListener('mouseup', function() {
-      if (dragging) {
-        dragging = false;
-        controller.style.cursor = 'grab';
-      }
-    });
+function runScript() {
+  var code = codeEditor.value.trim();
+  if (!code) { toast('Paste a JSMAF script first, then press Run.'); return; }
 
-    // Controller buttons
-    document.querySelectorAll('.ctrl-btn[data-key]').forEach(function(btn) {
-      function handler(e) {
-        e.preventDefault();
-        const key = parseInt(btn.getAttribute('data-key'), 10);
-        if (jsmaf.onKeyDown) jsmaf.onKeyDown(key);
-        setTimeout(function() {
-          if (jsmaf.onKeyUp) jsmaf.onKeyUp(key);
-        }, 100);
-      }
-      btn.addEventListener('click', handler);
-      btn.addEventListener('touchstart', handler, { passive: false });
-    });
+  /* Reset JSMAF state completely */
+  JSMAF.root.children     = [];
+  JSMAF.onKeyDown         = null; JSMAF.onKeyUp         = null;
+  JSMAF.onKeyRepeat       = null; JSMAF.onEnterFrame    = null;
+  JSMAF.onEnterForeground = null; JSMAF.onEnterBackground = null;
+  JSMAF.onError           = null; JSMAF.loader_has_run  = false;
 
-    // File browser
-    const fileBrowser = document.getElementById('file-browser');
-    const fileList = document.getElementById('file-list');
-    const filePreview = document.getElementById('file-preview');
+  logOut.innerHTML = '';
+  showEmulator();
 
-    function refreshFileList() {
-      fileList.innerHTML = '';
-      const paths = Object.keys(VFS).sort();
-      if (paths.length === 0) {
-        fileList.innerHTML = '<div style="color:#888;padding:20px;">No files in virtual filesystem yet.</div>';
-        return;
-      }
-      for (const path of paths) {
-        const item = document.createElement('div');
-        item.className = 'file-item';
-        const icon = document.createElement('span');
-        icon.className = 'icon';
-        icon.textContent = '📄';
-        const name = document.createElement('span');
-        name.className = 'name';
-        name.textContent = path;
-        item.appendChild(icon);
-        item.appendChild(name);
-        item.addEventListener('click', function() {
-          const content = VFS[path];
-          let preview = content;
-          if (typeof content === 'string') {
-            if (content.length > 5000) preview = content.substring(0, 5000) + '\n... (truncated)';
-          } else {
-            preview = JSON.stringify(content, null, 2);
-          }
-          filePreview.textContent = preview;
-        });
-        fileList.appendChild(item);
-      }
+  emuStatus.textContent = '● RUNNING';
+  emuStatus.className   = 'bar-status ok';
+
+  try {
+    execScript(code);
+    log('Script started successfully');
+  } catch (e) {
+    window.error('Script error: ' + e.message);
+    if (e.stack) {
+      e.stack.split('\n').slice(0, 4).forEach(function (l) { window.error(l); });
     }
+    emuStatus.textContent = '✖ ERROR';
+    emuStatus.className   = 'bar-status err';
+  }
+}
 
-    document.getElementById('open-files').addEventListener('click', function() {
-      fileBrowser.classList.toggle('active');
-      if (fileBrowser.classList.contains('active')) refreshFileList();
+document.getElementById('run-btn').addEventListener('click', runScript);
+document.getElementById('btn-back').addEventListener('click', showEditor);
+
+codeEditor.addEventListener('keydown', function (e) {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); runScript(); }
+  if (e.key === 'Tab') {
+    e.preventDefault();
+    var s = this.selectionStart, en = this.selectionEnd;
+    this.value = this.value.slice(0, s) + '  ' + this.value.slice(en);
+    this.selectionStart = this.selectionEnd = s + 2;
+  }
+});
+
+/* ════════════════════════════════════════════════════════
+   CONTROLLER
+════════════════════════════════════════════════════════ */
+function fireKey(code, down) {
+  try {
+    if (down && JSMAF.onKeyDown) JSMAF.onKeyDown(code);
+    if (!down && JSMAF.onKeyUp)  JSMAF.onKeyUp(code);
+  } catch (e) { window.error('Key handler: ' + e.message); }
+}
+
+document.querySelectorAll('.cbtn[data-key]').forEach(function (btn) {
+  var k = parseInt(btn.dataset.key, 10);
+
+  function dn(e) { e.preventDefault(); btn.classList.add('on'); fireKey(k, true); }
+  function up(e) { if (e) e.preventDefault(); btn.classList.remove('on'); fireKey(k, false); }
+  function lv()  { if (btn.classList.contains('on')) up(); }
+
+  btn.addEventListener('mousedown',   dn);
+  btn.addEventListener('mouseup',     up);
+  btn.addEventListener('mouseleave',  lv);
+  btn.addEventListener('touchstart',  dn, { passive: false });
+  btn.addEventListener('touchend',    up, { passive: false });
+  btn.addEventListener('touchcancel', up, { passive: false });
+});
+
+/* Keyboard → PS4 key codes */
+var KM = {
+  ArrowUp:4, ArrowRight:5, ArrowDown:6, ArrowLeft:7,
+  z:14, Z:14, x:13, X:13, a:15, A:15, s:12, S:12,
+  q:10, Q:10, e:11, E:11, '1':8, '3':9, Enter:3
+};
+document.addEventListener('keydown', function (ev) {
+  if (emuView.classList.contains('off')) return;
+  var k = KM[ev.key];
+  if (k !== undefined) { ev.preventDefault(); fireKey(k, true); }
+});
+document.addEventListener('keyup', function (ev) {
+  if (emuView.classList.contains('off')) return;
+  var k = KM[ev.key];
+  if (k !== undefined) fireKey(k, false);
+});
+
+/* ════════════════════════════════════════════════════════
+   CONSOLE LOG
+════════════════════════════════════════════════════════ */
+var logSection = document.getElementById('log-section');
+var btnTogLog  = document.getElementById('btn-tog-log');
+var logOpen    = true;
+
+btnTogLog.addEventListener('click', function () {
+  logOpen = !logOpen;
+  logSection.classList.toggle('shut', !logOpen);
+  btnTogLog.textContent = logOpen ? 'LOG ▾' : 'LOG ▴';
+  setTimeout(updateScale, 200);
+});
+
+document.getElementById('btn-clr-log').addEventListener('click', function () {
+  logOut.innerHTML = '';
+});
+
+/* ════════════════════════════════════════════════════════
+   FILE BROWSER
+════════════════════════════════════════════════════════ */
+var modalBg = document.getElementById('modal-bg');
+var fList   = document.getElementById('f-list');
+var fPrev   = document.getElementById('f-prev');
+
+function openFiles() {
+  fList.innerHTML = '';
+  fPrev.innerHTML = '<div class="empty">Select a file to preview</div>';
+  var paths = Object.keys(VFS).sort();
+  if (!paths.length) {
+    fList.innerHTML = '<div class="empty">VFS is empty.<br>Scripts writing via XHR POST will appear here.</div>';
+  } else {
+    paths.forEach(function (p) {
+      var it = document.createElement('div');
+      it.className   = 'fi';
+      it.textContent = '📄 ' + p;
+      it.addEventListener('click', function () {
+        document.querySelectorAll('.fi').forEach(function (x) { x.classList.remove('sel'); });
+        it.classList.add('sel');
+        var c = VFS[p];
+        if (typeof c !== 'string') c = JSON.stringify(c, null, 2);
+        fPrev.textContent = c.length > 14000 ? c.slice(0, 14000) + '\n… [truncated]' : c;
+      });
+      fList.appendChild(it);
     });
+  }
+  modalBg.classList.remove('off');
+}
 
-    document.getElementById('close-files').addEventListener('click', function() {
-      fileBrowser.classList.remove('active');
-    });
+document.getElementById('btn-files-ed').addEventListener('click',  openFiles);
+document.getElementById('btn-files-emu').addEventListener('click', openFiles);
+document.getElementById('close-modal').addEventListener('click', function () { modalBg.classList.add('off'); });
+modalBg.addEventListener('click', function (e) { if (e.target === modalBg) modalBg.classList.add('off'); });
 
-    // =============================================================
-    //  INIT
-    // =============================================================
+/* ════════════════════════════════════════════════════════
+   KEY MAP HINT
+════════════════════════════════════════════════════════ */
+document.getElementById('btn-keymap').addEventListener('click', function () {
+  toast('↑↓←→=D-pad  Z=✕  X=○  A=□  S=△  Q=L1  E=R1  1=L2  3=R2  Enter=OPT');
+});
 
-    // Add default styles
-    new jsmaf.Style({ name: 'white', color: 'white', size: 20 });
-    new jsmaf.Style({ name: 'green', color: '#50fa7b', size: 20 });
-    new jsmaf.Style({ name: 'red', color: '#ff5555', size: 20 });
-    new jsmaf.Style({ name: 'yellow', color: '#f1fa8c', size: 20 });
-    new jsmaf.Style({ name: 'cyan', color: '#8be9fd', size: 20 });
-    new jsmaf.Style({ name: 'small', color: 'white', size: 14 });
+/* ════════════════════════════════════════════════════════
+   TOAST
+════════════════════════════════════════════════════════ */
+var toastEl = document.getElementById('toast');
+var toastTm = null;
+function toast(msg) {
+  toastEl.textContent = msg;
+  toastEl.classList.remove('off');
+  if (toastTm) clearTimeout(toastTm);
+  toastTm = setTimeout(function () { toastEl.classList.add('off'); }, 3500);
+}
 
-    // Show editor initially
-    editorContainer.classList.remove('hidden');
-    screenContainer.classList.add('hidden');
-
-    // Initial render
-    render();
-
-    statusBadge.textContent = '● Ready';
-    console.log('JSMAF Emulator ready. Write code and press Run.');
-  </script>
+/* ════════════════════════════════════════════════════════
+   READY
+════════════════════════════════════════════════════════ */
+log('JSMAF PS4 Emulator ready — paste a script and press ▶ RUN');
+</script>
 </body>
 </html>
