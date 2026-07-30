@@ -26,7 +26,7 @@
 <div id="ui">
   <h1 style="color:white; margin-bottom:20px;">JSMAF Emulator</h1>
   <div id="dropzone">Drop .js script here<br>or click to choose file</div>
-  <input type="file" id="fileInput" accept=".js" style="display:none;">
+  <input type="file" id="fileInput" accept="*" style="display:none;">
   <textarea id="textarea" placeholder="Paste your JSMAF script code here..."></textarea>
   <div>
     <button class="btn" id="runBtn">Run Script</button>
@@ -66,7 +66,6 @@
   }
 
   // ============== VIRTUAL FILE SYSTEM ==============
-  // In-memory storage for files written via POST
   const virtualFS = new Map();
 
   // ============== AUDIO CONTEXT ==============
@@ -77,16 +76,13 @@
   }
 
   // ============== GLOBAL HELPERS ==============
-  // Provide log, debug, error if not defined by scripts
-  if (typeof window.log === 'undefined') {
-    window.log = function(msg) { log('[LOG] ' + msg); };
-    window.debug = function(msg) { log('[DBG] ' + msg); };
-    window.error = function(msg) { log('[ERR] ' + msg); };
-  }
+  window.log = function(msg) { log('[LOG] ' + msg); };
+  window.debug = function(msg) { log('[DBG] ' + msg); };
+  window.error = function(msg) { log('[ERR] ' + msg); };
 
   // ============== BUILD JSMAF OBJECT ==============
   const jsmaf = {
-    // Core properties (from dump)
+    // Core properties
     screenWidth: WIDTH,
     screenHeight: HEIGHT,
     screenAspect: 16/9,
@@ -123,7 +119,6 @@
     onError: function(e) { log('JSMAF Error: ' + (e && e.message ? e.message : e)); },
     onNetworkStatusChange: null,
     onShutdown: null,
-    // dummy
     onKeyboardDown: null, onkeyboarddown: null,
     onKeyboardUp: null, onkeyboardup: null,
     onKeyboardRepeat: null, onkeyboardrepeat: null,
@@ -142,18 +137,20 @@
 
     // Output
     print: function(msg) { log(msg); },
-    alert: function(msg) { alert(msg); },
+    alert: function(msg) { 
+      // Use native alert, but ensure it doesn't stop the render loop permanently.
+      // The loop continues after alert returns.
+      alert(msg !== undefined ? String(msg) : '');
+    },
 
     // Asset loading
     include: function(path) {
-      // Resolve file://../download0/... to relative URL
       let url = path;
       if (url.startsWith('file://../download0/')) {
         url = url.replace('file://../download0/', '');
       } else if (url.startsWith('file:///')) {
         url = url.replace('file:///', '');
       }
-      // Fetch and eval synchronously (XHR sync fallback)
       try {
         const xhr = new XMLHttpRequest();
         xhr.open('GET', url, false);
@@ -182,6 +179,9 @@
     openWebBrowser: function(){}, speak: function(){}, eval: function(code){ return eval(code); },
     showCCSettings: function(){},
   };
+
+  // Expose jsmaf.alert as global alert (already native, but we keep consistency)
+  window.alert = jsmaf.alert;
 
   // ============== IMAGE CONSTRUCTOR ==============
   function Image(opts) {
@@ -228,7 +228,6 @@
     const self = this;
     this.onload = opts.onload || opts.onLoad || null;
     if (this.url) {
-      // Convert file:// to relative
       let src = this.url;
       if (src.startsWith('file://../download0/')) {
         src = src.replace('file://../download0/', '');
@@ -299,7 +298,7 @@
     this.children = [];
   }
   jsmaf.Container = Container;
-  jsmaf.Mesh = Container; // alias
+  jsmaf.Mesh = Container;
   jsmaf.Slate = Container;
 
   // ============== AUDIOCLIP ==============
@@ -360,7 +359,6 @@
     this._data = data;
     const self = this;
     const url = this._url;
-    // Handle file:// paths
     let finalUrl = url;
     if (finalUrl.startsWith('file://../download0/')) {
       finalUrl = finalUrl.replace('file://../download0/', '');
@@ -369,7 +367,6 @@
     }
 
     if (this._method === 'GET') {
-      // Check virtual FS first (for files written by POST)
       if (virtualFS.has(finalUrl)) {
         this.responseText = virtualFS.get(finalUrl);
         this.status = 200;
@@ -377,7 +374,6 @@
         if (this.onreadystatechange) this.onreadystatechange();
         return;
       }
-      // Otherwise fetch from server
       const xhr = new XMLHttpRequest();
       xhr.open('GET', finalUrl, this._async);
       xhr.onreadystatechange = function() {
@@ -388,7 +384,6 @@
       };
       xhr.send();
     } else if (this._method === 'POST') {
-      // Store in virtual FS
       virtualFS.set(finalUrl, this._data);
       this.status = 200;
       this.readyState = 4;
@@ -410,7 +405,6 @@
     this.onopen = null;
     this.onclose = null;
     this.onerror = null;
-    // Simulate connection
     if (this.onopen) this.onopen();
   };
   jsmaf.WebSocket.prototype.send = function(data) {
@@ -424,7 +418,6 @@
     this.onconnect = null;
     this.onmessage = null;
     log('WebSocketServer started on port ' + this.port);
-    // Simulate a client connection for demo
     if (this.onconnect) {
       const ws = new jsmaf.WebSocket('ws://localhost:'+port);
       this.onconnect(ws);
@@ -436,14 +429,13 @@
   jsmaf.Preload = function() {};
   jsmaf.Video = function() {};
 
-  // ============== LOCATION LOADER (simplified) ==============
+  // ============== LOCATION LOADER ==============
   jsmaf.location = {
     mLocation: '',
     manifest: null,
     __proto__: {
       set: function(uri) {
         this.mLocation = uri;
-        // Load manifest from uri
         const xhr = new XMLHttpRequest();
         xhr.open('GET', uri, false);
         xhr.send();
@@ -461,12 +453,10 @@
       }
     }
   };
-  // Alias: setting jsmaf.location = string triggers the setter
   Object.defineProperty(jsmaf, 'location', {
     get: function() { return jsmaf.location; },
     set: function(val) {
       jsmaf.location.mLocation = val;
-      // Load manifest
       const xhr = new XMLHttpRequest();
       xhr.open('GET', val, false);
       xhr.send();
@@ -505,14 +495,12 @@
     const alpha = globalAlpha * el.alpha;
     ctx.save();
 
-    // Clip
     if (el.clip) {
       ctx.beginPath();
       ctx.rect(x + el.clipX, y + el.clipY, el.clipWidth || el.width, el.clipHeight || el.height);
       ctx.clip();
     }
 
-    // Transform (only rotateZ and scale for now)
     ctx.translate(x + (el.width/2 || 0), y + (el.height/2 || 0));
     if (el.rotateZ) ctx.rotate(el.rotateZ * Math.PI / 180);
     if (el.scaleX !== 1 || el.scaleY !== 1) ctx.scale(el.scaleX, el.scaleY);
@@ -520,17 +508,14 @@
 
     ctx.globalAlpha = alpha;
 
-    // Background
     if (el.background) {
       ctx.fillStyle = el.background;
       ctx.fillRect(x, y, el.width || 0, el.height || 0);
     }
 
-    // Image
     if (el._img && el._img.complete && el._img.naturalWidth > 0) {
       ctx.drawImage(el._img, x, y, el.width || el._img.naturalWidth, el.height || el._img.naturalHeight);
     } else if (el.text !== undefined && el.style && styles[el.style]) {
-      // Text
       const st = styles[el.style];
       ctx.font = (st.size || 20) + 'px sans-serif';
       ctx.fillStyle = st.color || 'white';
@@ -542,13 +527,11 @@
         ctx.fillText(lines[i], x, lineY);
         lineY += (st.size || 20) + 2;
       }
-      // Update natural dimensions
       const metrics = ctx.measureText(el.text);
       el.naturalWidth = metrics.width;
       el.naturalHeight = (lines.length || 1) * ((st.size || 20) + 2);
     }
 
-    // Border
     if (el.borderWidth > 0 && el.borderColor !== 'transparent') {
       ctx.strokeStyle = el.borderColor;
       ctx.lineWidth = el.borderWidth;
@@ -557,7 +540,6 @@
 
     ctx.restore();
 
-    // Children
     if (el.children && el.children.length) {
       for (let child of el.children) {
         drawElement(child, x, y, alpha);
@@ -572,21 +554,21 @@
 
   // ============== KEYBOARD INPUT ==============
   const keyMap = {
-    'ArrowUp': 4, 'KeyW': 55,     // up
-    'ArrowDown': 6, 'KeyS': 57,   // down
-    'ArrowLeft': 7, 'KeyA': 58,   // left
-    'ArrowRight': 5, 'KeyD': 56,  // right
-    'KeyZ': 14,    // cross
-    'KeyX': 13,    // circle
-    'KeyC': 12,    // triangle
-    'KeyV': 15,    // square
-    'KeyQ': 10,    // L1
-    'KeyE': 11,    // R1
-    'Digit1': 8,   // L2
-    'Digit3': 9,   // R2
-    'Space': 2,    // R3
-    'ShiftLeft': 1, 'ShiftRight': 1, // L3
-    'Enter': 16,   // touchpad
+    'ArrowUp': 4, 'KeyW': 55,
+    'ArrowDown': 6, 'KeyS': 57,
+    'ArrowLeft': 7, 'KeyA': 58,
+    'ArrowRight': 5, 'KeyD': 56,
+    'KeyZ': 14,
+    'KeyX': 13,
+    'KeyC': 12,
+    'KeyV': 15,
+    'KeyQ': 10,
+    'KeyE': 11,
+    'Digit1': 8,
+    'Digit3': 9,
+    'Space': 2,
+    'ShiftLeft': 1, 'ShiftRight': 1,
+    'Enter': 16,
   };
   window.addEventListener('keydown', (e) => {
     const code = keyMap[e.code];
@@ -637,11 +619,8 @@
   runBtn.addEventListener('click', () => {
     const code = textarea.value.trim();
     if (!code) return alert('No script provided');
-    // Clear previous state
     jsmaf.root.children.length = 0;
-    // Reset styles
     for (let key in styles) delete styles[key];
-    // Hide UI overlay
     uiOverlay.style.display = 'none';
     try {
       eval(code);
@@ -664,9 +643,8 @@
     log('Exited to menu');
   });
 
-  // Start with UI visible
+  // Start with UI visible and rendering loop running
   uiOverlay.style.display = 'flex';
-  // Start rendering loop (will draw empty root)
   startRendering();
 
 })();
