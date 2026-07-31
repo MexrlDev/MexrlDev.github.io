@@ -1,0 +1,1463 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DiffChecker Pro — MexrlDev 2026</title>
+    <meta name="description" content="Advanced code diff checker with gists system — MexrlDev 2026">
+    <style>
+        :root {
+            --bg: #0d1117;
+            --surface: #161b22;
+            --surface2: #1c2129;
+            --border: #30363d;
+            --text: #c9d1d9;
+            --text2: #8b949e;
+            --accent: #58a6ff;
+            --accent2: #1f6feb;
+            --green-bg: #12261e;
+            --green-border: #196c2e;
+            --green-text: #3fb950;
+            --green-highlight: #1b3d28;
+            --red-bg: #26171b;
+            --red-border: #792229;
+            --red-text: #f85149;
+            --red-highlight: #3d1f24;
+            --shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+            --radius: 8px;
+            --radius-sm: 5px;
+            --font-mono: 'SF Mono', 'Cascadia Code', 'Fira Code', 'JetBrains Mono', 'Consolas', 'Monaco', 'Courier New', monospace;
+            --font-sans: 'Inter', 'Segoe UI', 'system-ui', '-apple-system', sans-serif;
+            --transition: 0.18s ease;
+            --scrollbar-bg: #161b22;
+            --scrollbar-thumb: #30363d;
+        }
+        [data-theme="light"] {
+            --bg: #f6f8fa;
+            --surface: #ffffff;
+            --surface2: #f0f2f5;
+            --border: #d0d7de;
+            --text: #1f2328;
+            --text2: #656d76;
+            --accent: #0969da;
+            --accent2: #0550ae;
+            --green-bg: #dafbe1;
+            --green-border: #4ac26b;
+            --green-text: #1a7f37;
+            --green-highlight: #acecba;
+            --red-bg: #ffebe9;
+            --red-border: #f87168;
+            --red-text: #cf222e;
+            --red-highlight: #ffb8b2;
+            --shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            --scrollbar-bg: #f6f8fa;
+            --scrollbar-thumb: #c1c7cd;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        html {
+            font-size: 15px;
+            scroll-behavior: smooth;
+        }
+        body {
+            font-family: var(--font-sans);
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            transition: background var(--transition), color var(--transition);
+            line-height: 1.5;
+            -webkit-tap-highlight-color: transparent;
+        }
+        ::-webkit-scrollbar {
+            width: 7px;
+            height: 7px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--scrollbar-bg);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--scrollbar-thumb);
+            border-radius: 10px;
+            border: 1px solid transparent;
+            background-clip: padding-box;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #5a6575;
+        }
+
+        /* HEADER */
+        .header {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 0.6rem 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow);
+            transition: background var(--transition), border var(--transition);
+        }
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+        }
+        .logo {
+            font-weight: 700;
+            font-size: 1.25rem;
+            letter-spacing: -0.3px;
+            color: var(--accent);
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .logo svg {
+            width: 22px;
+            height: 22px;
+            flex-shrink: 0;
+        }
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.45rem;
+            flex-wrap: wrap;
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.45rem 0.85rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            border: 1px solid var(--border);
+            background: var(--surface2);
+            color: var(--text);
+            transition: all var(--transition);
+            white-space: nowrap;
+            font-family: var(--font-sans);
+            user-select: none;
+            -webkit-user-select: none;
+            letter-spacing: 0.01em;
+        }
+        .btn:hover {
+            background: var(--border);
+            border-color: #5a6575;
+        }
+        .btn:active {
+            transform: scale(0.97);
+            transition: transform 0.08s ease;
+        }
+        .btn-primary {
+            background: var(--accent2);
+            border-color: var(--accent2);
+            color: #fff;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+        }
+        .btn-primary:hover {
+            background: var(--accent);
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.2);
+        }
+        .btn-icon {
+            padding: 0.45rem 0.55rem;
+            min-width: 36px;
+            justify-content: center;
+        }
+        .btn svg {
+            width: 15px;
+            height: 15px;
+            flex-shrink: 0;
+        }
+        .btn-sm {
+            padding: 0.3rem 0.6rem;
+            font-size: 0.78rem;
+            border-radius: 4px;
+        }
+
+        /* MAIN */
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 0.9rem;
+            gap: 0.8rem;
+            max-width: 1600px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        .input-panels {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.8rem;
+            min-height: 200px;
+        }
+        @media (max-width: 768px) {
+            .input-panels {
+                grid-template-columns: 1fr;
+                min-height: 150px;
+            }
+            .header {
+                padding: 0.5rem 0.7rem;
+            }
+            .logo {
+                font-size: 1.05rem;
+            }
+            .btn {
+                font-size: 0.78rem;
+                padding: 0.38rem 0.6rem;
+            }
+            .btn-sm {
+                font-size: 0.72rem;
+            }
+            .main {
+                padding: 0.5rem;
+                gap: 0.5rem;
+            }
+        }
+        .panel {
+            display: flex;
+            flex-direction: column;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+            transition: all var(--transition);
+            box-shadow: var(--shadow);
+        }
+        .panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.45rem 0.8rem;
+            background: var(--surface2);
+            border-bottom: 1px solid var(--border);
+            font-size: 0.8rem;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            color: var(--text2);
+            transition: background var(--transition), border var(--transition);
+        }
+        .panel-header .dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 0.4rem;
+            flex-shrink: 0;
+        }
+        .dot-old {
+            background: #f85149;
+        }
+        .dot-new {
+            background: #3fb950;
+        }
+        .panel textarea {
+            flex: 1;
+            width: 100%;
+            min-height: 180px;
+            background: var(--surface);
+            color: var(--text);
+            border: none;
+            padding: 0.7rem;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            line-height: 1.55;
+            resize: vertical;
+            outline: none;
+            tab-size: 4;
+            transition: background var(--transition), color var(--transition);
+        }
+        .panel textarea::placeholder {
+            color: var(--text2);
+            opacity: 0.6;
+        }
+        .panel textarea:focus {
+            box-shadow: inset 0 0 0 2px var(--accent);
+            border-radius: 0 0 var(--radius) var(--radius);
+        }
+        .toolbar {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            padding: 0.3rem 0;
+        }
+        @media (max-width: 480px) {
+            .toolbar {
+                gap: 0.3rem;
+            }
+            .toolbar .btn {
+                font-size: 0.7rem;
+                padding: 0.35rem 0.5rem;
+            }
+        }
+        .diff-output {
+            flex: 1;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 250px;
+            box-shadow: var(--shadow);
+            transition: all var(--transition);
+        }
+        .diff-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.45rem 0.8rem;
+            background: var(--surface2);
+            border-bottom: 1px solid var(--border);
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            font-size: 0.8rem;
+            transition: background var(--transition), border var(--transition);
+        }
+        .diff-stats {
+            display: flex;
+            gap: 0.7rem;
+            font-size: 0.78rem;
+            color: var(--text2);
+            flex-wrap: wrap;
+        }
+        .diff-stats span {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        .stat-add {
+            color: var(--green-text);
+            font-weight: 600;
+        }
+        .stat-del {
+            color: var(--red-text);
+            font-weight: 600;
+        }
+        .diff-scroll {
+            flex: 1;
+            overflow: auto;
+            font-family: var(--font-mono);
+            font-size: 0.82rem;
+            line-height: 1.6;
+            transition: background var(--transition);
+            position: relative;
+        }
+        .diff-table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+        .diff-table td {
+            padding: 0 8px;
+            vertical-align: top;
+            white-space: pre-wrap;
+            word-break: break-all;
+            overflow-wrap: break-word;
+        }
+        .line-num {
+            width: 48px;
+            min-width: 48px;
+            text-align: right;
+            color: var(--text2);
+            user-select: none;
+            -webkit-user-select: none;
+            font-size: 0.75rem;
+            padding: 0 6px;
+            background: var(--surface2);
+            border-right: 1px solid var(--border);
+            opacity: 0.7;
+            vertical-align: top;
+            line-height: 1.6;
+        }
+        .line-content {
+            padding: 0 10px;
+            white-space: pre-wrap;
+            word-break: break-all;
+            overflow-wrap: break-word;
+            line-height: 1.6;
+            min-height: 1.6em;
+        }
+        .diff-add {
+            background: var(--green-bg);
+            border-left: 3px solid var(--green-border);
+        }
+        .diff-add .line-num {
+            background: var(--green-highlight);
+            border-right-color: var(--green-border);
+        }
+        .diff-del {
+            background: var(--red-bg);
+            border-left: 3px solid var(--red-border);
+        }
+        .diff-del .line-num {
+            background: var(--red-highlight);
+            border-right-color: var(--red-border);
+        }
+        .diff-same {
+            background: transparent;
+        }
+        .diff-same .line-num {
+            background: transparent;
+        }
+        .word-add {
+            background: #1b5430;
+            border-radius: 3px;
+            padding: 0 2px;
+            color: #7ee787;
+            font-weight: 500;
+        }
+        .word-del {
+            background: #5c1d24;
+            border-radius: 3px;
+            padding: 0 2px;
+            color: #ffa198;
+            font-weight: 500;
+            text-decoration: line-through;
+            text-decoration-color: #f8514966;
+        }
+        [data-theme="light"] .word-add {
+            background: #b4ecc4;
+            color: #116329;
+        }
+        [data-theme="light"] .word-del {
+            background: #ffc9c4;
+            color: #8b1c1c;
+        }
+        .side-by-side {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+            overflow: auto;
+            font-family: var(--font-mono);
+            font-size: 0.82rem;
+            line-height: 1.6;
+        }
+        @media (max-width: 768px) {
+            .side-by-side {
+                grid-template-columns: 1fr;
+            }
+        }
+        .side-col {
+            overflow: hidden;
+            border-right: 1px solid var(--border);
+        }
+        .side-col:last-child {
+            border-right: none;
+        }
+        .side-row {
+            display: flex;
+            min-height: 1.6em;
+            border-bottom: 1px solid transparent;
+        }
+        .side-num {
+            width: 40px;
+            min-width: 40px;
+            text-align: right;
+            padding: 0 5px;
+            color: var(--text2);
+            font-size: 0.72rem;
+            user-select: none;
+            -webkit-user-select: none;
+            opacity: 0.65;
+            line-height: 1.6;
+        }
+        .side-content {
+            flex: 1;
+            padding: 0 8px;
+            white-space: pre-wrap;
+            word-break: break-all;
+            overflow-wrap: break-word;
+            line-height: 1.6;
+        }
+        .empty-placeholder {
+            color: var(--text2);
+            text-align: center;
+            padding: 2.5rem;
+            font-style: italic;
+            opacity: 0.6;
+            user-select: none;
+            -webkit-user-select: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            min-height: 200px;
+        }
+        .footer {
+            text-align: center;
+            padding: 0.8rem;
+            font-size: 0.75rem;
+            color: var(--text2);
+            border-top: 1px solid var(--border);
+            letter-spacing: 0.03em;
+            transition: all var(--transition);
+            background: var(--surface);
+        }
+        .footer strong {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        /* MODAL */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.65);
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.2s ease;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        .modal {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.2rem;
+            max-width: 600px;
+            width: 92vw;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
+            transition: all var(--transition);
+        }
+        .modal h3 {
+            margin: 0 0 0.7rem;
+            font-size: 1.05rem;
+            letter-spacing: -0.2px;
+        }
+        .modal input {
+            width: 100%;
+            padding: 0.5rem 0.7rem;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text);
+            font-family: var(--font-sans);
+            font-size: 0.85rem;
+            margin-bottom: 0.6rem;
+            outline: none;
+            transition: all var(--transition);
+        }
+        .modal input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.12);
+        }
+        .gist-list {
+            list-style: none;
+            max-height: 320px;
+            overflow-y: auto;
+        }
+        .gist-list li {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.5rem 0.6rem;
+            border-bottom: 1px solid var(--border);
+            gap: 0.5rem;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background var(--transition);
+            flex-wrap: wrap;
+        }
+        .gist-list li:hover {
+            background: var(--surface2);
+        }
+        .gist-list .gist-title {
+            font-weight: 500;
+            flex: 1;
+            min-width: 100px;
+            font-size: 0.85rem;
+        }
+        .gist-list .gist-date {
+            font-size: 0.7rem;
+            color: var(--text2);
+            white-space: nowrap;
+        }
+        .gist-list .gist-id {
+            font-size: 0.68rem;
+            color: var(--accent);
+            font-family: var(--font-mono);
+            white-space: nowrap;
+        }
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #1f6feb;
+            color: #fff;
+            padding: 0.6rem 1rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.82rem;
+            font-weight: 500;
+            z-index: 300;
+            animation: slideUp 0.3s ease, fadeOut 0.3s ease 2s forwards;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+            letter-spacing: 0.02em;
+        }
+        @keyframes slideUp {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        @keyframes fadeOut {
+            to {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+        }
+        .hidden {
+            display: none !important;
+        }
+        .tag {
+            display: inline-block;
+            padding: 2px 7px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.03em;
+        }
+        .tag-public {
+            background: #1b5430;
+            color: #7ee787;
+        }
+        .tag-local {
+            background: #3d3522;
+            color: #e3b341;
+        }
+        [data-theme="light"] .tag-public {
+            background: #dafbe1;
+            color: #116329;
+        }
+        [data-theme="light"] .tag-local {
+            background: #fff3cd;
+            color: #7a5d00;
+        }
+    </style>
+</head>
+<body>
+    <!-- HEADER -->
+    <header class="header">
+        <div class="header-left">
+            <div class="logo">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                    <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                    <path d="M2 17l10 5 10-5"/>
+                    <path d="M2 12l10 5 10-5"/>
+                </svg>
+                DiffChecker Pro
+            </div>
+        </div>
+        <div class="header-actions">
+            <button class="btn btn-icon" id="btnTheme" title="Toggle theme" aria-label="Toggle theme">
+                <svg id="iconSun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+                <svg id="iconMoon" class="hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+            </button>
+            <button class="btn btn-sm" id="btnGists" title="Manage Gists">📋 Gists</button>
+            <button class="btn btn-sm" id="btnSaveGist" title="Save current as Gist">💾 Save Gist</button>
+        </div>
+    </header>
+
+    <!-- MAIN -->
+    <main class="main">
+        <!-- INPUT PANELS -->
+        <div class="input-panels">
+            <div class="panel" id="panelOld">
+                <div class="panel-header"><span><span class="dot dot-old"></span> Original</span>
+                    <button class="btn btn-sm btn-icon" id="btnClearOld" title="Clear original" aria-label="Clear original">✕</button>
+                </div>
+                <textarea id="inputOld" placeholder="Paste original code here..." spellcheck="false"></textarea>
+            </div>
+            <div class="panel" id="panelNew">
+                <div class="panel-header"><span><span class="dot dot-new"></span> Modified</span>
+                    <button class="btn btn-sm btn-icon" id="btnClearNew" title="Clear modified" aria-label="Clear modified">✕</button>
+                </div>
+                <textarea id="inputNew" placeholder="Paste modified code here..." spellcheck="false"></textarea>
+            </div>
+        </div>
+
+        <!-- TOOLBAR -->
+        <div class="toolbar">
+            <button class="btn btn-primary" id="btnCompare">🔍 Compare</button>
+            <button class="btn btn-sm" id="btnSwap">⇄ Swap</button>
+            <button class="btn btn-sm" id="btnClearAll">🗑 Clear All</button>
+            <button class="btn btn-sm" id="btnLoadExample">📄 Example</button>
+            <button class="btn btn-sm" id="btnCopyDiff">📋 Copy Diff</button>
+            <button class="btn btn-sm" id="btnDownloadPatch">⬇ Patch</button>
+            <span style="font-size:0.75rem;color:var(--text2);margin-left:0.3rem;">Ctrl+Enter</span>
+        </div>
+
+        <!-- DIFF OUTPUT -->
+        <div class="diff-output" id="diffOutput">
+            <div class="diff-header">
+                <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;">
+                    <strong style="font-size:0.85rem;">Diff Result</strong>
+                    <button class="btn btn-sm" id="btnViewUnified" style="font-weight:600;">Unified</button>
+                    <button class="btn btn-sm" id="btnViewSide">Side-by-Side</button>
+                </div>
+                <div class="diff-stats" id="diffStats"></div>
+            </div>
+            <div class="diff-scroll" id="diffScroll">
+                <div class="empty-placeholder" id="emptyPlaceholder">
+                    Enter code in both panels and click <strong style="margin:0 4px;">Compare</strong> to see the diff
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        © <strong>MexrlDev 2026</strong> — DiffChecker Pro. All rights reserved.
+    </footer>
+
+    <!-- GISTS MODAL -->
+    <div class="modal-overlay hidden" id="gistsModalOverlay">
+        <div class="modal" id="gistsModal">
+            <h3>📋 Saved Gists</h3>
+            <input type="text" id="gistSearchInput" placeholder="🔍 Search gists by title...">
+            <ul class="gist-list" id="gistList"></ul>
+            <div style="display:flex;gap:0.5rem;justify-content:flex-end;margin-top:0.8rem;flex-wrap:wrap;">
+                <button class="btn btn-sm" id="btnExportAll">📤 Export All</button>
+                <button class="btn btn-sm" id="btnImportGists">📥 Import</button>
+                <input type="file" id="importFileInput" accept=".json" class="hidden">
+                <button class="btn btn-sm" id="btnCloseModal">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST CONTAINER -->
+    <div id="toastContainer"></div>
+
+    <script>
+        (function() {
+            // ==================== DOM REFS ====================
+            const $ = (sel) => document.querySelector(sel);
+            const $$ = (sel) => document.querySelectorAll(sel);
+
+            const inputOld = $('#inputOld');
+            const inputNew = $('#inputNew');
+            const diffScroll = $('#diffScroll');
+            const diffStats = $('#diffStats');
+            const emptyPlaceholder = $('#emptyPlaceholder');
+            const toastContainer = $('#toastContainer');
+            const gistsModalOverlay = $('#gistsModalOverlay');
+            const gistList = $('#gistList');
+            const gistSearchInput = $('#gistSearchInput');
+            const importFileInput = $('#importFileInput');
+
+            let currentView = 'unified'; // 'unified' | 'side'
+            let lastDiffResult = null;
+            let currentGistId = null;
+
+            // ==================== THEME ====================
+            const html = document.documentElement;
+            const iconSun = $('#iconSun');
+            const iconMoon = $('#iconMoon');
+
+            function setTheme(theme) {
+                html.setAttribute('data-theme', theme);
+                localStorage.setItem('diffchecker_theme', theme);
+                if (theme === 'light') {
+                    iconSun.classList.add('hidden');
+                    iconMoon.classList.remove('hidden');
+                } else {
+                    iconSun.classList.remove('hidden');
+                    iconMoon.classList.add('hidden');
+                }
+            }
+
+            function toggleTheme() {
+                const current = html.getAttribute('data-theme');
+                setTheme(current === 'dark' ? 'light' : 'dark');
+            }
+            const savedTheme = localStorage.getItem('diffchecker_theme') || 'dark';
+            setTheme(savedTheme);
+            $('#btnTheme').addEventListener('click', toggleTheme);
+
+            // ==================== TOAST ====================
+            function showToast(msg) {
+                const t = document.createElement('div');
+                t.className = 'toast';
+                t.textContent = msg;
+                toastContainer.appendChild(t);
+                setTimeout(() => t.remove(), 2400);
+            }
+
+            // ==================== DIFF ENGINE ====================
+            function tokenizeLine(line) {
+                const tokens = [];
+                const regex = /\S+|\s+/g;
+                let m;
+                while ((m = regex.exec(line)) !== null) {
+                    tokens.push({ text: m[0], isSpace: /^\s+$/.test(m[0]) });
+                }
+                return tokens;
+            }
+
+            function lcsTokens(a, b) {
+                const m = a.length,
+                    n = b.length;
+                const dp = Array.from({ length: m + 1 }, () => new Uint16Array(n + 1));
+                for (let i = 1; i <= m; i++) {
+                    for (let j = 1; j <= n; j++) {
+                        if (a[i - 1].text === b[j - 1].text) {
+                            dp[i][j] = dp[i - 1][j - 1] + 1;
+                        } else {
+                            dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]);
+                        }
+                    }
+                }
+                const result = [];
+                let i = m,
+                    j = n;
+                while (i > 0 && j > 0) {
+                    if (a[i - 1].text === b[j - 1].text) {
+                        result.unshift({ aIdx: i - 1, bIdx: j - 1, same: true, text: a[i - 1].text });
+                        i--;
+                        j--;
+                    } else if (dp[i - 1][j] >= dp[i][j - 1]) {
+                        result.unshift({ aIdx: i - 1, bIdx: null, same: false, text: a[i - 1].text, type: 'del' });
+                        i--;
+                    } else {
+                        result.unshift({ aIdx: null, bIdx: j - 1, same: false, text: b[j - 1].text, type: 'add' });
+                        j--;
+                    }
+                }
+                while (i > 0) {
+                    result.unshift({ aIdx: i - 1, bIdx: null, same: false, text: a[i - 1].text, type: 'del' });
+                    i--;
+                }
+                while (j > 0) {
+                    result.unshift({ aIdx: null, bIdx: j - 1, same: false, text: b[j - 1].text, type: 'add' });
+                    j--;
+                }
+                return result;
+            }
+
+            function computeWordDiff(oldStr, newStr) {
+                const oldTokens = tokenizeLine(oldStr);
+                const newTokens = tokenizeLine(newStr);
+                const lcsResult = lcsTokens(oldTokens, newTokens);
+                return lcsResult;
+            }
+
+            function similarityScore(a, b) {
+                const aWords = new Set(a.split(/\s+/).filter(Boolean));
+                const bWords = new Set(b.split(/\s+/).filter(Boolean));
+                if (aWords.size === 0 && bWords.size === 0) return 1;
+                if (aWords.size === 0 || bWords.size === 0) return 0;
+                let intersection = 0;
+                for (const w of aWords) { if (bWords.has(w)) intersection++; }
+                const union = new Set([...aWords, ...bWords]);
+                return intersection / union.size;
+            }
+
+            function computeLineDiff(oldLines, newLines) {
+                const m = oldLines.length,
+                    n = newLines.length;
+                const dp = Array.from({ length: m + 1 }, () => new Uint16Array(n + 1));
+                for (let i = 1; i <= m; i++) {
+                    for (let j = 1; j <= n; j++) {
+                        if (oldLines[i - 1] === newLines[j - 1]) {
+                            dp[i][j] = dp[i - 1][j - 1] + 1;
+                        } else {
+                            dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]);
+                        }
+                    }
+                }
+                const rawOps = [];
+                let i = m,
+                    j = n;
+                while (i > 0 || j > 0) {
+                    if (i > 0 && j > 0 && oldLines[i - 1] === newLines[j - 1]) {
+                        rawOps.unshift({ type: 'same', oldLine: oldLines[i - 1], newLine: newLines[j - 1],
+                            oldIdx: i - 1, newIdx: j - 1 });
+                        i--;
+                        j--;
+                    } else if (j > 0 && (i === 0 || dp[i][j - 1] >= dp[i - 1][j])) {
+                        rawOps.unshift({ type: 'add', oldLine: null, newLine: newLines[j - 1], oldIdx: null, newIdx: j -
+                                1 });
+                        j--;
+                    } else {
+                        rawOps.unshift({ type: 'del', oldLine: oldLines[i - 1], newLine: null, oldIdx: i - 1, newIdx: null });
+                        i--;
+                    }
+                }
+                // Pair consecutive del+add into changes if similar
+                const paired = [];
+                let idx = 0;
+                while (idx < rawOps.length) {
+                    const curr = rawOps[idx];
+                    if (curr.type === 'del' && idx + 1 < rawOps.length && rawOps[idx + 1].type === 'add') {
+                        const delOp = curr;
+                        const addOp = rawOps[idx + 1];
+                        const sim = similarityScore(delOp.oldLine || '', addOp.newLine || '');
+                        if (sim > 0.35) {
+                            paired.push({
+                                type: 'change',
+                                oldLine: delOp.oldLine,
+                                newLine: addOp.newLine,
+                                oldIdx: delOp.oldIdx,
+                                newIdx: addOp.newIdx,
+                                wordDiff: computeWordDiff(delOp.oldLine || '', addOp.newLine || ''),
+                            });
+                            idx += 2;
+                            continue;
+                        }
+                    }
+                    paired.push(curr);
+                    idx++;
+                }
+                return paired;
+            }
+
+            function renderWordDiffHTML(wordDiffResult) {
+                let html = '';
+                for (const token of wordDiffResult) {
+                    const escaped = escapeHTML(token.text);
+                    if (token.same) {
+                        html += escaped;
+                    } else if (token.type === 'add') {
+                        html += `<span class="word-add">${escaped}</span>`;
+                    } else if (token.type === 'del') {
+                        html += `<span class="word-del">${escaped}</span>`;
+                    } else {
+                        html += escaped;
+                    }
+                }
+                return html;
+            }
+
+            function escapeHTML(str) {
+                const div = document.createElement('div');
+                div.textContent = str;
+                return div.innerHTML;
+            }
+
+            function renderUnifiedDiff(diffOps) {
+                let html = '<table class="diff-table"><tbody>';
+                let oldLineNum = 0;
+                let newLineNum = 0;
+                let addsCount = 0;
+                let delsCount = 0;
+                for (const op of diffOps) {
+                    if (op.type === 'same') {
+                        oldLineNum++;
+                        newLineNum++;
+                        html += `<tr class="diff-same"><td class="line-num">${oldLineNum}</td><td class="line-num">${newLineNum}</td><td class="line-content">${escapeHTML(op.oldLine)}</td></tr>`;
+                    } else if (op.type === 'del') {
+                        oldLineNum++;
+                        delsCount++;
+                        html +=
+                            `<tr class="diff-del"><td class="line-num">${oldLineNum}</td><td class="line-num"></td><td class="line-content">- ${escapeHTML(op.oldLine)}</td></tr>`;
+                    } else if (op.type === 'add') {
+                        newLineNum++;
+                        addsCount++;
+                        html +=
+                            `<tr class="diff-add"><td class="line-num"></td><td class="line-num">${newLineNum}</td><td class="line-content">+ ${escapeHTML(op.newLine)}</td></tr>`;
+                    } else if (op.type === 'change') {
+                        oldLineNum++;
+                        newLineNum++;
+                        delsCount++;
+                        addsCount++;
+                        const oldRendered = renderWordDiffHTML(op.wordDiff.filter(t => t.type !== 'add'));
+                        const newRendered = renderWordDiffHTML(op.wordDiff.filter(t => t.type !== 'del'));
+                        html +=
+                            `<tr class="diff-del"><td class="line-num">${oldLineNum}</td><td class="line-num"></td><td class="line-content">- ${oldRendered}</td></tr>`;
+                        html +=
+                            `<tr class="diff-add"><td class="line-num"></td><td class="line-num">${newLineNum}</td><td class="line-content">+ ${newRendered}</td></tr>`;
+                    }
+                }
+                html += '</tbody></table>';
+                return { html, addsCount, delsCount };
+            }
+
+            function renderSideBySideDiff(diffOps) {
+                let html = '<div class="side-by-side"><div class="side-col">';
+                let oldLineNum = 0;
+                let addsCount = 0;
+                let delsCount = 0;
+                // Left side (old)
+                for (const op of diffOps) {
+                    if (op.type === 'same') {
+                        oldLineNum++;
+                        html +=
+                            `<div class="side-row diff-same"><span class="side-num">${oldLineNum}</span><span class="side-content">${escapeHTML(op.oldLine)}</span></div>`;
+                    } else if (op.type === 'del') {
+                        oldLineNum++;
+                        delsCount++;
+                        html +=
+                            `<div class="side-row diff-del"><span class="side-num">${oldLineNum}</span><span class="side-content">${escapeHTML(op.oldLine)}</span></div>`;
+                    } else if (op.type === 'add') {
+                        html +=
+                            `<div class="side-row" style="background:var(--green-bg);opacity:0.5;"><span class="side-num"></span><span class="side-content"></span></div>`;
+                    } else if (op.type === 'change') {
+                        oldLineNum++;
+                        delsCount++;
+                        const oldRendered = renderWordDiffHTML(op.wordDiff.filter(t => t.type !== 'add'));
+                        html +=
+                            `<div class="side-row diff-del"><span class="side-num">${oldLineNum}</span><span class="side-content">${oldRendered}</span></div>`;
+                    }
+                }
+                html += '</div><div class="side-col">';
+                let newLineNum = 0;
+                for (const op of diffOps) {
+                    if (op.type === 'same') {
+                        newLineNum++;
+                        html +=
+                            `<div class="side-row diff-same"><span class="side-num">${newLineNum}</span><span class="side-content">${escapeHTML(op.newLine)}</span></div>`;
+                    } else if (op.type === 'add') {
+                        newLineNum++;
+                        addsCount++;
+                        html +=
+                            `<div class="side-row diff-add"><span class="side-num">${newLineNum}</span><span class="side-content">${escapeHTML(op.newLine)}</span></div>`;
+                    } else if (op.type === 'del') {
+                        html +=
+                            `<div class="side-row" style="background:var(--red-bg);opacity:0.5;"><span class="side-num"></span><span class="side-content"></span></div>`;
+                    } else if (op.type === 'change') {
+                        newLineNum++;
+                        addsCount++;
+                        const newRendered = renderWordDiffHTML(op.wordDiff.filter(t => t.type !== 'del'));
+                        html +=
+                            `<div class="side-row diff-add"><span class="side-num">${newLineNum}</span><span class="side-content">${newRendered}</span></div>`;
+                    }
+                }
+                html += '</div></div>';
+                return { html, addsCount, delsCount };
+            }
+
+            function performDiff() {
+                const oldText = inputOld.value;
+                const newText = inputNew.value;
+                if (!oldText.trim() && !newText.trim()) {
+                    diffScroll.innerHTML =
+                        '<div class="empty-placeholder">Enter code in both panels and click <strong style="margin:0 4px;">Compare</strong> to see the diff</div>';
+                    diffStats.innerHTML = '';
+                    lastDiffResult = null;
+                    return;
+                }
+                const oldLines = oldText.split('\n');
+                const newLines = newText.split('\n');
+                const diffOps = computeLineDiff(oldLines, newLines);
+                lastDiffResult = { oldText, newText, diffOps };
+                renderDiff(diffOps);
+            }
+
+            function renderDiff(diffOps) {
+                let result;
+                if (currentView === 'unified') {
+                    result = renderUnifiedDiff(diffOps);
+                } else {
+                    result = renderSideBySideDiff(diffOps);
+                }
+                diffScroll.innerHTML = result.html;
+                diffStats.innerHTML = `
+                <span class="stat-add">+${result.addsCount} additions</span>
+                <span class="stat-del">−${result.delsCount} deletions</span>
+                <span style="color:var(--text2);">${diffOps.length} total lines</span>
+            `;
+                emptyPlaceholder.classList.add('hidden');
+            }
+
+            function refreshView() {
+                if (lastDiffResult) {
+                    renderDiff(lastDiffResult.diffOps);
+                }
+            }
+
+            // ==================== BUTTON HANDLERS ====================
+            $('#btnCompare').addEventListener('click', performDiff);
+            $('#btnClearAll').addEventListener('click', () => {
+                inputOld.value = '';
+                inputNew.value = '';
+                diffScroll.innerHTML =
+                    '<div class="empty-placeholder">Enter code in both panels and click <strong style="margin:0 4px;">Compare</strong> to see the diff</div>';
+                diffStats.innerHTML = '';
+                lastDiffResult = null;
+                currentGistId = null;
+                showToast('All cleared');
+            });
+            $('#btnClearOld').addEventListener('click', () => { inputOld.value = '';
+                showToast('Original cleared'); });
+            $('#btnClearNew').addEventListener('click', () => { inputNew.value = '';
+                showToast('Modified cleared'); });
+            $('#btnSwap').addEventListener('click', () => {
+                const temp = inputOld.value;
+                inputOld.value = inputNew.value;
+                inputNew.value = temp;
+                showToast('Swapped');
+                if (lastDiffResult) performDiff();
+            });
+            $('#btnLoadExample').addEventListener('click', () => {
+                inputOld.value = [
+                    'function greet(name) {',
+                    '    console.log("Hello, " + name);',
+                    '    return true;',
+                    '}',
+                    '',
+                    'const result = greet("World");',
+                    'console.log("Done");',
+                ].join('\n');
+                inputNew.value = [
+                    'function greet(name, greeting = "Hello") {',
+                    '    console.log(`${greeting}, ${name}!`);',
+                    '    return { success: true, name };',
+                    '}',
+                    '',
+                    'const result = greet("World", "Hi");',
+                    'console.log("Result:", result);',
+                    'console.log("All done!");',
+                ].join('\n');
+                showToast('Example loaded');
+                performDiff();
+            });
+            $('#btnCopyDiff').addEventListener('click', () => {
+                if (!lastDiffResult) { showToast('Nothing to copy');
+                    return; }
+                let text = '';
+                for (const op of lastDiffResult.diffOps) {
+                    if (op.type === 'same') text += `  ${op.oldLine}\n`;
+                    else if (op.type === 'del') text += `- ${op.oldLine}\n`;
+                    else if (op.type === 'add') text += `+ ${op.newLine}\n`;
+                    else if (op.type === 'change') { text += `- ${op.oldLine}\n`;
+                        text += `+ ${op.newLine}\n`; }
+                }
+                navigator.clipboard.writeText(text).then(() => showToast('Diff copied to clipboard!')).catch(() =>
+                    showToast('Failed to copy'));
+            });
+            $('#btnDownloadPatch').addEventListener('click', () => {
+                if (!lastDiffResult) { showToast('Nothing to download');
+                    return; }
+                let text = '--- Original\n+++ Modified\n@@ -1,0 +1,0 @@\n';
+                for (const op of lastDiffResult.diffOps) {
+                    if (op.type === 'same') text += ` ${op.oldLine}\n`;
+                    else if (op.type === 'del') text += `-${op.oldLine}\n`;
+                    else if (op.type === 'add') text += `+${op.newLine}\n`;
+                    else if (op.type === 'change') { text += `-${op.oldLine}\n`;
+                        text += `+${op.newLine}\n`; }
+                }
+                const blob = new Blob([text], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'diff.patch';
+                a.click();
+                URL.revokeObjectURL(url);
+                showToast('Patch downloaded!');
+            });
+            $('#btnViewUnified').addEventListener('click', () => {
+                currentView = 'unified';
+                $('#btnViewUnified').style.fontWeight = '600';
+                $('#btnViewSide').style.fontWeight = '400';
+                refreshView();
+            });
+            $('#btnViewSide').addEventListener('click', () => {
+                currentView = 'side';
+                $('#btnViewSide').style.fontWeight = '600';
+                $('#btnViewUnified').style.fontWeight = '400';
+                if (window.innerWidth < 769) {
+                    showToast('Side-by-side works best on larger screens');
+                }
+                refreshView();
+            });
+            // Initial view button states
+            $('#btnViewUnified').style.fontWeight = '600';
+            $('#btnViewSide').style.fontWeight = '400';
+
+            // Keyboard shortcut
+            document.addEventListener('keydown', (e) => {
+                if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                    e.preventDefault();
+                    performDiff();
+                }
+            });
+
+            // ==================== GISTS SYSTEM ====================
+            const GISTS_KEY = 'diffchecker_gists';
+
+            function getAllGists() {
+                try {
+                    return JSON.parse(localStorage.getItem(GISTS_KEY) || '[]');
+                } catch { return []; }
+            }
+
+            function saveAllGists(gists) {
+                localStorage.setItem(GISTS_KEY, JSON.stringify(gists));
+            }
+
+            function generateGistId() {
+                const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+                let id = '';
+                for (let i = 0; i < 10; i++) id += chars[Math.floor(Math.random() * chars.length)];
+                return id;
+            }
+
+            function saveGist(title) {
+                const gists = getAllGists();
+                const id = generateGistId();
+                const gist = {
+                    id,
+                    title: title || 'Untitled Gist',
+                    oldText: inputOld.value,
+                    newText: inputNew.value,
+                    createdAt: new Date().toISOString(),
+                };
+                gists.unshift(gist);
+                saveAllGists(gists);
+                currentGistId = id;
+                updateURLHash(id);
+                showToast(`Gist saved! ID: ${id}`);
+                return gist;
+            }
+
+            function loadGist(id) {
+                const gists = getAllGists();
+                const gist = gists.find(g => g.id === id);
+                if (gist) {
+                    inputOld.value = gist.oldText;
+                    inputNew.value = gist.newText;
+                    currentGistId = gist.id;
+                    performDiff();
+                    showToast(`Loaded: ${gist.title}`);
+                    return true;
+                }
+                return false;
+            }
+
+            function deleteGist(id) {
+                let gists = getAllGists();
+                gists = gists.filter(g => g.id !== id);
+                saveAllGists(gists);
+                if (currentGistId === id) currentGistId = null;
+            }
+
+            function updateURLHash(id) {
+                if (id) {
+                    window.location.hash = `gist=${id}`;
+                } else {
+                    window.location.hash = '';
+                }
+            }
+
+            function getHashGistId() {
+                const hash = window.location.hash;
+                const match = hash.match(/^#gist=([a-z0-9]+)$/);
+                return match ? match[1] : null;
+            }
+
+            function renderGistList(filter = '') {
+                const gists = getAllGists();
+                const filtered = filter ?
+                    gists.filter(g => g.title.toLowerCase().includes(filter.toLowerCase()) || g.id.includes(filter)) :
+                    gists;
+                if (filtered.length === 0) {
+                    gistList.innerHTML =
+                        '<li style="justify-content:center;color:var(--text2);padding:1.5rem;">No gists found</li>';
+                } else {
+                    gistList.innerHTML = filtered.map(g => `
+                    <li data-id="${g.id}">
+                        <span class="gist-title">${escapeHTML(g.title)}</span>
+                        <span class="gist-id">${g.id}</span>
+                        <span class="gist-date">${new Date(g.createdAt).toLocaleDateString()}</span>
+                        <button class="btn btn-sm" data-action="load" data-id="${g.id}">Load</button>
+                        <button class="btn btn-sm" data-action="copy-link" data-id="${g.id}" title="Copy share link">🔗</button>
+                        <button class="btn btn-sm" data-action="delete" data-id="${g.id}" style="color:var(--red-text);">🗑</button>
+                    </li>
+                `).join('');
+                }
+            }
+
+            function openGistsModal() {
+                renderGistList();
+                gistSearchInput.value = '';
+                gistsModalOverlay.classList.remove('hidden');
+            }
+
+            function closeGistsModal() {
+                gistsModalOverlay.classList.add('hidden');
+            }
+
+            $('#btnGists').addEventListener('click', openGistsModal);
+            $('#btnCloseModal').addEventListener('click', closeGistsModal);
+            gistsModalOverlay.addEventListener('click', (e) => {
+                if (e.target === gistsModalOverlay) closeGistsModal();
+            });
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && !gistsModalOverlay.classList.contains('hidden')) closeGistsModal();
+            });
+
+            gistSearchInput.addEventListener('input', () => {
+                renderGistList(gistSearchInput.value.trim());
+            });
+
+            gistList.addEventListener('click', (e) => {
+                const btn = e.target.closest('button');
+                if (!btn) return;
+                const action = btn.dataset.action;
+                const id = btn.dataset.id;
+                if (action === 'load') {
+                    loadGist(id);
+                    updateURLHash(id);
+                    closeGistsModal();
+                } else if (action === 'delete') {
+                    if (confirm('Delete this gist?')) {
+                        deleteGist(id);
+                        renderGistList(gistSearchInput.value.trim());
+                        if (currentGistId === id && window.location.hash.includes(id)) {
+                            window.location.hash = '';
+                        }
+                        showToast('Gist deleted');
+                    }
+                } else if (action === 'copy-link') {
+                    const shareURL = `${window.location.origin}${window.location.pathname}#gist=${id}`;
+                    navigator.clipboard.writeText(shareURL).then(() => showToast('Share link copied!')).catch(
+                        () => showToast('Failed to copy link'));
+                }
+            });
+
+            $('#btnSaveGist').addEventListener('click', () => {
+                if (!inputOld.value.trim() && !inputNew.value.trim()) {
+                    showToast('Nothing to save');
+                    return;
+                }
+                const title = prompt('Gist title:', currentGistId ? 'Updated Gist' : 'My Diff');
+                if (title === null) return;
+                const gist = saveGist(title || 'Untitled');
+                currentGistId = gist.id;
+                updateURLHash(gist.id);
+            });
+
+            $('#btnExportAll').addEventListener('click', () => {
+                const gists = getAllGists();
+                if (gists.length === 0) { showToast('No gists to export');
+                    return; }
+                const blob = new Blob([JSON.stringify(gists, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'diffchecker_gists_backup.json';
+                a.click();
+                URL.revokeObjectURL(url);
+                showToast(`${gists.length} gists exported!`);
+            });
+
+            $('#btnImportGists').addEventListener('click', () => {
+                importFileInput.click();
+            });
+            importFileInput.addEventListener('change', () => {
+                const file = importFileInput.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const data = JSON.parse(e.target.result);
+                        if (!Array.isArray(data)) throw new Error('Invalid format');
+                        const existing = getAllGists();
+                        const merged = [...data, ...existing];
+                        // Deduplicate by id
+                        const seen = new Set();
+                        const unique = [];
+                        for (const g of merged) {
+                            if (!seen.has(g.id)) { seen.add(g.id);
+                                unique.push(g); }
+                        }
+                        saveAllGists(unique);
+                        renderGistList(gistSearchInput.value.trim());
+                        showToast(`Imported ${data.length} gists (${unique.length} total after merge)`);
+                    } catch {
+                        showToast('Invalid import file');
+                    }
+                };
+                reader.readAsText(file);
+                importFileInput.value = '';
+            });
+
+            // ==================== INIT: Check URL hash ====================
+            function initFromHash() {
+                const hashId = getHashGistId();
+                if (hashId) {
+                    const loaded = loadGist(hashId);
+                    if (!loaded) {
+                        showToast('Gist not found in local storage');
+                        window.location.hash = '';
+                    }
+                }
+            }
+
+            // ==================== AUTO-SAVE DRAFT ====================
+            function saveDraft() {
+                const draft = { old: inputOld.value, new: inputNew.value, ts: Date.now() };
+                localStorage.setItem('diffchecker_draft', JSON.stringify(draft));
+            }
+
+            function loadDraft() {
+                try {
+                    const draft = JSON.parse(localStorage.getItem('diffchecker_draft'));
+                    if (draft && (draft.old || draft.new)) {
+                        inputOld.value = draft.old || '';
+                        inputNew.value = draft.new || '';
+                    }
+                } catch {}
+            }
+            let draftSaveTimeout;
+            inputOld.addEventListener('input', () => {
+                clearTimeout(draftSaveTimeout);
+                draftSaveTimeout = setTimeout(saveDraft, 600);
+            });
+            inputNew.addEventListener('input', () => {
+                clearTimeout(draftSaveTimeout);
+                draftSaveTimeout = setTimeout(saveDraft, 600);
+            });
+
+            // ==================== INIT ====================
+            loadDraft();
+            initFromHash();
+            // Set initial view button states
+            $('#btnViewUnified').style.fontWeight = '600';
+            $('#btnViewSide').style.fontWeight = '400';
+
+            // Auto-compare on load if both inputs have content
+            if (inputOld.value.trim() || inputNew.value.trim()) {
+                setTimeout(performDiff, 300);
+            }
+
+            console.log('%c🔬 DiffChecker Pro %cby MexrlDev 2026 %c| Ready',
+                'font-size:1.1em;font-weight:bold;',
+                'color:#58a6ff;',
+                'color:#8b949e;');
+            console.log('%cFeatures: LocalStorage Gists • Unified & Side-by-Side • Word-level Diff • Patch Export • Draft Auto-save',
+                'color:#8b949e;font-size:0.85em;');
+        })();
+    </script>
+</body>
+</html>
