@@ -23,11 +23,11 @@
             --red-border: #792229;
             --red-text: #f85149;
             --red-highlight: #3d1f24;
-            --shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
             --radius: 8px;
             --radius-sm: 5px;
-            --font-mono: 'SF Mono', 'Cascadia Code', 'Fira Code', 'JetBrains Mono', 'Consolas', 'Monaco', 'Courier New', monospace;
-            --font-sans: 'Inter', 'Segoe UI', 'system-ui', '-apple-system', sans-serif;
+            --font-mono: 'SF Mono', 'Cascadia Code', 'Fira Code', 'JetBrains Mono', 'Consolas', 'Monaco', monospace;
+            --font-sans: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
             --transition: 0.18s ease;
             --scrollbar-bg: #161b22;
             --scrollbar-thumb: #30363d;
@@ -49,7 +49,7 @@
             --red-border: #f87168;
             --red-text: #cf222e;
             --red-highlight: #ffb8b2;
-            --shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
             --scrollbar-bg: #f6f8fa;
             --scrollbar-thumb: #c1c7cd;
         }
@@ -203,12 +203,12 @@
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 0.8rem;
-            min-height: 200px;
+            min-height: 220px;
         }
         @media (max-width: 768px) {
             .input-panels {
                 grid-template-columns: 1fr;
-                min-height: 150px;
+                min-height: 180px;
             }
             .header {
                 padding: 0.5rem 0.7rem;
@@ -237,6 +237,11 @@
             overflow: hidden;
             transition: all var(--transition);
             box-shadow: var(--shadow);
+            position: relative;
+        }
+        .panel.drag-over {
+            border-color: var(--accent);
+            box-shadow: inset 0 0 0 2px var(--accent);
         }
         .panel-header {
             display: flex;
@@ -251,12 +256,22 @@
             color: var(--text2);
             transition: background var(--transition), border var(--transition);
         }
+        .panel-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .panel-meta {
+            font-weight: 400;
+            font-size: 0.72rem;
+            opacity: 0.85;
+        }
         .panel-header .dot {
             width: 9px;
             height: 9px;
             border-radius: 50%;
             display: inline-block;
-            margin-right: 0.4rem;
+            margin-right: 0.3rem;
             flex-shrink: 0;
         }
         .dot-old {
@@ -268,7 +283,7 @@
         .panel textarea {
             flex: 1;
             width: 100%;
-            min-height: 180px;
+            min-height: 200px;
             background: var(--surface);
             color: var(--text);
             border: none;
@@ -287,7 +302,6 @@
         }
         .panel textarea:focus {
             box-shadow: inset 0 0 0 2px var(--accent);
-            border-radius: 0 0 var(--radius) var(--radius);
         }
         .toolbar {
             display: flex;
@@ -314,7 +328,7 @@
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            min-height: 250px;
+            min-height: 260px;
             box-shadow: var(--shadow);
             transition: all var(--transition);
         }
@@ -440,14 +454,16 @@
             background: #ffc9c4;
             color: #8b1c1c;
         }
+
+        /* SIDE BY SIDE */
         .side-by-side {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 0;
             overflow: auto;
             font-family: var(--font-mono);
             font-size: 0.82rem;
             line-height: 1.6;
+            height: 100%;
         }
         @media (max-width: 768px) {
             .side-by-side {
@@ -455,7 +471,7 @@
             }
         }
         .side-col {
-            overflow: hidden;
+            overflow: auto;
             border-right: 1px solid var(--border);
         }
         .side-col:last-child {
@@ -467,16 +483,18 @@
             border-bottom: 1px solid transparent;
         }
         .side-num {
-            width: 40px;
-            min-width: 40px;
+            width: 42px;
+            min-width: 42px;
             text-align: right;
-            padding: 0 5px;
+            padding: 0 6px;
             color: var(--text2);
             font-size: 0.72rem;
             user-select: none;
             -webkit-user-select: none;
             opacity: 0.65;
             line-height: 1.6;
+            background: var(--surface2);
+            border-right: 1px solid var(--border);
         }
         .side-content {
             flex: 1;
@@ -524,15 +542,11 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            animation: fadeIn 0.2s ease;
+            animation: fadeIn 0.18s ease;
         }
         @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-            to {
-                opacity: 1;
-            }
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
         .modal {
             background: var(--surface);
@@ -616,52 +630,19 @@
             font-size: 0.82rem;
             font-weight: 500;
             z-index: 300;
-            animation: slideUp 0.3s ease, fadeOut 0.3s ease 2s forwards;
+            animation: slideUp 0.25s ease, fadeOut 0.25s ease 2.1s forwards;
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
             letter-spacing: 0.02em;
         }
         @keyframes slideUp {
-            from {
-                transform: translateY(30px);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
         @keyframes fadeOut {
-            to {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
+            to { opacity: 0; transform: translateY(-10px); }
         }
         .hidden {
             display: none !important;
-        }
-        .tag {
-            display: inline-block;
-            padding: 2px 7px;
-            border-radius: 10px;
-            font-size: 0.7rem;
-            font-weight: 600;
-            letter-spacing: 0.03em;
-        }
-        .tag-public {
-            background: #1b5430;
-            color: #7ee787;
-        }
-        .tag-local {
-            background: #3d3522;
-            color: #e3b341;
-        }
-        [data-theme="light"] .tag-public {
-            background: #dafbe1;
-            color: #116329;
-        }
-        [data-theme="light"] .tag-local {
-            background: #fff3cd;
-            color: #7a5d00;
         }
     </style>
 </head>
@@ -693,16 +674,24 @@
         <!-- INPUT PANELS -->
         <div class="input-panels">
             <div class="panel" id="panelOld">
-                <div class="panel-header"><span><span class="dot dot-old"></span> Original</span>
+                <div class="panel-header">
+                    <div class="panel-info">
+                        <span><span class="dot dot-old"></span> Original</span>
+                        <span class="panel-meta" id="metaOld">0 lines • 0 chars</span>
+                    </div>
                     <button class="btn btn-sm btn-icon" id="btnClearOld" title="Clear original" aria-label="Clear original">✕</button>
                 </div>
-                <textarea id="inputOld" placeholder="Paste original code here..." spellcheck="false"></textarea>
+                <textarea id="inputOld" placeholder="Paste original code here or drop file..." spellcheck="false"></textarea>
             </div>
             <div class="panel" id="panelNew">
-                <div class="panel-header"><span><span class="dot dot-new"></span> Modified</span>
+                <div class="panel-header">
+                    <div class="panel-info">
+                        <span><span class="dot dot-new"></span> Modified</span>
+                        <span class="panel-meta" id="metaNew">0 lines • 0 chars</span>
+                    </div>
                     <button class="btn btn-sm btn-icon" id="btnClearNew" title="Clear modified" aria-label="Clear modified">✕</button>
                 </div>
-                <textarea id="inputNew" placeholder="Paste modified code here..." spellcheck="false"></textarea>
+                <textarea id="inputNew" placeholder="Paste modified code here or drop file..." spellcheck="false"></textarea>
             </div>
         </div>
 
@@ -762,10 +751,13 @@
         (function() {
             // ==================== DOM REFS ====================
             const $ = (sel) => document.querySelector(sel);
-            const $$ = (sel) => document.querySelectorAll(sel);
 
             const inputOld = $('#inputOld');
             const inputNew = $('#inputNew');
+            const metaOld = $('#metaOld');
+            const metaNew = $('#metaNew');
+            const panelOld = $('#panelOld');
+            const panelNew = $('#panelNew');
             const diffScroll = $('#diffScroll');
             const diffStats = $('#diffStats');
             const emptyPlaceholder = $('#emptyPlaceholder');
@@ -810,10 +802,71 @@
                 t.className = 'toast';
                 t.textContent = msg;
                 toastContainer.appendChild(t);
-                setTimeout(() => t.remove(), 2400);
+                setTimeout(() => t.remove(), 2300);
             }
 
-            // ==================== DIFF ENGINE ====================
+            // ==================== INPUT METRICS & TAB KEY ====================
+            function updateMeta() {
+                const vOld = inputOld.value;
+                const vNew = inputNew.value;
+                const linesOld = vOld ? vOld.split('\n').length : 0;
+                const linesNew = vNew ? vNew.split('\n').length : 0;
+                metaOld.textContent = `${linesOld} line${linesOld === 1 ? '' : 's'} • ${vOld.length} chars`;
+                metaNew.textContent = `${linesNew} line${linesNew === 1 ? '' : 's'} • ${vNew.length} chars`;
+            }
+
+            function handleTabIndent(e) {
+                if (e.key === 'Tab') {
+                    e.preventDefault();
+                    const start = this.selectionStart;
+                    const end = this.selectionEnd;
+                    this.value = this.value.substring(0, start) + '    ' + this.value.substring(end);
+                    this.selectionStart = this.selectionEnd = start + 4;
+                    triggerDraftSave();
+                    updateMeta();
+                }
+            }
+
+            inputOld.addEventListener('keydown', handleTabIndent);
+            inputNew.addEventListener('keydown', handleTabIndent);
+            inputOld.addEventListener('input', updateMeta);
+            inputNew.addEventListener('input', updateMeta);
+
+            // ==================== DRAG AND DROP FILES ====================
+            function setupDragDrop(panelEl, targetInput) {
+                ['dragenter', 'dragover'].forEach(evtName => {
+                    panelEl.addEventListener(evtName, (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        panelEl.classList.add('drag-over');
+                    });
+                });
+                ['dragleave', 'drop'].forEach(evtName => {
+                    panelEl.addEventListener(evtName, (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        panelEl.classList.remove('drag-over');
+                    });
+                });
+                panelEl.addEventListener('drop', (e) => {
+                    const files = e.dataTransfer.files;
+                    if (files && files.length > 0) {
+                        const file = files[0];
+                        const reader = new FileReader();
+                        reader.onload = (evt) => {
+                            targetInput.value = evt.target.result;
+                            updateMeta();
+                            triggerDraftSave();
+                            showToast(`Loaded "${file.name}"`);
+                        };
+                        reader.readAsText(file);
+                    }
+                });
+            }
+            setupDragDrop(panelOld, inputOld);
+            setupDragDrop(panelNew, inputNew);
+
+            // ==================== OPTIMIZED DIFF ENGINE ====================
             function tokenizeLine(line) {
                 const tokens = [];
                 const regex = /\S+|\s+/g;
@@ -825,8 +878,7 @@
             }
 
             function lcsTokens(a, b) {
-                const m = a.length,
-                    n = b.length;
+                const m = a.length, n = b.length;
                 const dp = Array.from({ length: m + 1 }, () => new Uint16Array(n + 1));
                 for (let i = 1; i <= m; i++) {
                     for (let j = 1; j <= n; j++) {
@@ -838,13 +890,11 @@
                     }
                 }
                 const result = [];
-                let i = m,
-                    j = n;
+                let i = m, j = n;
                 while (i > 0 && j > 0) {
                     if (a[i - 1].text === b[j - 1].text) {
                         result.unshift({ aIdx: i - 1, bIdx: j - 1, same: true, text: a[i - 1].text });
-                        i--;
-                        j--;
+                        i--; j--;
                     } else if (dp[i - 1][j] >= dp[i][j - 1]) {
                         result.unshift({ aIdx: i - 1, bIdx: null, same: false, text: a[i - 1].text, type: 'del' });
                         i--;
@@ -867,8 +917,7 @@
             function computeWordDiff(oldStr, newStr) {
                 const oldTokens = tokenizeLine(oldStr);
                 const newTokens = tokenizeLine(newStr);
-                const lcsResult = lcsTokens(oldTokens, newTokens);
-                return lcsResult;
+                return lcsTokens(oldTokens, newTokens);
             }
 
             function similarityScore(a, b) {
@@ -882,38 +931,86 @@
                 return intersection / union.size;
             }
 
+            // High-Performance Prefix/Suffix Trimmed Line LCS
             function computeLineDiff(oldLines, newLines) {
-                const m = oldLines.length,
-                    n = newLines.length;
+                let start = 0;
+                let endOld = oldLines.length - 1;
+                let endNew = newLines.length - 1;
+
+                // Common Prefix Trim
+                while (start <= endOld && start <= endNew && oldLines[start] === newLines[start]) {
+                    start++;
+                }
+
+                // Common Suffix Trim
+                while (endOld >= start && endNew >= start && oldLines[endOld] === newLines[endNew]) {
+                    endOld--;
+                    endNew--;
+                }
+
+                const prefixOps = [];
+                for (let idx = 0; idx < start; idx++) {
+                    prefixOps.push({ type: 'same', oldLine: oldLines[idx], newLine: newLines[idx], oldIdx: idx, newIdx: idx });
+                }
+
+                const midOld = oldLines.slice(start, endOld + 1);
+                const midNew = newLines.slice(start, endNew + 1);
+                const m = midOld.length;
+                const n = midNew.length;
+
                 const dp = Array.from({ length: m + 1 }, () => new Uint16Array(n + 1));
                 for (let i = 1; i <= m; i++) {
                     for (let j = 1; j <= n; j++) {
-                        if (oldLines[i - 1] === newLines[j - 1]) {
+                        if (midOld[i - 1] === midNew[j - 1]) {
                             dp[i][j] = dp[i - 1][j - 1] + 1;
                         } else {
                             dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]);
                         }
                     }
                 }
-                const rawOps = [];
-                let i = m,
-                    j = n;
+
+                const midOps = [];
+                let i = m, j = n;
                 while (i > 0 || j > 0) {
-                    if (i > 0 && j > 0 && oldLines[i - 1] === newLines[j - 1]) {
-                        rawOps.unshift({ type: 'same', oldLine: oldLines[i - 1], newLine: newLines[j - 1],
-                            oldIdx: i - 1, newIdx: j - 1 });
-                        i--;
-                        j--;
+                    if (i > 0 && j > 0 && midOld[i - 1] === midNew[j - 1]) {
+                        midOps.unshift({
+                            type: 'same',
+                            oldLine: midOld[i - 1],
+                            newLine: midNew[j - 1],
+                            oldIdx: start + i - 1,
+                            newIdx: start + j - 1
+                        });
+                        i--; j--;
                     } else if (j > 0 && (i === 0 || dp[i][j - 1] >= dp[i - 1][j])) {
-                        rawOps.unshift({ type: 'add', oldLine: null, newLine: newLines[j - 1], oldIdx: null, newIdx: j -
-                                1 });
+                        midOps.unshift({
+                            type: 'add',
+                            oldLine: null,
+                            newLine: midNew[j - 1],
+                            oldIdx: null,
+                            newIdx: start + j - 1
+                        });
                         j--;
                     } else {
-                        rawOps.unshift({ type: 'del', oldLine: oldLines[i - 1], newLine: null, oldIdx: i - 1, newIdx: null });
+                        midOps.unshift({
+                            type: 'del',
+                            oldLine: midOld[i - 1],
+                            newLine: null,
+                            oldIdx: start + i - 1,
+                            newIdx: null
+                        });
                         i--;
                     }
                 }
-                // Pair consecutive del+add into changes if similar
+
+                const suffixOps = [];
+                for (let idx = endOld + 1; idx < oldLines.length; idx++) {
+                    const newIdx = endNew + 1 + (idx - (endOld + 1));
+                    suffixOps.push({ type: 'same', oldLine: oldLines[idx], newLine: newLines[newIdx], oldIdx: idx, newIdx: newIdx });
+                }
+
+                const rawOps = [...prefixOps, ...midOps, ...suffixOps];
+
+                // Pair consecutive del+add into changed lines if similar
                 const paired = [];
                 let idx = 0;
                 while (idx < rawOps.length) {
@@ -929,7 +1026,7 @@
                                 newLine: addOp.newLine,
                                 oldIdx: delOp.oldIdx,
                                 newIdx: addOp.newIdx,
-                                wordDiff: computeWordDiff(delOp.oldLine || '', addOp.newLine || ''),
+                                wordDiff: computeWordDiff(delOp.oldLine || '', addOp.newLine || '')
                             });
                             idx += 2;
                             continue;
@@ -939,6 +1036,13 @@
                     idx++;
                 }
                 return paired;
+            }
+
+            function escapeHTML(str) {
+                if (!str) return '';
+                const div = document.createElement('div');
+                div.textContent = str;
+                return div.innerHTML;
             }
 
             function renderWordDiffHTML(wordDiffResult) {
@@ -958,12 +1062,6 @@
                 return html;
             }
 
-            function escapeHTML(str) {
-                const div = document.createElement('div');
-                div.textContent = str;
-                return div.innerHTML;
-            }
-
             function renderUnifiedDiff(diffOps) {
                 let html = '<table class="diff-table"><tbody>';
                 let oldLineNum = 0;
@@ -978,13 +1076,11 @@
                     } else if (op.type === 'del') {
                         oldLineNum++;
                         delsCount++;
-                        html +=
-                            `<tr class="diff-del"><td class="line-num">${oldLineNum}</td><td class="line-num"></td><td class="line-content">- ${escapeHTML(op.oldLine)}</td></tr>`;
+                        html += `<tr class="diff-del"><td class="line-num">${oldLineNum}</td><td class="line-num"></td><td class="line-content">- ${escapeHTML(op.oldLine)}</td></tr>`;
                     } else if (op.type === 'add') {
                         newLineNum++;
                         addsCount++;
-                        html +=
-                            `<tr class="diff-add"><td class="line-num"></td><td class="line-num">${newLineNum}</td><td class="line-content">+ ${escapeHTML(op.newLine)}</td></tr>`;
+                        html += `<tr class="diff-add"><td class="line-num"></td><td class="line-num">${newLineNum}</td><td class="line-content">+ ${escapeHTML(op.newLine)}</td></tr>`;
                     } else if (op.type === 'change') {
                         oldLineNum++;
                         newLineNum++;
@@ -992,10 +1088,8 @@
                         addsCount++;
                         const oldRendered = renderWordDiffHTML(op.wordDiff.filter(t => t.type !== 'add'));
                         const newRendered = renderWordDiffHTML(op.wordDiff.filter(t => t.type !== 'del'));
-                        html +=
-                            `<tr class="diff-del"><td class="line-num">${oldLineNum}</td><td class="line-num"></td><td class="line-content">- ${oldRendered}</td></tr>`;
-                        html +=
-                            `<tr class="diff-add"><td class="line-num"></td><td class="line-num">${newLineNum}</td><td class="line-content">+ ${newRendered}</td></tr>`;
+                        html += `<tr class="diff-del"><td class="line-num">${oldLineNum}</td><td class="line-num"></td><td class="line-content">- ${oldRendered}</td></tr>`;
+                        html += `<tr class="diff-add"><td class="line-num"></td><td class="line-num">${newLineNum}</td><td class="line-content">+ ${newRendered}</td></tr>`;
                     }
                 }
                 html += '</tbody></table>';
@@ -1003,65 +1097,78 @@
             }
 
             function renderSideBySideDiff(diffOps) {
-                let html = '<div class="side-by-side"><div class="side-col">';
+                let leftCol = '<div class="side-col" id="sideColLeft">';
+                let rightCol = '<div class="side-col" id="sideColRight">';
                 let oldLineNum = 0;
+                let newLineNum = 0;
                 let addsCount = 0;
                 let delsCount = 0;
-                // Left side (old)
+
                 for (const op of diffOps) {
                     if (op.type === 'same') {
                         oldLineNum++;
-                        html +=
-                            `<div class="side-row diff-same"><span class="side-num">${oldLineNum}</span><span class="side-content">${escapeHTML(op.oldLine)}</span></div>`;
+                        newLineNum++;
+                        leftCol += `<div class="side-row diff-same"><span class="side-num">${oldLineNum}</span><span class="side-content">${escapeHTML(op.oldLine)}</span></div>`;
+                        rightCol += `<div class="side-row diff-same"><span class="side-num">${newLineNum}</span><span class="side-content">${escapeHTML(op.newLine)}</span></div>`;
                     } else if (op.type === 'del') {
                         oldLineNum++;
                         delsCount++;
-                        html +=
-                            `<div class="side-row diff-del"><span class="side-num">${oldLineNum}</span><span class="side-content">${escapeHTML(op.oldLine)}</span></div>`;
+                        leftCol += `<div class="side-row diff-del"><span class="side-num">${oldLineNum}</span><span class="side-content">${escapeHTML(op.oldLine)}</span></div>`;
+                        rightCol += `<div class="side-row" style="background:var(--red-bg);opacity:0.35;"><span class="side-num"></span><span class="side-content"></span></div>`;
                     } else if (op.type === 'add') {
-                        html +=
-                            `<div class="side-row" style="background:var(--green-bg);opacity:0.5;"><span class="side-num"></span><span class="side-content"></span></div>`;
+                        newLineNum++;
+                        addsCount++;
+                        leftCol += `<div class="side-row" style="background:var(--green-bg);opacity:0.35;"><span class="side-num"></span><span class="side-content"></span></div>`;
+                        rightCol += `<div class="side-row diff-add"><span class="side-num">${newLineNum}</span><span class="side-content">${escapeHTML(op.newLine)}</span></div>`;
                     } else if (op.type === 'change') {
                         oldLineNum++;
+                        newLineNum++;
                         delsCount++;
+                        addsCount++;
                         const oldRendered = renderWordDiffHTML(op.wordDiff.filter(t => t.type !== 'add'));
-                        html +=
-                            `<div class="side-row diff-del"><span class="side-num">${oldLineNum}</span><span class="side-content">${oldRendered}</span></div>`;
-                    }
-                }
-                html += '</div><div class="side-col">';
-                let newLineNum = 0;
-                for (const op of diffOps) {
-                    if (op.type === 'same') {
-                        newLineNum++;
-                        html +=
-                            `<div class="side-row diff-same"><span class="side-num">${newLineNum}</span><span class="side-content">${escapeHTML(op.newLine)}</span></div>`;
-                    } else if (op.type === 'add') {
-                        newLineNum++;
-                        addsCount++;
-                        html +=
-                            `<div class="side-row diff-add"><span class="side-num">${newLineNum}</span><span class="side-content">${escapeHTML(op.newLine)}</span></div>`;
-                    } else if (op.type === 'del') {
-                        html +=
-                            `<div class="side-row" style="background:var(--red-bg);opacity:0.5;"><span class="side-num"></span><span class="side-content"></span></div>`;
-                    } else if (op.type === 'change') {
-                        newLineNum++;
-                        addsCount++;
                         const newRendered = renderWordDiffHTML(op.wordDiff.filter(t => t.type !== 'del'));
-                        html +=
-                            `<div class="side-row diff-add"><span class="side-num">${newLineNum}</span><span class="side-content">${newRendered}</span></div>`;
+                        leftCol += `<div class="side-row diff-del"><span class="side-num">${oldLineNum}</span><span class="side-content">${oldRendered}</span></div>`;
+                        rightCol += `<div class="side-row diff-add"><span class="side-num">${newLineNum}</span><span class="side-content">${newRendered}</span></div>`;
                     }
                 }
-                html += '</div></div>';
+
+                leftCol += '</div>';
+                rightCol += '</div>';
+
+                const html = `<div class="side-by-side">${leftCol}${rightCol}</div>`;
                 return { html, addsCount, delsCount };
+            }
+
+            function setupSideSyncScroll() {
+                const colLeft = $('#sideColLeft');
+                const colRight = $('#sideColRight');
+                if (!colLeft || !colRight) return;
+
+                let isSyncingLeft = false;
+                let isSyncingRight = false;
+
+                colLeft.addEventListener('scroll', () => {
+                    if (!isSyncingLeft) {
+                        isSyncingRight = true;
+                        colRight.scrollTop = colLeft.scrollTop;
+                    }
+                    isSyncingLeft = false;
+                });
+
+                colRight.addEventListener('scroll', () => {
+                    if (!isSyncingRight) {
+                        isSyncingLeft = true;
+                        colLeft.scrollTop = colRight.scrollTop;
+                    }
+                    isSyncingRight = false;
+                });
             }
 
             function performDiff() {
                 const oldText = inputOld.value;
                 const newText = inputNew.value;
                 if (!oldText.trim() && !newText.trim()) {
-                    diffScroll.innerHTML =
-                        '<div class="empty-placeholder">Enter code in both panels and click <strong style="margin:0 4px;">Compare</strong> to see the diff</div>';
+                    diffScroll.innerHTML = '<div class="empty-placeholder">Enter code in both panels and click <strong style="margin:0 4px;">Compare</strong> to see the diff</div>';
                     diffStats.innerHTML = '';
                     lastDiffResult = null;
                     return;
@@ -1082,11 +1189,13 @@
                 }
                 diffScroll.innerHTML = result.html;
                 diffStats.innerHTML = `
-                <span class="stat-add">+${result.addsCount} additions</span>
-                <span class="stat-del">−${result.delsCount} deletions</span>
-                <span style="color:var(--text2);">${diffOps.length} total lines</span>
-            `;
-                emptyPlaceholder.classList.add('hidden');
+                    <span class="stat-add">+${result.addsCount} additions</span>
+                    <span class="stat-del">−${result.delsCount} deletions</span>
+                    <span style="color:var(--text2);">${diffOps.length} total lines</span>
+                `;
+                if (currentView === 'side') {
+                    setupSideSyncScroll();
+                }
             }
 
             function refreshView() {
@@ -1095,29 +1204,56 @@
                 }
             }
 
-            // ==================== BUTTON HANDLERS ====================
-            $('#btnCompare').addEventListener('click', performDiff);
-            $('#btnClearAll').addEventListener('click', () => {
+            // ==================== ABSOLUTE CLEAR LOGIC (PERMANENT) ====================
+            function wipeAllData() {
                 inputOld.value = '';
                 inputNew.value = '';
-                diffScroll.innerHTML =
-                    '<div class="empty-placeholder">Enter code in both panels and click <strong style="margin:0 4px;">Compare</strong> to see the diff</div>';
+                updateMeta();
+                // CRITICAL FIX: Wipe draft from localStorage so refresh won't pull it back!
+                localStorage.removeItem('diffchecker_draft');
+                diffScroll.innerHTML = '<div class="empty-placeholder">Enter code in both panels and click <strong style="margin:0 4px;">Compare</strong> to see the diff</div>';
                 diffStats.innerHTML = '';
                 lastDiffResult = null;
                 currentGistId = null;
-                showToast('All cleared');
+                if (window.location.hash.includes('gist=')) {
+                    history.pushState('', document.title, window.location.pathname + window.location.search);
+                }
+            }
+
+            $('#btnClearAll').addEventListener('click', () => {
+                wipeAllData();
+                showToast('Cleared all code & reset draft!');
             });
-            $('#btnClearOld').addEventListener('click', () => { inputOld.value = '';
-                showToast('Original cleared'); });
-            $('#btnClearNew').addEventListener('click', () => { inputNew.value = '';
-                showToast('Modified cleared'); });
+
+            $('#btnClearOld').addEventListener('click', () => {
+                inputOld.value = '';
+                updateMeta();
+                triggerDraftSave();
+                if (!inputNew.value.trim()) wipeAllData();
+                else showToast('Original cleared');
+            });
+
+            $('#btnClearNew').addEventListener('click', () => {
+                inputNew.value = '';
+                updateMeta();
+                triggerDraftSave();
+                if (!inputOld.value.trim()) wipeAllData();
+                else showToast('Modified cleared');
+            });
+
+            // ==================== BUTTON HANDLERS ====================
+            $('#btnCompare').addEventListener('click', performDiff);
+            
             $('#btnSwap').addEventListener('click', () => {
                 const temp = inputOld.value;
                 inputOld.value = inputNew.value;
                 inputNew.value = temp;
-                showToast('Swapped');
-                if (lastDiffResult) performDiff();
+                updateMeta();
+                triggerDraftSave();
+                showToast('Swapped inputs');
+                if (lastDiffResult || inputOld.value || inputNew.value) performDiff();
             });
+
             $('#btnLoadExample').addEventListener('click', () => {
                 inputOld.value = [
                     'function greet(name) {',
@@ -1138,35 +1274,48 @@
                     'console.log("Result:", result);',
                     'console.log("All done!");',
                 ].join('\n');
-                showToast('Example loaded');
+                updateMeta();
+                triggerDraftSave();
+                showToast('Example code loaded');
                 performDiff();
             });
+
             $('#btnCopyDiff').addEventListener('click', () => {
-                if (!lastDiffResult) { showToast('Nothing to copy');
-                    return; }
+                if (!lastDiffResult) {
+                    showToast('Nothing to copy');
+                    return;
+                }
                 let text = '';
                 for (const op of lastDiffResult.diffOps) {
                     if (op.type === 'same') text += `  ${op.oldLine}\n`;
                     else if (op.type === 'del') text += `- ${op.oldLine}\n`;
                     else if (op.type === 'add') text += `+ ${op.newLine}\n`;
-                    else if (op.type === 'change') { text += `- ${op.oldLine}\n`;
-                        text += `+ ${op.newLine}\n`; }
+                    else if (op.type === 'change') {
+                        text += `- ${op.oldLine}\n`;
+                        text += `+ ${op.newLine}\n`;
+                    }
                 }
-                navigator.clipboard.writeText(text).then(() => showToast('Diff copied to clipboard!')).catch(() =>
-                    showToast('Failed to copy'));
+                navigator.clipboard.writeText(text)
+                    .then(() => showToast('Diff copied to clipboard!'))
+                    .catch(() => showToast('Failed to copy diff'));
             });
+
             $('#btnDownloadPatch').addEventListener('click', () => {
-                if (!lastDiffResult) { showToast('Nothing to download');
-                    return; }
+                if (!lastDiffResult) {
+                    showToast('Nothing to download');
+                    return;
+                }
                 let text = '--- Original\n+++ Modified\n@@ -1,0 +1,0 @@\n';
                 for (const op of lastDiffResult.diffOps) {
                     if (op.type === 'same') text += ` ${op.oldLine}\n`;
                     else if (op.type === 'del') text += `-${op.oldLine}\n`;
                     else if (op.type === 'add') text += `+${op.newLine}\n`;
-                    else if (op.type === 'change') { text += `-${op.oldLine}\n`;
-                        text += `+${op.newLine}\n`; }
+                    else if (op.type === 'change') {
+                        text += `-${op.oldLine}\n`;
+                        text += `+${op.newLine}\n`;
+                    }
                 }
-                const blob = new Blob([text], { type: 'text/plain' });
+                const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
@@ -1175,26 +1324,25 @@
                 URL.revokeObjectURL(url);
                 showToast('Patch downloaded!');
             });
+
             $('#btnViewUnified').addEventListener('click', () => {
                 currentView = 'unified';
                 $('#btnViewUnified').style.fontWeight = '600';
                 $('#btnViewSide').style.fontWeight = '400';
                 refreshView();
             });
+
             $('#btnViewSide').addEventListener('click', () => {
                 currentView = 'side';
                 $('#btnViewSide').style.fontWeight = '600';
                 $('#btnViewUnified').style.fontWeight = '400';
                 if (window.innerWidth < 769) {
-                    showToast('Side-by-side works best on larger screens');
+                    showToast('Side-by-side works best on wider screens');
                 }
                 refreshView();
             });
-            // Initial view button states
-            $('#btnViewUnified').style.fontWeight = '600';
-            $('#btnViewSide').style.fontWeight = '400';
 
-            // Keyboard shortcut
+            // Keyboard shortcut Ctrl+Enter or Cmd+Enter to compare
             document.addEventListener('keydown', (e) => {
                 if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
                     e.preventDefault();
@@ -1247,8 +1395,10 @@
                     inputOld.value = gist.oldText;
                     inputNew.value = gist.newText;
                     currentGistId = gist.id;
+                    updateMeta();
+                    triggerDraftSave();
                     performDiff();
-                    showToast(`Loaded: ${gist.title}`);
+                    showToast(`Loaded Gist: ${gist.title}`);
                     return true;
                 }
                 return false;
@@ -1264,8 +1414,8 @@
             function updateURLHash(id) {
                 if (id) {
                     window.location.hash = `gist=${id}`;
-                } else {
-                    window.location.hash = '';
+                } else if (window.location.hash.includes('gist=')) {
+                    history.pushState('', document.title, window.location.pathname + window.location.search);
                 }
             }
 
@@ -1281,19 +1431,18 @@
                     gists.filter(g => g.title.toLowerCase().includes(filter.toLowerCase()) || g.id.includes(filter)) :
                     gists;
                 if (filtered.length === 0) {
-                    gistList.innerHTML =
-                        '<li style="justify-content:center;color:var(--text2);padding:1.5rem;">No gists found</li>';
+                    gistList.innerHTML = '<li style="justify-content:center;color:var(--text2);padding:1.5rem;">No gists found</li>';
                 } else {
                     gistList.innerHTML = filtered.map(g => `
-                    <li data-id="${g.id}">
-                        <span class="gist-title">${escapeHTML(g.title)}</span>
-                        <span class="gist-id">${g.id}</span>
-                        <span class="gist-date">${new Date(g.createdAt).toLocaleDateString()}</span>
-                        <button class="btn btn-sm" data-action="load" data-id="${g.id}">Load</button>
-                        <button class="btn btn-sm" data-action="copy-link" data-id="${g.id}" title="Copy share link">🔗</button>
-                        <button class="btn btn-sm" data-action="delete" data-id="${g.id}" style="color:var(--red-text);">🗑</button>
-                    </li>
-                `).join('');
+                        <li data-id="${g.id}">
+                            <span class="gist-title">${escapeHTML(g.title)}</span>
+                            <span class="gist-id">${g.id}</span>
+                            <span class="gist-date">${new Date(g.createdAt).toLocaleDateString()}</span>
+                            <button class="btn btn-sm" data-action="load" data-id="${g.id}">Load</button>
+                            <button class="btn btn-sm" data-action="copy-link" data-id="${g.id}" title="Copy share link">🔗</button>
+                            <button class="btn btn-sm" data-action="delete" data-id="${g.id}" style="color:var(--red-text);">🗑</button>
+                        </li>
+                    `).join('');
                 }
             }
 
@@ -1334,14 +1483,15 @@
                         deleteGist(id);
                         renderGistList(gistSearchInput.value.trim());
                         if (currentGistId === id && window.location.hash.includes(id)) {
-                            window.location.hash = '';
+                            updateURLHash(null);
                         }
                         showToast('Gist deleted');
                     }
                 } else if (action === 'copy-link') {
                     const shareURL = `${window.location.origin}${window.location.pathname}#gist=${id}`;
-                    navigator.clipboard.writeText(shareURL).then(() => showToast('Share link copied!')).catch(
-                        () => showToast('Failed to copy link'));
+                    navigator.clipboard.writeText(shareURL)
+                        .then(() => showToast('Share link copied!'))
+                        .catch(() => showToast('Failed to copy link'));
                 }
             });
 
@@ -1359,8 +1509,10 @@
 
             $('#btnExportAll').addEventListener('click', () => {
                 const gists = getAllGists();
-                if (gists.length === 0) { showToast('No gists to export');
-                    return; }
+                if (gists.length === 0) {
+                    showToast('No gists to export');
+                    return;
+                }
                 const blob = new Blob([JSON.stringify(gists, null, 2)], { type: 'application/json' });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
@@ -1374,6 +1526,7 @@
             $('#btnImportGists').addEventListener('click', () => {
                 importFileInput.click();
             });
+
             importFileInput.addEventListener('change', () => {
                 const file = importFileInput.files[0];
                 if (!file) return;
@@ -1384,40 +1537,37 @@
                         if (!Array.isArray(data)) throw new Error('Invalid format');
                         const existing = getAllGists();
                         const merged = [...data, ...existing];
-                        // Deduplicate by id
                         const seen = new Set();
                         const unique = [];
                         for (const g of merged) {
-                            if (!seen.has(g.id)) { seen.add(g.id);
-                                unique.push(g); }
+                            if (!seen.has(g.id)) {
+                                seen.add(g.id);
+                                unique.push(g);
+                            }
                         }
                         saveAllGists(unique);
                         renderGistList(gistSearchInput.value.trim());
-                        showToast(`Imported ${data.length} gists (${unique.length} total after merge)`);
+                        showToast(`Imported ${data.length} gists!`);
                     } catch {
-                        showToast('Invalid import file');
+                        showToast('Invalid JSON file format');
                     }
                 };
                 reader.readAsText(file);
                 importFileInput.value = '';
             });
 
-            // ==================== INIT: Check URL hash ====================
-            function initFromHash() {
-                const hashId = getHashGistId();
-                if (hashId) {
-                    const loaded = loadGist(hashId);
-                    if (!loaded) {
-                        showToast('Gist not found in local storage');
-                        window.location.hash = '';
+            // ==================== DRAFT AUTO-SAVE & INIT ====================
+            let draftSaveTimeout;
+            function triggerDraftSave() {
+                clearTimeout(draftSaveTimeout);
+                draftSaveTimeout = setTimeout(() => {
+                    const draft = { old: inputOld.value, new: inputNew.value, ts: Date.now() };
+                    if (draft.old || draft.new) {
+                        localStorage.setItem('diffchecker_draft', JSON.stringify(draft));
+                    } else {
+                        localStorage.removeItem('diffchecker_draft');
                     }
-                }
-            }
-
-            // ==================== AUTO-SAVE DRAFT ====================
-            function saveDraft() {
-                const draft = { old: inputOld.value, new: inputNew.value, ts: Date.now() };
-                localStorage.setItem('diffchecker_draft', JSON.stringify(draft));
+                }, 400);
             }
 
             function loadDraft() {
@@ -1429,34 +1579,29 @@
                     }
                 } catch {}
             }
-            let draftSaveTimeout;
-            inputOld.addEventListener('input', () => {
-                clearTimeout(draftSaveTimeout);
-                draftSaveTimeout = setTimeout(saveDraft, 600);
-            });
-            inputNew.addEventListener('input', () => {
-                clearTimeout(draftSaveTimeout);
-                draftSaveTimeout = setTimeout(saveDraft, 600);
-            });
 
-            // ==================== INIT ====================
+            function initFromHash() {
+                const hashId = getHashGistId();
+                if (hashId) {
+                    const loaded = loadGist(hashId);
+                    if (!loaded) {
+                        showToast('Gist not found locally');
+                        updateURLHash(null);
+                    }
+                }
+            }
+
+            // Init App State
             loadDraft();
+            updateMeta();
             initFromHash();
-            // Set initial view button states
+
             $('#btnViewUnified').style.fontWeight = '600';
             $('#btnViewSide').style.fontWeight = '400';
 
-            // Auto-compare on load if both inputs have content
             if (inputOld.value.trim() || inputNew.value.trim()) {
-                setTimeout(performDiff, 300);
+                setTimeout(performDiff, 200);
             }
-
-            console.log('%c🔬 DiffChecker Pro %cby MexrlDev 2026 %c| Ready',
-                'font-size:1.1em;font-weight:bold;',
-                'color:#58a6ff;',
-                'color:#8b949e;');
-            console.log('%cFeatures: LocalStorage Gists • Unified & Side-by-Side • Word-level Diff • Patch Export • Draft Auto-save',
-                'color:#8b949e;font-size:0.85em;');
         })();
     </script>
 </body>
