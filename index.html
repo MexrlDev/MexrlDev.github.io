@@ -424,6 +424,41 @@
             text-decoration: underline;
         }
 
+        .repo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 12px;
+        }
+        .repo-card {
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 18px 20px;
+            transition: var(--transition);
+            text-decoration: none;
+            color: var(--text);
+            box-shadow: var(--shadow-sm);
+        }
+        .repo-card:hover {
+            border-color: var(--accent);
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+            text-decoration: none;
+        }
+        .repo-card .repo-name {
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 6px;
+            color: var(--accent);
+        }
+        .repo-card .repo-desc {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
         .collection-list {
             display: flex;
             flex-direction: column;
@@ -584,6 +619,40 @@
             font-size: 0.82rem;
         }
 
+        details {
+            margin-top: 4px;
+        }
+        details summary {
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.95rem;
+            padding: 10px 0;
+            color: var(--text);
+            transition: var(--transition);
+            list-style: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        details summary::-webkit-details-marker {
+            display: none;
+        }
+        details summary::before {
+            content: '\25B8';
+            display: inline-block;
+            font-size: 0.8rem;
+            transition: transform 0.25s;
+            color: var(--accent);
+            width: 16px;
+            text-align: center;
+        }
+        details[open] summary::before {
+            transform: rotate(90deg);
+        }
+        details summary:hover {
+            color: var(--accent);
+        }
+
         @media (max-width: 768px) {
             .nav-links {
                 display: none;
@@ -604,6 +673,10 @@
             }
             .card {
                 padding: 18px 16px;
+            }
+            .repo-grid {
+                grid-template-columns: 1fr;
+                gap: 8px;
             }
             .links-table td:first-child {
                 width: 100px;
@@ -639,7 +712,8 @@
         <a href="#about" class="mobile-link">About</a>
         <a href="#links" class="mobile-link">Links</a>
         <a href="#web-projects" class="mobile-link">Web Projects</a>
-        <a href="#archived-repos" class="mobile-link">Archived Repo's</a>
+        <a href="#projects" class="mobile-link">Projects</a>
+        <a href="#repos" class="mobile-link">Repos</a>
         <a href="#collection" class="mobile-link">Collection</a>
         <a href="#gye" class="mobile-link">Gye Baek-Sun</a>
         <a href="#story" class="mobile-link">Story</a>
@@ -653,7 +727,8 @@
                 <a href="#about">About</a>
                 <a href="#links">Links</a>
                 <a href="#web-projects">Web Projects</a>
-                <a href="#archived-repos">Archived Repo's</a>
+                <a href="#projects">Projects</a>
+                <a href="#repos">Repos</a>
                 <a href="#collection">Collection</a>
                 <a href="#gye">Gye Baek-Sun</a>
                 <a href="#story">Story</a>
@@ -709,65 +784,40 @@
         <section class="section" id="web-projects">
             <h2 class="section-title">Web Projects</h2>
             <div class="card">
-                <div class="project-list">
-                    <div class="project-item">
-                        <span class="project-dot"></span>
-                        <div class="project-info">
-                            <strong>Vue Emulator</strong>
-                            <span><a href="https://mexrldev.github.io/ReCoded/Vue-Emu.html" target="_blank" rel="noopener">mexrldev.github.io/ReCoded/Vue-Emu.html</a></span>
+                <details>
+                    <summary>Click to expand web projects</summary>
+                    <div class="project-list" style="margin-top:8px;">
+                        <div class="project-item">
+                            <span class="project-dot"></span>
+                            <div class="project-info">
+                                <strong>Vue Emulator</strong>
+                                <span><a href="https://mexrldev.github.io/ReCoded/Vue-Emu.html" target="_blank" rel="noopener">Vue-Emu</a></span>
+                            </div>
+                        </div>
+                        <div class="project-item">
+                            <span class="project-dot"></span>
+                            <div class="project-info">
+                                <strong>DiffChecker Pro</strong>
+                                <span><a href="https://mexrldev.github.io/ReCoded/DiffChecker.html" target="_blank" rel="noopener">Diff Checker</a></span>
+                            </div>
                         </div>
                     </div>
-                    <div class="project-item">
-                        <span class="project-dot"></span>
-                        <div class="project-info">
-                            <strong>DiffChecker Pro</strong>
-                            <span><a href="https://mexrldev.github.io/ReCoded/DiffChecker.html" target="_blank" rel="noopener">mexrldev.github.io/ReCoded/DiffChecker.html</a></span>
-                        </div>
-                    </div>
-                </div>
+                </details>
             </div>
         </section>
 
-        <section class="section" id="archived-repos">
-            <h2 class="section-title">Archived Repo's</h2>
+        <section class="section" id="projects">
+            <h2 class="section-title">Past Projects</h2>
             <div class="card">
-                <div class="project-list">
-                    <div class="project-item">
-                        <span class="project-dot"></span>
-                        <div class="project-info">
-                            <strong>PsVue-Mod</strong>
-                            <span>PlayStation Vue after free mod — themes, tools, and the whole archive. <a href="https://github.com/MexrlDev/PsVue-Mod" target="_blank" rel="noopener">github.com/MexrlDev/PsVue-Mod</a></span>
-                        </div>
+                <details>
+                    <summary>Click to expand my project archive</summary>
+                    <div class="project-list" style="margin-top:8px;">
+                        <div class="project-item"><span class="project-dot"></span><div class="project-info"><strong>Vue After Free Themes</strong><span>UI theme library + DevTools for PsVue</span></div></div>
+                        <div class="project-item"><span class="project-dot"></span><div class="project-info"><strong>Python Tools</strong><span>Handy scripts for automation and daily tasks</span></div></div>
+                        <div class="project-item"><span class="project-dot"></span><div class="project-info"><strong>Star Wars Racer Revenge</strong><span>Custom mods and payloads</span></div></div>
+                        <div class="project-item"><span class="project-dot"></span><div class="project-info"><strong>Repo (Netflix n' Hack mobile port, etc.)</strong><span>Various ports and experimental hacks</span></div></div>
                     </div>
-                    <div class="project-item">
-                        <span class="project-dot"></span>
-                        <div class="project-info">
-                            <strong>repo</strong>
-                            <span>Netflix N Hack mobile port and other useful tools. <a href="https://github.com/MexrlDev/repo" target="_blank" rel="noopener">github.com/MexrlDev/repo</a></span>
-                        </div>
-                    </div>
-                    <div class="project-item">
-                        <span class="project-dot"></span>
-                        <div class="project-info">
-                            <strong>Star Wars Racer Revenge Mods</strong>
-                            <span>SWRR mods, python tools for mobile, and a mobile sender for payloads. <a href="https://github.com/MexrlDev/Star-Wars-Racer-Revenge-Mods" target="_blank" rel="noopener">github.com/MexrlDev/Star-Wars-Racer-Revenge-Mods</a></span>
-                        </div>
-                    </div>
-                    <div class="project-item">
-                        <span class="project-dot"></span>
-                        <div class="project-info">
-                            <strong>Exp-C0re</strong>
-                            <span>Example on how to hijack Star Wars Racer Revenge video and audio output and control. <a href="https://github.com/MexrlDev/Exp-C0re" target="_blank" rel="noopener">github.com/MexrlDev/Exp-C0re</a></span>
-                        </div>
-                    </div>
-                    <div class="project-item">
-                        <span class="project-dot"></span>
-                        <div class="project-info">
-                            <strong>Python Tools</strong>
-                            <span>Handy scripts for automation and daily tasks.</span>
-                        </div>
-                    </div>
-                </div>
+                </details>
             </div>
         </section>
 
@@ -778,6 +828,19 @@
                     <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/MexrlDev/MexrlDev/refs/heads/output/github-contribution-grid-snake-dark.svg">
                     <img class="snake-img" src="https://raw.githubusercontent.com/MexrlDev/MexrlDev/refs/heads/output/github-contribution-grid-snake-dark.svg" alt="GitHub contribution snake" loading="lazy">
                 </picture>
+            </div>
+        </section>
+
+        <section class="section" id="repos">
+            <h2 class="section-title">My Repositories</h2>
+            <div class="card" style="padding: 20px 20px 24px;">
+                <p style="text-align:center; margin-bottom:10px; font-weight:600;">Direct links to my active GitHub repos</p>
+                <div class="repo-grid">
+                    <a class="repo-card" href="https://github.com/MexrlDev/PsVue-Mod" target="_blank" rel="noopener"><span class="repo-name">PsVue-Mod</span><span class="repo-desc">PlayStation Vue after free mod — themes, tools, and the whole archive.</span></a>
+                    <a class="repo-card" href="https://github.com/MexrlDev/repo" target="_blank" rel="noopener"><span class="repo-name">repo</span><span class="repo-desc">Netflix N Hack mobile port and other useful tools.</span></a>
+                    <a class="repo-card" href="https://github.com/MexrlDev/Star-Wars-Racer-Revenge-Mods" target="_blank" rel="noopener"><span class="repo-name">Star Wars Racer Revenge Mods</span><span class="repo-desc">SWRR mods, python tools for mobile, and a mobile sender for payloads.</span></a>
+                    <a class="repo-card" href="https://github.com/MexrlDev/Exp-C0re" target="_blank" rel="noopener"><span class="repo-name">Exp-C0re</span><span class="repo-desc">Example on how to hijack Star Wars Racer Revenge video and audio output and control.</span></a>
+                </div>
             </div>
         </section>
 
