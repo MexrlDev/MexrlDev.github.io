@@ -416,6 +416,13 @@
             font-size: 0.88rem;
             color: var(--text-muted);
         }
+        .project-info span a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+        .project-info span a:hover {
+            text-decoration: underline;
+        }
 
         .repo-grid {
             display: grid;
@@ -551,7 +558,6 @@
             background: rgba(0,0,0,0.9);
         }
 
-        /* ── Ornate Frame with C‑Scrolls ── */
         .framed-wrapper {
             display: inline-block;
             position: relative;
@@ -573,112 +579,6 @@
             border-radius: 2px;
             position: relative;
             z-index: 1;
-        }
-        .scroll-corner {
-            position: absolute;
-            width: 24px;
-            height: 24px;
-            z-index: 2;
-            pointer-events: none;
-        }
-        .scroll-corner::before,
-        .scroll-corner::after {
-            content: '';
-            position: absolute;
-            background: var(--scroll-color);
-            border-radius: 50%;
-        }
-        .corner-tl {
-            top: 8px;
-            left: 8px;
-        }
-        .corner-tl::before {
-            width: 18px;
-            height: 18px;
-            top: -6px;
-            left: -6px;
-            border: 3px solid var(--frame-inner-border);
-            background: transparent;
-            border-radius: 50%;
-            clip-path: inset(0 0 50% 50%);
-        }
-        .corner-tl::after {
-            width: 10px;
-            height: 10px;
-            top: -2px;
-            left: -2px;
-            background: var(--frame-color);
-            border: 2px solid var(--frame-inner-border);
-            border-radius: 50%;
-        }
-        .corner-tr {
-            top: 8px;
-            right: 8px;
-        }
-        .corner-tr::before {
-            width: 18px;
-            height: 18px;
-            top: -6px;
-            right: -6px;
-            border: 3px solid var(--frame-inner-border);
-            background: transparent;
-            border-radius: 50%;
-            clip-path: inset(0 50% 50% 0);
-        }
-        .corner-tr::after {
-            width: 10px;
-            height: 10px;
-            top: -2px;
-            right: -2px;
-            background: var(--frame-color);
-            border: 2px solid var(--frame-inner-border);
-            border-radius: 50%;
-        }
-        .corner-bl {
-            bottom: 8px;
-            left: 8px;
-        }
-        .corner-bl::before {
-            width: 18px;
-            height: 18px;
-            bottom: -6px;
-            left: -6px;
-            border: 3px solid var(--frame-inner-border);
-            background: transparent;
-            border-radius: 50%;
-            clip-path: inset(50% 0 0 50%);
-        }
-        .corner-bl::after {
-            width: 10px;
-            height: 10px;
-            bottom: -2px;
-            left: -2px;
-            background: var(--frame-color);
-            border: 2px solid var(--frame-inner-border);
-            border-radius: 50%;
-        }
-        .corner-br {
-            bottom: 8px;
-            right: 8px;
-        }
-        .corner-br::before {
-            width: 18px;
-            height: 18px;
-            bottom: -6px;
-            right: -6px;
-            border: 3px solid var(--frame-inner-border);
-            background: transparent;
-            border-radius: 50%;
-            clip-path: inset(50% 50% 0 0);
-        }
-        .corner-br::after {
-            width: 10px;
-            height: 10px;
-            bottom: -2px;
-            right: -2px;
-            background: var(--frame-color);
-            border: 2px solid var(--frame-inner-border);
-            border-radius: 50%;
         }
 
         .story-block {
@@ -765,10 +665,6 @@
             }
             .hero h1 {
                 font-size: 1.8rem;
-            }
-            .scroll-corner {
-                width: 18px;
-                height: 18px;
             }
         }
         @media (max-width: 600px) {
@@ -896,8 +792,8 @@
                             <div class="project-info">
                                 <strong>Vue Emulator</strong>
                                 <span><a href="https://mexrldev.github.io/ReCoded/Vue-Emu.html" target="_blank" rel="noopener">Vue-Emu</a></span>
-                                
-                    <div class="project-list" style="margin-top:8px;">
+                            </div>
+                        </div>
                         <div class="project-item">
                             <span class="project-dot"></span>
                             <div class="project-info">
@@ -1031,10 +927,12 @@
             if (themeToggleMobile) themeToggleMobile.addEventListener('click', toggleTheme);
 
             const flipCardInner = document.getElementById('flipCardInner');
+            const flipCard = document.getElementById('flipCard');
             let currentRotation = 0;
-            if (flipCardInner) {
+
+            if (flipCardInner && flipCard) {
                 flipCardInner.style.transform = 'rotateY(0deg)';
-                document.getElementById('flipCard').addEventListener('click', () => {
+                flipCard.addEventListener('click', () => {
                     currentRotation += 180;
                     flipCardInner.style.transform = `rotateY(${currentRotation}deg)`;
                 });
@@ -1056,9 +954,9 @@
                 modal.classList.remove('active');
                 modalImg.src = '';
             }
-            modalClose.addEventListener('click', closeModal);
-            modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
-            document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && modal.classList.contains('active')) closeModal(); });
+            if (modalClose) modalClose.addEventListener('click', closeModal);
+            if (modal) modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+            document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && modal && modal.classList.contains('active')) closeModal(); });
 
             const hamburger = document.getElementById('hamburger');
             const sidePanel = document.getElementById('sidePanel');
@@ -1075,10 +973,12 @@
                 overlay.classList.remove('active');
                 hamburger.classList.remove('active');
             }
-            hamburger.addEventListener('click', () => {
-                sidePanel.classList.contains('open') ? closeMenu() : openMenu();
-            });
-            overlay.addEventListener('click', closeMenu);
+            if (hamburger) {
+                hamburger.addEventListener('click', () => {
+                    sidePanel.classList.contains('open') ? closeMenu() : openMenu();
+                });
+            }
+            if (overlay) overlay.addEventListener('click', closeMenu);
             mobileLinks.forEach(link => link.addEventListener('click', closeMenu));
 
             const sections = document.querySelectorAll('section[id]');
@@ -1147,8 +1047,6 @@
             }
             addSmoothScroll(desktopLinks);
             addSmoothScroll(mobileLinks);
-
-            console.log('MexrlDev - personal site ready. Skeebeedee.');
         })();
     </script>
 </body>
