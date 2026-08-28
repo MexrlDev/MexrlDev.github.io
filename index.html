@@ -179,7 +179,7 @@
             height: 100vh;
             background: var(--bg-card);
             border-left: 1px solid var(--border);
-            box-shadow: -4px 0 24px rgba(0,0,0,0.8);
+            box-shadow: -4px 0 24px rgba(0, 0, 0, 0.8);
             z-index: 101;
             padding: 80px 24px 40px;
             transition: right 0.3s ease;
@@ -190,7 +190,8 @@
         .side-panel.open {
             right: 0;
         }
-        .side-panel a, .side-panel .theme-btn-mobile {
+        .side-panel a,
+        .side-panel .theme-btn-mobile {
             text-decoration: none;
             color: var(--text-secondary);
             font-size: 1rem;
@@ -205,7 +206,8 @@
             text-align: left;
             width: 100%;
         }
-        .side-panel a:hover, .side-panel .theme-btn-mobile:hover {
+        .side-panel a:hover,
+        .side-panel .theme-btn-mobile:hover {
             background: var(--bg-secondary);
             color: var(--text);
         }
@@ -220,7 +222,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0, 0, 0, 0.5);
             z-index: 100;
             opacity: 0;
             pointer-events: none;
@@ -257,7 +259,8 @@
             transition: transform 0.5s;
             transform-style: preserve-3d;
         }
-        .flip-card-front, .flip-card-back {
+        .flip-card-front,
+        .flip-card-back {
             position: absolute;
             width: 100%;
             height: 100%;
@@ -268,7 +271,8 @@
             box-shadow: var(--shadow-md);
             transition: box-shadow var(--transition);
         }
-        .flip-card-front img, .flip-card-back img {
+        .flip-card-front img,
+        .flip-card-back img {
             width: 100%;
             height: 100%;
             object-fit: cover;
@@ -345,6 +349,40 @@
         }
         .card p:last-child {
             margin-bottom: 0;
+        }
+
+        .personal-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+        }
+        .personal-item {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-sm);
+            padding: 14px 16px;
+            transition: var(--transition);
+        }
+        .personal-item:hover {
+            border-color: var(--border);
+            background: var(--bg-card);
+            box-shadow: var(--shadow-sm);
+        }
+        .personal-label {
+            display: block;
+            font-size: 0.78rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+        .personal-value {
+            display: block;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--text);
+            line-height: 1.5;
         }
 
         .links-table {
@@ -513,7 +551,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.85);
+            background: rgba(0, 0, 0, 0.85);
             z-index: 200;
             justify-content: center;
             align-items: center;
@@ -527,7 +565,7 @@
             max-height: 90vh;
             border-radius: 16px;
             overflow: hidden;
-            box-shadow: 0 0 40px rgba(0,0,0,0.9);
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.9);
         }
         .modal-content img {
             display: block;
@@ -540,7 +578,7 @@
             position: absolute;
             top: 12px;
             right: 16px;
-            background: rgba(0,0,0,0.6);
+            background: rgba(0, 0, 0, 0.6);
             color: #fff;
             border: none;
             font-size: 1.4rem;
@@ -555,7 +593,7 @@
             transition: background 0.2s;
         }
         .modal-close:hover {
-            background: rgba(0,0,0,0.9);
+            background: rgba(0, 0, 0, 0.9);
         }
 
         .framed-wrapper {
@@ -564,12 +602,12 @@
             padding: 18px;
             background: var(--frame-color);
             border: 2px solid var(--frame-inner-border);
-            box-shadow: inset 0 0 8px rgba(0,0,0,0.4), 0 6px 18px rgba(0,0,0,0.7);
+            box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.4), 0 6px 18px rgba(0, 0, 0, 0.7);
             border-radius: 6px;
             margin-top: 24px;
         }
         body.light-mode .framed-wrapper {
-            box-shadow: inset 0 0 8px rgba(0,0,0,0.1), 0 6px 18px rgba(0,0,0,0.15);
+            box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.1), 0 6px 18px rgba(0, 0, 0, 0.15);
         }
         .framed-wrapper img {
             display: block;
@@ -608,6 +646,38 @@
             height: auto;
             border-radius: var(--radius-sm);
             margin: 0 auto;
+        }
+
+        .scroll-top {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: var(--bg-card);
+            color: var(--text);
+            border: 1px solid var(--border);
+            cursor: pointer;
+            font-size: 1.3rem;
+            line-height: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow-md);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease, transform 0.3s ease, background 0.2s;
+            z-index: 90;
+        }
+        .scroll-top.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .scroll-top:hover {
+            background: var(--bg-secondary);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
         }
 
         .footer {
@@ -674,6 +744,10 @@
             .card {
                 padding: 18px 16px;
             }
+            .personal-grid {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
             .repo-grid {
                 grid-template-columns: 1fr;
                 gap: 8px;
@@ -693,6 +767,13 @@
             .framed-wrapper {
                 padding: 12px;
             }
+            .scroll-top {
+                bottom: 16px;
+                right: 16px;
+                width: 38px;
+                height: 38px;
+                font-size: 1.1rem;
+            }
         }
         @media (max-width: 380px) {
             .gallery-grid {
@@ -709,6 +790,7 @@
     <div class="overlay" id="overlay"></div>
 
     <div class="side-panel" id="sidePanel">
+        <a href="#personal" class="mobile-link">Personal</a>
         <a href="#about" class="mobile-link">About</a>
         <a href="#links" class="mobile-link">Links</a>
         <a href="#web-projects" class="mobile-link">Web Projects</a>
@@ -724,6 +806,7 @@
         <div class="nav-inner">
             <a href="#" class="nav-logo">MexrlDev</a>
             <div class="nav-links" id="desktopLinks">
+                <a href="#personal">Personal</a>
                 <a href="#about">About</a>
                 <a href="#links">Links</a>
                 <a href="#web-projects">Web Projects</a>
@@ -755,6 +838,55 @@
             <h1>MexrlDev</h1>
             <p class="pronouns">They/Them</p>
             <p class="subtitle">This website is so… Skeebeedee….</p>
+        </section>
+
+        <section class="section" id="personal">
+            <h2 class="section-title">MexrlDev Personal</h2>
+            <div class="card">
+                <div class="personal-grid">
+                    <div class="personal-item">
+                        <span class="personal-label">Favorite Month</span>
+                        <span class="personal-value">November</span>
+                    </div>
+                    <div class="personal-item">
+                        <span class="personal-label">Favorite Years</span>
+                        <span class="personal-value">2013 - 2016</span>
+                    </div>
+                    <div class="personal-item">
+                        <span class="personal-label">Works as</span>
+                        <span class="personal-value">Software/Hardware Maintenance - Reverse engineer</span>
+                    </div>
+                    <div class="personal-item">
+                        <span class="personal-label">Hobbies</span>
+                        <span class="personal-value">Development, Collecting, repairing hardware</span>
+                    </div>
+                    <div class="personal-item">
+                        <span class="personal-label">Qualities</span>
+                        <span class="personal-value">To be kind, helping people, Being a gamer, research</span>
+                    </div>
+                    <div class="personal-item">
+                        <span class="personal-label">Favorite Restaurants</span>
+                        <span class="personal-value">KFC, Burger King, some random places</span>
+                    </div>
+                    <div class="personal-item">
+                        <span class="personal-label">Fav Drinks</span>
+                        <span class="personal-value">Pepsi, Coca-Cola</span>
+                    </div>
+                    <div class="personal-item">
+                        <span class="personal-label">Fav Food</span>
+                        <span class="personal-value">Pizza, Steak, meat, chicken, fried chicken</span>
+                    </div>
+                    <div class="personal-item">
+                        <span class="personal-label">Favorite Consoles</span>
+                        <span class="personal-value">PS3, Xbox 360, Xbox One</span>
+                    </div>
+                    <div class="personal-item">
+                        <span class="personal-label">Ai Models</span>
+                        <span class="personal-value">DeepSeekV3, Claude, Gemini, ChatGTP</span>
+                    </div>
+                </div>
+                <p style="text-align:center; margin-top:16px; font-style:italic; color:var(--text-muted);">I'll add more later.</p>
+            </div>
         </section>
 
         <section class="section" id="about">
@@ -854,6 +986,7 @@
                     <div class="collection-item"><div class="item-title">PS3 Slim</div><div class="item-desc">CUCH-3003A, my first PlayStation 3 ever and still remembered and taken care of which now has HFW</div></div>
                     <div class="collection-item"><div class="item-title">PS3 Slim</div><div class="item-desc">CUCH-21xxxB</div></div>
                     <div class="collection-item"><div class="item-title">PS5 Slim</div><div class="item-desc">model 2016, still new and always updated due to me playing on it online games and taken so much care</div></div>
+                    <div class="collection-item"><div class="item-title">PS2 Slim</div><div class="item-desc">SCPH-90001</div></div>
                     <div class="collection-item"><div class="item-title">Xbox One</div><div class="item-desc">Model 1540</div></div>
                     <div class="collection-item"><div class="item-title">Xbox 360</div><div class="item-desc">Slim, Model 1439</div></div>
                 </div>
@@ -877,8 +1010,15 @@
         <section class="section" id="story">
             <h2 class="section-title">The Story of MexrlDev</h2>
             <div class="story-block">
-<strong>How is MexrlDev now?</strong> On July 25, 2026, MexrlDev has moved on, built a life, met someone they love, and finally… they feel happy. Even though MexrlDev can still become depressed suddenly, have mental breakdowns, or feel stressed, it's now under control — and they are happy. They have accepted whatever life gives them. They understood that there are some things they cannot control and chose to focus on making things better instead. They are trying to cure depression and live happy. Now, MexrlDev is living their life not just happily, but with a partner that they truly love and feel comfortable with.</p>
-          </div>
+                <p>The first of MexrlDev, they always been seeing the playstation community online, on twitter. after they finally got the first ps4 fat jailbroken after a long time of waiting and missing firmwares that were gold such as 4.xx, 5.05, 9.00, 10.00, 11.00, 12.02. and finally at 12.50, 12.52 they stopped and finally were able to get it. that's when they felt like they belong to this, like they belong to develop things for ppl, and for the ps, and make useful homebrew and other. but they couldn't. because they didn't knew where to start and as someone that didn't have experience, they waited. when vue first was announced as a userland in the early days. mexrldev has gotten excited knowing this will be so cool. Specially after they saw earthonion doing all the cool stuff. thats when mexrldev has gotten excited to try and crack the AES code for vue save but failed ofc, indeed modded the vue 1.01 but never was able to get to it. until it was finally released. due to lack of coding experiment they had to use chatGPT, copilot, to finally start what they always wanted...</p>
+                <p>MexrlDev started their journey after 1 day of the release of Vue After Free. they went trhought a lot, had done the first ever mod on vue which was adding animations and a bit of polish. thast when they made their first post on X named as "the first ever vue mod" mentioning Dr.yenyen which was really kind and helped them throught a lot. indeed mentioning earthonion and brining more attention toward mexrldev's projects. this is when mexrldev started to work harder and soend a whole day for 3 months without a lot of resting to make the best ever mods that they always dreamed to make for the people and to do something for the community. this is when they started to use deepseek. indeed it helped thought a lot. but they had to spend a lot of hours on the projects due to ai lack of eyes to be able to see the final results, and debug so many things over and over again. mexrldev spend hours fixing the bugs with the ai and making sure everything goes smooth and perfect. until the theme is ready to be published. a lot has went on and there was a goal to make 100+ themes and games for vue and the best of them were huge projects like the ps3 theme, Artemis which was Mexrl's fav, and ofc Apollo and Vue cheat manger and a lot more of good themes they made. but sadly they got stressed and had to stop and they couldn't handle it due to their energy for making themes growing and they couldn't take breaks. thats when they start to get bored, stressed, unable to think straight, and making projects that might not be useful or, ofc. not working as expected. but after all mexrldev has stopped for a while and come back. as they lost their laptop, some stuff had going on. and of course losing friends which got them to finally delete their x account forever.</p>
+                <p>As days go by… this project will always be proof of how a passionate developer like MexrlDev (me) can make useful things and succeed with a project that was only supposed to be used once, just for a jailbreak. And the best part of MexrlDev is that they made a lot of friends, met a lot of good people, and of course helped lots of users as much as they could, with kindness toward everyone.</p>
+                <p>And now, as MexrlDev retired, they wish everyone good luck in everything they are passionate about, and they truly love seeing people work on new things, especially using the code they built for the community and for others to learn from for future projects. MexrlDev wasn't just a random person who appeared in the PlayStation hacking community, but someone who had a passion for helping people, making things better, working on projects that had been left behind, creating new ideas, and showing people that even an unknown person can become known through what they love.</p>
+                <p>What ended MexrlDev? Being depressed, stressed out, working on things they couldn't really understand (porting exploits, making things that didn't work and made them feel so embarrassed, not taking breaks, losing some friendships, etc.).</p>
+                <p>what did mexrldev left new developers and people that are interested in his projects? . mexrldev left a big folder that has all of the debugging they did for vue and the things they found and how to make things go correctly due to lack of info about how vue works since it worke on jsmaf Including API's</p>
+                <p>Will MexrlDev ever come back? Nobody knows. As time goes by… who knows if MexrlDev will give it a second chance.</p>
+                <p>How is MexrlDev now? On July 25, 2026, MexrlDev has moved on, built a life, met someone they love, and finally… they feel happy. Even though MexrlDev can still become depressed suddenly, have mental breakdowns, or feel stressed, it's now under control, and they are happy. They have accepted whatever life gives them. They understood that there are some things they cannot control and chose to focus on making things better instead, and they are trying to cure depression and live happy. Now, MexrlDev is living their life not just happily, but with a partner that they truly love and feel comfortable with.</p>
+            </div>
         </section>
 
         <footer class="footer">
@@ -886,6 +1026,8 @@
         </footer>
 
     </div>
+
+    <button class="scroll-top" id="scrollTop" aria-label="Scroll to top">↑</button>
 
     <div class="modal-overlay" id="imageModal">
         <div class="modal-content">
@@ -1038,6 +1180,20 @@
             }
             addSmoothScroll(desktopLinks);
             addSmoothScroll(mobileLinks);
+
+            const scrollTopBtn = document.getElementById('scrollTop');
+            if (scrollTopBtn) {
+                window.addEventListener('scroll', () => {
+                    if (window.scrollY > 300) {
+                        scrollTopBtn.classList.add('visible');
+                    } else {
+                        scrollTopBtn.classList.remove('visible');
+                    }
+                }, { passive: true });
+                scrollTopBtn.addEventListener('click', () => {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                });
+            }
         })();
     </script>
 </body>
