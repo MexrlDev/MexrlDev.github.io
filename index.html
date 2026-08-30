@@ -24,6 +24,7 @@
             --text-muted: #777777;
             --accent: #58A6FF;
             --accent-hover: #7ab8ff;
+            --gold: #d4af37;
             --border: #333333;
             --border-light: #2a2a2a;
             --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.6);
@@ -97,7 +98,7 @@
             align-items: center;
             justify-content: space-between;
             height: 56px;
-            gap: 16px;
+            gap: 12px;
         }
         .nav-logo {
             font-weight: 700;
@@ -108,26 +109,41 @@
             white-space: nowrap;
             transition: var(--transition);
             z-index: 102;
+            flex-shrink: 0;
         }
         .nav-logo:hover {
             color: var(--accent);
         }
 
+        /* ---- Desktop nav: single-line, horizontally scrollable, edge-faded ----
+           (Fixes the old wrapping bug where too many tabs broke onto a second
+           line and got clipped by the nav bar's fixed height.) */
         .nav-links {
             display: flex;
-            gap: 6px;
-            flex-wrap: wrap;
-            justify-content: flex-end;
+            align-items: center;
+            gap: 4px;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            overflow-y: hidden;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            min-width: 0;
+            -webkit-mask-image: linear-gradient(to right, transparent 0, #000 16px, #000 calc(100% - 16px), transparent 100%);
+            mask-image: linear-gradient(to right, transparent 0, #000 16px, #000 calc(100% - 16px), transparent 100%);
+        }
+        .nav-links::-webkit-scrollbar {
+            display: none;
         }
         .nav-links a {
             text-decoration: none;
             color: var(--text-secondary);
-            font-size: 0.9rem;
+            font-size: 0.88rem;
             font-weight: 500;
-            padding: 7px 14px;
+            padding: 7px 13px;
             border-radius: 20px;
             transition: var(--transition);
             white-space: nowrap;
+            flex-shrink: 0;
         }
         .nav-links a:hover {
             background: var(--bg-secondary);
@@ -151,6 +167,7 @@
             gap: 5px;
             z-index: 102;
             padding: 0;
+            flex-shrink: 0;
         }
         .hamburger span {
             display: block;
@@ -186,6 +203,7 @@
             display: flex;
             flex-direction: column;
             gap: 8px;
+            overflow-y: auto;
         }
         .side-panel.open {
             right: 0;
@@ -245,18 +263,49 @@
         }
 
         .flip-card {
+            position: relative;
             background-color: transparent;
             width: 100px;
             height: 100px;
             perspective: 600px;
-            margin: 0 auto 20px;
+            margin: 0 auto;
             cursor: pointer;
+        }
+        /* Glow ring sits behind the card and lights up only for rare flips */
+        .flip-card::before {
+            content: '';
+            position: absolute;
+            inset: -8px;
+            border-radius: 50%;
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.35s ease;
+            pointer-events: none;
+        }
+        .flip-card.flip-rare-gold::before {
+            opacity: 1;
+            background: radial-gradient(circle, rgba(212, 175, 55, 0.55), transparent 70%);
+            box-shadow: 0 0 20px 4px rgba(212, 175, 55, 0.55);
+        }
+        .flip-card.flip-rare-rainbow::before {
+            opacity: 1;
+            background: conic-gradient(from 0deg, #ff5f6d, #ffc371, #47cf73, #3aa0ff, #a367fc, #ff5f6d);
+            filter: blur(7px);
+            animation: rareRainbowSpin 1.6s linear infinite;
+        }
+        .flip-card.flip-rare-vortex::before {
+            opacity: 1;
+            background: radial-gradient(circle, rgba(88, 166, 255, 0.6), transparent 70%);
+            box-shadow: 0 0 22px 6px rgba(88, 166, 255, 0.55);
+        }
+        @keyframes rareRainbowSpin {
+            to { transform: rotate(360deg); }
         }
         .flip-card-inner {
             position: relative;
             width: 100%;
             height: 100%;
-            transition: transform 0.5s;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
             transform-style: preserve-3d;
         }
         .flip-card-front,
@@ -286,11 +335,28 @@
             box-shadow: var(--shadow-lg);
         }
 
+        .flip-toast {
+            height: 18px;
+            margin-top: 6px;
+            text-align: center;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--accent);
+            opacity: 0;
+            transform: translateY(-4px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        .flip-toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
         .hero h1 {
             font-size: 2.2rem;
             font-weight: 700;
             letter-spacing: -0.5px;
             margin-bottom: 2px;
+            margin-top: 14px;
             color: var(--text);
         }
         .pronouns {
@@ -333,11 +399,12 @@
             padding: 24px 28px;
             margin-bottom: 16px;
             box-shadow: var(--shadow-sm);
-            transition: var(--transition);
+            transition: box-shadow var(--transition), border-color var(--transition), transform var(--transition);
         }
         .card:hover {
             box-shadow: var(--shadow-md);
             border-color: #444444;
+            transform: translateY(-2px);
         }
         body.light-mode .card:hover {
             border-color: #d5d0c8;
@@ -349,6 +416,24 @@
         }
         .card p:last-child {
             margin-bottom: 0;
+        }
+
+        /* ---- Gentle scroll-reveal, respects reduced-motion ---- */
+        .reveal {
+            opacity: 0;
+            transform: translateY(14px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+        .reveal.in-view {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .reveal, .reveal.in-view {
+                opacity: 1;
+                transform: none;
+                transition: none;
+            }
         }
 
         .personal-grid {
@@ -466,6 +551,7 @@
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
             gap: 12px;
+            margin-top: 14px;
         }
         .repo-card {
             display: flex;
@@ -497,6 +583,25 @@
             line-height: 1.4;
         }
 
+        /* ---- Console collection: split into a Ps group and an Xbox group,
+           each auto-sorted lowest-to-highest generation regardless of the
+           order items are added in DATA.consoles below. ---- */
+        .console-group {
+            margin-bottom: 20px;
+        }
+        .console-group:last-child {
+            margin-bottom: 0;
+        }
+        .console-group-title {
+            font-size: 0.82rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border-light);
+        }
         .collection-list {
             display: flex;
             flex-direction: column;
@@ -523,6 +628,11 @@
             font-size: 0.9rem;
             color: var(--text-muted);
             line-height: 1.4;
+        }
+        .collection-empty {
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            font-style: italic;
         }
 
         .gallery-grid {
@@ -573,6 +683,7 @@
             max-height: 90vh;
             object-fit: contain;
             border-radius: 16px;
+            transition: opacity 0.15s ease;
         }
         .modal-close {
             position: absolute;
@@ -591,9 +702,50 @@
             justify-content: center;
             line-height: 1;
             transition: background 0.2s;
+            z-index: 2;
         }
         .modal-close:hover {
             background: rgba(0, 0, 0, 0.9);
+        }
+        .modal-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.5);
+            color: #fff;
+            border: none;
+            font-size: 1.1rem;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+            transition: background 0.2s, transform 0.2s;
+            z-index: 2;
+        }
+        .modal-nav:hover {
+            background: rgba(0, 0, 0, 0.85);
+        }
+        .modal-nav:active {
+            transform: translateY(-50%) scale(0.92);
+        }
+        .modal-prev { left: 12px; }
+        .modal-next { right: 12px; }
+        .modal-counter {
+            position: absolute;
+            bottom: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.55);
+            color: #fff;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 20px;
+            z-index: 2;
         }
 
         .framed-wrapper {
@@ -774,6 +926,11 @@
                 height: 38px;
                 font-size: 1.1rem;
             }
+            .modal-nav {
+                width: 34px;
+                height: 34px;
+                font-size: 0.95rem;
+            }
         }
         @media (max-width: 380px) {
             .gallery-grid {
@@ -835,12 +992,13 @@
                     </div>
                 </div>
             </div>
+            <div class="flip-toast" id="flipToast"></div>
             <h1>MexrlDev</h1>
             <p class="pronouns">They/Them</p>
             <p class="subtitle">This website is so… Skeebeedee….</p>
         </section>
 
-        <section class="section" id="personal">
+        <section class="section reveal" id="personal">
             <h2 class="section-title">MexrlDev Personal</h2>
             <div class="card">
                 <div class="personal-grid">
@@ -889,14 +1047,14 @@
             </div>
         </section>
 
-        <section class="section" id="about">
+        <section class="section reveal" id="about">
             <h2 class="section-title">About Me</h2>
             <div class="card">
                 <p>IDK what to out here LOL</p>
             </div>
         </section>
 
-        <section class="section" id="links">
+        <section class="section reveal" id="links">
             <h2 class="section-title">Related to Me</h2>
             <div class="card">
                 <table class="links-table">
@@ -911,47 +1069,27 @@
             </div>
         </section>
 
-        <section class="section" id="web-projects">
+        <section class="section reveal" id="web-projects">
             <h2 class="section-title">Web Projects</h2>
             <div class="card">
                 <details>
                     <summary>Click to expand web projects</summary>
-                    <div class="project-list" style="margin-top:8px;">
-                        <div class="project-item">
-                            <span class="project-dot"></span>
-                            <div class="project-info">
-                                <strong>Vue Emulator</strong>
-                                <span><a href="https://mexrldev.github.io/ReCoded/Vue-Emu.html" target="_blank" rel="noopener">Vue-Emu</a></span>
-                            </div>
-                        </div>
-                        <div class="project-item">
-                            <span class="project-dot"></span>
-                            <div class="project-info">
-                                <strong>DiffChecker Pro</strong>
-                                <span><a href="https://mexrldev.github.io/ReCoded/DiffChecker.html" target="_blank" rel="noopener">Diff Checker</a></span>
-                            </div>
-                        </div>
-                    </div>
+                    <div class="project-list" id="webProjectList" style="margin-top:8px;"></div>
                 </details>
             </div>
         </section>
 
-        <section class="section" id="projects">
+        <section class="section reveal" id="projects">
             <h2 class="section-title">Past Projects</h2>
             <div class="card">
                 <details>
                     <summary>Click to expand my project archive</summary>
-                    <div class="project-list" style="margin-top:8px;">
-                        <div class="project-item"><span class="project-dot"></span><div class="project-info"><strong>Vue After Free Themes</strong><span>UI theme library + DevTools for PsVue</span></div></div>
-                        <div class="project-item"><span class="project-dot"></span><div class="project-info"><strong>Python Tools</strong><span>Handy scripts for automation and daily tasks</span></div></div>
-                        <div class="project-item"><span class="project-dot"></span><div class="project-info"><strong>Star Wars Racer Revenge</strong><span>Custom mods and payloads</span></div></div>
-                        <div class="project-item"><span class="project-dot"></span><div class="project-info"><strong>Repo (Netflix n' Hack mobile port, etc.)</strong><span>Various ports and experimental hacks</span></div></div>
-                    </div>
+                    <div class="project-list" id="pastProjectList" style="margin-top:8px;"></div>
                 </details>
             </div>
         </section>
 
-        <section class="section">
+        <section class="section reveal">
             <h2 class="section-title">Contribution</h2>
             <div class="card" style="text-align:center; padding:20px;">
                 <picture>
@@ -961,51 +1099,40 @@
             </div>
         </section>
 
-        <section class="section" id="repos">
+        <section class="section reveal" id="repos">
             <h2 class="section-title">My Repositories</h2>
             <div class="card" style="padding: 20px 20px 24px;">
-                <p style="text-align:center; margin-bottom:10px; font-weight:600;">Direct links to my active GitHub repos</p>
-                <div class="repo-grid">
-                    <a class="repo-card" href="https://github.com/MexrlDev/PsVue-Mod" target="_blank" rel="noopener"><span class="repo-name">PsVue-Mod</span><span class="repo-desc">PlayStation Vue after free mod — themes, tools, and the whole archive.</span></a>
-                    <a class="repo-card" href="https://github.com/MexrlDev/repo" target="_blank" rel="noopener"><span class="repo-name">repo</span><span class="repo-desc">Netflix N Hack mobile port and other useful tools.</span></a>
-                    <a class="repo-card" href="https://github.com/MexrlDev/Star-Wars-Racer-Revenge-Mods" target="_blank" rel="noopener"><span class="repo-name">Star Wars Racer Revenge Mods</span><span class="repo-desc">SWRR mods, python tools for mobile, and a mobile sender for payloads.</span></a>
-                    <a class="repo-card" href="https://github.com/MexrlDev/Exp-C0re" target="_blank" rel="noopener"><span class="repo-name">Exp-C0re</span><span class="repo-desc">Example on how to hijack Star Wars Racer Revenge video and audio output and control.</span></a>
-                </div>
+                <details>
+                    <summary>Click to expand my repositories</summary>
+                    <p style="text-align:center; margin-top:8px; font-weight:600;">Direct links to my active GitHub repos</p>
+                    <div class="repo-grid" id="repoGrid"></div>
+                </details>
             </div>
         </section>
 
-        <section class="section" id="collection">
+        <section class="section reveal" id="collection">
             <h2 class="section-title">Collection</h2>
             <div class="card">
-                <div class="collection-list">
-                    <div class="collection-item"><div class="item-title">PS4 Fat</div><div class="item-desc">CUH-1116B, my original and first ever, and on 12.52</div></div>
-                    <div class="collection-item"><div class="item-title">PS4 Slim</div><div class="item-desc">CUH-2216A, got it on 2017, first ever console to play Fortnite on, and kept on 12.50</div></div>
-                    <div class="collection-item"><div class="item-title">PS4 Pro</div><div class="item-desc">CUH-7216B, got it in 2026, has 13.50 on</div></div>
-                    <div class="collection-item"><div class="item-title">PS3 Slim</div><div class="item-desc">CUCH-3003A, my first PlayStation 3 ever and still remembered and taken care of which now has HFW</div></div>
-                    <div class="collection-item"><div class="item-title">PS3 Slim</div><div class="item-desc">CUCH-21xxxB</div></div>
-                    <div class="collection-item"><div class="item-title">PS5 Slim</div><div class="item-desc">model 2016, still new and always updated due to me playing on it online games and taken so much care</div></div>
-                    <div class="collection-item"><div class="item-title">PS2 Slim</div><div class="item-desc">SCPH-90001</div></div>
-                    <div class="collection-item"><div class="item-title">Xbox One</div><div class="item-desc">Model 1540</div></div>
-                    <div class="collection-item"><div class="item-title">Xbox 360</div><div class="item-desc">Slim, Model 1439</div></div>
+                <div class="console-group">
+                    <div class="console-group-title">Ps Collection</div>
+                    <div class="collection-list" id="psCollectionList"></div>
+                </div>
+                <div class="console-group">
+                    <div class="console-group-title">Xbox Collection</div>
+                    <div class="collection-list" id="xboxCollectionList"></div>
                 </div>
             </div>
         </section>
 
-        <section class="section" id="gye">
+        <section class="section reveal" id="gye">
             <h2 class="section-title">Gye Baek-Sun</h2>
             <div class="card">
                 <p style="text-align:center; margin-bottom:12px; color:var(--text-secondary);">Gye Beak-sun… one of the characters I always liked.. she.. she's me…</p>
-                <div class="gallery-grid" id="galleryGrid">
-                    <img src="https://i.ibb.co/W4xXJwnK/IMG-0696.jpg" alt="Gye Baek-Sun 1" loading="lazy" data-full="https://i.ibb.co/W4xXJwnK/IMG-0696.jpg">
-                    <img src="https://i.ibb.co/s9D2QnGC/IMG-0695.jpg" alt="Gye Baek-Sun 2" loading="lazy" data-full="https://i.ibb.co/s9D2QnGC/IMG-0695.jpg">
-                    <img src="https://i.ibb.co/vvJ9SPmj/IMG-0694.jpg" alt="Gye Baek-Sun 3" loading="lazy" data-full="https://i.ibb.co/vvJ9SPmj/IMG-0694.jpg">
-                    <img src="https://i.ibb.co/bjL02VYg/IMG-0692.jpg" alt="Gye Baek-Sun 4" loading="lazy" data-full="https://i.ibb.co/bjL02VYg/IMG-0692.jpg">
-                    <img src="https://i.ibb.co/9HFSPFdR/IMG-0693.jpg" alt="Gye Baek-Sun 5" loading="lazy" data-full="https://i.ibb.co/9HFSPFdR/IMG-0693.jpg">
-                </div>
+                <div class="gallery-grid" id="galleryGrid"></div>
             </div>
         </section>
 
-        <section class="section" id="story">
+        <section class="section reveal" id="story">
             <h2 class="section-title">The Story of MexrlDev</h2>
             <div class="story-block">
                 <p>The first of MexrlDev, they always been seeing the playstation community online, on twitter. after they finally got the first ps4 fat jailbroken after a long time of waiting and missing firmwares that were gold such as 4.xx, 5.05, 9.00, 10.00, 11.00, 12.02. and finally at 12.50, 12.52 they stopped and finally were able to get it. that's when they felt like they belong to this, like they belong to develop things for ppl, and for the ps, and make useful homebrew and other. but they couldn't. because they didn't knew where to start and as someone that didn't have experience, they waited. when vue first was announced as a userland in the early days. mexrldev has gotten excited knowing this will be so cool. Specially after they saw earthonion doing all the cool stuff. thats when mexrldev has gotten excited to try and crack the AES code for vue save but failed ofc, indeed modded the vue 1.01 but never was able to get to it. until it was finally released. due to lack of coding experiment they had to use chatGPT, copilot, to finally start what they always wanted...</p>
@@ -1029,12 +1156,145 @@
 
     <div class="modal-overlay" id="imageModal">
         <div class="modal-content">
-            <button class="modal-close" id="modalClose">&times;</button>
+            <button class="modal-close" id="modalClose" aria-label="Close">&times;</button>
+            <button class="modal-nav modal-prev" id="modalPrev" aria-label="Previous image">&#10094;</button>
             <img id="modalImage" src="" alt="Preview">
+            <button class="modal-nav modal-next" id="modalNext" aria-label="Next image">&#10095;</button>
+            <div class="modal-counter" id="modalCounter"></div>
         </div>
     </div>
 
     <script>
+        /* =====================================================================
+           EDIT YOUR CONTENT HERE.
+           Everything below in DATA gets rendered automatically further down —
+           add, remove, or edit entries and the page updates itself. No need to
+           touch any HTML for these four sections.
+
+           - webProjects / pastProjects -> "Web Projects" / "Past Projects" lists
+           - repos                      -> "My Repositories" cards
+           - consoles                   -> "Collection" section. Just add a
+             console with "PS" or "Xbox" somewhere in its name and it will be
+             auto-sorted (lowest generation to highest) into the right group.
+           - gallery                    -> "Gye Baek-Sun" image grid + lightbox
+           ===================================================================== */
+        const DATA = {
+            webProjects: [
+                { title: 'Vue Emulator', url: 'https://mexrldev.github.io/ReCoded/Vue-Emu.html', linkText: 'Vue-Emu' },
+                { title: 'DiffChecker Pro', url: 'https://mexrldev.github.io/ReCoded/DiffChecker.html', linkText: 'Diff Checker' }
+            ],
+            pastProjects: [
+                { title: 'Vue After Free Themes', note: 'UI theme library + DevTools for PsVue' },
+                { title: 'Python Tools', note: 'Handy scripts for automation and daily tasks' },
+                { title: 'Star Wars Racer Revenge', note: 'Custom mods and payloads' },
+                { title: "Repo (Netflix n' Hack mobile port, etc.)", note: 'Various ports and experimental hacks' }
+            ],
+            repos: [
+                { name: 'PsVue-Mod', desc: 'PlayStation Vue after free mod — themes, tools, and the whole archive.', url: 'https://github.com/MexrlDev/PsVue-Mod' },
+                { name: 'repo', desc: 'Netflix N Hack mobile port and other useful tools.', url: 'https://github.com/MexrlDev/repo' },
+                { name: 'Star Wars Racer Revenge Mods', desc: 'SWRR mods, python tools for mobile, and a mobile sender for payloads.', url: 'https://github.com/MexrlDev/Star-Wars-Racer-Revenge-Mods' },
+                { name: 'Exp-C0re', desc: 'Example on how to hijack Star Wars Racer Revenge video and audio output and control.', url: 'https://github.com/MexrlDev/Exp-C0re' }
+            ],
+            consoles: [
+                { name: 'PS4 Fat', model: 'CUH-1116B', note: 'My original and first ever, and on 12.52' },
+                { name: 'PS4 Slim', model: 'CUH-2216A', note: 'Got it in 2017, first ever console to play Fortnite on, kept on 12.50' },
+                { name: 'PS4 Pro', model: 'CUH-7216B', note: 'Got it in 2026, has 13.50 on' },
+                { name: 'PS3 Slim', model: 'CUCH-3003A', note: 'My first PlayStation 3 ever, still taken care of, now has HFW' },
+                { name: 'PS3 Slim', model: 'CUCH-21xxxB', note: '' },
+                { name: 'PS5 Slim', model: '2016', note: 'Still new and always updated, played online so much on it' },
+                { name: 'PS2 Slim', model: 'SCPH-90001', note: '' },
+                { name: 'Xbox One', model: '1540', note: '' },
+                { name: 'Xbox 360 Slim', model: '1439', note: '' }
+            ],
+            gallery: [
+                { src: 'https://i.ibb.co/W4xXJwnK/IMG-0696.jpg', alt: 'Gye Baek-Sun 1' },
+                { src: 'https://i.ibb.co/s9D2QnGC/IMG-0695.jpg', alt: 'Gye Baek-Sun 2' },
+                { src: 'https://i.ibb.co/vvJ9SPmj/IMG-0694.jpg', alt: 'Gye Baek-Sun 3' },
+                { src: 'https://i.ibb.co/bjL02VYg/IMG-0692.jpg', alt: 'Gye Baek-Sun 4' },
+                { src: 'https://i.ibb.co/9HFSPFdR/IMG-0693.jpg', alt: 'Gye Baek-Sun 5' }
+            ]
+        };
+
+        function escapeHTML(str) {
+            return String(str == null ? '' : str)
+                .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+
+        function renderProjectList(containerId, items) {
+            const el = document.getElementById(containerId);
+            if (!el) return;
+            el.innerHTML = items.map(item => {
+                const detail = item.url
+                    ? `<a href="${item.url}" target="_blank" rel="noopener">${escapeHTML(item.linkText || item.url)}</a>`
+                    : escapeHTML(item.note || '');
+                return `
+                <div class="project-item">
+                    <span class="project-dot"></span>
+                    <div class="project-info">
+                        <strong>${escapeHTML(item.title)}</strong>
+                        <span>${detail}</span>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function renderRepos() {
+            const el = document.getElementById('repoGrid');
+            if (!el) return;
+            el.innerHTML = DATA.repos.map(repo => `
+                <a class="repo-card" href="${repo.url}" target="_blank" rel="noopener">
+                    <span class="repo-name">${escapeHTML(repo.name)}</span>
+                    <span class="repo-desc">${escapeHTML(repo.desc)}</span>
+                </a>`).join('');
+        }
+
+        /* Figures out PS vs Xbox, and where in the generation order a console
+           belongs, purely from its name — so the list always sorts itself. */
+        function consoleFamily(name) {
+            if (/xbox/i.test(name)) return 'xbox';
+            if (/ps\s*\d/i.test(name) || /playstation/i.test(name)) return 'ps';
+            return 'other';
+        }
+        function consoleRank(name) {
+            const psMatch = name.match(/ps\s*(\d)/i);
+            if (psMatch) return parseInt(psMatch[1], 10);
+            if (/xbox\s*series/i.test(name)) return 4;
+            if (/xbox\s*one/i.test(name)) return 3;
+            if (/xbox\s*360/i.test(name)) return 2;
+            if (/xbox/i.test(name)) return 1;
+            return 99;
+        }
+        function renderConsoleGroup(containerId, family) {
+            const el = document.getElementById(containerId);
+            if (!el) return;
+            const items = DATA.consoles
+                .filter(c => consoleFamily(c.name) === family)
+                .sort((a, b) => consoleRank(a.name) - consoleRank(b.name));
+            if (!items.length) {
+                el.innerHTML = '<p class="collection-empty">Nothing added yet.</p>';
+                return;
+            }
+            el.innerHTML = items.map(c => `
+                <div class="collection-item">
+                    <div class="item-title">${escapeHTML(c.name)}</div>
+                    <div class="item-desc">${escapeHTML([c.model, c.note].filter(Boolean).join(' — '))}</div>
+                </div>`).join('');
+        }
+
+        function renderGallery() {
+            const el = document.getElementById('galleryGrid');
+            if (!el) return;
+            el.innerHTML = DATA.gallery.map((img, i) => `
+                <img src="${img.src}" alt="${escapeHTML(img.alt)}" loading="lazy" data-index="${i}">`).join('');
+        }
+
+        renderProjectList('webProjectList', DATA.webProjects);
+        renderProjectList('pastProjectList', DATA.pastProjects);
+        renderRepos();
+        renderConsoleGroup('psCollectionList', 'ps');
+        renderConsoleGroup('xboxCollectionList', 'xbox');
+        renderGallery();
+
         (function() {
             const body = document.body;
             const themeToggleMobile = document.getElementById('themeToggleMobile');
@@ -1057,37 +1317,101 @@
             }
             if (themeToggleMobile) themeToggleMobile.addEventListener('click', toggleTheme);
 
+            /* ---- Flip card + rare-flip easter egg ----
+               Add more tiers by pushing another { type, chance, className, message }
+               object below and a matching .flip-rare-XXX rule in the CSS. Chances
+               are independent probabilities per click (e.g. 0.05 = 5%). */
             const flipCardInner = document.getElementById('flipCardInner');
             const flipCard = document.getElementById('flipCard');
+            const flipToast = document.getElementById('flipToast');
             let currentRotation = 0;
+            let effectTimer1 = null;
+            let effectTimer2 = null;
+
+            const specialFlips = [
+                { type: 'vortex',  chance: 0.01, className: 'flip-rare-vortex',  message: '🌀 Vortex Flip!' },
+                { type: 'rainbow', chance: 0.02, className: 'flip-rare-rainbow', message: '🌈 Rainbow Flip!' },
+                { type: 'gold',    chance: 0.05, className: 'flip-rare-gold',    message: '✨ Golden Flip!' }
+            ];
+
+            function rollSpecialFlip() {
+                const sorted = [...specialFlips].sort((a, b) => a.chance - b.chance);
+                const r = Math.random();
+                let cumulative = 0;
+                for (const flip of sorted) {
+                    cumulative += flip.chance;
+                    if (r < cumulative) return flip;
+                }
+                return null;
+            }
+
+            function triggerSpecialEffect(flip) {
+                specialFlips.forEach(f => flipCard.classList.remove(f.className));
+                // force reflow so the animation restarts if the same tier hits twice in a row
+                void flipCard.offsetWidth;
+                flipCard.classList.add(flip.className);
+                flipToast.textContent = flip.message;
+                flipToast.classList.add('show');
+                clearTimeout(effectTimer1);
+                clearTimeout(effectTimer2);
+                effectTimer1 = setTimeout(() => flipToast.classList.remove('show'), 2200);
+                effectTimer2 = setTimeout(() => flipCard.classList.remove(flip.className), 2200);
+            }
 
             if (flipCardInner && flipCard) {
                 flipCardInner.style.transform = 'rotateY(0deg)';
                 flipCard.addEventListener('click', () => {
-                    currentRotation += 180;
+                    const special = rollSpecialFlip();
+                    currentRotation += (special && special.type === 'vortex') ? 720 : 180;
                     flipCardInner.style.transform = `rotateY(${currentRotation}deg)`;
+                    if (special) triggerSpecialEffect(special);
                 });
             }
 
+            /* ---- Lightbox with left/right navigation ---- */
             const modal = document.getElementById('imageModal');
             const modalImg = document.getElementById('modalImage');
             const modalClose = document.getElementById('modalClose');
-            const galleryImages = document.querySelectorAll('#galleryGrid img');
+            const modalPrev = document.getElementById('modalPrev');
+            const modalNext = document.getElementById('modalNext');
+            const modalCounter = document.getElementById('modalCounter');
+            let currentGalleryIndex = 0;
 
-            galleryImages.forEach(img => {
-                img.addEventListener('click', () => {
-                    modalImg.src = img.getAttribute('data-full') || img.src;
-                    modal.classList.add('active');
-                });
-            });
-
+            function openModalAt(index) {
+                if (!DATA.gallery.length) return;
+                currentGalleryIndex = (index + DATA.gallery.length) % DATA.gallery.length;
+                const item = DATA.gallery[currentGalleryIndex];
+                modalImg.src = item.src;
+                modalImg.alt = item.alt || 'Preview';
+                modalCounter.textContent = `${currentGalleryIndex + 1} / ${DATA.gallery.length}`;
+                const showNav = DATA.gallery.length > 1;
+                modalPrev.style.display = showNav ? 'flex' : 'none';
+                modalNext.style.display = showNav ? 'flex' : 'none';
+                modalCounter.style.display = showNav ? 'block' : 'none';
+                modal.classList.add('active');
+            }
+            function showNext() { openModalAt(currentGalleryIndex + 1); }
+            function showPrev() { openModalAt(currentGalleryIndex - 1); }
             function closeModal() {
                 modal.classList.remove('active');
                 modalImg.src = '';
             }
+
+            document.getElementById('galleryGrid').addEventListener('click', (e) => {
+                const img = e.target.closest('img[data-index]');
+                if (img) openModalAt(parseInt(img.dataset.index, 10));
+            });
+
             if (modalClose) modalClose.addEventListener('click', closeModal);
+            if (modalPrev) modalPrev.addEventListener('click', (e) => { e.stopPropagation(); showPrev(); });
+            if (modalNext) modalNext.addEventListener('click', (e) => { e.stopPropagation(); showNext(); });
             if (modal) modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
-            document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && modal && modal.classList.contains('active')) closeModal(); });
+            document.addEventListener('keydown', (e) => {
+                if (!modal || !modal.classList.contains('active')) return;
+                if (e.key === 'Escape') closeModal();
+                if (e.key === 'ArrowLeft') showPrev();
+                if (e.key === 'ArrowRight') showNext();
+            });
 
             const hamburger = document.getElementById('hamburger');
             const sidePanel = document.getElementById('sidePanel');
@@ -1126,6 +1450,18 @@
                 });
             }
 
+            // Keeps the active pill in the desktop nav scrolled into view as you browse
+            function scrollNavToActive() {
+                const activeLink = document.querySelector('#desktopLinks a.nav-active');
+                const nav = document.getElementById('desktopLinks');
+                if (!activeLink || !nav) return;
+                const linkLeft = activeLink.offsetLeft;
+                const linkRight = linkLeft + activeLink.offsetWidth;
+                if (linkLeft < nav.scrollLeft || linkRight > nav.scrollLeft + nav.clientWidth) {
+                    nav.scrollTo({ left: linkLeft - 24, behavior: 'smooth' });
+                }
+            }
+
             function updateActiveNav() {
                 let currentId = '';
                 const scrollPos = window.scrollY + 100;
@@ -1136,7 +1472,10 @@
                         currentId = section.getAttribute('id');
                     }
                 });
-                if (currentId) setActiveLink(currentId);
+                if (currentId) {
+                    setActiveLink(currentId);
+                    scrollNavToActive();
+                }
             }
             window.addEventListener('scroll', updateActiveNav, { passive: true });
 
@@ -1191,6 +1530,22 @@
                 scrollTopBtn.addEventListener('click', () => {
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                 });
+            }
+
+            /* ---- Subtle scroll-reveal for a bit of life ---- */
+            const revealEls = document.querySelectorAll('.reveal');
+            if ('IntersectionObserver' in window && revealEls.length) {
+                const io = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('in-view');
+                            io.unobserve(entry.target);
+                        }
+                    });
+                }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+                revealEls.forEach(el => io.observe(el));
+            } else {
+                revealEls.forEach(el => el.classList.add('in-view'));
             }
         })();
     </script>
