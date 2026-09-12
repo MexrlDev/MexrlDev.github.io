@@ -1,0 +1,727 @@
+/* app.js - MIT */
+// ================== JSMAF EMULATOR CORE ==================
+(function() {
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+  const WIDTH = 1920, HEIGHT = 1080;
+
+  // Scale canvas
+  function updateScale() {
+    const scaleX = window.innerWidth / WIDTH;
+    const scaleY = window.innerHeight / HEIGHT;
+    const scale = Math.min(scaleX, scaleY);
+    canvas.style.setProperty('--s', scale);
+  }
+  window.addEventListener('resize', updateScale);
+  updateScale();
+
+  // DOM references
+  const uiOverlay = document.getElementById('ui');
+  const logConsole = document.getElementById('logConsole');
+  const logContent = document.getElementById('logContent');
+  const alertModal = document.getElementById('alertModal');
+  const alertMessage = document.getElementById('alertMessage');
+  const alertOkBtn = document.getElementById('alertOkBtn');
+  const textarea = document.getElementById('textarea');
+  const fileInput = document.getElementById('fileInput');
+  const dropzone = document.getElementById('dropzone');
+
+  // State
+  let frameLoopId = null;
+  let logMode = false;
+
+  // ============== LOGGING ==============
+  const logBuffer = [];
+  const MAX_LOG_LINES = 500;
+
+  function addLog(msg) {
+    logBuffer.push(msg);
+    if (logBuffer.length > MAX_LOG_LINES) logBuffer.shift();
+    updateLogDisplay();
+  }
+
+  function updateLogDisplay() {
+    // Clear and rebuild log content
+    logContent.innerHTML = '';
+    for (let line of logBuffer) {
+      const div = document.createElement('div');
+      div.className = 'log-entry';
+      div.textContent = line;
+      logContent.appendChild(div);
+    }
+    logContent.scrollTop = logContent.scrollHeight;
+  }
+
+  // Override console methods to capture logs
+  const originalConsoleLog = console.log;
+  const originalConsoleDebug = console.debug;
+  const originalConsoleError = console.error;
+  console.log = function(...args) {
+    const msg = args.map(a => String(a)).join(' ');
+    addLog('[LOG] ' + msg);
+    originalConsoleLog.apply(console, args);
+  };
+  console.debug = function(...args) {
+    const msg = args.map(a => String(a)).join(' ');
+    addLog('[DBG] ' + msg);
+    originalConsoleDebug.apply(console, args);
+  };
+  console.error = function(...args) {
+    const msg = args.map(a => String(a)).join(' ');
+    addLog('[ERR] ' + msg);
+    originalConsoleError.apply(console, args);
+  };
+
+  // Also capture jsmaf.print and jsmaf.alert
+  function logPrint(msg) {
+    addLog('[JSMAF] ' + msg);
+  }
+
+  // ============== CUSTOM ALERT ==============
+  function showCustomAlert(msg) {
+    alertMessage.textContent = String(msg !== undefined ? msg : '');
+    alertModal.style.display = 'flex';
+    // Focus OK button
+    alertOkBtn.focus();
+    return new Promise((resolve) => {
+      const handler = () => {
+        alertModal.style.display = 'none';
+        alertOkBtn.removeEventListener('click', handler);
+        resolve();
+      };
+      alertOkBtn.addEventListener('click', handler);
+      // Also allow Enter key on modal
+      document.addEventListener('keydown', function keyHandler(e) {
+        if (e.key === 'Enter' && alertModal.style.display === 'flex') {
+          handler();
+          document.removeEventListener('keydown', keyHandler);
+        }
+      }, { once: true });
+    });
+  }
+
+  // ============== BUILD JSMAF OBJECT ==============
+  const jsmaf = {
+    screenWidth: WIDTH,
+    screenHeight: HEIGHT,
+    screenAspect: 16/9,
+    frameRate: 60,
+    platform: 'ps4',
+    version: '2.13.2',
+    hardwareId: "noooooo'noooooo",
+    networkStatus: 'connected',
+    connectionType: 'wireless',
+    remotePlay: true,
+    locale: 'en',
+    gamma: 1,
+    depthTest: false,
+    isTTSenabled: false,
+    circleIsAdvanceButton: false,
+    cookie: '',
+    externalParameter: '',
+    argc: 1,
+
+    root: {
+      x: 0, y: 0, width: 0, height: 0,
+      scaleX: 1, scaleY: 1, scaleZ: 1,
+      rotateX: 0, rotateY: 0, rotateZ: 0,
+      alpha: 1, visible: true,
+      clip: false, clipX: 0, clipY: 0, clipWidth: 0, clipHeight: 0,
+      children: [],
+    },
+
+    // Events
+    onKeyDown: null, onKeyUp: null, onEnterFrame: null,
+    onError: function(e) { console.error('JSMAF Error: ' + (e && e.message ? e.message : e)); },
+    onNetworkStatusChange: null, onShutdown: null,
+    onKeyboardDown: null, onkeyboarddown: null,
+    onKeyboardUp: null, onkeyboardup: null,
+    onKeyboardRepeat: null, onkeyboardrepeat: null,
+    onenterforeground: null, onEnterForeground: null,
+    onenterbackground: null, onEnterBackground: null,
+    ontextspeech: null, onTextSpeech: null,
+    onexternalparamchange: null, onExternalParamChange: null,
+    onKeyRepeat: null, onkeyrepeat: null,
+    onkeydown: null, onkeyup: null,
+
+    // Timers
+    setTimeout: function(fn, delay) { return window.setTimeout(fn, delay); },
+    clearTimeout: function(id) { window.clearTimeout(id); },
+    setInterval: function(fn, delay) { return window.setInterval(fn, delay); },
+    clearInterval: function(id) { window.clearInterval(id); },
+
+    print: function(msg) { logPrint(msg); },
+    alert: function(msg) { 
+      // Use custom alert
+      showCustomAlert(msg);
+    },
+
+    include: function(path) {
+      let url = path;
+      if (url.startsWith('file://../download0/')) {
+        url = url.replace('file://../download0/', '');
+      } else if (url.startsWith('file:///')) {
+        url = url.replace('file:///', '');
+      }
+      try {
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', url, false);
+        xhr.send();
+        if (xhr.status === 200 || xhr.status === 0) {
+          eval(xhr.responseText);
+        } else {
+          console.error('include failed: ' + url + ' (status ' + xhr.status + ')');
+        }
+      } catch(e) {
+        console.error('include error: ' + e.message);
+      }
+    },
+
+    exit: function() {
+      console.log('jsmaf.exit() called');
+      stopRendering();
+      jsmaf.root.children.length = 0;
+      if (logMode) {
+        // In log mode, just show a message and close log console?
+        // We'll return to menu.
+        showMenu();
+      } else {
+        showMenu();
+      }
+    },
+
+    forceConnect: function(){}, showOSK: function(){}, argv: function(){},
+    processTime: function(){ return performance.now(); }, 
+    gc: function(){}, hideSplashScreen: function(){},
+    openWebBrowser: function(){}, speak: function(){}, eval: function(code){ return eval(code); },
+    showCCSettings: function(){},
+  };
+
+  // Override window.alert to use custom
+  window.alert = jsmaf.alert;
+
+  // ============== JSMAF CLASSES ==============
+  function Image(opts) {
+    opts = opts || {};
+    this.url = opts.url || '';
+    this.x = opts.x || 0;
+    this.y = opts.y || 0;
+    this.width = opts.width || 0;
+    this.height = opts.height || 0;
+    this.alpha = (opts.alpha !== undefined) ? opts.alpha : 1;
+    this.visible = (opts.visible !== undefined) ? opts.visible : true;
+    this.scaleX = opts.scaleX || 1;
+    this.scaleY = opts.scaleY || 1;
+    this.scaleZ = opts.scaleZ || 1;
+    this.rotateX = opts.rotateX || 0;
+    this.rotateY = opts.rotateY || 0;
+    this.rotateZ = opts.rotateZ || 0;
+    this.background = opts.background || null;
+    this.borderWidth = opts.borderWidth || 0;
+    this.borderColor = opts.borderColor || 'transparent';
+    this.borderImage = opts.borderImage || '';
+    this.clip = opts.clip || false;
+    this.clipX = opts.clipX || 0;
+    this.clipY = opts.clipY || 0;
+    this.clipWidth = opts.clipWidth || 0;
+    this.clipHeight = opts.clipHeight || 0;
+    this.children = [];
+    this.tint = opts.tint || 'rgb(255,255,255)';
+    this.paddingTop = opts.paddingTop || 0;
+    this.paddingRight = opts.paddingRight || 0;
+    this.paddingBottom = opts.paddingBottom || 0;
+    this.paddingLeft = opts.paddingLeft || 0;
+    this.naturalWidth = opts.naturalWidth || 0;
+    this.naturalHeight = opts.naturalHeight || 0;
+    this.baseline = opts.baseline || 0;
+    this.align = opts.align || 'left';
+    this.lineCount = opts.lineCount || 0;
+    this.lineClamp = opts.lineClamp || 0;
+    this.text = opts.text || '';
+    this.style = opts.style || null;
+    this._img = new globalThis.Image();
+    this._img.crossOrigin = 'anonymous';
+    const self = this;
+    this.onload = opts.onload || opts.onLoad || null;
+    if (this.url) {
+      let src = this.url;
+      if (src.startsWith('file://../download0/')) {
+        src = src.replace('file://../download0/', '');
+      } else if (src.startsWith('file:///')) {
+        src = src.replace('file:///', '');
+      }
+      this._img.src = src;
+      this._img.onload = function() {
+        self.naturalWidth = self._img.naturalWidth;
+        self.naturalHeight = self._img.naturalHeight;
+        if (self.onload) self.onload();
+      };
+      this._img.onerror = function() {
+        console.error('Image load error: ' + src);
+      };
+    }
+  }
+  jsmaf.Image = Image;
+
+  function Text() {
+    this.text = '';
+    this.x = 0; this.y = 0;
+    this.width = 0; this.height = 0;
+    this.alpha = 1;
+    this.visible = true;
+    this.scaleX = 1; this.scaleY = 1; this.scaleZ = 1;
+    this.rotateX = 0; this.rotateY = 0; this.rotateZ = 0;
+    this.style = null;
+    this.align = 'left';
+    this.baseline = 0;
+    this.lineCount = 0;
+    this.lineClamp = 0;
+    this.naturalWidth = 0;
+    this.naturalHeight = 0;
+    this.background = null;
+    this.borderWidth = 0;
+    this.borderColor = 'transparent';
+    this.clip = false;
+    this.clipX = 0; this.clipY = 0; this.clipWidth = 0; this.clipHeight = 0;
+    this.children = [];
+    this.tint = 'rgb(255,255,255)';
+    this.paddingTop = 0; this.paddingRight = 0; this.paddingBottom = 0; this.paddingLeft = 0;
+  }
+  jsmaf.Text = Text;
+
+  function Style(def) {
+    if (!def || !def.name) return;
+    styles[def.name] = def;
+  }
+  jsmaf.Style = Style;
+  const styles = {};
+
+  function Container() {
+    this.x = 0; this.y = 0;
+    this.width = 0; this.height = 0;
+    this.alpha = 1; this.visible = true;
+    this.scaleX = 1; this.scaleY = 1; this.scaleZ = 1;
+    this.rotateX = 0; this.rotateY = 0; this.rotateZ = 0;
+    this.background = null;
+    this.borderWidth = 0;
+    this.borderColor = 'transparent';
+    this.clip = false;
+    this.clipX = 0; this.clipY = 0; this.clipWidth = 0; this.clipHeight = 0;
+    this.children = [];
+  }
+  jsmaf.Container = Container;
+  jsmaf.Mesh = Container;
+  jsmaf.Slate = Container;
+
+  // AudioClip
+  jsmaf.AudioClip = function() {
+    this._buffer = null;
+    this._source = null;
+    this.volume = 1;
+    this.loop = false;
+    this._ctx = null;
+  };
+  jsmaf.AudioClip.prototype.open = function(url) {
+    const self = this;
+    if (!this._ctx) this._ctx = new (window.AudioContext || window.webkitAudioContext)();
+    let src = url;
+    if (src.startsWith('file://../download0/')) src = src.replace('file://../download0/', '');
+    else if (src.startsWith('file:///')) src = src.replace('file:///', '');
+    fetch(src)
+      .then(res => res.arrayBuffer())
+      .then(buf => self._ctx.decodeAudioData(buf))
+      .then(decoded => { self._buffer = decoded; })
+      .catch(e => console.error('AudioClip open error: ' + e));
+  };
+  jsmaf.AudioClip.prototype.play = function(loop) {
+    if (!this._buffer || !this._ctx) return;
+    const source = this._ctx.createBufferSource();
+    source.buffer = this._buffer;
+    source.loop = (loop !== undefined) ? loop : this.loop;
+    const gain = this._ctx.createGain();
+    gain.gain.value = this.volume;
+    source.connect(gain).connect(this._ctx.destination);
+    source.start(0);
+    this._source = source;
+  };
+  jsmaf.AudioClip.prototype.stop = function() {
+    if (this._source) { this._source.stop(); this._source = null; }
+  };
+  jsmaf.AudioClip.prototype.close = function() { this.stop(); };
+  jsmaf.AudioClip.prototype.load = function(url) { this.open(url); };
+
+  // XMLHttpRequest
+  function XMLHttpRequest() {
+    this.readyState = 0;
+    this.status = 0;
+    this.responseText = '';
+    this.onreadystatechange = null;
+    this._method = 'GET';
+    this._url = '';
+    this._async = true;
+    this._data = null;
+  }
+  XMLHttpRequest.prototype.open = function(method, url, async) {
+    this._method = method;
+    this._url = url;
+    this._async = (async !== undefined) ? async : true;
+    this.readyState = 1;
+    if (this.onreadystatechange) this.onreadystatechange();
+  };
+  XMLHttpRequest.prototype.send = function(data) {
+    this._data = data;
+    const self = this;
+    let finalUrl = this._url;
+    if (finalUrl.startsWith('file://../download0/')) {
+      finalUrl = finalUrl.replace('file://../download0/', '');
+    } else if (finalUrl.startsWith('file:///')) {
+      finalUrl = finalUrl.replace('file:///', '');
+    }
+
+    if (this._method === 'GET') {
+      // Check virtual FS
+      if (virtualFS.has(finalUrl)) {
+        this.responseText = virtualFS.get(finalUrl);
+        this.status = 200;
+        this.readyState = 4;
+        if (this.onreadystatechange) this.onreadystatechange();
+        return;
+      }
+      const xhr = new XMLHttpRequest();
+      xhr.open('GET', finalUrl, this._async);
+      xhr.onreadystatechange = function() {
+        self.readyState = xhr.readyState;
+        self.status = xhr.status;
+        self.responseText = xhr.responseText;
+        if (self.onreadystatechange) self.onreadystatechange();
+      };
+      xhr.send();
+    } else if (this._method === 'POST') {
+      virtualFS.set(finalUrl, this._data);
+      this.status = 200;
+      this.readyState = 4;
+      if (this.onreadystatechange) this.onreadystatechange();
+    } else if (this._method === 'DELETE') {
+      virtualFS.delete(finalUrl);
+      this.status = 200;
+      this.readyState = 4;
+      if (this.onreadystatechange) this.onreadystatechange();
+    }
+  };
+  XMLHttpRequest.prototype.abort = function() {};
+  jsmaf.XMLHttpRequest = XMLHttpRequest;
+  const virtualFS = new Map();
+
+  // WebSocket stub
+  jsmaf.WebSocket = function(url) {
+    this.url = url;
+    this.onmessage = null;
+    this.onopen = null;
+    this.onclose = null;
+    this.onerror = null;
+    if (this.onopen) this.onopen();
+  };
+  jsmaf.WebSocket.prototype.send = function(data) {
+    console.log('WebSocket send: ' + data);
+  };
+  jsmaf.WebSocket.prototype.close = function() {};
+
+  // WebSocketServer stub
+  jsmaf.WebSocketServer = function(port) {
+    this.port = port || 40404;
+    this.onconnect = null;
+    console.log('WebSocketServer started on port ' + this.port);
+    if (this.onconnect) {
+      const ws = new jsmaf.WebSocket('ws://localhost:'+port);
+      this.onconnect(ws);
+    }
+  };
+
+  jsmaf.User = function() {};
+  jsmaf.Preload = function() {};
+  jsmaf.Video = function() {};
+
+  // Location loader
+  jsmaf.location = {
+    mLocation: '',
+    manifest: null,
+    __proto__: {
+      set: function(uri) {
+        this.mLocation = uri;
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', uri, false);
+        xhr.send();
+        if (xhr.status === 200 || xhr.status === 0) {
+          try {
+            this.manifest = JSON.parse(xhr.responseText);
+            const scripts = this.manifest.scripts || [];
+            for (let s of scripts) {
+              jsmaf.include(s.src);
+            }
+          } catch(e) {
+            console.error('Location manifest error: ' + e);
+          }
+        }
+      }
+    }
+  };
+  Object.defineProperty(jsmaf, 'location', {
+    get: function() { return jsmaf.location; },
+    set: function(val) {
+      jsmaf.location.mLocation = val;
+      const xhr = new XMLHttpRequest();
+      xhr.open('GET', val, false);
+      xhr.send();
+      if (xhr.status === 200 || xhr.status === 0) {
+        try {
+          const manifest = JSON.parse(xhr.responseText);
+          jsmaf.location.manifest = manifest;
+          const scripts = manifest.scripts || [];
+          for (let s of scripts) {
+            jsmaf.include(s.src);
+          }
+        } catch(e) {
+          console.error('Location set error: ' + e);
+        }
+      }
+    }
+  });
+
+  // Expose to global
+  window.jsmaf = jsmaf;
+
+  // ============== RENDERING ==============
+  function drawElement(el, parentX, parentY, globalAlpha) {
+    if (!el.visible || el.alpha <= 0) return;
+    const x = parentX + el.x;
+    const y = parentY + el.y;
+    const alpha = globalAlpha * el.alpha;
+    ctx.save();
+
+    if (el.clip) {
+      ctx.beginPath();
+      ctx.rect(x + el.clipX, y + el.clipY, el.clipWidth || el.width, el.clipHeight || el.height);
+      ctx.clip();
+    }
+
+    ctx.translate(x + (el.width/2 || 0), y + (el.height/2 || 0));
+    if (el.rotateZ) ctx.rotate(el.rotateZ * Math.PI / 180);
+    if (el.scaleX !== 1 || el.scaleY !== 1) ctx.scale(el.scaleX, el.scaleY);
+    ctx.translate(-(x + (el.width/2 || 0)), -(y + (el.height/2 || 0)));
+
+    ctx.globalAlpha = alpha;
+
+    if (el.background) {
+      ctx.fillStyle = el.background;
+      ctx.fillRect(x, y, el.width || 0, el.height || 0);
+    }
+
+    if (el._img && el._img.complete && el._img.naturalWidth > 0) {
+      ctx.drawImage(el._img, x, y, el.width || el._img.naturalWidth, el.height || el._img.naturalHeight);
+    } else if (el.text !== undefined && el.style && styles[el.style]) {
+      const st = styles[el.style];
+      ctx.font = (st.size || 20) + 'px sans-serif';
+      ctx.fillStyle = st.color || 'white';
+      ctx.textAlign = el.align || 'left';
+      ctx.textBaseline = 'top';
+      const lines = el.text.split('\n');
+      let lineY = y + (el.baseline || 0);
+      for (let i = 0; i < lines.length && (el.lineClamp === 0 || i < el.lineClamp); i++) {
+        ctx.fillText(lines[i], x, lineY);
+        lineY += (st.size || 20) + 2;
+      }
+      const metrics = ctx.measureText(el.text);
+      el.naturalWidth = metrics.width;
+      el.naturalHeight = (lines.length || 1) * ((st.size || 20) + 2);
+    }
+
+    if (el.borderWidth > 0 && el.borderColor !== 'transparent') {
+      ctx.strokeStyle = el.borderColor;
+      ctx.lineWidth = el.borderWidth;
+      ctx.strokeRect(x, y, el.width || 0, el.height || 0);
+    }
+
+    ctx.restore();
+
+    if (el.children && el.children.length) {
+      for (let child of el.children) {
+        drawElement(child, x, y, alpha);
+      }
+    }
+  }
+
+  function drawScene() {
+    ctx.clearRect(0, 0, WIDTH, HEIGHT);
+    drawElement(jsmaf.root, 0, 0, 1);
+    frameLoopId = requestAnimationFrame(drawScene);
+    if (typeof jsmaf.onEnterFrame === 'function') jsmaf.onEnterFrame();
+  }
+
+  function startRendering() {
+    if (frameLoopId) cancelAnimationFrame(frameLoopId);
+    drawScene();
+  }
+
+  function stopRendering() {
+    if (frameLoopId) {
+      cancelAnimationFrame(frameLoopId);
+      frameLoopId = null;
+    }
+  }
+
+  // ============== UI MODE SWITCHING ==============
+  function showMenu() {
+    uiOverlay.style.display = 'flex';
+    logConsole.style.display = 'none';
+    canvas.style.display = 'block';
+    stopRendering();
+    jsmaf.root.children.length = 0;
+  }
+
+  function showLogMode() {
+    uiOverlay.style.display = 'none';
+    logConsole.style.display = 'flex';
+    canvas.style.display = 'none';
+    stopRendering();
+    // Clear root
+    jsmaf.root.children.length = 0;
+  }
+
+  function runScript(mode) {
+    const code = textarea.value.trim();
+    if (!code) {
+      alert('No script provided');
+      return;
+    }
+    // Clear previous state
+    jsmaf.root.children.length = 0;
+    for (let key in styles) delete styles[key];
+    // Reset log buffer
+    logBuffer.length = 0;
+    updateLogDisplay();
+
+    if (mode === 'log') {
+      logMode = true;
+      showLogMode();
+    } else {
+      logMode = false;
+      uiOverlay.style.display = 'none';
+      canvas.style.display = 'block';
+    }
+
+    try {
+      eval(code);
+    } catch(e) {
+      console.error('Script error: ' + e.message + '\n' + e.stack);
+      // Show error in log
+      alert('Script error: ' + e.message);
+      // Revert to menu if error
+      showMenu();
+      return;
+    }
+
+    if (mode === 'ui') {
+      startRendering();
+    }
+    // In log mode, we don't render; logs are shown in console.
+  }
+
+  // ============== KEYBOARD INPUT ==============
+  const keyMap = {
+    'ArrowUp': 4, 'KeyW': 55,
+    'ArrowDown': 6, 'KeyS': 57,
+    'ArrowLeft': 7, 'KeyA': 58,
+    'ArrowRight': 5, 'KeyD': 56,
+    'KeyZ': 14,
+    'KeyX': 13,
+    'KeyC': 12,
+    'KeyV': 15,
+    'KeyQ': 10,
+    'KeyE': 11,
+    'Digit1': 8,
+    'Digit3': 9,
+    'Space': 2,
+    'ShiftLeft': 1, 'ShiftRight': 1,
+    'Enter': 16,
+  };
+  window.addEventListener('keydown', (e) => {
+    const code = keyMap[e.code];
+    if (code !== undefined && typeof jsmaf.onKeyDown === 'function') {
+      jsmaf.onKeyDown(code);
+    }
+  });
+  window.addEventListener('keyup', (e) => {
+    const code = keyMap[e.code];
+    if (code !== undefined && typeof jsmaf.onKeyUp === 'function') {
+      jsmaf.onKeyUp(code);
+    }
+  });
+
+  // ============== UI EVENT BINDINGS ==============
+  document.getElementById('runBtn').addEventListener('click', () => runScript('ui'));
+  document.getElementById('runLogBtn').addEventListener('click', () => runScript('log'));
+  document.getElementById('clearBtn').addEventListener('click', () => { textarea.value = ''; });
+  document.getElementById('exitBtn').addEventListener('click', () => {
+    // Try to close the tab/window
+    try {
+      window.close();
+    } catch(e) {
+      // If close fails, redirect to about:blank
+      window.location.href = 'about:blank';
+    }
+  });
+
+  // Log console buttons
+  document.getElementById('copyLogsBtn').addEventListener('click', () => {
+    const text = logBuffer.join('\n');
+    navigator.clipboard.writeText(text).then(() => {
+      alert('Logs copied to clipboard');
+    }).catch(() => {
+      // Fallback
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      ta.remove();
+      alert('Logs copied');
+    });
+  });
+  document.getElementById('clearLogsBtn').addEventListener('click', () => {
+    logBuffer.length = 0;
+    updateLogDisplay();
+  });
+  document.getElementById('closeLogBtn').addEventListener('click', () => {
+    showMenu();
+  });
+
+  // File handling
+  dropzone.addEventListener('click', () => fileInput.click());
+  fileInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (file) readFile(file);
+  });
+  dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.classList.add('dragover'); });
+  dropzone.addEventListener('dragleave', () => { dropzone.classList.remove('dragover'); });
+  dropzone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropzone.classList.remove('dragover');
+    const file = e.dataTransfer.files[0];
+    if (file) readFile(file);
+  });
+
+  function readFile(file) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      textarea.value = e.target.result;
+    };
+    reader.readAsText(file);
+  }
+
+  // Start with UI visible
+  showMenu();
+
+  // Override alert for script errors, etc.
+  window.alert = jsmaf.alert;
+
+})();
