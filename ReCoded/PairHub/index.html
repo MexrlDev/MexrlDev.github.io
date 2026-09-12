@@ -16,6 +16,7 @@
     <span class="dot" id="status-dot" title="signaling"></span>
     <span class="muted small" id="status-text">connecting…</span>
     <span class="room-badge" id="room-badge" title="Click to copy room code">------</span>
+    <button class="icon-btn" id="credits-btn" title="Credits">ⓘ</button>
     <button class="icon-btn" id="room-btn" title="Change room">⇄</button>
   </div>
 </header>
@@ -101,6 +102,7 @@
 
 </main>
 
+<!-- ============ ROOM MODAL ============ -->
 <div id="modal" class="modal hidden">
   <div class="modal-card">
     <h3 id="modal-title">Room</h3>
@@ -109,6 +111,58 @@
     <div class="modal-actions">
       <button class="link" id="modal-cancel" type="button">Cancel</button>
       <button class="primary" id="modal-ok" type="button">Join</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ CREDITS MODAL ============ -->
+<div id="credits-modal" class="modal hidden">
+  <div class="modal-card credits-card">
+    <h3>Credits</h3>
+
+    <div class="credits-block">
+      <div class="credits-label">Maker</div>
+      <div class="credits-name">MexrlDev</div>
+      <div class="muted small">
+        PairHub — a peer-to-peer code, text &amp; file sharing tool.
+      </div>
+    </div>
+
+    <div class="credits-block">
+      <div class="credits-label">Built with</div>
+      <ul class="credits-list">
+        <li>
+          <b>PeerJS</b> — WebRTC signaling &amp; data channels.
+          <span class="muted small">MIT · peers.github.io/peerjs</span>
+        </li>
+        <li>
+          <b>highlight.js</b> — syntax highlighting.
+          <span class="muted small">BSD-3-Clause · highlightjs.org</span>
+        </li>
+        <li>
+          <b>WebRTC</b> — the actual peer-to-peer transport.
+          <span class="muted small">W3C standard</span>
+        </li>
+      </ul>
+    </div>
+
+    <div class="credits-block">
+      <div class="credits-label">Inspired by</div>
+      <ul class="credits-list">
+        <li>
+          <b>PairDrop</b> — the modern Snapdrop fork that proved
+          browser-to-browser file sharing could be this easy.
+          <span class="muted small">GPL-3.0 · pairdrop.net</span>
+        </li>
+        <li>
+          <b>Snapdrop</b> — the original idea.
+          <span class="muted small">GPL-3.0 · snapdrop.net</span>
+        </li>
+      </ul>
+    </div>
+
+    <div class="modal-actions">
+      <button class="primary" id="credits-close" type="button">Close</button>
     </div>
   </div>
 </div>
