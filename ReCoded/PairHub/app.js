@@ -1,5 +1,5 @@
 /* ============================================================
-   PairHub — P2P sharing for GitHub Pages
+   Made by MexrlDev.
    Uses PeerJS cloud for signaling, WebRTC for actual data.
    ============================================================ */
 (() => {
@@ -11,7 +11,6 @@ const ICE_SERVERS = [
   { urls: 'stun:stun1.l.google.com:19302' },
   { urls: 'stun:stun2.l.google.com:19302' },
   { urls: 'stun:stun.cloudflare.com:3478' },
-  // Public free TURN (openrelay). Replace with your own for production.
   { urls: 'turn:openrelay.metered.ca:80',
     username: 'openrelayproject', credential: 'openrelayproject' },
   { urls: 'turn:openrelay.metered.ca:443',
@@ -25,15 +24,15 @@ const SIGNALING_OPTS = {
   config: { iceServers: ICE_SERVERS, iceCandidatePoolSize: 10 },
 };
 
-const CHUNK_SIZE     = 16 * 1024;   // 16 KB — safe for every browser
-const BUFFER_HIGH    = 1024 * 1024; // pause when buffered > 1 MB
-const BUFFER_LOW     = 256  * 1024; // resume below 256 KB
+const CHUNK_SIZE     = 16 * 1024;
+const BUFFER_HIGH    = 1024 * 1024;
+const BUFFER_LOW     = 256  * 1024;
 const HEARTBEAT_MS   = 15000;
 const HOST_TIMEOUT   = 3500;
 const PEER_PREFIX    = 'pairhub-v1';
-const MAX_HL         = 400_000;     // skip auto-highlight above ~400 KB
+const MAX_HL         = 400_000;
 
-const ROOM_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // no confusing chars
+const ROOM_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 const EMOJI = ['⚡','🔥','🚀','🌟','🎯','🎨','🧠','🍀','🌊','🦊','🐼','🐙',
                '🦉','🐝','🎸','☕','🌵','🍄','🌙','⭐','🪐','🧊','🪁','🎲'];
 
@@ -44,24 +43,23 @@ const state = {
   myCode: randomCode(),
   myName: '',
   room: loadRoom(),
-  role: null,              // 'host' | 'guest'
-  hostConn: null,          // guest → host control connection
-  hostId: null,            // deterministic room host peer id
-  conns: new Map(),        // peerId → DataConnection
-  devices: new Map(),      // peerId → { id, name, code, avatar }
-  target: null,            // peerId of current send target
+  role: null,
+  hostConn: null,
+  hostId: null,
+  conns: new Map(),
+  devices: new Map(),
+  target: null,
   reconnecting: false,
   reconnectAttempts: 0,
   intentionallyClosed: false,
-  heartbeats: new Map(),   // peerId → intervalId
+  heartbeats: new Map(),
 };
 
-/* ---------------- tiny DOM helpers ---------------- */
+/* ---------------- DOM helpers ---------------- */
 const $  = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const esc = (s) => String(s).replace(/[&<>"']/g,
   c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
 function randomCode() {
   let s = '';
@@ -137,17 +135,100 @@ function avatarFor(id) {
 }
 
 /* ============================================================
+   FILENAME + EXTENSION HELPERS
+   ============================================================ */
+
+const KNOWN_EXTS = new Set([
+  'js','mjs','cjs','jsx','ts','tsx','py','pyw','rb','go','rs','java',
+  'kt','kts','c','h','cpp','cc','cxx','hpp','hxx','cs','php','swift',
+  'm','mm','sh','bash','zsh','fish','ps1','bat','cmd','html','htm',
+  'xhtml','xml','svg','vue','svelte','css','scss','sass','less',
+  'json','jsonc','json5','yaml','yml','toml','ini','cfg','env',
+  'md','markdown','rst','adoc','sql','graphql','gql','lua','pl','pm',
+  'r','dart','scala','hs','clj','cljs','ex','exs','erl','hrl','txt',
+  'text','log','csv','tsv','diff','patch','tex','bib','asm','s','rkt',
+]);
+
+const LANG_TO_EXT = {
+  javascript:'js', typescript:'ts', python:'py', ruby:'rb', go:'go',
+  rust:'rs', java:'java', kotlin:'kt', c:'c', cpp:'cpp', csharp:'cs',
+  php:'php', swift:'swift', objectivec:'m',
+  bash:'sh', shell:'sh', powershell:'ps1', dosini:'ini',
+  xml:'html', html:'html', css:'css', scss:'scss', sass:'scss', less:'less',
+  json:'json', yaml:'yml', ini:'ini', toml:'toml',
+  markdown:'md', plaintext:'txt',
+  sql:'sql', graphql:'gql',
+  dockerfile:'Dockerfile', makefile:'Makefile', cmake:'cmake',
+  lua:'lua', perl:'pl', r:'r', dart:'dart', scala:'scala',
+  haskell:'hs', clojure:'clj', elixir:'ex', erlang:'erl',
+  diff:'diff', patch:'diff', stylus:'styl',
+  protobuf:'proto', nginx:'conf', apache:'conf',
+};
+
+function splitNameExt(rawName, rawExt) {
+  let name = (rawName || '').trim();
+  let ext  = (rawExt  || '').trim().replace(/^\.+/, '');
+
+  if (name && !ext) {
+    const lastDot = name.lastIndexOf('.');
+    if (lastDot > 0 && lastDot < name.length - 1) {
+      const tail = name.slice(lastDot + 1).toLowerCase();
+      if (KNOWN_EXTS.has(tail)) {
+        name = name.slice(0, lastDot);
+        ext  = tail;
+      }
+    }
+  }
+
+  if (name) {
+    name = name
+      .replace(/[\\/:*?"<>|\x00-\x1f]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/\.+$/, '')
+      .slice(0, 80)
+      .replace(/^-+|-+$/g, '');
+  }
+
+  ext = ext.replace(/[^A-Za-z0-9+#_\-]/g, '').slice(0, 12).toLowerCase();
+
+  return { name: name || null, ext: ext || null };
+}
+
+function extensionFor(text, lang, providedExt) {
+  if (providedExt) return providedExt;
+
+  if (!lang || lang === 'plaintext' || lang === 'auto') {
+    const head = text.slice(0, 4000).trimStart();
+    if (/^<!DOCTYPE\s+html/i.test(head) || /^<html[\s>]/i.test(head)) return 'html';
+    if (/^<\?xml/i.test(head)) return 'xml';
+    if (/^[\[{]/.test(head) && /[\]}]$/.test(text.trimEnd())) {
+      try { JSON.parse(text); return 'json'; } catch (_) {}
+    }
+    if (/^#{1,6}\s/m.test(head) && /\n/.test(head)) return 'md';
+    if (/^(function|const|let|var|class|import|export)\s/m.test(head)) return 'js';
+    if (/^(def|class|import|from)\s+[\w.]+\s*[:(]/m.test(head)) return 'py';
+    return 'txt';
+  }
+
+  const mapped = LANG_TO_EXT[lang];
+  if (mapped) return mapped;
+
+  if (/^[A-Za-z0-9+#_-]{1,12}$/.test(lang)) return lang.toLowerCase();
+  return 'txt';
+}
+
+/* ============================================================
    PEER / ROOM LOGIC
    ============================================================ */
 
 function destroyPeer() {
   for (const [, iv] of state.heartbeats) clearInterval(iv);
   state.heartbeats.clear();
-  state.conns.forEach(c => { try { c.close(); } catch {} });
+  state.conns.forEach(c => { try { c.close(); } catch (_) {} });
   state.conns.clear();
   state.devices.clear();
   if (state.peer) {
-    try { state.peer.destroy(); } catch {}
+    try { state.peer.destroy(); } catch (_) {}
     state.peer = null;
   }
 }
@@ -171,26 +252,19 @@ function wirePeer(peer) {
   peer.on('disconnected', () => {
     if (state.intentionallyClosed) return;
     setStatus('warn', 'signaling lost');
-    try { peer.reconnect(); } catch {}
+    try { peer.reconnect(); } catch (_) {}
   });
   peer.on('close', () => {
     if (state.intentionallyClosed) return;
     scheduleReconnect();
   });
   peer.on('error', (err) => {
-    if (err.type === 'peer-unavailable') {
-      // Attempted connection to a peer that left — normal during room churn
-      return;
-    }
-    if (err.type === 'unavailable-id') {
-      // Host ID taken → we'll handle via join flow
-      return;
-    }
-    console.warn('[PeerHub] peer error', err);
+    if (err.type === 'peer-unavailable') return;
+    if (err.type === 'unavailable-id') return;
+    console.warn('[PairHub] peer error', err);
   });
 }
 
-/* -------- join the room -------- */
 async function joinRoom(roomCode) {
   state.intentionallyClosed = false;
   state.room = roomCode;
@@ -213,9 +287,7 @@ async function joinRoom(roomCode) {
     setStatus('online', 'connected');
     state.reconnectAttempts = 0;
     return;
-  } catch (e) {
-    // fall through
-  }
+  } catch (_) { /* fall through */ }
 
   /* ---- Attempt 2: become the host ---- */
   destroyPeer();
@@ -225,7 +297,6 @@ async function joinRoom(roomCode) {
     state.myId = state.hostId;
     state.role = 'host';
     state.hostConn = null;
-    // Add ourselves to the devices list
     state.devices.set(state.myId, {
       id: state.myId, name: state.myName, code: state.myCode,
       avatar: avatarFor(state.myId), isSelf: true,
@@ -234,9 +305,7 @@ async function joinRoom(roomCode) {
     setStatus('online', 'hosting');
     state.reconnectAttempts = 0;
     return;
-  } catch (e) {
-    // ID taken — someone else beat us. Fall through to retry as guest.
-  }
+  } catch (_) { /* fall through */ }
 
   /* ---- Attempt 3: retry as guest with longer timeout ---- */
   destroyPeer();
@@ -251,7 +320,7 @@ async function joinRoom(roomCode) {
     host.send({ t: 'join', name: state.myName, code: state.myCode, avatar: avatarFor(state.myId) });
     setStatus('online', 'connected');
     state.reconnectAttempts = 0;
-  } catch (e) {
+  } catch (_) {
     setStatus('warn', 'retrying…');
     scheduleReconnect();
   }
@@ -268,7 +337,7 @@ function connectTo(peerId, timeoutMs) {
     const to = setTimeout(() => {
       if (done) return;
       done = true;
-      try { conn.close(); } catch {}
+      try { conn.close(); } catch (_) {}
       reject(new Error('timeout'));
     }, timeoutMs);
     conn.once('open', () => {
@@ -292,15 +361,11 @@ function connectTo(peerId, timeoutMs) {
   });
 }
 
-/* -------- wire a data connection -------- */
 function onIncomingConnection(conn) {
-  // Hosts receive the room-join control channel + direct peer-to-peer channels.
   conn.on('open', () => {
     state.conns.set(conn.peer, conn);
     if (state.role === 'host' && conn.metadata?.name) {
-      // This is likely a room member
       wireHostConn(conn);
-      // Add to devices
       state.devices.set(conn.peer, {
         id: conn.peer, name: conn.metadata.name,
         code: conn.metadata.code || '------',
@@ -308,7 +373,6 @@ function onIncomingConnection(conn) {
       });
       broadcastRoomList();
     }
-    // Always listen for messages (text/file or room list)
     wireDataConn(conn);
     startHeartbeat(conn);
     renderDevices();
@@ -319,13 +383,11 @@ function wireHostConn(conn) {
   conn.on('data', (msg) => {
     if (!msg || typeof msg !== 'object') return;
     if (msg.t === 'room-list') {
-      // Guest receives authoritative member list
       const meId = state.myId;
       state.devices.clear();
       for (const d of msg.peers) {
         state.devices.set(d.id, { ...d, isSelf: d.id === meId });
       }
-      // Add host itself if not listed
       if (!state.devices.has(state.hostId) && state.role === 'guest') {
         state.devices.set(state.hostId, {
           id: state.hostId, name: msg.hostName || 'Host',
@@ -333,7 +395,6 @@ function wireHostConn(conn) {
         });
       }
       renderDevices();
-      // Auto-select a target if none
       if (!state.target || !state.devices.has(state.target)) {
         const first = [...state.devices.values()].find(d => d.id !== meId);
         if (first) state.target = first.id;
@@ -362,7 +423,6 @@ function wireDataConn(conn) {
   conn.on('error', () => {});
 }
 
-/* -------- host broadcast -------- */
 function broadcastRoomList() {
   if (state.role !== 'host') return;
   const peers = [...state.devices.values()].filter(d => !d.isSelf).map(d => ({
@@ -375,11 +435,10 @@ function broadcastRoomList() {
     hostCode: state.myCode,
   };
   for (const [, c] of state.conns) {
-    if (c.open) { try { c.send(payload); } catch {} }
+    if (c.open) { try { c.send(payload); } catch (_) {} }
   }
 }
 
-/* -------- reconnect -------- */
 function scheduleReconnect() {
   if (state.reconnecting || state.intentionallyClosed) return;
   state.reconnecting = true;
@@ -392,12 +451,11 @@ function scheduleReconnect() {
   }, delay);
 }
 
-/* -------- heartbeat -------- */
 function startHeartbeat(conn) {
   if (state.heartbeats.has(conn.peer)) return;
   const iv = setInterval(() => {
     if (conn.open) {
-      try { conn.send({ t: 'ping', ts: Date.now() }); } catch {}
+      try { conn.send({ t: 'ping', ts: Date.now() }); } catch (_) {}
     } else {
       stopHeartbeat(conn.peer);
     }
@@ -413,18 +471,16 @@ function stopHeartbeat(peerId) {
    MESSAGE HANDLING
    ============================================================ */
 
-const inbound = new Map(); // transferId → { kind, chunks, meta, received, total }
+const inbound = new Map();
 
 function handleIncoming(conn, msg) {
   if (!msg || typeof msg !== 'object') return;
 
   switch (msg.t) {
 
-    /* ---- control ---- */
-    case 'ping': try { conn.send({ t: 'pong', ts: msg.ts }); } catch {}; break;
+    case 'ping': try { conn.send({ t: 'pong', ts: msg.ts }); } catch (_) {}; break;
     case 'pong': break;
 
-    /* ---- room management (guest → host) ---- */
     case 'join':
       if (state.role === 'host') {
         state.devices.set(conn.peer, {
@@ -438,11 +494,14 @@ function handleIncoming(conn, msg) {
       }
       break;
 
-    /* ---- text ---- */
     case 'text':
       addTextCard({
         from: state.devices.get(conn.peer) || { name: conn.peer },
-        text: msg.text, lang: msg.lang, outgoing: false,
+        text: msg.text,
+        lang: msg.lang,
+        fileName: msg.fileName || null,
+        fileExt: msg.fileExt || null,
+        outgoing: false,
       });
       break;
 
@@ -450,6 +509,8 @@ function handleIncoming(conn, msg) {
       inbound.set(msg.id, {
         kind: 'text', total: msg.size, received: 0,
         chunks: [], lang: msg.lang,
+        fileName: msg.fileName || null,
+        fileExt: msg.fileExt || null,
         from: state.devices.get(conn.peer) || { name: conn.peer },
       });
       break;
@@ -468,12 +529,13 @@ function handleIncoming(conn, msg) {
       const text = t.chunks.join('');
       inbound.delete(msg.id);
       addTextCard({
-        from: t.from, text, lang: t.lang, outgoing: false,
+        from: t.from, text, lang: t.lang,
+        fileName: t.fileName, fileExt: t.fileExt,
+        outgoing: false,
       });
       break;
     }
 
-    /* ---- file ---- */
     case 'file-start':
       inbound.set(msg.id, {
         kind: 'file', total: msg.size, received: 0,
@@ -526,7 +588,7 @@ function ensureConn(peerId) {
       reliable: true, serialization: 'binary',
       metadata: { name: state.myName, code: state.myCode },
     });
-    const to = setTimeout(() => { try { conn.close(); } catch {}; reject(new Error('timeout')); }, 8000);
+    const to = setTimeout(() => { try { conn.close(); } catch (_) {}; reject(new Error('timeout')); }, 8000);
     conn.once('open', () => {
       clearTimeout(to);
       state.conns.set(peerId, conn);
@@ -547,31 +609,44 @@ async function sendText() {
   const lang = $('#lang-select').value;
   const langVal = lang === 'auto' ? null : lang;
 
+  const { name, ext } = splitNameExt(
+    $('#file-name').value,
+    $('#file-ext').value,
+  );
+
   let conn;
   try { conn = await ensureConn(state.target); }
-  catch { return toast('Could not reach device'); }
+  catch (_) { return toast('Could not reach device'); }
 
   const target = state.devices.get(state.target);
 
   try {
     if (text.length <= 128 * 1024) {
-      conn.send({ t: 'text', text, lang: langVal });
+      conn.send({
+        t: 'text', text, lang: langVal,
+        fileName: name, fileExt: ext,
+      });
     } else {
       const id = crypto.randomUUID();
-      conn.send({ t: 'text-start', id, size: text.length, lang: langVal });
-      // chunk by characters (approx; UTF-8 handled transparently)
+      conn.send({
+        t: 'text-start', id, size: text.length, lang: langVal,
+        fileName: name, fileExt: ext,
+      });
       const step = 64 * 1024;
       for (let i = 0; i < text.length; i += step) {
         conn.send({ t: 'text-chunk', id, chunk: text.slice(i, i + step) });
       }
       conn.send({ t: 'text-end', id });
     }
+
     addTextCard({
       from: { name: `You → ${target?.name || ''}` },
-      text, lang: langVal, outgoing: true,
+      text, lang: langVal,
+      fileName: name, fileExt: ext,
+      outgoing: true,
     });
     toast('Sent');
-  } catch (e) {
+  } catch (_) {
     toast('Send failed');
   }
 }
@@ -623,50 +698,35 @@ async function sendFile(file) {
 
     let sent = 0;
     const reader = file.stream().getReader();
-    let carry = new Uint8Array(0);
 
-    // read → chunk → send
     while (true) {
       const { done, value } = await reader.read();
       if (done) break;
-      // combine carry + new value, then slice into CHUNK_SIZE
-      let buf;
-      if (carry.length) {
-        buf = new Uint8Array(carry.length + value.length);
-        buf.set(carry, 0);
-        buf.set(value, carry.length);
-      } else {
-        buf = value;
-      }
       let off = 0;
-      while (off < buf.length) {
-        const end = Math.min(off + CHUNK_SIZE, buf.length);
-        const slice = buf.slice(off, end);
+      while (off < value.length) {
+        const end = Math.min(off + CHUNK_SIZE, value.length);
+        const slice = value.slice(off, end);
         conn.send({ t: 'file-chunk', id, chunk: slice.buffer });
         sent += slice.byteLength;
         off = end;
 
-        // update UI
         const pct = sent / file.size;
         qBar.style.width = (pct * 100).toFixed(1) + '%';
         qPct.textContent = Math.round(pct * 100) + '%';
         updateFileProgress(card, pct);
 
-        // flow control
         const dc = conn.dataChannel || conn._dc;
         if (dc && dc.bufferedAmount > BUFFER_HIGH) await waitForBuffer(conn);
       }
-      carry = new Uint8Array(0); // all consumed
     }
 
-    // flush small carry (should be empty in this scheme)
     conn.send({ t: 'file-end', id });
     finishFileCard(card, { name: file.name, size: file.size, outgoing: true });
     qBar.style.width = '100%';
     qPct.textContent = '✓';
     setTimeout(() => queueItem.remove(), 900);
     toast(`Sent ${file.name}`);
-  } catch (e) {
+  } catch (_) {
     qPct.textContent = '✕';
     qPct.style.color = 'var(--err)';
     updateFileProgress(card, 0, 'failed');
@@ -686,7 +746,6 @@ function renderDevices() {
 
   list.innerHTML = '';
 
-  // self row
   const selfLi = document.createElement('li');
   selfLi.className = 'self-item';
   selfLi.innerHTML = `
@@ -724,10 +783,12 @@ function renderDevices() {
 }
 
 /* ---------- text card ---------- */
-function addTextCard({ from, text, lang, outgoing }) {
+function addTextCard({ from, text, lang, fileName, fileExt, outgoing }) {
   removeEmpty();
   const card = document.createElement('div');
   card.className = 'card' + (outgoing ? ' out' : '');
+
+  card._meta = { text, lang, fileName, fileExt, outgoing };
 
   const head = document.createElement('div');
   head.className = 'card-head';
@@ -735,8 +796,9 @@ function addTextCard({ from, text, lang, outgoing }) {
     <span class="who ${outgoing ? 'out' : ''}">${esc(from?.name || '?')}</span>
     <span class="time">${timeStr()}</span>
     <span class="spacer"></span>
+    <span class="name-hint" hidden></span>
     <button data-act="copy">Copy</button>
-    <button data-act="save">Save</button>
+    <button data-act="save">Download</button>
     <button data-act="close">✕</button>`;
   card.appendChild(head);
 
@@ -755,18 +817,40 @@ function addTextCard({ from, text, lang, outgoing }) {
     <span>${text.length.toLocaleString()} chars</span>
     <span>·</span><span>${fmtBytes(size)}</span>
     <span class="spacer" style="flex:1"></span>
-    <span class="lang-label"></span>`;
+    <span class="lang-label"></span>
+    <span class="dl-name muted small" style="margin-left:8px"></span>`;
   card.appendChild(foot);
 
   $('#inbox').prepend(card);
 
-  // async highlight
+  const dlNameEl = foot.querySelector('.dl-name');
+  const hintEl   = head.querySelector('.name-hint');
+
+  const refreshNamePreview = (detectedLang) => {
+    const ext = extensionFor(text, detectedLang || lang, fileExt);
+    if (fileName) {
+      dlNameEl.textContent = `↓ ${fileName}.${ext}`;
+      hintEl.hidden = true;
+    } else if (outgoing) {
+      dlNameEl.textContent = '';
+      hintEl.hidden = true;
+    } else {
+      dlNameEl.textContent = '';
+      hintEl.hidden = false;
+      hintEl.textContent = 'receiver may rename';
+    }
+    card._meta.resolvedExt  = ext;
+    card._meta.resolvedLang = detectedLang || lang;
+  };
+  refreshNamePreview();
+
   const langLabel = foot.querySelector('.lang-label');
   setTimeout(() => {
     const detected = applyHighlight(code, text, lang);
     if (detected === false) {
       pre.outerHTML = `<div class="plain">${esc(text)}</div>`;
       langLabel.innerHTML = '<span class="badge warn">plain</span>';
+      refreshNamePreview('plaintext');
     } else if (detected === 'skipped') {
       pre.outerHTML = `<div class="plain">${esc(text)}</div>`;
       langLabel.innerHTML =
@@ -779,30 +863,64 @@ function addTextCard({ from, text, lang, outgoing }) {
           p2.appendChild(c2);
           const plainEl = card.querySelector('.plain');
           plainEl.replaceWith(p2);
-          applyHighlight(c2, text, lang);
-          langLabel.textContent = lang || 'auto';
+          const d2 = applyHighlight(c2, text, lang);
+          langLabel.textContent = (typeof d2 === 'string' && d2 !== 'skipped')
+            ? d2 : (lang || 'auto');
+          refreshNamePreview(d2 !== 'skipped' ? d2 : lang);
         }, 30);
       };
+      refreshNamePreview(lang);
     } else {
       langLabel.textContent = detected || '';
+      refreshNamePreview(detected);
     }
   }, 0);
 
-  // actions
   head.querySelector('[data-act="copy"]').onclick = async () => {
     try { await navigator.clipboard.writeText(text); toast('Copied'); }
-    catch {
+    catch (_) {
       const ta = document.createElement('textarea');
       ta.value = text; document.body.appendChild(ta);
       ta.select(); document.execCommand('copy'); ta.remove();
       toast('Copied');
     }
   };
+
   head.querySelector('[data-act="save"]').onclick = () => {
-    const ext = langToExt(lang);
-    downloadBlob(new Blob([text], { type: 'text/plain' }), `snippet.${ext}`);
+    downloadTextCard(card);
   };
+
   head.querySelector('[data-act="close"]').onclick = () => card.remove();
+}
+
+function downloadTextCard(card) {
+  const m = card._meta || {};
+  const text = m.text ?? '';
+
+  const ext = m.fileExt
+           || m.resolvedExt
+           || extensionFor(text, m.resolvedLang || m.lang, null);
+
+  let base = m.fileName;
+
+  if (!base) {
+    const suggestion = `snippet-${new Date().toISOString().slice(0,10)}`;
+    const answer = window.prompt(
+      `Name this file (extension .${ext} will be added):`,
+      suggestion,
+    );
+    if (answer === null) return;
+    base = (answer || '').trim() || suggestion;
+    base = base.replace(/[\\/:*?"<>|\x00-\x1f]/g, '')
+               .replace(/\s+/g, '-')
+               .replace(/\.+$/, '')
+               .slice(0, 80)
+             || suggestion;
+  }
+
+  const fullName = `${base}.${ext}`;
+  downloadBlob(new Blob([text], { type: 'text/plain;charset=utf-8' }), fullName);
+  toast(`Downloaded ${fullName}`);
 }
 
 /* ---------- file card ---------- */
@@ -900,25 +1018,6 @@ function removeEmpty() {
    HIGHLIGHT
    ============================================================ */
 
-const EXT_LANG = {
-  js:'javascript', mjs:'javascript', cjs:'javascript', jsx:'javascript',
-  ts:'typescript', tsx:'typescript', py:'python', pyw:'python',
-  rb:'ruby', go:'go', rs:'rust', java:'java', kt:'kotlin', kts:'kotlin',
-  c:'c', h:'c', cpp:'cpp', cc:'cpp', cxx:'cpp', hpp:'cpp', cs:'csharp',
-  php:'php', swift:'swift', m:'objectivec', mm:'objectivec',
-  sh:'bash', bash:'bash', zsh:'bash', fish:'bash', ps1:'powershell',
-  html:'xml', htm:'xml', xml:'xml', svg:'xml', vue:'xml',
-  css:'css', scss:'scss', sass:'scss', less:'less',
-  json:'json', jsonc:'json', yaml:'yaml', yml:'yaml', toml:'ini', ini:'ini',
-  md:'markdown', markdown:'markdown', rst:'markdown',
-  sql:'sql', graphql:'graphql', gql:'graphql',
-  dockerfile:'dockerfile', makefile:'makefile', cmake:'cmake',
-  lua:'lua', pl:'perl', r:'r', dart:'dart', scala:'scala',
-  hs:'haskell', clj:'clojure', ex:'elixir', exs:'elixir', erl:'erlang',
-  txt:'plaintext', log:'plaintext', csv:'plaintext', env:'bash',
-  lock:'plaintext', gitignore:'plaintext', diff:'diff', patch:'diff',
-};
-
 function applyHighlight(codeEl, text, lang) {
   codeEl.textContent = text;
   if (!window.hljs) return 'plain';
@@ -928,7 +1027,7 @@ function applyHighlight(codeEl, text, lang) {
       codeEl.innerHTML = hljs.highlight(text, { language: lang, ignoreIllegals: true }).value;
       codeEl.classList.add('hljs');
       return lang;
-    } catch { return false; }
+    } catch (_) { return false; }
   }
   if (text.length > MAX_HL) return 'skipped';
   try {
@@ -936,20 +1035,7 @@ function applyHighlight(codeEl, text, lang) {
     codeEl.innerHTML = r.value;
     codeEl.classList.add('hljs');
     return r.language || 'auto';
-  } catch { return false; }
-}
-
-function langToExt(lang) {
-  const m = {
-    javascript:'js', typescript:'ts', python:'py', ruby:'rb', go:'go',
-    rust:'rs', java:'java', kotlin:'kt', c:'c', cpp:'cpp', csharp:'cs',
-    php:'php', swift:'swift', bash:'sh', powershell:'ps1', xml:'html',
-    css:'css', scss:'scss', json:'json', yaml:'yml', ini:'ini',
-    markdown:'md', sql:'sql', graphql:'gql', dockerfile:'Dockerfile',
-    makefile:'Makefile', lua:'lua', perl:'pl', r:'r', dart:'dart',
-    scala:'scala', haskell:'hs', elixir:'ex', plaintext:'txt',
-  };
-  return m[lang] || 'txt';
+  } catch (_) { return false; }
 }
 
 function downloadBlob(blob, name) {
@@ -997,8 +1083,14 @@ function openRoomModal() {
 
 function closeModal() { $('#modal').classList.add('hidden'); }
 
+function openCredits() {
+  $('#credits-modal').classList.remove('hidden');
+}
+function closeCredits() {
+  $('#credits-modal').classList.add('hidden');
+}
+
 function wireUI() {
-  // tabs
   $$('.tab').forEach(t => t.onclick = () => {
     $$('.tab').forEach(x => x.classList.remove('active'));
     t.classList.add('active');
@@ -1006,10 +1098,8 @@ function wireUI() {
     $('#tab-file').classList.toggle('hidden', t.dataset.tab !== 'file');
   });
 
-  // send text
   $('#send-text').onclick = sendText;
 
-  // editor shortcuts + tab insertion + live size
   const ta = $('#text-input');
   ta.addEventListener('keydown', (e) => {
     if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
@@ -1027,7 +1117,11 @@ function wireUI() {
       `${ta.value.length.toLocaleString()} chars · ${fmtBytes(new Blob([ta.value]).size)}`;
   });
 
-  // file input / dropzone
+  $('#file-ext').addEventListener('input', (e) => {
+    const v = e.target.value.replace(/^\.+/, '').replace(/[^A-Za-z0-9+#_\-]/g, '');
+    if (v !== e.target.value) e.target.value = v;
+  });
+
   const dz = $('#dropzone'), fi = $('#file-input');
   $('#browse-btn').onclick = () => fi.click();
   fi.onchange = () => { if (fi.files.length) [...fi.files].forEach(sendFile); fi.value = ''; };
@@ -1039,7 +1133,6 @@ function wireUI() {
     if (e.dataTransfer?.files?.length) [...e.dataTransfer.files].forEach(sendFile);
   });
 
-  // paste anywhere
   window.addEventListener('paste', (e) => {
     const items = e.clipboardData?.items;
     if (!items) return;
@@ -1050,13 +1143,11 @@ function wireUI() {
     if (files.length) { e.preventDefault(); files.forEach(sendFile); }
   });
 
-  // clear inbox
   $('#clear-inbox').onclick = () => {
     $('#inbox').innerHTML =
       '<p class="muted empty">Nothing yet. Pick a device and send something.</p>';
   };
 
-  // name change
   const nameInput = $('#me-name');
   nameInput.value = state.myName;
   nameInput.addEventListener('change', () => {
@@ -1068,28 +1159,29 @@ function wireUI() {
       try {
         state.hostConn.send({ t: 'join', name: v, code: state.myCode,
                               avatar: avatarFor(state.myId) });
-      } catch {}
+      } catch (_) {}
     }
     toast('Name updated');
   });
 
-  // copy my code
   $('#me-code').textContent = state.myCode;
   $('#me-code').onclick = async () => {
     try { await navigator.clipboard.writeText(state.myCode); toast('Code copied'); }
-    catch { toast(state.myCode); }
+    catch (_) { toast(state.myCode); }
   };
 
-  // room badge & button
   $('#room-badge').textContent = state.room;
   $('#room-badge').onclick = async () => {
     try { await navigator.clipboard.writeText(state.room);
       toast(`Room "${state.room}" copied`); }
-    catch { toast(state.room); }
+    catch (_) { toast(state.room); }
   };
   $('#room-btn').onclick = openRoomModal;
 
-  // modal
+  // credits
+  $('#credits-btn').onclick = openCredits;
+  $('#credits-close').onclick = closeCredits;
+
   $('#modal-cancel').onclick = closeModal;
   $('#modal-ok').onclick = async () => {
     const v = $('#modal-input').value.trim().toUpperCase().replace(/[^A-Z0-9]/g,'');
@@ -1097,7 +1189,6 @@ function wireUI() {
     closeModal();
     saveRoom(v);
     $('#room-badge').textContent = v;
-    // clear devices except self
     state.devices.clear();
     state.target = null;
     renderDevices();
@@ -1110,7 +1201,17 @@ function wireUI() {
     if (e.key === 'Escape') closeModal();
   });
 
-  // refresh
+  // close any modal on backdrop click or Escape
+  $('#modal').addEventListener('click', (e) => {
+    if (e.target.id === 'modal') closeModal();
+  });
+  $('#credits-modal').addEventListener('click', (e) => {
+    if (e.target.id === 'credits-modal') closeCredits();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') { closeModal(); closeCredits(); }
+  });
+
   $('#refresh-btn').onclick = () => {
     toast('Re-scanning…');
     state.intentionallyClosed = false;
@@ -1118,16 +1219,14 @@ function wireUI() {
     joinRoom(state.room);
   };
 
-  // cleanup on unload
   window.addEventListener('beforeunload', () => {
     state.intentionallyClosed = true;
     destroyPeer();
   });
 
-  // wake up when tab returns to foreground
   document.addEventListener('visibilitychange', () => {
     if (!document.hidden && state.peer?.disconnected) {
-      try { state.peer.reconnect(); } catch {}
+      try { state.peer.reconnect(); } catch (_) {}
     }
   });
 }
@@ -1150,7 +1249,6 @@ async function boot() {
 
   await joinRoom(state.room);
 
-  // Final safety net: if for any reason we're offline after 10s, retry.
   setTimeout(() => {
     if (!state.peer || state.peer.destroyed || state.peer.disconnected) {
       scheduleReconnect();
