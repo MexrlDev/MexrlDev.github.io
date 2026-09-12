@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0d1117">
-<title>PairHub · Share code & files, peer-to-peer</title>
+<title>PairHub</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
 <link rel="stylesheet" href="style.css">
 </head>
@@ -63,7 +63,13 @@
           <span class="muted small">Ctrl/⌘ + Enter to send</span>
         </div>
       </div>
-      <div class="row">
+
+      <div class="row filename-row">
+        <input id="file-name" placeholder="filename (optional)" maxlength="80"
+               autocomplete="off" spellcheck="false">
+        <span class="dot-sep">.</span>
+        <input id="file-ext" placeholder="ext" maxlength="12" autocomplete="off"
+               spellcheck="false" autocapitalize="off">
         <select id="lang-select">
           <option value="auto">Auto-detect</option>
         </select>
