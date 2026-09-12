@@ -1,0 +1,200 @@
+/* style.css - MIT */
+* { margin:0; padding:0; box-sizing:border-box; }
+
+html, body {
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  background:#000;
+  font-family:'Segoe UI',sans-serif;
+}
+
+#canvas {
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%) scale(var(--s));
+  transform-origin:center;
+  image-rendering:auto;
+}
+
+#ui {
+  position:absolute;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  background:rgba(0,0,0,0.9);
+  z-index:10;
+  padding:20px;
+  box-sizing:border-box;
+}
+
+#ui h1 {
+  color:white;
+  margin-bottom:20px;
+}
+
+#dropzone {
+  width:80%;
+  max-width:600px;
+  padding:30px;
+  border:3px dashed #aaa;
+  border-radius:20px;
+  text-align:center;
+  color:#ccc;
+  font-size:20px;
+  margin:10px;
+  transition:background 0.3s;
+  cursor:pointer;
+}
+
+#dropzone.dragover {
+  background:rgba(255,255,255,0.2);
+}
+
+#fileInput {
+  display:none;
+}
+
+#textarea {
+  width:80%;
+  max-width:600px;
+  height:150px;
+  margin:10px;
+  padding:10px;
+  background:#111;
+  color:#0f0;
+  border:1px solid #555;
+  font-family:monospace;
+  resize:vertical;
+}
+
+.btn {
+  padding:12px 30px;
+  margin:8px;
+  font-size:18px;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+  background:#2266cc;
+  color:white;
+}
+
+.btn:hover { background:#335ea0; }
+
+.btn-danger { background:#cc4444; }
+.btn-danger:hover { background:#aa3333; }
+
+.btn-success { background:#44aa44; }
+.btn-success:hover { background:#338833; }
+
+#keyhelp {
+  color:white;
+  font-size:12px;
+  margin-top:10px;
+  text-align:center;
+  max-width:600px;
+}
+
+/* Log console (visible in log mode) */
+#logConsole {
+  display:none;
+  position:absolute;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:#000;
+  color:#0f0;
+  font-family:monospace;
+  padding:10px;
+  overflow-y:auto;
+  z-index:20;
+  flex-direction:column;
+}
+
+#logConsole .log-header {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:5px 10px;
+  background:#222;
+  border-bottom:1px solid #444;
+  flex-shrink:0;
+}
+
+#logConsole .log-header .log-title {
+  font-size:20px;
+  color:#fff;
+}
+
+#logConsole .log-header .log-actions button {
+  margin-left:10px;
+  padding:5px 15px;
+}
+
+#logConsole .log-content {
+  flex:1;
+  overflow-y:auto;
+  padding:10px;
+  white-space:pre-wrap;
+  word-break:break-all;
+}
+
+#logConsole .log-content .log-entry {
+  border-bottom:1px solid #333;
+  padding:2px 0;
+}
+
+/* Custom alert modal */
+#alertModal {
+  display:none;
+  position:absolute;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.7);
+  z-index:30;
+  justify-content:center;
+  align-items:center;
+}
+
+#alertModal .alert-box {
+  background:#222;
+  border:2px solid #555;
+  border-radius:10px;
+  padding:30px;
+  max-width:500px;
+  min-width:300px;
+  color:#fff;
+  text-align:center;
+}
+
+#alertModal .alert-box .alert-message {
+  font-size:20px;
+  margin-bottom:20px;
+}
+
+#alertModal .alert-box .alert-ok {
+  padding:10px 30px;
+  background:#2266cc;
+  border:none;
+  border-radius:5px;
+  color:white;
+  font-size:18px;
+  cursor:pointer;
+}
+
+#alertModal .alert-box .alert-ok:hover {
+  background:#335ea0;
+}
+
+@media (max-width:1000px) {
+  #dropzone { font-size:16px; }
+}
