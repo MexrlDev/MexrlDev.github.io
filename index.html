@@ -789,6 +789,165 @@
             color: var(--text);
         }
 
+        /* ============================================================
+           Telegram-style spoiler blur for the legacy (old) story.
+           The text is blurred behind a drifting field of particles —
+           tap / click to reveal, tap again to hide it back.
+           ============================================================ */
+        .spoiler-hint {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.7px;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            padding: 6px 14px;
+            border-radius: 20px;
+            margin-bottom: 14px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: inherit;
+        }
+        .spoiler-hint:hover {
+            color: var(--text);
+            border-color: var(--accent);
+            transform: translateY(-1px);
+        }
+        .spoiler-hint .spoiler-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--accent);
+            box-shadow: 0 0 8px var(--accent);
+            animation: spoilerPulse 1.8s ease-in-out infinite;
+            flex-shrink: 0;
+        }
+        @keyframes spoilerPulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50%      { opacity: 0.35; transform: scale(0.75); }
+        }
+        .spoiler-hint.hidden {
+            display: none;
+        }
+
+        .story-old {
+            position: relative;
+            cursor: pointer;
+            user-select: none;
+            -webkit-user-select: none;
+            filter: blur(7px);
+            -webkit-filter: blur(7px);
+            transition: filter 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 10px;
+            padding: 4px;
+            margin: -4px;
+            overflow: hidden;
+        }
+        .story-old p {
+            margin-bottom: 14px;
+        }
+        .story-old p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Drifting particle veil — approximates Telegram's spoiler texture */
+        .story-old::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: 1;
+            opacity: 0.75;
+            background-image:
+                radial-gradient(circle, rgba(255,255,255,0.22) 1px, transparent 1.7px),
+                radial-gradient(circle, rgba(88,166,255,0.18) 1px, transparent 1.5px),
+                radial-gradient(circle, rgba(255,255,255,0.10) 1px, transparent 1.4px);
+            background-size: 8px 8px, 13px 13px, 5px 5px;
+            background-position: 0 0, 4px 5px, 2px 3px;
+            animation: spoilerDrift 7s linear infinite;
+            transition: opacity 0.45s ease;
+        }
+        body.light-mode .story-old::before {
+            background-image:
+                radial-gradient(circle, rgba(0,0,0,0.20) 1px, transparent 1.7px),
+                radial-gradient(circle, rgba(0,80,180,0.16) 1px, transparent 1.5px),
+                radial-gradient(circle, rgba(0,0,0,0.10) 1px, transparent 1.4px);
+        }
+        @keyframes spoilerDrift {
+            from { background-position: 0 0, 4px 5px, 2px 3px; }
+            to   { background-position: 8px 8px, 17px 18px, 7px 8px; }
+        }
+
+        /* Revealed state */
+        .story-old.revealed {
+            filter: none;
+            -webkit-filter: none;
+            cursor: pointer;
+            user-select: text;
+            -webkit-user-select: text;
+        }
+        .story-old.revealed::before {
+            opacity: 0;
+        }
+        /* Piece-by-piece "unshatter" feel when revealed */
+        .story-old.revealed p {
+            animation: unshatter 0.55s cubic-bezier(0.2, 0.7, 0.3, 1) both;
+        }
+        .story-old.revealed p:nth-child(1) { animation-delay: 0.00s; }
+        .story-old.revealed p:nth-child(2) { animation-delay: 0.05s; }
+        .story-old.revealed p:nth-child(3) { animation-delay: 0.10s; }
+        .story-old.revealed p:nth-child(4) { animation-delay: 0.15s; }
+        .story-old.revealed p:nth-child(5) { animation-delay: 0.20s; }
+        .story-old.revealed p:nth-child(6) { animation-delay: 0.25s; }
+        .story-old.revealed p:nth-child(7) { animation-delay: 0.30s; }
+        .story-old.revealed p:nth-child(8) { animation-delay: 0.35s; }
+        @keyframes unshatter {
+            from {
+                opacity: 0.25;
+                filter: blur(4px);
+                transform: translateY(3px) scale(0.995);
+            }
+            to {
+                opacity: 1;
+                filter: blur(0);
+                transform: none;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .story-old::before,
+            .spoiler-hint .spoiler-dot,
+            .story-old.revealed p {
+                animation: none !important;
+            }
+        }
+
+        .story-divider {
+            border: none;
+            border-top: 1px solid var(--border);
+            margin: 26px 0 22px;
+            opacity: 0.8;
+        }
+
+        .story-new {
+            border-left: 3px solid #8b3a3a;
+            padding-left: 18px;
+            color: var(--text-secondary);
+        }
+        .story-new p {
+            margin-bottom: 14px;
+        }
+        .story-new p:last-child {
+            margin-bottom: 0;
+        }
+        .story-new strong {
+            color: var(--text);
+        }
+
         .snake-img {
             display: block;
             max-width: 100%;
@@ -908,6 +1067,13 @@
             .story-block {
                 padding: 18px 16px;
                 font-size: 0.88rem;
+            }
+            .story-new {
+                padding-left: 12px;
+            }
+            .story-old {
+                filter: blur(5px);
+                -webkit-filter: blur(5px);
             }
             .gallery-grid {
                 grid-template-columns: repeat(2, 1fr);
@@ -1060,7 +1226,7 @@
                         <tr><td>EtaWen Git</td><td><a href="https://git.etawen.dev/x" target="_blank" rel="noopener">git.etawen.dev/x</a></td></tr>
                         <tr><td>BlueSky</td><td><a href="https://bsky.app/profile/mexrl.bsky.social" target="_blank" rel="noopener">@mexrl.bsky.social</a></td></tr>
                         <tr><td>GitHub</td><td><a href="https://github.com/MexrlDev" target="_blank" rel="noopener">MexrlDev</a></td></tr>
-                        <tr><td>Reddit</td><td><a href="https://www.reddit.com/u/qzei/s/L6aMCxVyYm" target="_blank" rel="nooper">qzei</a></td></tr>
+                        <tr><td>Reddit</td><td><a href="https://www.reddit.com/u/qzei/s/L6aMCxVyYm" target="_blank" rel="noopener">qzei</a></td></tr>
                     </tbody>
                 </table>
             </div>
@@ -1132,14 +1298,29 @@
         <section class="section reveal" id="story">
             <h2 class="section-title">The Story of MexrlDev</h2>
             <div class="story-block">
-                <p>The first of MexrlDev, they always been seeing the playstation community online, on twitter. after they finally got the first ps4 fat jailbroken after a long time of waiting and missing firmwares that were gold such as 4.xx, 5.05, 9.00, 10.00, 11.00, 12.02. and finally at 12.50, 12.52 they stopped and finally were able to get it. that's when they felt like they belong to this, like they belong to develop things for ppl, and for the ps, and make useful homebrew and other. but they couldn't. because they didn't knew where to start and as someone that didn't have experience, they waited. when vue first was announced as a userland in the early days. mexrldev has gotten excited knowing this will be so cool. Specially after they saw earthonion doing all the cool stuff. thats when mexrldev has gotten excited to try and crack the AES code for vue save but failed ofc, indeed modded the vue 1.01 but never was able to get to it. until it was finally released. due to lack of coding experiment they had to use chatGPT, copilot, to finally start what they always wanted...</p>
-                <p>MexrlDev started their journey after 1 day of the release of Vue After Free. they went trhought a lot, had done the first ever mod on vue which was adding animations and a bit of polish. thast when they made their first post on X named as "the first ever vue mod" mentioning Dr.yenyen which was really kind and helped them throught a lot. indeed mentioning earthonion and brining more attention toward mexrldev's projects. this is when mexrldev started to work harder and soend a whole day for 3 months without a lot of resting to make the best ever mods that they always dreamed to make for the people and to do something for the community. this is when they started to use deepseek. indeed it helped thought a lot. but they had to spend a lot of hours on the projects due to ai lack of eyes to be able to see the final results, and debug so many things over and over again. mexrldev spend hours fixing the bugs with the ai and making sure everything goes smooth and perfect. until the theme is ready to be published. a lot has went on and there was a goal to make 100+ themes and games for vue and the best of them were huge projects like the ps3 theme, Artemis which was Mexrl's fav, and ofc Apollo and Vue cheat manger and a lot more of good themes they made. but sadly they got stressed and had to stop and they couldn't handle it due to their energy for making themes growing and they couldn't take breaks. thats when they start to get bored, stressed, unable to think straight, and making projects that might not be useful or, ofc. not working as expected. but after all mexrldev has stopped for a while and come back. as they lost their laptop, some stuff had going on. and of course losing friends which got them to finally delete their x account forever.</p>
-                <p>As days go by… this project will always be proof of how a passionate developer like MexrlDev (me) can make useful things and succeed with a project that was only supposed to be used once, just for a jailbreak. And the best part of MexrlDev is that they made a lot of friends, met a lot of good people, and of course helped lots of users as much as they could, with kindness toward everyone.</p>
-                <p>And now, as MexrlDev retired, they wish everyone good luck in everything they are passionate about, and they truly love seeing people work on new things, especially using the code they built for the community and for others to learn from for future projects. MexrlDev wasn't just a random person who appeared in the PlayStation hacking community, but someone who had a passion for helping people, making things better, working on projects that had been left behind, creating new ideas, and showing people that even an unknown person can become known through what they love.</p>
-                <p>What ended MexrlDev? Being depressed, stressed out, working on things they couldn't really understand (porting exploits, making things that didn't work and made them feel so embarrassed, not taking breaks, losing some friendships, etc.).</p>
-                <p>what did mexrldev left new developers and people that are interested in his projects? . mexrldev left a big folder that has all of the debugging they did for vue and the things they found and how to make things go correctly due to lack of info about how vue works since it worke on jsmaf Including API's</p>
-                <p>Will MexrlDev ever come back? Nobody knows. As time goes by… who knows if MexrlDev will give it a second chance.</p>
-                <p>How is MexrlDev now? On July 25, 2026, MexrlDev has moved on, built a life, met someone they love, and finally… they feel happy. Even though MexrlDev can still become depressed suddenly, have mental breakdowns, or feel stressed, it's now under control, and they are happy. They have accepted whatever life gives them. They understood that there are some things they cannot control and chose to focus on making things better instead, and they are trying to cure depression and live happy. Now, MexrlDev is living their life not just happily, but with a partner that they truly love and feel comfortable with.</p>
+
+                <button class="spoiler-hint" id="spoilerHint" type="button" aria-controls="oldStory" aria-expanded="false">
+                    <span class="spoiler-dot"></span>
+                    Legacy Story — Tap to Reveal
+                </button>
+
+                <div class="story-old" id="oldStory" role="button" tabindex="0" aria-label="Legacy story, blurred. Activate to reveal." aria-expanded="false">
+                    <p>The first of MexrlDev, they always been seeing the playstation community online, on twitter. after they finally got the first ps4 fat jailbroken after a long time of waiting and missing firmwares that were gold such as 4.xx, 5.05, 9.00, 10.00, 11.00, 12.02. and finally at 12.50, 12.52 they stopped and finally were able to get it. that's when they felt like they belong to this, like they belong to develop things for ppl, and for the ps, and make useful homebrew and other. but they couldn't. because they didn't knew where to start and as someone that didn't have experience, they waited. when vue first was announced as a userland in the early days. mexrldev has gotten excited knowing this will be so cool. Specially after they saw earthonion doing all the cool stuff. thats when mexrldev has gotten excited to try and crack the AES code for vue save but failed ofc, indeed modded the vue 1.01 but never was able to get to it. until it was finally released. due to lack of coding experiment they had to use chatGPT, copilot, to finally start what they always wanted...</p>
+                    <p>MexrlDev started their journey after 1 day of the release of Vue After Free. they went throught a lot, had done the first ever mod on vue which was adding animations and a bit of polish. thast when they made their first post on X named as "the first ever vue mod" mentioning Dr.yenyen which was really kind and helped them throught a lot. indeed mentioning earthonion and brining more attention toward mexrldev's projects. this is when mexrldev started to work harder and soend a whole day for 3 months without a lot of resting to make the best ever mods that they always dreamed to make for the people and to do something for the community. this is when they started to use deepseek. indeed it helped thought a lot. but they had to spend a lot of hours on the projects due to ai lack of eyes to be able to see the final results, and debug so many things over and over again. mexrldev spend hours fixing the bugs with the ai and making sure everything goes smooth and perfect. until the theme is ready to be published. a lot has went on and there was a goal to make 100+ themes and games for vue and the best of them were huge projects like the ps3 theme, Artemis which was Mexrl's fav, and ofc Apollo and Vue cheat manger and a lot more of good themes they made. but sadly they got stressed and had to stop and they couldn't handle it due to their energy for making themes growing and they couldn't take breaks. thats when they start to get bored, stressed, unable to think straight, and making projects that might not be useful or, ofc. not working as expected. but after all mexrldev has stopped for a while and come back. as they lost their laptop, some stuff had going on. and of course losing friends which got them to finally delete their x account forever.</p>
+                    <p>As days go by… this project will always be proof of how a passionate developer like MexrlDev (me) can make useful things and succeed with a project that was only supposed to be used once, just for a jailbreak. And the best part of MexrlDev is that they made a lot of friends, met a lot of good people, and of course helped lots of users as much as they could, with kindness toward everyone.</p>
+                    <p>And now, as MexrlDev retired, they wish everyone good luck in everything they are passionate about, and they truly love seeing people work on new things, especially using the code they built for the community and for others to learn from for future projects. MexrlDev wasn't just a random person who appeared in the PlayStation hacking community, but someone who had a passion for helping people, making things better, working on projects that had been left behind, creating new ideas, and showing people that even an unknown person can become known through what they love.</p>
+                    <p>What ended MexrlDev? Being depressed, stressed out, working on things they couldn't really understand (porting exploits, making things that didn't work and made them feel so embarrassed, not taking breaks, losing some friendships, etc.).</p>
+                    <p>what did mexrldev left new developers and people that are interested in his projects? . mexrldev left a big folder that has all of the debugging they did for vue and the things they found and how to make things go correctly due to lack of info about how vue works since it worke on jsmaf Including API's</p>
+                    <p>Will MexrlDev ever come back? Nobody knows. As time goes by… who knows if MexrlDev will give it a second chance.</p>
+                    <p>How is MexrlDev now? On July 25, 2026, MexrlDev has moved on, built a life, met someone they love, and finally… they feel happy. Even though MexrlDev can still become depressed suddenly, have mental breakdowns, or feel stressed, it's now under control, and they are happy. They have accepted whatever life gives them. They understood that there are some things they cannot control and chose to focus on making things better instead, and they are trying to cure depression and live happy. Now, MexrlDev is living their life not just happily, but with a partner that they truly love and feel comfortable with.</p>
+                </div>
+
+                <hr class="story-divider">
+
+                <div class="story-new">
+                    <p>MexrlDev is not depressed again after MexrlDev got caught. MexrlDev is very very depressed that they cannot really think straight anymore and have a lot of trauma going on. MexrlDev now post things that are depressing and all negative to share their feelings and pain toward what's happening in their life. MexrlDev broke up and aren't and never the same anymore. MexrlDev is sad and unhappy. MexrlDev keeps everything away now and does not trust anyone. MexrlDev is struggling with life now. Doesn't know what to do anymore. MexrlDev is lost, and keeping everything hidden away even from themselves</p>
+                </div>
+
             </div>
         </section>
 
@@ -1301,6 +1482,40 @@
                 setTheme(!body.classList.contains('light-mode'));
             }
             if (themeToggleMobile) themeToggleMobile.addEventListener('click', toggleTheme);
+
+            /* ---- Telegram-style spoiler reveal for the legacy story ---- */
+            const oldStory = document.getElementById('oldStory');
+            const spoilerHint = document.getElementById('spoilerHint');
+
+            function setSpoilerRevealed(revealed) {
+                if (!oldStory) return;
+                oldStory.classList.toggle('revealed', revealed);
+                oldStory.setAttribute('aria-expanded', revealed ? 'true' : 'false');
+                if (spoilerHint) {
+                    spoilerHint.classList.toggle('hidden', revealed);
+                    spoilerHint.setAttribute('aria-expanded', revealed ? 'true' : 'false');
+                }
+            }
+            function toggleSpoiler() {
+                if (!oldStory) return;
+                setSpoilerRevealed(!oldStory.classList.contains('revealed'));
+            }
+
+            if (oldStory) {
+                oldStory.addEventListener('click', toggleSpoiler);
+                oldStory.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        toggleSpoiler();
+                    }
+                });
+            }
+            if (spoilerHint) {
+                spoilerHint.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    setSpoilerRevealed(true);
+                });
+            }
 
             /* ---- Flip card + rare-flip easter egg ----
                Add more tiers by pushing another { type, chance, className, message }
