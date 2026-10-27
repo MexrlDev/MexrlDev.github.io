@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta property="og:url" content="https://mexrl.dev" />
+    <meta property="og:site_name" content="MexrlDev" />
+    <meta property="description" content="About MexrlDev" />
+    <meta name="theme-color" content="#0a0a0a" />
+    <meta property="og:image" content="https://raw.githubusercontent.com/MexrlDev/MexrlDev.github.io/refs/heads/main/AboutMe/wifu.jpeg" />
+    <title>About MexrlDev</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+        }
+
+        body {
+            background: #0a0a0a;
+            font-family: 'Orbitron', sans-serif;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            color: #e0e0e0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            touch-action: manipulation;
+            position: fixed;
+            top: 0;
+            left: 0;
+            cursor: crosshair;
+        }
+
+        #background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            will-change: transform;
+        }
+
+        #background canvas {
+            touch-action: none;
+            will-change: transform;
+        }
+
+        #container {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1rem;
+            text-align: center;
+            transform: translateY(-12%) scale(0.9);
+            transform-origin: center center;
+        }
+
+        #logo-container {
+            margin-bottom: 1.2rem;
+            position: relative;
+            z-index: 11;
+        }
+
+        #profile-pic {
+            width: clamp(120px, 28vw, 170px);
+            height: clamp(120px, 28vw, 170px);
+            border-radius: 50%;
+            object-fit: cover;
+            background: #0a0a0a;
+            position: relative;
+            z-index: 2;
+            box-shadow: 0 0 45px rgba(0, 255, 255, 0.5), 0 0 20px rgba(0, 255, 255, 0.3) inset, 0 0 0 1px rgba(255, 255, 255, 0.12);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            will-change: transform, box-shadow;
+        }
+
+        #profile-pic:hover {
+            transform: scale(1.04);
+            box-shadow: 0 0 70px cyan, 0 0 35px rgba(0, 255, 255, 0.6) inset, 0 0 0 2px rgba(255, 255, 255, 0.25);
+        }
+
+        #logo {
+            font-size: clamp(1.5rem, 6.5vw, 2.4rem);
+            font-weight: 700;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: #fff;
+            text-shadow: 0 0 18px cyan, 0 0 45px cyan, 0 0 80px rgba(0, 255, 255, 0.7), 0 0 120px rgba(0, 200, 255, 0.35);
+            animation: pulseText 2.5s infinite;
+            margin-bottom: 2rem;
+            position: relative;
+            z-index: 11;
+            will-change: text-shadow;
+        }
+
+        @keyframes pulseText {
+            0%,
+            100% {
+                text-shadow: 0 0 15px cyan, 0 0 35px cyan, 0 0 70px rgba(0, 255, 255, 0.6);
+            }
+            50% {
+                text-shadow: 0 0 28px cyan, 0 0 65px cyan, 0 0 100px cyan, 0 0 160px rgba(0, 200, 255, 0.5);
+            }
+        }
+
+        .glass-panel {
+            position: relative;
+            background: rgba(10, 10, 10, 0.45);
+            border-radius: 28px;
+            padding: 1.8rem 2.2rem;
+            margin: 0.4rem 0;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(0, 255, 255, 0.06);
+            backdrop-filter: blur(6px) saturate(1.1);
+            -webkit-backdrop-filter: blur(6px) saturate(1.1);
+            transition: box-shadow 0.4s ease, border-color 0.4s ease;
+            overflow: hidden;
+            z-index: 10;
+            will-change: box-shadow;
+        }
+
+        .glass-panel:hover {
+            border-color: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 6px 32px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(0, 255, 255, 0.12);
+        }
+
+        .glass-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .info-line {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.2rem;
+            font-size: clamp(1rem, 4vw, 1.3rem);
+            margin: 0.6rem 0;
+            padding: 0.3rem 0;
+            transition: all 0.3s;
+            touch-action: manipulation;
+            position: relative;
+            z-index: 12;
+        }
+
+        @media (min-width: 769px) {
+            .info-line {
+                gap: 0.55rem;
+            }
+        }
+
+        .info-line i {
+            color: cyan;
+            font-size: 1.2em;
+            text-shadow: 0 0 12px cyan, 0 0 24px rgba(0, 255, 255, 0.5), 0 0 40px rgba(0, 200, 255, 0.3);
+            width: 1.5rem;
+            text-align: center;
+            flex-shrink: 0;
+            touch-action: manipulation;
+            transition: text-shadow 0.3s ease;
+        }
+
+        .info-line span {
+            color: #ffffff;
+            font-weight: 500;
+            text-shadow: 0 0 12px rgba(255, 255, 255, 0.35), 0 0 4px rgba(255, 255, 255, 0.2), 0 0 30px rgba(0, 255, 255, 0.25);
+            touch-action: manipulation;
+            transition: text-shadow 0.3s ease;
+        }
+
+        #links {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1.2rem;
+            margin-top: 2.5rem;
+            position: relative;
+            z-index: 13;
+        }
+
+        .neon-btn {
+            text-decoration: none;
+            padding: 0.7rem 1.8rem;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: clamp(0.85rem, 3.5vw, 1rem);
+            letter-spacing: 0.08em;
+            background: rgba(10, 10, 10, 0.5);
+            border: 1.5px solid rgba(0, 255, 255, 0.6);
+            color: cyan;
+            text-shadow: 0 0 6px cyan, 0 0 18px rgba(0, 255, 255, 0.5);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.3), 0 0 50px rgba(0, 255, 255, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            transition: 0.35s cubic-bezier(0.25, 0.1, 0.25, 1);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            position: relative;
+            will-change: transform, box-shadow, background, border-color;
+            z-index: 14;
+        }
+
+        .neon-btn:hover {
+            background: rgba(0, 255, 255, 0.85);
+            color: #0a0a0a;
+            text-shadow: none;
+            box-shadow: 0 0 40px cyan, 0 0 80px cyan, 0 0 130px rgba(0, 255, 255, 0.5), inset 0 0 20px rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.9);
+            transform: translateY(-3px) scale(1.03);
+        }
+
+        .neon-btn:hover i {
+            text-shadow: none;
+            color: #0a0a0a;
+        }
+
+        #copyright {
+            position: fixed;
+            bottom: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 20;
+            font-size: 0.8rem;
+            color: #555;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.3), 0 0 25px rgba(0, 200, 255, 0.15);
+            white-space: nowrap;
+            pointer-events: none;
+        }
+
+        #copyright a {
+            color: #777;
+            text-decoration: none;
+            pointer-events: auto;
+            transition: color 0.3s ease;
+        }
+
+        #copyright a:hover {
+            color: cyan;
+            text-shadow: 0 0 12px cyan;
+        }
+
+        @media (max-width: 768px) {
+            .glass-panel {
+                padding: 1.2rem 1.4rem;
+                border-radius: 22px;
+            }
+            .neon-btn {
+                padding: 0.55rem 1.3rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="background"></div>
+
+    <div id="container">
+        <div id="logo-container">
+            <img id="profile-pic" src="https://avatars.githubusercontent.com/u/82407748?s=400&u=d279f226997590d603b53793dc54398bb1560a5a&v=4" alt="MexrlDev Themselves" />
+        </div>
+
+        <div class="glass-panel" id="glassPanel">
+            <div class="glass-content">
+                <div id="logo">About Me</div>
+                <div class="info-line">
+                    <i class="fa-solid fa-user"></i>
+                    <span>MexrlDev</span>
+                </div>
+                <div class="info-line">
+                    <i class="fa-solid fa-cake-candles"></i>
+                    <span>March</span>
+                </div>
+                <div class="info-line">
+                    <i class="fa-solid fa-code"></i>
+                    <span>Python, Lua, JS</span>
+                </div>
+                <div class="info-line">
+                    <i class="fa-solid fa-gamepad"></i>
+                    <span>Anime, Manga, Music, Console Hacking</span>
+                </div>
+                <div id="links">
+                    <a href="https://mexrldev.github.io" target="_blank" class="neon-btn">
+                        <i class="fa-solid fa-house"></i> Home
+                    </a>
+                    <a href="https://git.etawen.dev/X" target="_blank" class="neon-btn">
+                        <i class="fa-solid fa-code-branch"></i> git.etawen
+                    </a>
+                    <a href="https://github.com/MexrlDev" target="_blank" class="neon-btn">
+                        <i class="fa-brands fa-github"></i> GitHub
+                    </a>
+                    <a href="https://bsky.app/profile/mexrl.bsky.social" target="_blank" class="neon-btn">
+                        <i class="fa-brands fa-bluesky"></i> Bluesky
+                    </a>
+                    <a href="https://x.com/mexrl" target="_blank" class="neon-btn">
+                        <i class="fa-brands fa-x-twitter"></i> X
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="copyright">
+        © <span id="year"></span> MexrlDev
+    </div>
+
+    <audio id="bgAudio" preload="auto">
+        <source src="https://dl8.b442d6eefbd6173bad7ee5bde6cd31e8.com/filedownload/G8cEsvIWNIh_s_FPBIu8t8Snn_s_v_p_Sfc3x979Oow5RU7kLXqZ5JWAsTaaizZPrK1o50c0vmt_p_XUz6zMoJcexNuwsCrKGRrLIBC7z47fN1l7dKaUM13Ce1SMALeHu3huOiEPwXnnylegeW4lVVkyY1UR/Dou-Kangaetemo-Watashi-wa-Warukunai.mp3" type="audio/mpeg">
+    </audio>
+
+    <script src="https://unpkg.com/three@0.134.0/build/three.min.js">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/vanta@0.5.24/dist/vanta.net.min.js">
+    </script>
+    <script>
+        document.getElementById('year').textContent = new Date().getFullYear();
+
+        var isMobile = ('ontouchstart' in window) || navigator.maxTouchPoints > 0 || window.innerWidth <= 768;
+        var scaleValue = 1.0;
+
+        var effect = VANTA.NET({
+            el: "#background",
+            mouseControls: true,
+            touchControls: false,
+            gyroControls: isMobile,
+            minHeight: 200.00,
+            minWidth: 200.00,
+            scale: 1.0,
+            scaleMobile: 1.0,
+            color: 0x00ffff,
+            backgroundColor: 0x0a0a0a,
+            points: 11.0,
+            maxDistance: 20.0,
+            spacing: 19.0,
+            showDots: true
+        });
+
+        var vantaCanvas = document.querySelector("#background canvas");
+        if (vantaCanvas) {
+            vantaCanvas.style.filter = "drop-shadow(0 0 12px rgba(0,255,255,0.7))";
+            vantaCanvas.style.willChange = "transform";
+        }
+
+        var initialPinchDist = null;
+        var baseScale = 1.0;
+        var isPinching = false;
+        var lastTouchX = 0;
+        var lastTouchY = 0;
+
+        function simulateMouseMove(x, y) {
+            window.dispatchEvent(new MouseEvent('mousemove', {
+                clientX: x,
+                clientY: y
+            }));
+        }
+
+        if (isMobile) {
+            document.addEventListener('touchstart', function(e) {
+                if (e.touches.length === 2) {
+                    e.preventDefault();
+                    initialPinchDist = Math.hypot(
+                        e.touches[0].clientX - e.touches[1].clientX,
+                        e.touches[0].clientY - e.touches[1].clientY
+                    );
+                    baseScale = scaleValue;
+                    isPinching = true;
+                } else if (e.touches.length === 1) {
+                    var touch = e.touches[0];
+                    lastTouchX = touch.clientX;
+                    lastTouchY = touch.clientY;
+                    simulateMouseMove(lastTouchX, lastTouchY);
+                }
+            }, { passive: false });
+
+            document.addEventListener('touchmove', function(e) {
+                if (isPinching && e.touches.length === 2) {
+                    e.preventDefault();
+                    var newDist = Math.hypot(
+                        e.touches[0].clientX - e.touches[1].clientX,
+                        e.touches[0].clientY - e.touches[1].clientY
+                    );
+                    if (initialPinchDist > 0) {
+                        var scaleChange = newDist / initialPinchDist;
+                        var newScale = Math.max(0.6, Math.min(2.2, baseScale * scaleChange));
+                        if (Math.abs(newScale - scaleValue) > 0.01) {
+                            scaleValue = newScale;
+                            effect.setOptions({ scale: scaleValue });
+                        }
+                    }
+                } else if (!isPinching && e.touches.length === 1) {
+                    var touch = e.touches[0];
+                    lastTouchX = touch.clientX;
+                    lastTouchY = touch.clientY;
+                    simulateMouseMove(lastTouchX, lastTouchY);
+                }
+            }, { passive: false });
+
+            document.addEventListener('touchend', function(e) {
+                if (e.touches.length < 2) {
+                    initialPinchDist = null;
+                    isPinching = false;
+                }
+                if (e.touches.length === 1) {
+                    var touch = e.touches[0];
+                    lastTouchX = touch.clientX;
+                    lastTouchY = touch.clientY;
+                    simulateMouseMove(lastTouchX, lastTouchY);
+                }
+            });
+
+            var lastTapTime = 0;
+            document.addEventListener('touchend', function(e) {
+                var now = Date.now();
+                if (now - lastTapTime < 300 && e.target) {
+                    e.preventDefault();
+                }
+                lastTapTime = now;
+            }, { passive: false });
+        }
+
+        document.addEventListener('gesturestart', function(e) { e.preventDefault(); });
+        document.addEventListener('gesturechange', function(e) { e.preventDefault(); });
+        document.addEventListener('gestureend', function(e) { e.preventDefault(); });
+
+        (function() {
+            if (localStorage.getItem('bgMusicPlayed')) return;
+            const audio = document.getElementById('bgAudio');
+            if (!audio) return;
+            audio.loop = false;
+            audio.volume = 0.85;
+            let isMutedFallback = false;
+            audio.play().then(() => {
+                localStorage.setItem('bgMusicPlayed', 'true');
+            }).catch(() => {
+                audio.muted = true;
+                return audio.play();
+            }).then(() => {
+                if (audio.muted) {
+                    isMutedFallback = true;
+                    localStorage.setItem('bgMusicPlayed', 'true');
+                    const unmuteHandler = () => {
+                        if (isMutedFallback && audio.muted) {
+                            audio.muted = false;
+                            audio.play().catch(() => {});
+                            isMutedFallback = false;
+                        }
+                        window.removeEventListener('pointerdown', unmuteHandler);
+                        window.removeEventListener('keydown', unmuteHandler);
+                    };
+                    window.addEventListener('pointerdown', unmuteHandler, { once: true });
+                    window.addEventListener('keydown', unmuteHandler, { once: true });
+                }
+            }).catch(() => {});
+        })();
+    </script>
+</body>
+</html>
